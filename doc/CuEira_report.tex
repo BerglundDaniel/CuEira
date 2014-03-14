@@ -1,13 +1,13 @@
 \documentclass[10pt,a4paper]{article}
-\usepackage[swedish,english]{babel}
+\usepackage[english,swedish]{babel}
 \usepackage{amsmath}
 \usepackage{graphicx}
-\usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[font=small,format=plain,labelfont=bf,up,textfont=it,up]{caption}
 \usepackage[nottoc]{tocbibind}
 \usepackage{url}
 \usepackage{courier}
+\usepackage[T1]{fontenc}
 \usepackage[titles]{tocloft}
 \usepackage{subfig}
 
@@ -17,33 +17,256 @@
 \renewcommand{\textfraction}{0.1}
 \renewcommand{\floatpagefraction}{0.75}
 
-\title{CuEira}
+\makeatletter
+\newcommand\ackname{Acknowledgements}
+\if@titlepage
+  \newenvironment{acknowledgements}{
+      \titlepage
+      \null\vfil
+      \@beginparpenalty\@lowpenalty
+      \begin{center}%
+        \bfseries \ackname
+        \@endparpenalty\@M
+      \end{center}}%
+     {\par\vfil\null\endtitlepage}
+\else
+  \newenvironment{acknowledgements}{
+      \if@twocolumn
+        \section*{\abstractname}
+      \else
+        \small
+        \begin{center}
+          {\bfseries \ackname\vspace{-.5em}\vspace{\z@}}
+        \end{center}
+        \quotation
+      \fi}
+      {\if@twocolumn\else\endquotation\fi}
+\fi
+\makeatother
+
+\title{CuEira, gene-enviroment interaction analysis on GPU}
+\author{Daniel Berglund}
+\date{March 2014}
 
 \begin{document}
-
 \maketitle
+
+\clearpage
 \selectlanguage{english}
 \begin{abstract}
-  This is a skeleton for KTH theses. More documentation
-  regarding the KTH thesis class file can be found in
-  the package documentation.
-
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris
-purus. Fusce tempor. Nulla facilisi. Sed at turpis. Phasellus eu
-ipsum. Nam porttitor laoreet nulla. Phasellus massa massa, auctor
-rutrum, vehicula ut, porttitor a, massa. Pellentesque fringilla. Duis
-nibh risus, venenatis ac, tempor sed, vestibulum at, tellus. Class
-aptent taciti sociosqu ad litora torquent per conubia nostra, per
-inceptos hymenaeos.
+Abstract på svenska
 \end{abstract}
 \clearpage
+\selectlanguage{english}
+\begin{abstract}
+Abstract in english
+\end{abstract}
+\clearpage
+%\begin{acknowledgements}
+%Asdf
+%\end{acknowledgements}
+%\clearpage
 \tableofcontents
 \newpage
 
 \section{Introduction}
-Asdf\cite{cuda}
+
+\subsection{Genome-wide association studies}
+Genome-wide association studies(GWAS) is a common type of study to search for associations between genetic markers and diseases. Classicaly it doesn't consider interaction between the genetic markers nor enviromental factors. Gene-gene interaction is becoming more common but is constrained by computational problems. Interaction between genes and enviromental factors are considered imporant for complex diseas such as cancer and autoimmune diseases. \cite{cordell_detect_review, geira, ra_smoking}\\
+\\
+These types of studies are usually either cohort or case-control. In cohort studies a sample of a population who don't have the disease is followed. Variables that are suspected to be releveant for the disease is measured and over time some of the individuals will get the disease. The data collected can then be used to find risk factors. In case-control studies two groups are compared to find risk factors. One group consists of individuals with the disease and the other of individuals that are similar to the cases but that doesn't have the disease. \cite{mann_observational}\\
+\\
+The genetic markers are commonly single-nucleotide polymorphisms(SNPs). SNPs are variations in the genome where a single Nucleotide differs between individuals in a population\cite{fareed_snp}. Enviromental factors can be various things such as smoking, physical activity and so on. The amount of data is usually thousands individuals and hundred thousands or millions SNPs. Due to the high number of SNPs few programs investigate more than second order interaction, a few can handle more but not without drawbacks. \cite{gwis,high_order_2012,fast_high_order_cluster}.
+
+SNPs are binary variables.
+While enviromental can be any type. Most research have focused on gene-gene rather than gene-enviroment so few applications can only use binary variables. 
+\cite{gene_enviroment_2013}
+
+\subsection{Defining Interaction}
+What do we mean with interaction between factors? There are numerous definitions of the term. The overall goal is usually to find if \emph{biological} interaction is present. Biological interaction is when the factors co-operate through a physiological or biological mechanism and causes the effect (eg. Disease). This is useful since it's the true interaction in some sense and we can use it to explain the mechanisms involved and possibly find cures for diseas. However it's not well defined and\\
+\\
+\emph{Statistic} interaction on the other hand is much more well defined. The downside is that it's scale dependant, ie. interactions can appear and disappear based on transformations of the data. It also depends on the model used.
+
+-Multiplicative
+-Additive
+
+Casual/biological
+
+fisher
+
+\subsection{GEIRA and JEIRA}
+GEIRA is a tool for analysing gene-gene and gene-enviroment interaction. GEIRA uses additive interaction instead of multiplicative, commonly multiplicative interaction is used \cite{geira}. JEIRA is a parallelized immplementation of the enviromental interaction analysis in GEIRA. However it can only use one node.
+
+
+
+\subsection{Asdf}
+Lägg på nåt bra ställe
+Most research have focused on gene-gene interaction so there are few tools for gene-enviroment. Gene-gene interaction tools can sometimes be used to find gene-enviroment interaction but . The number of combinations is muc smaller since the enviromental factors are usually few, this makes exhaustive search possible.
+
+
+
+
+
+\section{Background}
+%Mathematical and physical bck (equations etc.)
+%Algorithmic bck and concepts (e.g scalability, speedup etc.)
+%computer architecture bck(describe CPU and GPU differences etc.)
+
+\subsection{Contingency Tables}
+A contingency table is a matrix used to describe categorical data. Each cell contains the frequency of occurances with a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 3 table. From it we can for instance see that 171 persons that got the placebo had an nonfatal attack. Contingency tables are the basis for various statistical tests to model the data. \cite{agresti_categorical}
+
+\begin{table}
+\begin{tabular}{ l c c c }
+  \hline
+  & Fatal Attack & Nonfatal Attack & No Attack\\
+  \hline
+  Placebo & 18 & 171 & 10 845 \\
+  Aspirin & 5 & 99 & 10 933 \\
+  \hline  
+\end{tabular}
+\caption{Contingency table describing the outcome of a medical study, from \cite{agresti_categorical}}
+\label{table:contingency_table}
+\end{table}
+
+\subsubsection{Tests on Tables}
+chi2
+
+\subsubsection{Test for interaction vs Test for allowing interaction}
+boost saken
+
+hur funkar det med machine learning approaches?
+
+\subsubsection{Logisitic and Log-linear Regression}
+For logisic regression its Binomial
+
+log lineare is Possion
+
+\subsubsection{Relative risk and odds ratio}
+
+\subsubsection{Weighted Logistic Regression}
+
+\subsection{Data Mining Approaches}
+Other approaches are based on Data Mining and Machine Learning. For GWAS Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and Random Forest(RF)\cite{random_forest} are among the most common\cite{gene_enviroment_2013}. There are others as well such as clustering approaches \cite{fast_high_order_cluster}.\\
+\\
+Their biggest advantage is that they are often nonparametric, model free and usually designed with high dimensional data in mind.
+\\
+The downside is that they
+
+\subsubsection{Multifactor-Dimensionality Reduction}
+MDR is \cite{mdr_2001}
+It has been used for gene-enviroment interaction\cite{gene_enviroment_2013}
+
+Validation is done through cross validation and permutation tests so even though the method is fast MDR is a bit slow due to all the repetion.
+
+\subsubsection{Random Forest}
+RF is \cite{random_forest}
+
+One of the most popular variants of Random Forest for GWAS is Random Jungle.\cite{random_jungle}
+\\
+However Random Forest has several problems with enviromental factors. \cite{gene_enviroment_2013}
+
+\subsection{Cross Validation, Boosting and Permutation Tests}
+Cross Validation is a common technique for validation in Machine Learning.\\
+\\
+Boosting and Permutation Tests are similar.
+
+\subsection{Computer Architecture}
+
+\subsubsection{CPU}
+how do they look/work?
+
+\subsubsection{GPU}
+how do they look/work?
+
+cuda\cite{cuda}
+
+\subsubsection{Effcient CUDA}
+To write
+One of the main critizm against GPUs for general computing is that it's hard to get good performance. Requires good knowledge about details, specially memory architecture.
+
+assync memory
+-streams, conccurent kernels
+
+avoid bank conflicts
+
+little communctiation
+
+minmize divergence
+
+use correct memory
+-global
+-shared
+-constant
+
+textures
+-previously imporant, doesn't matter much on modern gpus
+
+libraries
+-cublas
+-magma
+-thrust
+-parray
+-culatools
+
+other
+-message parrsing, openMPI
+-lib verbs, infiband
+-pthreads
+-openMP
+
+\cite{cuda, cuda_best_practice}
+
+\subsection{Performance Measures}
+law thingy
+
+speedup
+
+scalability
+
+\section{Algorithm}
+%Algorithm (up till 20 pages)
+%  - Current state - Basic algorithm, Data structure, memory consumption, parallelization, load balancing and scalability
+%  - And the same for own your implementation
+
+%CURRENT
+
+types of stuff, see that good article with intro
+
+problem with exathsutive
+
+memory problems(GENIE, CUDALR and so on)
+
+2 bit 3 bit data storage
+
+two stage analysis
+
+%MY IMPLEMENTATION
+exhaustive or second stage.
+
+\subsection{Why GPU?}
+Most of the appraoches are embarsingly paralllel. Each combination independent. Lots and lots of combinations. GPUs provided a lot of power compared to CPU. They are proven for GWAS. Lots of use with high gains.
+
+\section{Results}
+%Results (up till 15 pages including plots)
+%  - Performance measurements (scalability, speedup and efficiency as well as load balancing)
+%  - Setup(simulation setup, compilers and hardware setup)
+%  - Single node performance
+%  - multy-node performance
+
+
+\section{Discussion and Conclusions}
+%Discussion and Conclusions (up to 3 pages)
+
+
+\section{Outlook}
+%Outlook (up to one page)
+
+\section{Appendix}
+%List of figs
+%List of tables
+
 
 \newpage
 \bibliographystyle{ieeetr}
-\bibliography{hpc.bib,statistics.bib}
+\bibliography{hpc.bib,statistics.bib,misc.bib}
 \end{document}

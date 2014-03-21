@@ -71,23 +71,25 @@ Abstract in english
 \newpage
 
 \section{Introduction}
-\subsection{Epidemiology}
-Epidemiology combines several discplines, bioinformatics, computer science, statistics and sociology.
+%\subsection{Epidemiology}
+%Epidemiology is the study of 
 
-\cite{rothman1998modern,rothman2002intro_epidemiology}
+%It combines
+
+%\cite{rothman1998modern,rothman2002intro_epidemiology}
 
 \subsection{Genome-wide association studies}
 Genome-wide association studies(GWAS) is a common type of study to search for associations between genetic markers and diseases. Classicaly it doesn't consider interaction between the genetic markers nor enviromental factors. Gene-gene interaction has started to become more common\cite{cordell_detect_review}, however gene-enviroment is still uncommon\cite{gene_enviroment_2013}. Interaction between genes and enviromental factors are considered imporant for complex diseas such as cancer and autoimmune diseases. \cite{cordell_detect_review, gene_enviroment_2013, geira, ra_smoking}\\
 \\
-Gene-gene interaction is constrained mostly by computational problems\cite{cordell_detect_review}. Gene-enviroment interaction faces a number of challegnes.
-
-
 
 These types of studies are usually either cohort or case-control. In cohort studies a sample of a population who don't have the disease is followed. Variables that are suspected to be releveant for the disease is measured and over time some of the individuals will get the disease. The data collected can then be used to find risk factors. In case-control studies two groups are compared to find risk factors. One group consists of individuals with the disease and the other of individuals that are similar to the cases but that doesn't have the disease. \cite{rothman1998modern,mann_observational}\\
 \\
 The genetic markers are commonly single-nucleotide polymorphisms(SNPs). SNPs are variations in the genome where a single Nucleotide differs between individuals in a population\cite{fareed_snp}. Enviromental factors can be various things such as smoking, physical activity and so on. The amount of data is usually thousands individuals and hundred thousands or millions SNPs. Due to the high number of SNPs few programs investigate more than second order interaction, a few can handle more but not without drawbacks. \cite{gwis,high_order_2012,fast_high_order_cluster}.\\
 \\
-SNPs are binary variables which is an advantage that is often used when searching for gene-gene interaction. They are binary since the three possible combinations of allels(AA, Aa, aa)  can be represtend as 1,1,0 if its dominat model and 0,0,1 if its ressive\cite{}. Enviromental factors can be of any type\cite{gene_enviroment_2013}. Enviromental factors can also change over time(eg a person can stop smoking, move to a different area) while a persons genome reamains more or less constant.
+Gene-gene interaction is constrained mostly by computational problems\cite{cordell_detect_review}. Gene-enviroment interaction faces a number of challegnes.
+
+
+
 
 \subsection{Defining Interaction}
 What do we mean with interaction between factors? There are several definitions of the term\cite{rothman2002intro_epidemiology}. The overall goal is usually to find if \emph{biological} interaction is present. Biological interaction is when the factors co-operate through a physiological or biological mechanism and causes the effect (eg. Disease). This is useful since it's the true interaction in some sense and we can use it to explain the mechanisms involved and possibly find cures for diseas. However it's not well defined, it's not something we can calculate directly from data.\cite{rothman1998modern,rothman2002intro_epidemiology}\\
@@ -101,7 +103,7 @@ It's called biological interaction by Rothman\cite{} and can also be called \emp
 %Something about sufficnt cause?
 
 \subsection{Confounders and Covarietes}
-Confounding is one of the central issues in the design of epidemiologic studies. It's when the effect of the exposure is mixed with the effect of another variable. So if we don't measure the second variable the first effect would be estimated as stronger than it really is. The second varialbe is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorperated into the models \cite{rothman2002intro_epidemiology}
+Confounding is one of the central issues in the design of epidemiologic studies. It's when the effect of the exposure is mixed with the effect of another variable. So if we don't measure the second variable the first effect would be estimated as stronger than it really is. The second varialbe is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorperated into the models.\cite{rothman2002intro_epidemiology}
 
 \begin{figure}[h]
     \centering
@@ -112,7 +114,7 @@ Confounding is one of the central issues in the design of epidemiologic studies.
 
  \cite{rothman1998modern}
 
-Covarietes are similiar to confounders.
+Covarietes are possible confounders. Somtimes covariets are called control variables.
 
 \subsection{GEIRA and JEIRA}
 GEIRA is a tool for analysing gene-gene and gene-enviroment interaction. GEIRA uses additive interaction instead of multiplicative, commonly multiplicative interaction is used\cite{geira}. JEIRA is a parallelized immplementation of the enviromental interaction analysis in GEIRA. However it can only use one node.
@@ -123,18 +125,18 @@ GEIRA is a tool for analysing gene-gene and gene-enviroment interaction. GEIRA u
 %Algorithmic bck and concepts (e.g scalability, speedup etc.)
 %computer architecture bck(describe CPU and GPU differences etc.)
 
-There are a lot of algorithms and programs proposed for searching for interaction. They can be rougly classiefed into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}. One of the big differences between methods is wether they are testing for interaction or testing for allowing interaction, see section \ref{test_type} for details. In short it's bla bla\\
+There are a lot of algorithms and programs proposed for searching for interaction. They can be rougly classiefed into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}. One of the big differences between methods is wether they are testing for interaction or testing for allowing interaction, see section \ref{test_type} for details. In short it's testing if there is interaction or if there might be interaction.\\
 \\
-Exhaustive search is the most obvious approach, they compare all combinations of the SNPs in the data. They don't risk missing a combination but it also means they can be slow. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and BOOST\cite{boost_gene_gene} are two examples.
+Exhaustive search is the most obvious approach, they compare all combinations of the SNPs in the data. They don't risk missing a combination but it also means they can be slow. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and BOOST\cite{boost_gene_gene} are two examples.\\
 \\
-Stochastic methods uses random sampling to walk throught the data. BEAM\cite{beam_2007} is one example and it uses Markov Chain Monte Carlo(MCMC) to .
+Stochastic methods uses random sampling to ``walk'' throught the data. BEAM\cite{beam_2007} is one example and it uses Markov Chain Monte Carlo(MCMC) to .
 \\
-Machine Learning and Data Mining methods are 
-MDR\cite{mdr_2001} and Random Forest\cite{random_jungle}
+Machine Learning and Data Mining methods are methods from computer science. They are 
+MDR\cite{mdr_2001} is the among the most common methods used in GWAS that is a computer science approach. See section \ref{data_machine_learning} for more details.\\
 \\
-Stepwise approaches uses a filtering stage and a search stage. At the filtering stage uninterestings combinations are filtered out by using some exhaustive method. The other SNPs are the examined more carefully in the search stage. BOOST\cite{boost_gene_gene} is an example.
+Stepwise approaches uses a filtering stage and a search stage. At the filtering stage uninterestings combinations are filtered out by using some exhaustive method. The other SNPs are the examined more carefully in the search stage. BOOST\cite{boost_gene_gene} is an example which uses clever datastructures and a likelihood ratio test to filter the data.\\
 \\
-Most research have focused on gene-gene interaction so there are few tools for gene-enviroment. Gene-gene interaction tools can sometimes be used to find gene-enviroment interaction, however they usually require the variable to be binary or have other problems since they weren't designed for gene-enviroment interaction\cite{gene_enviroment_2013}.\\
+Most research have focused on gene-gene interaction so there are few tools for gene-enviroment. SNPs are binary variables which is an advantage that is almost always used when searching for gene-gene interaction. They are binary since the three possible combinations of allels(AA, Aa, aa)  can be represtend as 1,1,0 if its dominat model and 0,0,1 if its ressive\cite{}. Enviromental factors can be of any type\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-enviroment interaction, however they usually require the variable to be binary or have other problems since they weren't designed for gene-enviroment interaction\cite{gene_enviroment_2013}. Enviromental factors can also change over time(eg a person can stop smoking, move to a different area) while a persons genome reamains more or less constant. Measurment errors also affect them a bit more and the gene-enviroment interactios that have been found show low power\cite{}.\\
 \\
 Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012} have been used for GWAS but GPUs are the most popular choice. Most of the methods for searching for interaction are inherintly good on GPUs because each combination can usually be considered independtly from the others. More about this in the section about computer architecture.
 
@@ -155,12 +157,12 @@ A contingency table is a matrix used to describe categorical data. Each cell con
 \end{table}
 
 \subsubsection{Logisitic and Log-linear Regression}
-For logisic regression its Binomial\cite{agresti_categorical}
+For logisic regression the cells of the table are Binomial distributed.\cite{agresti_categorical}
 
-log lineare is Possion\cite{agresti_categorical}
+In log-linear models Possion distribution is used instead. \cite{agresti_categorical}
 
 \subsubsection{Weighted Logistic Regression}
-Need to find the details on this.
+Need to find the details on this. Each individual is assigned a weight that can be any postive number. 
 
 \subsubsection{Statistic Measures}
 Relative risk and odds ratio\cite{agresti_categorical}
@@ -171,19 +173,21 @@ AP
 
 Causual bond things
 
-\subsection{Data Mining Approaches}
-Approaches based on Data Mining and Machine Learning have been a popular choice for GWAS. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and Random Forest(RF)\cite{random_forest} are among the most common\cite{gene_enviroment_2013,cordell_detect_review}. There are others as well such as clustering approaches \cite{fast_high_order_cluster}. Most of the are used for screening the data for possible interactions\cite{gene_enviroment_2013,cordell_detect_review}.\\
+\subsection{Data Mining and Machine Learning Approaches}
+\label{data_machine_learning}
+Approaches based on Data Mining and Machine Learning have been a popular choice for GWAS. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and Random Forest(RF)\cite{random_forest} are among the most common\cite{gene_enviroment_2013,cordell_detect_review}. There are others as well such as clustering approaches \cite{fast_high_order_cluster}. Most of them are used for screening the data for possible interactions\cite{gene_enviroment_2013,cordell_detect_review}.\\
 \\
 Their biggest advantage is that they are usually nonparametric, model free and designed with high dimensional data in mind.
 \\
 However they are prone to overfitting and the usual way to try to prevent that is to use cross valdiation and sometimes permutation tests. That means that even if the method itself is fast it's repeated so many times that it can be slow in the end\cite{cordell_detect_review}.
 
 \subsubsection{Multifactor-Dimensionality Reduction}
-Multifactor-Dimensionality Reduction(MDR) is \cite{mdr_2001}
-It has been used for gene-enviroment interaction\cite{gene_enviroment_2013}
+Multifactor-Dimensionality Reduction(MDR) is a method that reduces the number of dimensions by combining several dimensions into one. For GWAS it combines a number of variables from all the variable combinations and its new dimension is then compared against the outcome and if its predictibility is high then the variables that were combined are considred to interact with each other. It goes through all possible combinations of the desired rank like that. It combines the selected n variables by calculating the ratio of cases versus controls for each combination of the possible values of the variables. If the ratio is above a certain threshold all the members of that groups is gets the value 1 for the new dimension, otherwise 0. It's tested with cross valdiation and sometimes permutation tests so it can be slow but is still usually faster than exhaustive search with regression methods.\cite{cordell_detect_review,mdr_2001}\\
+\\
+It can been used for gene-enviroment interaction but requires modifications since MDR can only handle binary variables. There are extensions that can use continus variables.\cite{gene_enviroment_2013}
 
 \subsubsection{Random Forest}
-Random Forest(RF) is an ensemble learning method, ensemble metods combine multiple models to improve performance. It takes bootstrap samples of the data and builds descion trees on them. The trees are then combined to from the classifier. Usually hundres or thousands of trees are used depending on the problem\cite{random_forest}. One of the most popular variants of Random Forest for GWAS is Random Jungle.\cite{random_jungle}
+Random Forest(RF) is an ensemble learning method, ensemble metods combine multiple models to improve performance. It takes bootstrap samples of the data and builds descion trees on each of them. The trees are then combined to form the classifier. Usually hundres or thousands of trees are used depending on the problem\cite{random_forest}. One of the most popular variants of Random Forest for GWAS is Random Jungle.\cite{random_jungle}
 \\
 It has been shown in high dimensional data that it tends to only rank interacting factors high if they have strong marginal effects\cite{winham_rf_2012}. Also the ranking of the variables doesn't say which factor it's interacting with either since it's based on the joint distributions\cite{gene_enviroment_2013}. How to incorperate the enviromental factors in RF is also not trivial, using variables with very different scales can bias the results\cite{gene_enviroment_2013}.
 
@@ -198,10 +202,11 @@ Test for interaction is the test for the interaction parameter equal zero or not
 
 Test for allowing interaction on the other hand is . Aka test saturated vs block independance\cite{boost_gene_gene}.
 
-This means that test for allowing for interaction is easeier and faster to use so it's commonly used for screening methods. 
+This means that test for allowing for interaction is faster to use so it's commonly used for screening methods. 
 
 hur funkar det med machine learning approaches?
 
+\cite{cordell_detect_review}
 \clearpage
 \subsection{Computer Architecture}
 
@@ -250,7 +255,7 @@ other
 \cite{cuda, cuda_best_practice}
 
 \subsection{Performance Measures}
-law thingy
+law thingy amdhs law
 
 speedup
 
@@ -270,7 +275,7 @@ NVIDIA vs Intel performance claims, intel gets much lower than Nvidia. But who c
 
 Xeon Phi
 
-GPUs loses more when going from single precision to double than CPUs. Peak performance on tesla-kepler cards for single precision is around 4 Tflops while double precision is around 1.4 Tflops. \cite{nvtesla}\\ cite the table thing
+GPUs loses more when going from single precision to double than CPUs. Peak performance on tesla-kepler cards for single precision is around 4 Tflops while double precision is around 1.4 Tflops. \cite{nvtesla}\\ ref the table thing
 
 \section{Algorithm}
 %Algorithm (up till 20 pages)

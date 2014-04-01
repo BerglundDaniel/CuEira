@@ -88,7 +88,7 @@ The genetic markers are commonly single-nucleotide polymorphisms(SNPs). SNPs are
 %Nåt om epistatis här?
 
 \subsection{Defining Interaction}
-What do we mean with interaction between factors? There are several definitions of the term\cite{rothman2002intro_epidemiology}. The overall goal is usually to find if \emph{biological} interaction is present. Biological interaction is when the factors co-operate through a physiological or biological mechanism and causes the effect (eg. Disease). This is useful since it's the true interaction in some sense and we can use it to explain the mechanisms involved and possibly find cures for diseas. However it's not well defined, it's not something we can calculate directly from data.\cite{rothman1998modern,rothman2002intro_epidemiology}\\
+What do we mean with interaction between factors? There are several definitions of the term\cite{rothman2002intro_epidemiology}. The overall goal is usually to find if \emph{biological} interaction is present. Biological interaction is when the factors co-operate through a physiological or biological mechanism and causes the effect (eg. Disease). This is useful since it's the true interaction in some sense and we can use it to explain the mechanisms involved and possibly find cures for diseases. However it's not well defined, it's not something we can calculate directly from data.\cite{rothman1998modern,rothman2002intro_epidemiology}\\
 \\
 \emph{Statistic} interaction on the other hand is much more well defined. However it's scale dependant, ie. interactions can appear and disappear based on transformations of the data. It also depends on the model used(eg Logistic, Linear). The common way to define statistic interaction is as the presence of product terms between the factors in the statistical model, this is refred to as \emph{multiplicative} interaction. For instance for a linear model
 $$f(x,y)=ax+by+cxy+d$$
@@ -122,7 +122,7 @@ Most research have focused on gene-gene interaction so there are few tools for g
 \\
 Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}, in some cases GPU clusters\cite{} have been used for GWAS. GPUs have been a popular choice since most of the methods for searching for interaction are inherintly good on GPUs because each combination can usually be considered independently from the others. More about this in the section about computer architecture.\\
 \\
-There are a lot of algorithms and programs proposed for searching for interaction, most have focused on binary variables as already mentioned. They can be rougly classiefed into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}. One of the big differences between methods is wether they are testing for interaction or testing for allowing interaction, see section \ref{test_type} for details. In short it's testing if there is interaction or if there might be interaction.\\
+There are a lot of algorithms and programs proposed for searching for interaction, most have focused on binary variables as already mentioned. They can be rougly classiefed into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}. One of the differences between methods is wether they are testing for interaction or testing for allowing interaction, see section \ref{test_type} for details. In short it's testing if there is interaction or if there is an effect from either factor or from interaction.\\
 \\
 Exhaustive search is the most direct approach, they compare all combinations of the SNPs in the data. They don't risk missing a combination but it also means they can be slow. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and BOOST\cite{boost_gene_gene} are two examples.\\
 \\
@@ -133,7 +133,7 @@ Machine Learning and Data Mining methods are methods from computer science. They
 Stepwise approaches uses a filtering stage and a search stage. At the filtering stage uninterestings combinations are filtered out by using some exhaustive method. The other SNPs are the examined more carefully in the search stage. BOOST\cite{boost_gene_gene} is an example which uses clever datastructures and a likelihood ratio test to filter the data.
 
 \subsection{Contingency Tables}
-A contingency table is a matrix used to describe categorical data. Each cell contains the frequency of occurances with a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 3 table. From it we can for instance see that 171 persons that got the placebo had an nonfatal attack. Contingency tables are the basis for various statistical tests to model the data. Contingency tables can be used directly for tests like $chi^2$. \cite{agresti_categorical}
+A contingency table is a matrix used to describe categorical data. Each cell contains the frequency of occurances with a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 3 table. From it we can for instance see that 171 persons that got the placebo had an nonfatal attack. Contingency tables are the basis for various statistical tests to model the data. Contingency tables can be used directly for tests like $chi^2$.\cite{agresti_categorical}
 
 \begin{table}[h]
 \begin{tabular}{ l c c c }
@@ -165,11 +165,12 @@ relative risk due to interaction
 
 AP
 
-Causual bonds
+Causual bonds\cite{causal_bounds_arvid}
 
-Multiple testing hypothesis \cite{bonferroni_multiple}\\
+\subsubsection{The Multiple Testing Problem}
+It's not uncommon to test a lot of various hypothesis on the same data and in the case of GWAS in can be billions of tests. If we just go continue testing we should eventually find something that is significant and we do expect to find 1 in 20 false positives assuming the null hypothesis is true. The problem arise from the fact that the hypothesis tests are independt from each other since they use parts of the same data.. This is the multiple testing problem and it's something that should be corrrected for.\cite{bonferroni_multiple}\\
 \\
-Bonferroni correction is the simplest and viewed as the most conservative way to deal with it, simply divided the p-value that a tests passes with the number of hypothesis. How many hypothesis are made isn't always obvious. For instance for a two stage analysis of GWAS data. Is the number of hypothesis the number of tests done in both stages combined, the number made in the first stage or possibly the second stage?\cite{bonferroni_multiple}
+Bonferroni correction is the simplest and viewed as the most conservative way to correct for this problem, simply divided the p-value threshold that a tests passes with the number of hypothesis. However how many hypothesis that are made isn't always obvious. For instance for a two stage analysis of GWAS data. Is the number of hypothesis the number of tests done in both stages combined, the number made in the first stage or the second stage?\cite{bonferroni_multiple}
 
 \subsection{Data Mining and Machine Learning Approaches}
 \label{data_machine_learning}
@@ -220,7 +221,7 @@ An simple example of MDR using exclusive or(XOR). It's an logical operator that 
 It can been used for gene-enviroment interaction but requires modifications since MDR can only handle binary variables. There are extensions that can use continus variables, however they are regression based so they will be slower than regular MDR.\cite{gene_enviroment_2013}
 
 \subsubsection{Random Forest}
-Random Forest(RF) is an ensemble learning method, ensemble metods combine multiple models to improve performance. It takes bootstrap samples of the data and builds descion trees on each of them. The trees are then combined to form the classifier. Usually hundres or thousands of trees are used depending on the problem\cite{random_forest}. One of the most popular variants of Random Forest for GWAS is Random Jungle.\cite{random_jungle}
+Random Forest(RF) is an ensemble learning method, ensemble metods combine multiple models to improve performance. It takes bootstrap samples of the data and builds descion trees on each of them. The trees are then combined to form the classifier. Usually hundres or thousands of trees are used depending on the problem\cite{random_forest}. One of the most popular variants of Random Forest for GWAS is Random Jungle\cite{random_jungle}.
 \\
 It has been shown in high dimensional data that it tends to only rank interacting factors high if they have strong marginal effects\cite{winham_rf_2012}. Also the ranking of the variables doesn't say which factor it's interacting with either since it's based on the joint distributions\cite{gene_enviroment_2013}. How to incorperate the enviromental factors in RF is also not trivial, using variables with very different scales can bias the results\cite{gene_enviroment_2013}.
 
@@ -237,11 +238,18 @@ Test for allowing interaction on the other hand is . Aka test saturated vs block
 
 Depedning on model test for allowing interaction can be faster so it's often used in screening methods, although the term can be a bit fuzzy for non linear regression models. \cite{cordell_detect_review}
 
+In other words test for allowing interaction tests if there is a main effect from either factor or interaction.
+
+\subsection{More Math}
+Where to put these parts?\\
+\\
+Pseudeo inverse
+
+Matrix decomposition
+
 \clearpage
 \subsection{High Performance Computing}
 High Performance Computing(HPC) is a branch of computer science that focuses on developing supercomputers and related software. Since they are parallel a big area is how to paralleliz various algorithms.
-
-top 500\cite{TOP500}
 
 More than flops/sec
 
@@ -263,10 +271,10 @@ Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of
 Efficeny reflects how effcient the program is using p threads. It's defined as
 $$E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}$$
 \\
-Scalability refers to how good the program handles increased .
-Weak and strong scaling
-
+Strong scaling refers to how the program handles a fixed problem size and increased number of processors. An program with strong scaling has linear speedup. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased.\cite{cuda_best_practice}\\
+\\
 Make graphs with number of nodes vs speed, number of cpus vs speed, and so on to show scalability. Also make graphs of data size vs speed to show it handle various data sizes.
+%TODO
 
 \subsubsection{Amdahls Law and Gustafsons Law}
 Amdahls Law is used to find the maximum expected speed up of a system when parts of it won't or can't be parallized. Simply it says that as the number of processors increases the parts that aren't parallized will start taking up more and more of the wall clock time and that the speedup for adding more processors will decrease as more and more processors are added and more time is spent relativly on the non parallized part.\\
@@ -301,16 +309,18 @@ $$S(p)=p-F(p-1)$$
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=11cm]{Gustafson2.png}
-    \caption{Illustration of Gustafsons Law. Wikipedia Commons}
+    \includegraphics[width=13cm]{GustafsonsLaw.png}
+    \caption{Illustration of Gustafsons Law}
     \label{fig:GustafsonsLaw}
 \end{figure}
 
 \subsubsection{Profilers}
-Profilers are programs that are made to assses the programs performance and resource consumption. They calculate some of the measures mentioned above and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlnecks and other problems in the program. It doesn't matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufacutres usually provided them for their products. For instance NVIDIA provides profilers for programs that use CUDA.
+Profilers are programs that are made to assses the programs performance and resource consumption. They calculate some of the measures mentioned above and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlnecks and other problems in the program. It doesn't matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products. For instance NVIDIA provides profilers for programs that use CUDA.
 
 \subsubsection{Clusters}
 Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communciate over a shared network but have seperate memory and procesors. Storage is usually shared. A computer in a cluster is called a \emph{node}. \cite{intro_hpc}
+
+top 500\cite{TOP500}
 
 Mix of gpus and cpu are common. So the GPUs can do the heavy computation while other parts are used on CPU.
 
@@ -326,7 +336,6 @@ Picture of Tianhe-2 here
 
 \clearpage
 \subsection{Computer Architecture}
-
 Most computers today have a multicore architecture
 means several processors share the main memory and othe reaousrces. they can coperate on the same problem but it they are cordinated on a case by case basis since each algorithm requires different sharing.
 
@@ -354,6 +363,9 @@ schematic here
 branch prediction
 prefetching
 
+gpus might be hard but cpus aren't trivial either for HPC
+correct use of caches is very important\cite{drepper2007cpumemory}
+
 \subsubsection{Accelerators, GPU and Xeon Phi}
 Graphics processing unit(GPU) have become more popular for general computing the last 10 years.
 
@@ -361,51 +373,14 @@ The table from the cuda guide with performance of GPU vs CPU.\cite{cuda}
 
 something about single and double precision
 
-structure
+structure of gpu
 
 Xeon Phi, intel mic
+knights landing, interesting new development from intel.
 
-structure
+structure of mic
 
-\paragraph{Hetrogenous programming model}
-Hetrogenous programming model is used when seperate memory for CPU and GPU.
-
-\paragraph{CUDA libraries}
-%TODO to have or not to have?
-There are several libraries that extend CUDA available.
-
--cublas
--magma
--thrust
--culatools
-
-
-%TODO vart ska det här vara?
-\paragraph{Efficient CUDA}
-One of the main critizm against GPUs for general computing purposes is that it's hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. There are a few things to keep in minde when writing CUDA programs.\\
-\\
-assync memory
--streams, conccurent kernels
-
-avoid divergence, aka if statments
-
-avoid bank conflicts
-
-avoid transfers between host and device
-
-minmize divergence
-
-use correct memory
--global
--shared
--constant
-
-textures
--previously imporant, doesn't matter much on modern gpus
-
-\cite{cuda, cuda_best_practice}
-
-\subsection{Which program for GPU and which for CPU?}
+\subsubsection{Which program for GPU and which for CPU?}
 This a big question. As with a lot of things it depends on the algorithm to implement etc.
 
 NVIDIA vs Intel performance claims, intel gets much lower than Nvidia. But who can you trust really?
@@ -416,7 +391,80 @@ Xeon Phi is an altnerative
 
 GPUs loses more when going from single precision to double than CPUs. Peak performance on tesla-kepler cards for single precision is around 4 Tflops while double precision is around 1.4 Tflops. \cite{nvtesla}\\ ref the table thing
 
-In short GPUs excel at linear algebra.
+In short GPUs excel at linear algebra but Intel MIC is probably a good alternative for it to.
+
+\subsubsection{Why GPU for GWAS?}
+Most approaches to interaction analysis is embarasingly parallel since they consider each combination independtly from the others and they usually do a lot of linear algebra. That means that those algorithms are likely to work well on GPUs. Several studies got high gains from implementing their programs on GPU, however their CPU versions weren't parallelized so it's likely that the gains would have been less compared to an optimized and parallelized CPU version.\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} However one study made a CPU cluster version and a GPU version of an algorithm that uses $chi^2$ tests, they found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.%\\
+%\\
+%Possible exceptions could be algorithms that considers all combinations together since they would need more communcation.
+
+\subsubsection{CUDA programming model}
+warps threads and stuff about CUDA
+
+SIMT
+
+Hetrogenous programming model is used when seperate memory for CPU and GPU.
+
+\subsubsection{Efficient CUDA}
+One of the main critizm against GPUs for general computing purposes is that it's hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. Here are somethings that needs to be considered when writing GPU programs.\cite{plink_gpu, cuda, cuda_best_practice}
+\\
+\begin{description}
+  \item[Maximize parallelism] \hfill \\
+  Structure the program and the algorithm in such a way that it's as parallel as possible and overlap the serial parts on CPU with calculations on the GPU.\cite{plink_gpu, cuda}
+  \item[Minimize transfers between host and device] \hfill \\
+  Moving data between host and device is expensive and should be avoided if possible. It can be better to run serial parts on the GPU rather than moving the data to the host to do the calculation on the CPU. The bandwidth between host and device is one of the large performance bottlnecks. This can be a problem when the data is to large to fit in the relativly small GPU dram.\cite{cuda, cuda_best_practice}
+  \item[Find the optimal number of blocks and threads] \hfill \\
+  There are a lot of things affected by the number of blocks and threads so they should be considered carefully. It's a good idea to parameterize them so that they can be changed for future hardware and varied for optimization. NVIDIA has an occupancy calculator which can be helpful in determining the optimal numbers, however high occupancy doesn't mean high performance.\cite{cuda, cuda_best_practice}\\
+  \\
+  The number of blocks should be larger than the number of multiprocessors so that all multiprocessors have atleast one block to execute. Having two blocks or more per multiprocessor can be good so that there are blocks that aren't waiting for a \_\_syncthreads() that can be executed. However this is not always possible due to shared memory usage and similar.\cite{cuda_best_practice}\\
+  \\  
+  The number of threads per block should be a multiplier of 32 but minimum 64. It's also important to rember that multiple concurrent blocks can reside on the same multiprocessor. To large number of threads in a block and parts of the multiprocessor might be idle since there aren't a block small enough to use those threads. Between 128 and 256 threads is a good place to start.\cite{cuda_best_practice}
+  
+
+  \item[Streams, concurrent kernels and asynchronous memory] \hfill \\
+  Use streams for the program.
+  
+  Use asynchronous memory transfers so that
+  However requires pinned memory on the host.
+  
+  Concurrent kernels
+  
+  
+  
+  \item[Use the correct memory on the GPU] \hfill \\
+  Correct use of caches and memory is important for CPU\cite{drepper2007cpumemory}. It's also imporant on GPUs but it gets more complicated since the caches are smaller and there are several types of memory.
+    \begin{itemize}
+    \item Global memory is the main memory of the GPU and is accessible from all threads and blocks. However it's relativly slow to access.
+    \item Shared memory is shared insided a block and is faster than global memory. However it's limited in size.
+    \item Constant memory is small however its cached so it's fast to access. It's read only and best used for small amount of variables that all threads access.
+    \item Local memory is tied to the threads scope, but it's still resides off-chip so it has the same access time as global memory.
+    \item Texture memory %TODO
+  \end{itemize}
+  \item[Avoid divergence] \hfill \\
+  Each thread in a warp executes the same instruction at the same time so if some of threads diverge the rest will be ideal until they are at the same instruction again. This means it's important to use control strucutres such as if statments carefully to prevent threads from idiling.\cite{cuda, cuda_best_practice}
+  \item[Avoid memory bank conflicts] \hfill \\
+  asdf %TODO
+  \item[Use texture memory if appropiate] \hfill \\
+  The texture memory is read-only and faster to access than global memory. However thisn't so important on modern GPUs with caches since the caches are as fast or faster than the texture memory.\cite{plink_gpu, cuda}
+  \item[Use existing libraries] \hfill \\
+  Instead of writing everything from scratch it's usually a good idea to use already existing libraries. Espeically when performance is important and most task are non trivial on GPUs so using an already optimized library is a good idea. Some of the most popular libraries for CUDA are:
+  \begin{itemize}
+    \item CUBLAS: BLAS implementation for CUDA\cite{cublas}
+    \item CULAtools: BLAS and LAPACK implementation for CUDA for both dense and sparse matrices\cite{culatools}
+    \item MAGMA: BLAS and LAPACK implementation among other things that can distribute the work on both CPU and GPU\cite{magma_2010}
+    \item Thrust: Template based library that tries to emulate C++ standard library\cite{thrust_gpu}
+  \end{itemize}
+  \item[Avoid slow instructions] \hfill \\
+  There are some instructions that can be slow and should be avoided if possible, for instance type conversion, integer division and modulo. If a function is called with a floating point number that might be used as a double and require a conversion. By putting an f at the end of the number it's told to be single precision float, for instance 0.5f. In some cases it's possible to use bitwise operations instead which is faster.\cite{cuda, cuda_best_practice}
+  \item[Restricted pointers can give increased performance] \hfill \\
+  Aliasing is a problem in some languages, it occures when two pointers point to the same place in memory and the code does operations on them at the same place. This means that operations that look like they can be done in any order actually can't and thus prevents the compiler to make optimizations. The problem is that the compiler has to take this in to account for all pointers even if no aliasing occurs because it might happen. By using the \_\_restrict\_\_ keyword on pointers the compiler can be told that no aliasing will occur, however it's up to the programmer to make sure that is the case or there might be strange results. Not using aliasing reduces the number of memory accesses the CPU needs to make. However it increases preasure on the register so it can have an negative effect on performance.\cite{cuda} Aliasing can be important to keep in mind for CPU code as well\cite{drepper2007cpumemory}.
+  \item[Use fast math functions if precision isn't needed] \hfill \\
+  There are two versions of runtime math functions. The ones of the type funcf() is slower but more accurate than \_funcf(). The option -use\_fast\_math forces all the funcf() to \_funcf().\cite{cuda_best_practice}
+\end{description}
+
+TODO
+Some stuff for multi gpu
+They dont share memory.
 
 \clearpage
 \section{Algorithm}
@@ -425,13 +473,6 @@ In short GPUs excel at linear algebra.
 %  - And the same for own your implementation
 
 %TODO nån typ av intro här
-
-\subsection{Why GPU for GWAS?}
-Most approaches to interaction analysis is embarasingly parallel since they consider each combination independtly from the others. That means that those algorithms are likely to work well on GPUs. Several studies got high gains from implementing their programs on GPU, however their CPU versiosn weren't parallelized so it could be that the peformance of the CPU versions could have been improved a lot from CPU parallelization.\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}\\
-\\
-However there have been studies where the authors implemented their algorithm on both CPU clusters and on a GPU. One study needed 16 CPU nodes to reach the same performance as a GTX 280 card\cite{jiang_accelerating}.
-
-%Exceptions? Possibly stuff like clustering than needs communcation
 
 %OTHERS
 %problem with exathsutive
@@ -444,18 +485,16 @@ However there have been studies where the authors implemented their algorithm on
 
 
 \subsection{Current algorithm}
-JEIRA uses
+JEIRA uses Java and it's built-in functions for concurrency.
 
 Producer consumer pattern
 
-Symmetric condfidence interval of additive effects.
+Strucuture picture here.
 
-%Performance analysis
+Symmetric condfidence interval of additive effects.
 
 %\subsection{Mine}
 %exhaustive and second stage.
-
-%first stage if there is time.
 
 \section{Results}
 %Results (up till 15 pages including plots)
@@ -467,7 +506,8 @@ Symmetric condfidence interval of additive effects.
 
 \section{Discussion and Conclusions}
 %Discussion and Conclusions (up to 3 pages)
-
+Need for novel methods for gene-enviroment interaction
+Need for methods for third order interaction or higher, for both gene-gene and gene-enviroment
 
 \section{Outlook}
 %Outlook (up to one page)

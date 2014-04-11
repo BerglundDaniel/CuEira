@@ -1,4 +1,4 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[10pt,a4paper]{report}
 \usepackage[english]{babel}
 \usepackage{amsmath}
 \usepackage{graphicx}
@@ -69,17 +69,17 @@ Abstract på svenska
 
 \clearpage
 \thispagestyle{empty}
-%\begin{acknowledgements}
-%Asdf
-%\end{acknowledgements}
+\begin{acknowledgements}
+Asdf
+\end{acknowledgements}
 
-%\clearpage
-\thispagestyle{empty}
+\clearpage
 \tableofcontents
+\thispagestyle{empty}
 
-\newpage
+\clearpage
 \setcounter{page}{1}
-\section{Introduction}
+\chapter{Introduction}
 %\subsection{Epidemiology}
 %Epidemiology is the study of 
 
@@ -87,7 +87,7 @@ Abstract på svenska
 
 %\cite{rothman1998modern,rothman2002intro_epidemiology}
 
-\subsection{Genome-wide association studies}
+\section{Genome-wide association studies}
 Genome-wide association study(GWAS) is a common type of study to search for associations between genetic markers and diseases. Classically it does not consider interactions between the genetic markers nor environmental factors. Investigating gene-gene interactions have started to become more common\cite{cordell_detect_review}, however gene-environment interactions are still uncommon\cite{gene_enviroment_2013}. Interactions between genes and environmental factors are considered to be important for complex diseases such as cancer and autoimmune diseases.\cite{cordell_detect_review, gene_enviroment_2013, geira, ra_smoking}\\
 \\
 These type of studies are usually either cohort or case-control. In cohort studies a sample of a population that does not have the disease is followed. Variables that are suspected to be relevant for the disease are measured and over time some of the individuals are getting the disease. The data collected can then be used to find the risk factors. In case-control studies two groups are compared to find the risk factors. One group consists of individuals with the disease and the other of individuals that are similar to the cases but do not have the disease.\cite{rothman1998modern,mann_observational}\\
@@ -102,10 +102,10 @@ The genetic markers are commonly single-nucleotide polymorphisms(SNPs). SNPs are
 %\\
 %However HPC is more than just flops/sec, especially since other parts of the computers aren't improving as fast as the computing power. Few applications today is even near peak performance due to various latency and bandwidth problems.
 
-\subsection{Defining Interaction}
+\section{Defining Interaction}
 There are several ways to define interaction. The overall goal is usually to find if \emph{biological} interactions are present. Biological interaction is when the factors co-operate through a physiological or biological mechanism and causes the effect, eg. disease. This information can be used to explain the mechanisms involved in causing the disease and possibly help to find cures for them. However biological interaction is not well defined and thus it is not possible to calculate it directly from data.\cite{rothman1998modern,rothman2002intro_epidemiology}\\
 \\
-\emph{Statistic} interaction on the other hand is well defined. However it is scale dependent, ie. interactions can appear and disappear based on transformations of the data. Statistic interaction also depends on the used model. The common way to define statistic interaction is to consider the presence of a product term between the factors in the statistical model, this is referred to as \emph{multiplicative} interaction. For instance for a linear model
+\emph{Statistic} interaction on the other hand is well defined. However it is scale dependent, ie. interactions can appear and disappear based on transformations of the data. Statistic interaction also depends on the used model. The common way to define statistic interaction is to consider the presence of a product term between the variables in the statistical model, this is referred to as \emph{multiplicative} interaction. For instance for a linear model
 $$f(x,y)=ax+by+cxy+d$$
 c is the product term that represents multiplicative interaction between variables x and y. Statistic interaction is often called just interaction which can make it a bit confusing.\cite{geira,rothman1998modern}\\
 \\
@@ -113,30 +113,32 @@ It can also be defined as the divergence from additive effects on a logarithmic 
 $$OR_{both\;factors\;present}>OR_{first\;factor\;present}+OR_{second\;factor\;present}-1$$
 More about odds ratios(OR) in the section about logistic regression. It's called biological interaction by Rothman\cite{rothman1998modern}, sometimes \emph{additive} interaction\cite{geira} or \emph{causual interdependence}\cite{greenland1988invariants} is used. In this work we will use the term \emph{causal} interaction as in \cite{causal_bounds_arvid}.\\
 
-\subsection{GEIRA and JEIRA}
+\section{GEIRA and JEIRA}
 GEIRA is a tool for analyzing gene-gene and gene-environment interaction. It uses logistic regression and causal interaction\cite{geira}. JEIRA is a parallelized implementation of the environmental interaction analysis in GEIRA. However it can only be run on one node.
 
 \clearpage
-\section{Mathematical Background}
-%Mathematical and physical bck (equations etc.)
-%Algorithmic bck and concepts (e.g scalability, speedup etc.)
-%computer architecture bck(describe CPU and GPU differences etc.)
+\chapter{Background}
+%TODO
+
 Most research have focused on gene-gene interaction so there are few tools for gene-environment.
 
-SNPs are binary variables which is an advantage that is almost always used when searching for gene-gene interaction. They are binary since the three possible combinations of alleles(AA, Aa, aa)  can be represented as 1,1,0 if its dominant model and 0,0,1 if its recessive\cite{}. 
+Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}, in some cases GPU clusters\cite{gwis_conf} have been used for GWAS. GPUs have been a popular choice since most of the methods for searching for interaction are good on GPUs because each combination can usually be considered independently from the others. More about this in section \ref{gpu_gwas}
 
 
-Environmental factors can be of any type\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variable to be binary or have other problems since they weren't designed for environmental data.\cite{gene_enviroment_2013}\\
+\section{Mathematical Background}
+SNPs are commonly binary variables with either dominant or recessive models. Dominant is when there has to be at least one of the allel have the trait to get the effect. Recessive is when there has to be both allels. The case where the risk is present is coded as 1 and absence is coded as 0. Co-dominant model can also be used and in that case when both allels have the risk factor is coded as 2, when only one is present is coded as 1 and absence is 0 as before. That SNPs can be viewed as binary is an advantage that is almost always used when searching for gene-gene interaction.\\
 \\
-There are a lot of algorithms and programs proposed for searching for interaction, most have focused on binary variables as already mentioned. They can be roughly classified into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}. Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}, in some cases GPU clusters\cite{gwis_conf} have been used for GWAS. GPUs have been a popular choice since most of the methods for searching for interaction are good on GPUs because each combination can usually be considered independently from the others. More about this in the section \ref{gpu_gwas}.\\
+Environmental factors can be of any type\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variable to be binary or have other problems since they weren't designed for environmental interaction.\cite{gene_enviroment_2013}\\
+\\
+There are a lot of algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned. They can be roughly classified into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}\\
 \\
 Exhaustive search is the most direct approach, they compare all combinations of the SNPs in the data. They do not risk missing a combination but it also means they can be slow. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and BOOST\cite{boost_gene_gene} are two examples.\\
 \\
 Stochastic methods uses random sampling to ``walk'' through the data. BEAM\cite{beam_2007} is one example and it uses Markov Chain Monte Carlo(MCMC).\\
 \\
-Machine Learning and Data Mining methods are methods from computer science. They are methods learn from data and tries to generalize it. MDR\cite{mdr_2001} is the among the most common methods used in GWAS that is a computer science approach. See section \ref{data_machine_learning} for more details.\\
+Data Mining and Machine Learning are methods that learn from data and tries to generalize it. MDR\cite{mdr_2001} a data mining method and is the among the most common methods used in GWAS. See section \ref{data_machine_learning} for more details.\\
 \\
-Stepwise approaches uses a filtering stage and a search stage. At the filtering stage uninteresting combinations are filtered out by using some exhaustive method. The other SNPs are the examined more carefully in the search stage. BOOST\cite{boost_gene_gene} is an example which uses clever data structures and a likelihood ratio test to filter the data.
+Stepwise approaches uses a filtering stage and a search stage. At the filtering stage uninteresting combinations are filtered out by using some exhaustive method. The other SNPs are the examined more carefully in the search stage. BOOST\cite{boost_gene_gene} is an example which uses clever data structures and a likelihood ratio test to filter the data before applying log-linear models.
 
 \subsection{Confounders and Covariates}
 Confounding is one of the central issues in the design of epidemiological studies. It's when the effect of the exposure is mixed with the effect of another variable. So if we do not measure the second variable the first effect would be estimated as stronger than it really is. The second varialbe is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorporated into the models. Covariates are possible confounders or other variables that you want to adjust for in the model. Sometimes covariates are called control variables.\cite{rothman2002intro_epidemiology,rothman1998modern}
@@ -243,6 +245,20 @@ It has been shown in high dimensional data that it tends to only rank interactin
 
 Decision tree figure here
 
+\subsection{Coding the interaction varible}
+%TODO
+bit of a problem in some ways
+easy with dominat or recessive
+absence of either is 0, hainv both is 1.
+
+co-dominant, absence of either is 0 as before. having both 2 is clearly worse than eitheer 1,2 or 2,1
+but which is worse of 1,2 and 2,1? they clearly are not the same so has to be coded differently.
+
+it gets worse with categorical and continus variables
+
+
+bla bla odds
+
 %\subsection{Cross Validation, Boosting and Permutation Tests}
 %Cross Validation is a common technique for validation in Machine Learning.\\
 %\\
@@ -338,7 +354,7 @@ blabla some text here about von neaumann architecture
 
 For HPC it is easiest to think about the architecture as three main parts, data storage, processor and the memory.\cite{intro_hpc}
 
-\subsubsection{CPU}
+\subsection{CPU}
 Central processing unit(CPU) is \cite{introduction_hpc_hager}
 
 Until 1996 there was computers with just a single core CPU on top 500\cite{TOP500}. Since about 2005 most desktop computers CPU has several cores which has increased the need for parallelization. The cores themselves aren't getting faster, the CPUs have more cores.
@@ -352,7 +368,7 @@ gpus might be hard but cpus aren't trivial either for HPC
 parallelization isn't that easy either, depends on problem
 correct use of caches can be important\cite{drepper2007cpumemory}
 
-\subsubsection{Accelerators, GPU and Xeon Phi}
+\subsection{Accelerators, GPU and Xeon Phi}
 Graphics processing unit(GPU) have become more popular for general computing the last 10 years.
 
 \begin{figure}[h]
@@ -376,7 +392,7 @@ might be useful for old serial legacy code, but you still need to parallelize it
 
 structure of mic
 
-\subsubsection{Which program for GPU and which for CPU?}
+\subsection{Which program for GPU and which for CPU?}
 \label{gpu_gwas}
 This a big question. As with a lot of things it depends on the algorithm to implement etc.
 
@@ -392,7 +408,7 @@ In short GPUs excel at linear algebra but Intel MIC is probably a good alternati
 
 GPUs are good for interaction algorithms since most approaches are embarrassingly parallel since they consider each combination independently from the others. They also often perform a lot of linear algebra. Several studies got high gains from implementing their programs on GPU, however their CPU versions weren't parallelized so it is likely that the gains would have been less compared to an optimized and parallelized CPU version.\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} However one study made a CPU cluster version and a GPU version of an algorithm that uses $chi^2$ tests, they found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.
 
-\subsubsection{Clusters}
+\subsection{Clusters}
 Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communciate over a shared network but have seperate memory and procesors. Storage is usually shared. A computer in a cluster is called a \emph{node}. \cite{intro_hpc, kirk2012programming}
 
 top 500\cite{TOP500}
@@ -450,7 +466,7 @@ One of the main criticism against GPUs for general computing purposes is that it
   \item[Use the correct memory on the GPU] \hfill \\
   Correct use of caches and memory is important for CPU\cite{drepper2007cpumemory}. It's also important on GPUs but it gets more complicated since the caches are smaller and there are several types of memory.
     \begin{itemize}
-    \item Registers %TODO
+    \item Register memory is located on the multiprocessor and usually costs zero cycles to access. The multiprocessor splits the available registers over its threads so if there are a lot of threads that uses a lot of variables not all of them will fit in the register. This is why a program sometimes can be faster with lower occupancy.
     \item Global memory is the main memory of the GPU and is accessible from all threads and blocks. However it is relatively slow to access.
     \item Shared memory is shared inside a block and is faster than global memory. However it is limited in size.
     \item Constant memory is small however its cached so it is fast to access. It's read only and best used for small amount of variables that all threads access.
@@ -487,7 +503,7 @@ One of the main criticism against GPUs for general computing purposes is that it
 There are applications called profilers that are made to assess the programs performance and resource consumption. They calculate some of the measures mentioned earlier and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlenecks and other problems in the program. It does not matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products. For instance NVIDIA provides profilers for programs that use CUDA.\cite{introduction_hpc_hager, cuda_best_practice}
 
 \clearpage
-\section{Algorithm}
+\chapter{Algorithm}
 %Algorithm (up till 20 pages)
 %  - Current state - Basic algorithm, Data structure, memory consumption, parallelization, load balancing and scalability
 %  - And the same for own your implementation
@@ -504,7 +520,7 @@ There are applications called profilers that are made to assess the programs per
 %two stage analysis
 
 
-\subsection{Current algorithm}
+\section{Current algorithm}
 JEIRA uses Java and Javas built-in functions for concurrency.
 
 Producer consumer pattern
@@ -513,10 +529,10 @@ Strucuture picture here.
 
 Symmetric confidence interval of additive effects.
 
-%\subsection{Mine}
-%exhaustive and second stage.
+%\section{Mine}
+%exhaustive
 
-\section{Results}
+\chapter{Results}
 %Results (up till 15 pages including plots)
 %  - Performance measurements (scalability, speedup and efficiency as well as load balancing)
 %  - Setup(simulation setup, compilers and hardware setup)
@@ -524,15 +540,15 @@ Symmetric confidence interval of additive effects.
 %  - multy-node performance
 
 
-\section{Discussion and Conclusions}
+\chapter{Discussion and Conclusions}
 %Discussion and Conclusions (up to 3 pages)
 %Need for novel methods for gene-environment interaction
 %Need for methods for third order interaction or higher, for both gene-gene and gene-environment
 
-\section{Outlook}
+\chapter{Outlook}
 %Outlook (up to one page)
 
-\section{Appendix}
+\chapter{Appendix}
 %List of figs
 %List of tables
 

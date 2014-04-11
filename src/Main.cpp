@@ -3,6 +3,11 @@
 
 #include "programOptions/Configuration.h"
 
+/**
+ * This is ...
+ *
+ * @author Daniel Berglund daniel.k.berglund@gmail.com
+ */
 int main(int argc, char* argv[]) {
-  Configuration configuration = new Configuration(argc, argv);
+  CuEira::Configuration::Configuration configuration = CuEira::Configuration::Configuration(argc, argv);
 }

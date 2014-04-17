@@ -9,17 +9,21 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 include_directories("${PROJECT_BINARY_DIR}")
 
 #Options
-option(PRECISION "Set the precision for the program, either single or double" single) #FIXME
 option(VERBOSE "Set CMake and compilation to verbose" on) #Change to off later
+set(PRECISION "Set the precision for the program, either single or double" single) #single or double
+set(TARGET_ARCHITECTURE "Target GPU architecture" fermi) #fermi or kepler
 
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
   add_definitions(-DDEBUG=1)
-endif (CMAKE_BUILD_TYPE MATCHES "DEBUG")
+endif (CMAKE_BUILD_TYPE MATCHES DEBUG)
 
-if(${VERBOSE} EQUAL ON)
+if(${VERBOSE})
   set (CMAKE_VERBOSE_MAKEFILE true)
   set (CUDA_VERBOSE_BUILD ON)
-endif(${VERBOSE} EQUAL ON)
+endif(${VERBOSE})
+
+set(Boost_USE_STATIC_LIBS OFF) 
+set(Boost_USE_MULTITHREADED OFF)  
 
 MESSAGE( STATUS "Building CuEIRA:" )
 
@@ -44,6 +48,7 @@ endif(${CUDA_VERSION_MAJOR} EQUAL 5)
 #Print some info
 MESSAGE( STATUS "change a configuration variable with: cmake -D<Variable>=<Value>" )
 MESSAGE( STATUS "PRECISION = ${PRECISION}" )
+MESSAGE( STATUS "TARGET_ARCHITECTURE = ${TARGET_ARCHITECTURE}" )
 MESSAGE( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
 MESSAGE( STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}" )
 MESSAGE( STATUS "GOOGLE_TEST_PATH = ${GOOGLE_TEST_PATH}" )
@@ -60,6 +65,7 @@ add_subdirectory(src)
 
 #Tests
 enable_testing()
+add_subdirectory(test)
 
 #Check if bumblbee is used
 #if(tests are enabled)

@@ -126,7 +126,7 @@ Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie
 
 
 \section{Mathematical Background}
-SNPs are commonly binary variables with either dominant or recessive models. Dominant is when there has to be at least one of the allel have the trait to get the effect. Recessive is when there has to be both allels. The case where the risk is present is coded as 1 and absence is coded as 0. Co-dominant model can also be used and in that case when both allels have the risk factor is coded as 2, when only one is present is coded as 1 and absence is 0 as before. That SNPs can be viewed as binary is an advantage that is almost always used when searching for gene-gene interaction.\\
+SNPs are commonly binary variables with either dominant or recessive models. Dominant is when there has to be at least one of the allele have the trait to get the effect. Recessive is when there has to be both alleles. The case where the risk is present is coded as 1 and absence is coded as 0. Co-dominant model can also be used and in that case when both alleles have the risk factor is coded as 2, when only one is present is coded as 1 and absence is 0 as before. That SNPs can be viewed as binary is an advantage that is almost always used when searching for gene-gene interaction.\\
 \\
 Environmental factors can be of any type\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variable to be binary or have other problems since they weren't designed for environmental interaction.\cite{gene_enviroment_2013}\\
 \\
@@ -141,7 +141,7 @@ Data Mining and Machine Learning are methods that learn from data and tries to g
 Stepwise approaches uses a filtering stage and a search stage. At the filtering stage uninteresting combinations are filtered out by using some exhaustive method. The other SNPs are the examined more carefully in the search stage. BOOST\cite{boost_gene_gene} is an example which uses clever data structures and a likelihood ratio test to filter the data before applying log-linear models.
 
 \subsection{Confounders and Covariates}
-Confounding is one of the central issues in the design of epidemiological studies. It's when the effect of the exposure is mixed with the effect of another variable. So if we do not measure the second variable the first effect would be estimated as stronger than it really is. The second varialbe is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorporated into the models. Covariates are possible confounders or other variables that you want to adjust for in the model. Sometimes covariates are called control variables.\cite{rothman2002intro_epidemiology,rothman1998modern}
+Confounding is one of the central issues in the design of epidemiological studies. It's when the effect of the exposure is mixed with the effect of another variable. So if we do not measure the second variable the first effect would be estimated as stronger than it really is. The second variable is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorporated into the models. Covariates are possible confounders or other variables that you want to adjust for in the model. Sometimes covariates are called control variables.\cite{rothman2002intro_epidemiology,rothman1998modern}
 
 \begin{figure}[h]
     \centering
@@ -175,7 +175,7 @@ A contingency table is a matrix used to describe categorical data. Each cell con
 For logistic regression the cells of the table are Binomial distributed.\cite{agresti_categorical}
 
 \subsubsection{Weighted Logistic Regression}
-Each individual is assigned a weight that can be any postive number. It's then used to weight the logistic regression.
+Each individual is assigned a weight that can be any positive number. It's then used to weight the logistic regression.
 
 \subsubsection{Statistic Measures}
 Relative risk and odds ratio\cite{agresti_categorical}
@@ -188,6 +188,7 @@ Causal bonds\cite{causal_bounds_arvid}
 
 %\section{Algorithmic Background}
 \subsection{Fitting Logisitic Regression Models}
+%TODO
 Done with maximum likelihood(ML), often via Newtons method.
 
 \subsection{Data Mining and Machine Learning Approaches}
@@ -249,37 +250,16 @@ Decision tree figure here
 %TODO
 bit of a problem in some ways
 easy with dominat or recessive
-absence of either is 0, hainv both is 1.
+absence of either is 0, having both is 1.
 
 co-dominant, absence of either is 0 as before. having both 2 is clearly worse than eitheer 1,2 or 2,1
 but which is worse of 1,2 and 2,1? they clearly are not the same so has to be coded differently.
 
-it gets worse with categorical and continus variables
+it gets worse with categorical and continues variables
 
+however we have one snp and one environmental variable that can possible interact. so we can use the fact that the SNP is binary. Reduces the cases.
 
-bla bla odds
-
-%\subsection{Cross Validation, Boosting and Permutation Tests}
-%Cross Validation is a common technique for validation in Machine Learning.\\
-%\\
-%Boosting and Permutation Tests are similar to each other.
-
-%\subsection{Test for interaction vs Test for allowing interaction}
-%\label{test_type}
-%Test for interaction is the test for the interaction parameter equal zero or not. Aka test saturated vs homogenous assocation\cite{boost_gene_gene}.
-
-%Test for allowing interaction on the other hand is . Aka test saturated vs block independance\cite{boost_gene_gene}.
-
-%Depedning on model test for allowing interaction can be faster so it is often used in screening methods, although the term can be a bit fuzzy for non linear regression models. %\cite{cordell_detect_review}
-
-%In other words test for allowing interaction tests if there is a main effect from either factor or interaction.
-
-%\subsection{More Math}
-%Where to put these parts? Are they needed?\\
-%\\
-%Pseudeo inverse
-
-%Matrix decomposition
+about the odds and signficant areas
 
 \clearpage
 \subsection{Performance Measures}
@@ -337,7 +317,7 @@ $$S(p)=p+(1-F)(1-p)$$
 
 \clearpage
 \section{Computer Architecture}
-Most computers today have a multicore architecture
+Most computers today have a multi-core architecture
 means several processors share the main memory and other resources. they can cooperate on the same problem but it they are coordinated on a case by case basis since each algorithm requires different sharing.
 
 Von Neumann architecture
@@ -350,9 +330,9 @@ It was first used in EDVAC which was one of the first stored program computers\c
     \label{fig:VonNeumann}
 \end{figure}
 
-blabla some text here about von neaumann architecture
+some text here about von neaumann architecture
 
-For HPC it is easiest to think about the architecture as three main parts, data storage, processor and the memory.\cite{intro_hpc}
+For HPC it is easiest to think about the architecture as three main parts, data storage, processor and the memory. More text here\cite{intro_hpc}
 
 \subsection{CPU}
 Central processing unit(CPU) is \cite{introduction_hpc_hager}
@@ -364,9 +344,7 @@ schematic here
 branch prediction
 prefetching
 
-gpus might be hard but cpus aren't trivial either for HPC
-parallelization isn't that easy either, depends on problem
-correct use of caches can be important\cite{drepper2007cpumemory}
+cpus aren't trivial either, there can be huge gains by using caches and other things correctly\cite{drepper2007cpumemory}
 
 \subsection{Accelerators, GPU and Xeon Phi}
 Graphics processing unit(GPU) have become more popular for general computing the last 10 years.
@@ -377,8 +355,6 @@ Graphics processing unit(GPU) have become more popular for general computing the
     \caption{Bla bla \cite{cuda}}
     \label{fig:gpu_vs_cpu}
 \end{figure}
-
-something about single and double precision
 
 structure of gpu
 
@@ -394,22 +370,22 @@ structure of mic
 
 \subsection{Which program for GPU and which for CPU?}
 \label{gpu_gwas}
-This a big question. As with a lot of things it depends on the algorithm to implement etc.
-
-NVIDIA vs Intel performance claims, intel gets much lower than Nvidia. But who can you trust really?
+As with a lot of things it depends on the algorithm to implement etc.
 
 If you have lots of legacy code then then you might need to rewrite a lot. However by using a profiler the parts that take up the most time can be found and moved to the GPU. However that migh be hard if the program isn't properly structured. No legacy code can also be a good thing. Old code might not be written with modern standards or use new nifty features and therefore lose speed.
 
 Xeon Phi is an alternative, simpler but can still be tricky and require memory copy.
 
-GPUs loses more when going from single precision to double than CPUs. Peak performance on tesla-kepler cards for single precision is around 4 Tflops while double precision is around 1.4 Tflops. \cite{nvtesla}\\ ref the table thing how well does phi do?
+GPUs loses more when going from single precision to double than CPUs. Peak performance on tesla-kepler cards for single precision is around 4 Tflops while double precision is around 1.4 Tflops. \cite{nvtesla}\\ ref the table, single is much faster than double
 
 In short GPUs excel at linear algebra but Intel MIC is probably a good alternative for it to.
 
 GPUs are good for interaction algorithms since most approaches are embarrassingly parallel since they consider each combination independently from the others. They also often perform a lot of linear algebra. Several studies got high gains from implementing their programs on GPU, however their CPU versions weren't parallelized so it is likely that the gains would have been less compared to an optimized and parallelized CPU version.\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} However one study made a CPU cluster version and a GPU version of an algorithm that uses $chi^2$ tests, they found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.
 
 \subsection{Clusters}
-Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communciate over a shared network but have seperate memory and procesors. Storage is usually shared. A computer in a cluster is called a \emph{node}. \cite{intro_hpc, kirk2012programming}
+Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communciate over a shared network but have separate memory and processors. Storage is usually shared. A computer in a cluster is called a \emph{node}. \cite{intro_hpc, kirk2012programming}
+
+mpi is commonly used for clusters\cite{kirk2012programming}
 
 top 500\cite{TOP500}
 
@@ -424,8 +400,6 @@ Max achived with LinPack 33 PetaFlops
 60\% efficiency
 
 Picture of Tianhe-2 here
-
-mpi is commonly used for clusters\cite{kirk2012programming}
 
 \subsection{CUDA programming model}
 warps threads and stuff about CUDA\cite{cuda}
@@ -460,9 +434,9 @@ One of the main criticism against GPUs for general computing purposes is that it
   \item[Streams, concurrent kernels and asynchronous transfers] \hfill \\
   By using streams it is possible to overlap memory transfers with calculations. This means that the data for the next batch can be transfered while the current batch is calculated and when it is done it can start calculating on the next batch directly after the current one is done. This can hide the time for transfers completely in some situations. However it requires the memory on the host to be pinned. Pinning too much memory can reduce performance of the host.\cite{cuda}\\
   \\
-  Operations on a stream is guaranteed to be done in the order they are made however calls on different streams can be executed in any order. Some GPUs allow kernels from different streams to be executed concurrently which can be a big boost if the kernels small enough to fit on the multiprocessors at the same time. Upto 16 or 32 kernels, depending on GPU, can be executed at the same time.\\
+  Operations on a stream is guaranteed to be done in the order they are made however calls on different streams can be executed in any order. Some GPUs allow kernels from different streams to be executed concurrently which can be a big boost if the kernels small enough to fit on the multiprocessors at the same time. Up to 16 or 32 kernels, depending on GPU, can be executed at the same time.\\
   \\
-  However it requires tweaking of the code that is specific to the GPUs architecture. For instance FERMI architecture only has one queue for the kernels which means that we can get false dependency between kernels. If we have a batch of small kernels and issue them on stream one first and then stream two all the kernels in stream two will be stuck in the queue waiting for the kernels in stream one to finsish, this is because the second kernel on stream one has to wait for the first kernel since they are in the same stream. The second kernel then blocks the queue from moving forward so it will not see the kernels on stream two that could be executed. Kepler GPUs on the other hand has several queues so it won't be a problem on those GPUs. It's the same with asynchronous transfers, some GPUs only have one copy engine while others have one engine for device to host and one for host to device.\cite{cuda, overlap_transfers_cuda, kepler_tuning_guide}
+  However it requires tweaking of the code that is specific to the GPUs architecture. For instance FERMI architecture only has one queue for the kernels which means that we can get false dependency between kernels. If we have a batch of small kernels and issue them on stream one first and then stream two all the kernels in stream two will be stuck in the queue waiting for the kernels in stream one to finish, this is because the second kernel on stream one has to wait for the first kernel since they are in the same stream. The second kernel then blocks the queue from moving forward so it will not see the kernels on stream two that could be executed. Kepler GPUs on the other hand has several queues so it won't be a problem on those GPUs. It's the same with asynchronous transfers, some GPUs only have one copy engine while others have one engine for device to host and one for host to device.\cite{cuda, overlap_transfers_cuda, kepler_tuning_guide}
   \item[Use the correct memory on the GPU] \hfill \\
   Correct use of caches and memory is important for CPU\cite{drepper2007cpumemory}. It's also important on GPUs but it gets more complicated since the caches are smaller and there are several types of memory.
     \begin{itemize}
@@ -472,6 +446,7 @@ One of the main criticism against GPUs for general computing purposes is that it
     \item Constant memory is small however its cached so it is fast to access. It's read only and best used for small amount of variables that all threads access.
     \item Local memory is tied to the threads scope, but it is still resides off-chip so it has the same access time as global memory.
     \item Texture memory is read only and can be faster to access than global memory in some situations. This was more important in older GPUs when global memory wasn't cached.\cite{plink_gpu, cuda}
+    \item Read-only cache is available on Kepler GPUs and uses the same cache as the texture memory. The data as to be read only each multiprocessor can have up to 48kb of space depending on GPU.\cite{kepler_tuning_guide}
   \end{itemize}
   \item[Avoid divergence] \hfill \\
   Each thread in a warp executes the same instruction at the same time so if some of threads diverge the rest will be ideal until they are at the same instruction again. This means it is important to use control structures such as if statements carefully to prevent threads from idling.\cite{cuda, cuda_best_practice}
@@ -495,7 +470,7 @@ One of the main criticism against GPUs for general computing purposes is that it
 
 %TODO
 %Some stuff for multi gpu
-%They dont share memory.
+%They dont share memory but gpu-gpu memory copys are faster if they are connected since it does not involve the cpu
 
 %unrolling is really good, see volkovs stuff, instruction level parallelism
 

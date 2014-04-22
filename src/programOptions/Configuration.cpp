@@ -18,12 +18,10 @@ Configuration::Configuration(int argc, char* argv[]) {
       options::value<std::string>(), "Set the csv file with covariates.")("covariate_id_column,z",
       options::value<std::string>(), "Set the name of the column in the covariates file that holds the person ids.")(
       "output,o", options::value<std::string>()->required(), "Set output file.")("nstreams,n",
-      options::value<int>()->default_value(2), "Set number of streams to use for each GPU. Default 2.")("version,v",
-      "Print the version number.");
-
-  //TODO option for different phenotype coding
-  //-p
-  //set phenotypeCoding variable
+      options::value<int>()->default_value(2), "Set number of streams to use for each GPU. Default 2.")("p",
+      options::value<bool>()->zero_tokens(),
+      "Use alternative coding for the phenotype, 0 for unaffected and 1 for affected instead of 1 for unaffected and 2 for affected.")(
+      "version,v", "Print the version number.");
 
   options::store(options::parse_command_line(argc, argv, description), optionsMap);
 
@@ -55,6 +53,15 @@ Configuration::Configuration(int argc, char* argv[]) {
       geneticModel = RECESSIVE;
     }else{
       throw std::invalid_argument("Invalid genetic model argument");
+    }
+  }
+
+  if(optionsMap.count("p")){
+    if(optionsMap["p"].as<bool>()){
+      phenotypeCoding=ZERO_ONE_CODING;
+    }
+    else{
+      phenotypeCoding=ONE_TWO_CODING;
     }
   }
 

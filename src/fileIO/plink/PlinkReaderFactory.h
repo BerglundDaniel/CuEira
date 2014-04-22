@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-#include <../../programOptions/Configuration.h>
+#include <Configuration.h>
 #include <PlinkReader.h>
 #include <BedReader.h>
 #include <BimReader.h>

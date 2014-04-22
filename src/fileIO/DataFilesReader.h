@@ -7,12 +7,12 @@
 #include <stdexcept>
 
 #include <CSVReader.h>
-#include <../programOptions/Configuration.h>
-#include <../container/HostVector.h>
-#include <../container/HostMatrix.h>
-#include <../data/SNP.h>
-#include <../data/EnvironmentFactor.h>
-#include <plink/PlinkReader.h>
+#include <Configuration.h>
+#include <HostVector.h>
+#include <HostMatrix.h>
+#include <SNP.h>
+#include <EnvironmentFactor.h>
+#include <PlinkReader.h>
 
 namespace CuEira {
 namespace FileIO {

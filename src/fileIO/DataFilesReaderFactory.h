@@ -3,11 +3,12 @@
 
 #include <stdexcept>
 #include <map>
+
 #include <DataFilesReader.h>
-#include <../programOptions/Configuration.h>
-#include <plink/PlinkReaderFactory.h>
-#include <plink/PlinkReader.h>
-#include <../exception/DimensionMismatch.h>
+#include <Configuration.h>
+#include <PlinkReaderFactory.h>
+#include <PlinkReader.h>
+#include <DimensionMismatch.h>
 
 namespace CuEira {
 namespace FileIO {

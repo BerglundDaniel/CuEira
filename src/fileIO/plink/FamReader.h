@@ -2,9 +2,10 @@
 #define FAMREADER_H_
 
 #include <map>
-#include <../../container/HostVector.h>
-#include <../data/Id.h>
-#include <../data/Person.h>
+
+#include <HostVector.h>
+#include <Id.h>
+#include <Person.h>
 
 namespace CuEira {
 namespace FileIO {

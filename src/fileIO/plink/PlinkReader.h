@@ -5,10 +5,10 @@
 #include <BedReader.h>
 #include <BimReader.h>
 #include <FamReader.h>
-#include <../../container/HostVector.h>
-#include <../data/Id.h>
-#include <../data/SNP.h>
-#include <../data/Person.h>
+#include <HostVector.h>
+#include <Id.h>
+#include <SNP.h>
+#include <Person.h>
 
 namespace CuEira {
 namespace FileIO {

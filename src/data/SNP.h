@@ -1,7 +1,7 @@
 #ifndef SNP_H_
 #define SNP_H_
 
-#include "Id.h"
+#include <Id.h>
 
 namespace CuEira {
 

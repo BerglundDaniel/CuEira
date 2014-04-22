@@ -4,9 +4,13 @@ namespace CuEira {
 namespace FileIO {
 
 FamReader::FamReader(Configuration& configuration) :
-    configuration(configuration), idToPersonMap(std::map<Id, Person>()) {
+    configuration(configuration), idToPersonMap(std::map<Id, Person>()), numberOfIndividuals(0) {
 
-  numberOfIndividuals = 0;
+  std::string famFileStr = configuration.getFamFilePath();
+  std::string line;
+  std::ifstream famFile;
+
+  try{
 
 //Open file
 
@@ -14,6 +18,15 @@ FamReader::FamReader(Configuration& configuration) :
 
 //close file
 
+  } catch(const std::ios_base::failure& exception){
+    std::ostringstream os;
+    os << "Problem reading fam file " << famFileStr << std::endl;
+#ifdef DEBUG
+    os << exception.what();
+#endif
+    const std::string& tmp = os.str();
+    throw FileReaderException(tmp.c_str());
+  }
 }
 
 FamReader::~FamReader() {

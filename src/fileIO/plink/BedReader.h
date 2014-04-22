@@ -18,7 +18,10 @@ public:
   virtual ~BedReader();
 
   Container::HostVector readSNP(SNP& snp);
+
 private:
+  std::string bedFileStr;
+  std::ifstream bedFile;
   Configuration& configuration;
 };
 

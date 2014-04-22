@@ -1,11 +1,15 @@
 set(INCLUDE_DIRECTORIES
-  ${PROJECT_BINARY_DIR}
+  ${INCLUDE_DIRECTORIES}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PARENT_SCOPE
 )
 
 set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/Main.cpp
 )
 
+add_subdirectory(data)
+add_subdirectory(exception)
 add_subdirectory(programOptions)
 add_subdirectory(fileIO)
 

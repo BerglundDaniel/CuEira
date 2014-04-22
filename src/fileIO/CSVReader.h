@@ -1,11 +1,11 @@
 #ifndef CSVREADER_H_
 #define CSVREADER_H_
 
-#include<map>
-#include<string>
-#include<stdexcept>
-#include<../data/Person.h>
-#include<../data/Id.h>
+#include <map>
+#include <string>
+#include <stdexcept>
+#include <Person.h>
+#include <Id.h>
 
 namespace CuEira {
 namespace FileIO {

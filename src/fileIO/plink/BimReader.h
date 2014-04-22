@@ -2,13 +2,16 @@
 #define BIMREADER_H_
 
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <map>
+#include <stdlib.h>
 #include <boost/algorithm/string.hpp>
 
-#include "../../data/SNP.h"
-#include "../../programOptions/Configuration.h"
+#include <Id.h>
+#include <SNP.h>
+#include <Configuration.h>
+#include <FileReaderException.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -24,10 +27,12 @@ public:
   virtual ~BimReader();
 
   int getNumberOfSNPs();
+  std::vector<SNP*> getSNPs();
 
 private:
   Configuration& configuration;
   int numberOfSNPs;
+  std::vector<SNP*> SNPVector;
 };
 
 } /* namespace FileIO */

@@ -5,14 +5,21 @@ project (CuEira)
 set (CuEira_VERSION_MAJOR 1)
 set (CuEira_VERSION_MINOR 0)
 
+#Set various things
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
-include_directories("${PROJECT_BINARY_DIR}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(INCLUDE_DIRECTORIES
+  ${PROJECT_BINARY_DIR}
+)
+set(Boost_USE_STATIC_LIBS OFF) 
+set(Boost_USE_MULTITHREADED OFF)  
 
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" on) #Change to off later
 set(PRECISION "Set the precision for the program, either single or double" single) #single or double
 set(TARGET_ARCHITECTURE "Target GPU architecture" fermi) #fermi or kepler
 
+#Set things based on options
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
   add_definitions(-DDEBUG=1)
 endif (CMAKE_BUILD_TYPE MATCHES DEBUG)
@@ -21,9 +28,6 @@ if(${VERBOSE})
   set (CMAKE_VERBOSE_MAKEFILE true)
   set (CUDA_VERBOSE_BUILD ON)
 endif(${VERBOSE})
-
-set(Boost_USE_STATIC_LIBS OFF) 
-set(Boost_USE_MULTITHREADED OFF)  
 
 MESSAGE( STATUS "Building CuEIRA:" )
 

@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 #include "Configuration.h"
-#include "fileIO/plink/BimReader.h"
+#include "BimReader.h"
 
 /**
  * This is ...

@@ -48,7 +48,7 @@ BimReader::BimReader(Configuration& configuration) :
       std::vector<std::string> lineSplit;
       boost::split(lineSplit, line, boost::is_any_of("\t "));
 
-      Id id = Id(lineSplit[1]);
+      Id id(lineSplit[1]);
 
       baseSNP = strtol(lineSplit[3].c_str(), &temp, 0);
       if(*temp != '\0'){ //Check if there was an error with strtol

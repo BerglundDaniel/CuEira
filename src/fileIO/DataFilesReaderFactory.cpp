@@ -13,13 +13,13 @@ DataFilesReaderFactory::~DataFilesReaderFactory() {
 }
 
 DataFilesReader* DataFilesReaderFactory::constructDataFilesReader(Configuration& configuration) {
-  PlinkReader plinkReader = plinkReaderFactory.constructPlinkReader(configuration);
-  int numberOfIndividuals = plinkReader.getNumberOfIndividuals();
-  std::map<Id, Person> idToPersonMap = plinkReader.getIdToPersonMap();
+  PlinkReader* plinkReader = plinkReaderFactory.constructPlinkReader(configuration);
+  int numberOfIndividuals = plinkReader->getNumberOfIndividuals();
+  std::map<Id, Person> idToPersonMap = plinkReader->getIdToPersonMap();
 
-  CSVReader environmentCSVReader = CSVReader(configuration.getEnvironmentFilePath(),
+  CSVReader environmentCSVReader(configuration.getEnvironmentFilePath(),
       configuration.getEnvironmentIndividualIdColumnName(), idToPersonMap);
-  CSVReader covariateCSVReader = CSVREader(configuration.getCovariateFilePath(),
+  CSVReader covariateCSVReader(configuration.getCovariateFilePath(),
       configuration.getCovariateIndividualIdColumnName(), idToPersonMap);
 
   if(environmentCSVReader.getNumberOfRows() != numberOfIndividuals){

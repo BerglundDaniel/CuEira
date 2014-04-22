@@ -10,6 +10,7 @@ set(SOURCE
 
 add_subdirectory(data)
 add_subdirectory(exception)
+add_subdirectory(container)
 add_subdirectory(programOptions)
 add_subdirectory(fileIO)
 

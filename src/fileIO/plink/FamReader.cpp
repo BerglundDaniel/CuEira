@@ -24,7 +24,7 @@ FamReader::FamReader(Configuration& configuration) :
   //Read the whole file once to count the number of individuals
   try{
     famFile.open(famFileStr, std::ifstream::in);
-    while(std::getline(bimFile, line)){
+    while(std::getline(famFile, line)){
       numberOfIndividuals++;
     }
     famFile.close();
@@ -51,7 +51,7 @@ FamReader::FamReader(Configuration& configuration) :
       boost::split(lineSplit, line, boost::is_any_of("\t "));
 
       //Handle the persons id
-      Id id = Id(lineSplit[1]);
+      Id id(lineSplit[1]);
 
       //Handle the persons sex
       long int sexInt = strtol(lineSplit[4].c_str(), &temp, 0);

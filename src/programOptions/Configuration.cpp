@@ -9,15 +9,21 @@ Configuration::Configuration(int argc, char* argv[]) {
   options::options_description description("Program usage:");
   description.add_options()("help,h", "Produce help message.")
   //("seed", options::value<int>()->default_value(1), "Set the seed. Default 1")
-  ("model,m", options::value<std::string>()->default_value("dominant"),"The genetic model type to use(ie dominant or recessive). Default: dominant.")
-  ("binary,b", options::value<std::string>()->required(), "Name of file in plink binary format")
-  ("environment_file,e", options::value<std::string>()->required(), "Set the csv file with the environmental variables.")
-  ("environment_id_column,x", options::value<std::string>()->required(), "Set the name of the column in the enviromental file that holds the person ids.")
-  ("covariate_file,c", options::value<std::string>(), "Set the csv file with covariates.")
-  ("covariate_id_column,z", options::value<std::string>(), "Set the name of the column in the covariates file that holds the person ids.")
-  ("output,o", options::value<std::string>()->required(), "Set output file.")
-  ("nstreams,s", options::value<int>()->default_value(2), "Set number of streams to use for each GPU. Default 2.")
-  ("version,v", "Print the version number.");
+  ("model,m", options::value<std::string>()->default_value("dominant"),
+      "The genetic model type to use(ie dominant or recessive). Default: dominant.")("binary,b",
+      options::value<std::string>()->required(), "Name of file in plink binary format")("environment_file,e",
+      options::value<std::string>()->required(), "Set the csv file with the environmental variables.")(
+      "environment_id_column,x", options::value<std::string>()->required(),
+      "Set the name of the column in the enviromental file that holds the person ids.")("covariate_file,c",
+      options::value<std::string>(), "Set the csv file with covariates.")("covariate_id_column,z",
+      options::value<std::string>(), "Set the name of the column in the covariates file that holds the person ids.")(
+      "output,o", options::value<std::string>()->required(), "Set output file.")("nstreams,n",
+      options::value<int>()->default_value(2), "Set number of streams to use for each GPU. Default 2.")("version,v",
+      "Print the version number.");
+
+  //TODO option for different phenotype coding
+  //-p
+  //set phenotypeCoding variable
 
   options::store(options::parse_command_line(argc, argv, description), optionsMap);
 
@@ -41,15 +47,13 @@ Configuration::Configuration(int argc, char* argv[]) {
   }
 
   if(optionsMap.count("model")){
-    std::string geneticModelStr=optionsMap["model"].as<std::string>();
+    std::string geneticModelStr = optionsMap["model"].as<std::string>();
     boost::to_lower(geneticModelStr);
-    if(geneticModelStr=="dominant"){
-      geneticModel=DOMINANT;
-    }
-    else if(geneticModelStr=="recessive"){
-      geneticModel=RECESSIVE;
-    }
-    else{
+    if(geneticModelStr == "dominant"){
+      geneticModel = DOMINANT;
+    }else if(geneticModelStr == "recessive"){
+      geneticModel = RECESSIVE;
+    }else{
       throw std::invalid_argument("Invalid genetic model argument");
     }
   }
@@ -108,6 +112,10 @@ std::string Configuration::getOutputFilePath() {
 
 bool Configuration::covariateFileSpecified() {
   return optionsMap.count("covariate_file");
+}
+
+PhenotypeCoding Configuration::getPhenotypeCoding() {
+  return phenotypeCoding;
 }
 
 } /* namespace CuEira */

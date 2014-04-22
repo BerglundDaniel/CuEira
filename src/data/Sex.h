@@ -10,7 +10,7 @@
 namespace CuEira {
 
 enum Sex {
-  MALE, FEMALE
+  MALE, FEMALE, UNKNOWN
 };
 
 } /* namespace CuEira */

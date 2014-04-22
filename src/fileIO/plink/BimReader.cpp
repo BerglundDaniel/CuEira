@@ -9,6 +9,17 @@ BimReader::BimReader(Configuration& configuration) :
   std::string line;
   std::ifstream bimFile;
 
+  /*
+   * Columns in the file
+   * chromosome (1-22, X, Y or 0 if unplaced)
+   * rs# or snp identifier
+   * Genetic distance (morgans)
+   * Base-pair position (bp units)
+   * Allele 1
+   * Allele 2
+   * */
+
+  //Read whole file once to count the number of SNPs
   try{
     bimFile.open(bimFileStr, std::ifstream::in);
     while(std::getline(bimFile, line)){
@@ -25,7 +36,7 @@ BimReader::BimReader(Configuration& configuration) :
     throw FileReaderException(tmp.c_str());
   }
 
-  std::vector<SNP*> SNPVector = std::vector<SNP*>(numberOfSNPs);
+  SNPVector = std::vector<SNP*>(numberOfSNPs);
   int pos = 0;
   SNP* snp = nullptr;
   long int baseSNP;
@@ -41,7 +52,10 @@ BimReader::BimReader(Configuration& configuration) :
 
       baseSNP = strtol(lineSplit[3].c_str(), &temp, 0);
       if(*temp != '\0'){ //Check if there was an error with strtol
-        throw FileReaderException("Problem with string to int conversion of basepositions in bim file");
+        std::ostringstream os;
+        os << "Problem with string to int conversion of basepositions in bim file " << bimFileStr << std::endl;
+        const std::string& tmp = os.str();
+        throw FileReaderException(tmp.c_str());
       }
 
       if(baseSNP < 0){
@@ -51,11 +65,12 @@ BimReader::BimReader(Configuration& configuration) :
       }
       SNPVector[pos] = snp;
 
-      //Read allels?
+      //Read allels? TODO
 
       pos++;
     } /* while getline */
     bimFile.close();
+
   } catch(const std::ios_base::failure& exception){
     std::ostringstream os;
     os << "Problem reading bim file " << bimFileStr << std::endl;

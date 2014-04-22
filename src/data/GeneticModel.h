@@ -1,14 +1,13 @@
 #ifndef GENETICMODEL_H_
 #define GENETICMODEL_H_
 
+namespace CuEira {
+
 /**
- * This is ...
+ * This is enum represents different genetic models
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-
-namespace CuEira {
-
 enum GeneticModel {
   DOMINANT, RECESSIVE
 };

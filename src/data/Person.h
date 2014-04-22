@@ -5,6 +5,7 @@
 
 #include <Sex.h>
 #include <Id.h>
+#include <Phenotype.h>
 
 namespace CuEira {
 
@@ -15,17 +16,19 @@ namespace CuEira {
  */
 class Person {
 public:
-  explicit Person(Id id, Sex sex, int rowNumber);
+  explicit Person(Id id, Sex sex, Phenotype phenotype, int rowNumber);
   virtual ~Person();
 
   Id getId();
   Sex getSex();
   int getRowNumber();
+  Phenotype getPhenotype();
 
 private:
   Id id;
   Sex sex;
   int rowNumber;
+  Phenotype phenotype;
 };
 
 } /* namespace CuEira */

@@ -11,4 +11,8 @@ Id::~Id() {
 
 }
 
+const std::string Id::getString(){
+  return id;
+}
+
 } /* namespace CuEira */

@@ -9,6 +9,7 @@
 #include <boost/program_options.hpp>
 
 #include <GeneticModel.h>
+#include <PhenotypeCoding.h>
 
 namespace CuEira {
 
@@ -79,9 +80,15 @@ public:
    */
   bool covariateFileSpecified();
 
+  /**
+   * Returns the specified coding for the phenotypes in the fam file
+   */
+  PhenotypeCoding getPhenotypeCoding();
+
 private:
   options::variables_map optionsMap;
   GeneticModel geneticModel;
+  PhenotypeCoding phenotypeCoding;
 };
 
 } /* namespace CuEira */

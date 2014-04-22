@@ -1,11 +1,18 @@
 #ifndef FAMREADER_H_
 #define FAMREADER_H_
 
-#include <map>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include <HostVector.h>
 #include <Id.h>
 #include <Person.h>
+#include <Phenotype.h>
+#include <PhenotypeCoding.h>
+#include <Configuration.h>
+#include <FileReaderException.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -22,12 +29,12 @@ public:
 
   Container::HostVector getOutcomes();
   int getNumberOfIndividuals();
-  std::map<Id, Person>& getIdToPersonMap();
+  std::vector<Person*> getPersons();
 
 private:
   Configuration& configuration;
   int numberOfIndividuals;
-  map<Id, Person>& idToPersonMap;
+  std::vector<Person*> persons;
   Container::HostVector outcomes;
 };
 

@@ -2,8 +2,8 @@
 
 namespace CuEira {
 
-Person::Person(Id id, Sex sex, int rowNumber) :
-    id(id), sex(sex), rowNumber(rowNumber) {
+Person::Person(Id id, Sex sex, Phenotype phenotype, int rowNumber) :
+    id(id), sex(sex), phenotype(phenotype), rowNumber(rowNumber) {
 
 }
 
@@ -21,6 +21,10 @@ Sex Person::getSex() {
 
 int Person::getRowNumber() {
   return rowNumber;
+}
+
+Phenotype Person::getPhenotype() {
+  return phenotype;
 }
 
 } /* namespace CuEira */

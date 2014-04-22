@@ -4,8 +4,11 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <boost/algorithm/string.hpp>
-#include <../../data/SNP.h>
+
+#include "../../data/SNP.h"
+#include "../../programOptions/Configuration.h"
 
 namespace CuEira {
 namespace FileIO {
@@ -20,8 +23,11 @@ public:
   explicit BimReader(Configuration& configuration);
   virtual ~BimReader();
 
+  int getNumberOfSNPs();
+
 private:
   Configuration& configuration;
+  int numberOfSNPs;
 };
 
 } /* namespace FileIO */

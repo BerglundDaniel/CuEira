@@ -1,4 +1,17 @@
-cmake_minimum_required (VERSION 2.8)
-project (CuEira)
-enable_testing()
+set(INCLUDE_DIRECTORIES
+  ${INCLUDE_DIRECTORIES}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PARENT_SCOPE
+)
 
+add_subdirectory(plink)
+
+set(SOURCE
+  ${SOURCE}
+  PARENT_SCOPE
+)
+
+set(HEADERS
+  ${HEADERS}
+  PARENT_SCOPE
+)

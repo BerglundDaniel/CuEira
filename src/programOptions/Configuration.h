@@ -7,7 +7,8 @@
 #include <stdexcept>
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
-#include <../data/GeneticModel.h>
+
+#include "../data/GeneticModel.h"
 
 namespace CuEira {
 

@@ -11,12 +11,12 @@ Configuration::Configuration(int argc, char* argv[]) {
   //("seed", options::value<int>()->default_value(1), "Set the seed. Default 1")
   ("model,m", options::value<std::string>()->default_value("dominant"),"The genetic model type to use(ie dominant or recessive). Default: dominant.")
   ("binary,b", options::value<std::string>()->required(), "Name of file in plink binary format")
-  ("environment_file,ef", options::value<std::string>()->required(), "Set the csv file with the environmental variables.")
-  ("environment_id_column,eid", options::value<std::string>()->required(), "Set the name of the column in the enviromental file that holds the person ids.")
-  ("covariate_file,cf", options::value<std::string>(), "Set the csv file with covariates.")
-  ("covariate_id_column,cid", options::value<std::string>(), "Set the name of the column in the covariates file that holds the person ids.")
+  ("environment_file,e", options::value<std::string>()->required(), "Set the csv file with the environmental variables.")
+  ("environment_id_column,x", options::value<std::string>()->required(), "Set the name of the column in the enviromental file that holds the person ids.")
+  ("covariate_file,c", options::value<std::string>(), "Set the csv file with covariates.")
+  ("covariate_id_column,z", options::value<std::string>(), "Set the name of the column in the covariates file that holds the person ids.")
   ("output,o", options::value<std::string>()->required(), "Set output file.")
-  ("nstreams,ns", options::value<int>()->default_value(2), "Set number of streams to use for each GPU. Default 2.")
+  ("nstreams,s", options::value<int>()->default_value(2), "Set number of streams to use for each GPU. Default 2.")
   ("version,v", "Print the version number.");
 
   options::store(options::parse_command_line(argc, argv, description), optionsMap);

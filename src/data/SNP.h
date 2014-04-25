@@ -2,6 +2,7 @@
 #define SNP_H_
 
 #include <sstream>
+#include <stdexcept>
 
 #include <RiskAllele.h>
 #include <Id.h>
@@ -19,13 +20,16 @@ public:
   virtual ~SNP();
 
   Id getId();
+
   bool getInclude();
   void setInclude(bool include);
+
   std::string getAlleleOneName();
   std::string getAlleleTwoName();
-  void setMinorAlleleFrequency(unsigned double maf);
-  unsigned double getMinorAlleleFrequency() const;
-  bool hasMinorAlleleFrequencyBeenSet();
+
+  void setMinorAlleleFrequency(double maf);
+  double getMinorAlleleFrequency() const;
+
   void setRiskAllele(RiskAllele riskAllele);
   RiskAllele getRiskAllele() const;
 
@@ -34,9 +38,12 @@ private:
   bool include;
   std::string alleleOneName;
   std::string alleleTwoName;
-  unsigned double minorAlleleFrequency;
+
+  double minorAlleleFrequency;
   bool minorAlleleFrequencyHasBeenSet;
+
   RiskAllele riskAllele;
+  bool riskAlleleHasBeenSet;
 };
 
 } /* namespace CuEira */

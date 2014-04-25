@@ -11,7 +11,7 @@ Id::~Id() {
 
 }
 
-const std::string Id::getString(){
+const std::string Id::getString() const {
   return id;
 }
 

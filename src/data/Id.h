@@ -17,7 +17,7 @@ public:
   explicit Id(std::string id);
   virtual ~Id();
 
-  const std::string getString();
+  const std::string getString() const;
 
 private:
   std::string id;

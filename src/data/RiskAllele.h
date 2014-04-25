@@ -8,7 +8,7 @@ namespace CuEira {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-enum RISKALLELE {
+enum RiskAllele {
   ALLELE_ONE, ALLELE_TWO
 };
 

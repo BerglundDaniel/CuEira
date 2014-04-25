@@ -1,6 +1,9 @@
 #ifndef SNP_H_
 #define SNP_H_
 
+#include <sstream>
+
+#include <?.h>
 #include <Id.h>
 
 namespace CuEira {
@@ -12,16 +15,27 @@ namespace CuEira {
  */
 class SNP {
 public:
-  explicit SNP(Id id, bool include = true);
+  explicit SNP(Id id, std::string alleleOneName, std::string alleleTwoName, bool include = true);
   virtual ~SNP();
 
   Id getId();
   bool getInclude();
   void setInclude(bool include);
+  std::string getAlleleOneName();
+  std::string getAlleleTwoName();
+  void setMinorAlleleFrequency(unsigned double maf);
+  unsigned double getMinorAlleleFrequency() const;
+  bool hasMinorAlleleFrequencyBeenSet();
+  //get risk
+  //set risk
 
 private:
   Id id;
   bool include;
+  std::string alleleOneName;
+  std::string alleleTwoName;
+  unsigned double minorAlleleFrequency;
+  bool minorAlleleFrequencyHasBeenSet;
 };
 
 } /* namespace CuEira */

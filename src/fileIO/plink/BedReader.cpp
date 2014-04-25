@@ -8,7 +8,8 @@ BedReader::BedReader(const Configuration& configuration, const Container::HostVe
     configuration(configuration), outcomes(outcomes), bedFileStr(configuration.getBedFilePath()), geneticModel(
         configuration.getGeneticModel()), numberOfIndividuals(numberOfIndividuals), numberOfSNPs(numberOfSNPs) {
 
-  openBedFile();
+  std::ifstream bedFile;
+  openBedFile(bedFile);
 
   //Read header to check version and mode.
   try{
@@ -48,7 +49,7 @@ BedReader::BedReader(const Configuration& configuration, const Container::HostVe
     throw FileReaderException(tmp.c_str());
   }
 
-  closeBedFile();
+  closeBedFile(bedFile);
 
 }
 
@@ -59,12 +60,13 @@ BedReader::~BedReader() {
 Container::HostVector BedReader::readSNP(SNP& snp) const {
   //Initialise vector
   Container::HostVector SNPVector(numberOfIndividuals);
-
-  openBedFile();
+  std::ifstream bedFile;
   size_t alleleOneCaseFrequency = 0;
   size_t alleleTwoCaseFrequency = 0;
   size_t alleleOneFrequency = 0;
   size_t alleleTwoFrequency = 0;
+
+  openBedFile(bedFile);
 
   //Read SNP
   try{
@@ -114,7 +116,7 @@ Container::HostVector BedReader::readSNP(SNP& snp) const {
             if(firstBit && !secondBit){ //The genotype is missing for this individual
               //The genotype is missing for this individual so we will exclude the SNP it from the analysis.
               excludeSNP(snp);
-              closeBedFile();
+              closeBedFile(bedFile);
               return SNPVector; //Since we are going to exclude this SNP there is no point in reading more data.
             }/* if check missing */
 
@@ -175,7 +177,7 @@ Container::HostVector BedReader::readSNP(SNP& snp) const {
     throw FileReaderException(tmp.c_str());
   }
 
-  closeBedFile();
+  closeBedFile(bedFile);
 
   //Check which allele is most frequent in cases
   if(alleleOneCaseFrequency == alleleTwoCaseFrequency){
@@ -271,7 +273,7 @@ void BedReader::excludeSNP(SNP& snp) const {
   return;
 }
 
-void BedReader::openBedFile() {
+void BedReader::openBedFile(std::ifstream& bedFile) const {
   try{
     bedFile.open(bedFileStr, std::ifstream::binary);
   } catch(const std::ios_base::failure& exception){
@@ -285,7 +287,7 @@ void BedReader::openBedFile() {
   }
 }
 
-void BedReader::closeBedFile() {
+void BedReader::closeBedFile(std::ifstream& bedFile) const {
   try{
     if(!bedFile.is_open()){
 

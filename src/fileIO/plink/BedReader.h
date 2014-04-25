@@ -42,8 +42,8 @@ private:
    */
   bool getBit(unsigned char byte, int position) const;
   void excludeSNP(SNP& snp) const;
-  void closeBedFile();
-  void openBedFile();
+  void closeBedFile(std::ifstream& bedFile) const;
+  void openBedFile(std::ifstream& bedFile) const;
 
   const int readBufferSizeMaxSNPMAJOR = 100;
   const int headerSize = 3;
@@ -52,7 +52,6 @@ private:
   Mode mode;
   const GeneticModel geneticModel;
   const std::string bedFileStr;
-  std::ifstream bedFile;
   const Configuration& configuration;
   const Container::HostVector& outcomes;
 };

@@ -5,12 +5,16 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <math.h>
+#include <stdexcept>
 
 #include <HostVector.h>
 #include <Person.h>
 #include <SNP.h>
 #include <Configuration.h>
 #include <FileReaderException.h>
+#include <GeneticModel.h>
+#include <RiskAllele.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -22,20 +26,35 @@ namespace FileIO {
  */
 class BedReader {
 public:
-  explicit BedReader(Configuration& configuration);
+  explicit BedReader(const Configuration& configuration, const Container::HostVector& outcomes,
+      const int numberOfIndividuals, const int numberOfSNPs);
   virtual ~BedReader();
 
-  Container::HostVector readSNP(SNP& snp);
+  Container::HostVector readSNP(SNP& snp) const;
 
 private:
   enum Mode {
     SNPMAJOR, INDIVIDUALMAJOR
   };
 
+  /**
+   * Get the bit at position in the byte, position in range 0-7
+   */
+  bool getBit(unsigned char byte, int position) const;
+  void excludeSNP(SNP& snp) const;
+  void closeBedFile();
+  void openBedFile();
+
+  const int readBufferSizeMaxSNPMAJOR = 100;
+  const int headerSize = 3;
+  const int numberOfIndividuals;
+  const int numberOfSNPs;
   Mode mode;
-  std::string bedFileStr;
+  const GeneticModel geneticModel;
+  const std::string bedFileStr;
   std::ifstream bedFile;
-  Configuration& configuration;
+  const Configuration& configuration;
+  const Container::HostVector& outcomes;
 };
 
 } /* namespace FileIO */

@@ -43,4 +43,12 @@ bool SNP::hasMinorAlleleFrequencyBeenSet() {
   return minorAlleleFrequencyHasBeenSet;
 }
 
+void SNP::setRiskAllele(RiskAllele riskAllele) {
+  this->riskAllele = riskAllele;
+}
+
+RiskAllele SNP::getRiskAllele() const {
+  return riskAllele;
+}
+
 } /* namespace CuEira */

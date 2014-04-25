@@ -3,7 +3,7 @@
 
 #include <sstream>
 
-#include <?.h>
+#include <RiskAllele.h>
 #include <Id.h>
 
 namespace CuEira {
@@ -26,8 +26,8 @@ public:
   void setMinorAlleleFrequency(unsigned double maf);
   unsigned double getMinorAlleleFrequency() const;
   bool hasMinorAlleleFrequencyBeenSet();
-  //get risk
-  //set risk
+  void setRiskAllele(RiskAllele riskAllele);
+  RiskAllele getRiskAllele() const;
 
 private:
   Id id;
@@ -36,6 +36,7 @@ private:
   std::string alleleTwoName;
   unsigned double minorAlleleFrequency;
   bool minorAlleleFrequencyHasBeenSet;
+  RiskAllele riskAllele;
 };
 
 } /* namespace CuEira */

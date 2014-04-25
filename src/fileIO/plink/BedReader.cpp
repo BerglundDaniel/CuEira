@@ -211,17 +211,41 @@ Container::HostVector BedReader::readSNP(SNP& snp) const {
   for(int i = 0; i < numberOfIndividuals; ++i){
     if(geneticModel == DOMINANT){
       if(snp.getRiskAllele() == ALLELE_ONE){
-        //TODO
+        if(SNPVector[i] == 0 || SNPVector[i] == 1){
+          SNPVector[i] = 1;
+        }else if(SNPVector[i] == 2){
+          SNPVector[i] = 0;
+        }else{
+          throw FileReaderException("Unknown genotype. This should not happen.");
+        }
       }else if(snp.getRiskAllele() == ALLELE_TWO){
-        //TODO
+        if(SNPVector[i] == 2 || SNPVector[i] == 1){
+          SNPVector[i] = 1;
+        }else if(SNPVector[i] == 0){
+          SNPVector[i] = 0;
+        }else{
+          throw FileReaderException("Unknown genotype. This should not happen.");
+        }
       }else{
         throw FileReaderException("Unknown risk allele. This should not happen.");
       }
     }else if(geneticModel == RECESSIVE){
       if(snp.getRiskAllele() == ALLELE_ONE){
-        //TODO
+        if(SNPVector[i] == 0){
+          SNPVector[i] = 1;
+        }else if(SNPVector[i] == 2 || SNPVector[i] == 1){
+          SNPVector[i] = 0;
+        }else{
+          throw FileReaderException("Unknown genotype. This should not happen.");
+        }
       }else if(snp.getRiskAllele() == ALLELE_TWO){
-        //TODO
+        if(SNPVector[i] == 2){
+          SNPVector[i] = 1;
+        }else if(SNPVector[i] == 0 || SNPVector[i] == 1){
+          SNPVector[i] = 0;
+        }else{
+          throw FileReaderException("Unknown genotype. This should not happen.");
+        }
       }else{
         throw FileReaderException("Unknown risk allele. This should not happen.");
       }

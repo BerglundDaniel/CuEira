@@ -28,62 +28,72 @@ public:
   /**
    * Get the number of streams to use for each GPU
    */
-  int getNumberOfStreams();
+  int getNumberOfStreams() const;
 
   /**
    * Get the genetic model
    */
-  GeneticModel getGeneticModel();
+  GeneticModel getGeneticModel() const;
 
   /**
    * Get the path to the csv file that contains the environment factors
    */
-  std::string getEnvironmentFilePath();
+  std::string getEnvironmentFilePath() const;
 
   /**
    * Get the path to the csv file that contains the covariates
    */
-  std::string getCovariateFilePath();
+  std::string getCovariateFilePath() const;
 
   /**
    * Get the name of the column that contains the personds id in the environment file
    */
-  std::string getEnvironmentIndividualIdColumnName();
+  std::string getEnvironmentIndividualIdColumnName() const;
 
   /**
    * Get the name of the column that contains the personds id in the covariate file
    */
-  std::string getCovariateIndividualIdColumnName();
+  std::string getCovariateIndividualIdColumnName() const;
 
   /**
    * Get the path to the bed file
    */
-  std::string getBedFilePath();
+  std::string getBedFilePath() const;
 
   /**
    * Get the path to the fam file
    */
-  std::string getFamFilePath();
+  std::string getFamFilePath() const;
 
   /**
    * Get the path to the bim file
    */
-  std::string getBimFilePath();
+  std::string getBimFilePath() const;
 
   /**
    * Get the path to the output file
    */
-  std::string getOutputFilePath();
+  std::string getOutputFilePath() const;
 
   /**
    * Returns true if a covariate file was specified
    */
-  bool covariateFileSpecified();
+  bool covariateFileSpecified() const;
 
   /**
    * Returns the specified coding for the phenotypes in the fam file
    */
-  PhenotypeCoding getPhenotypeCoding();
+  PhenotypeCoding getPhenotypeCoding() const;
+
+  /**
+   * Returns true if SNPs with negative position should be excluded.
+   */
+  bool excludeSNPsWithNegativePosition() const;
+
+  /**
+   * Returns the threshold for minor allele frequency.
+   */
+  double getMinorAlleleFrequencyThreshold() const;
 
 private:
   options::variables_map optionsMap;

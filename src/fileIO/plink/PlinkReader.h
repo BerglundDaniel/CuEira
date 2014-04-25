@@ -24,7 +24,7 @@ public:
   virtual ~PlinkReader();
 
   Container::HostVector readSNP(SNP& snp);
-  Container::HostVector getOutcomes();
+  const Container::HostVector& getOutcomes();
   std::map<Id, Person>& getIdToPersonMap();
 
   int getNumberOfIndividuals();

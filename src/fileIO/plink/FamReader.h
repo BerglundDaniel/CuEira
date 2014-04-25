@@ -24,15 +24,15 @@ namespace FileIO {
  */
 class FamReader {
 public:
-  explicit FamReader(Configuration& configuration);
+  explicit FamReader(const Configuration& configuration);
   virtual ~FamReader();
 
-  Container::HostVector getOutcomes();
-  int getNumberOfIndividuals();
-  std::vector<Person*> getPersons();
+  const Container::HostVector& getOutcomes() const;
+  int getNumberOfIndividuals() const;
+  const std::vector<Person*>& getPersons() const;
 
 private:
-  Configuration& configuration;
+  const Configuration& configuration;
   int numberOfIndividuals;
   std::vector<Person*> persons;
   Container::HostVector outcomes;

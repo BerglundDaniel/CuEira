@@ -16,7 +16,7 @@ Container::HostVector PlinkReader::readSNP(SNP& snp) {
   return bedReader.readSNP(snpid);
 }
 
-Container::HostVector PlinkReader::getOutcomes() {
+const Container::HostVector& PlinkReader::getOutcomes() {
   return famReader.getOutcomes();
 }
 

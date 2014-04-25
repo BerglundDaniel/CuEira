@@ -12,9 +12,10 @@ PlinkReaderFactory::~PlinkReaderFactory() {
 }
 
 PlinkReader* PlinkReaderFactory::constructPlinkReader(Configuration& configuration) {
-  BedReader bedReader(configuration);
   BimReader bimReader(configuration);
-  FamReader fameReader(configuration);
+  FamReader famReader(configuration);
+  BedReader bedReader(configuration, famReader.getOutcomes(), famReader.getNumberOfIndividuals(),
+      bimReader.getNumberOfSNPs());
 
   return new PlinkReader(bedReader, bimReader, famReader);
 }

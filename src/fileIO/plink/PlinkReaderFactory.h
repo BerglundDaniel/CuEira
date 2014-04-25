@@ -5,9 +5,9 @@
 
 #include <Configuration.h>
 #include <PlinkReader.h>
-#include <BedReader.h>
 #include <BimReader.h>
 #include <FamReader.h>
+#include <BedReader.h>
 
 namespace CuEira {
 namespace FileIO {

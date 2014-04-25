@@ -3,7 +3,7 @@
 namespace CuEira {
 namespace FileIO {
 
-BimReader::BimReader(Configuration& configuration) :
+BimReader::BimReader(const Configuration& configuration) :
     configuration(configuration), numberOfSNPs(0) {
   std::string bimFileStr = configuration.getBimFilePath();
   std::string line;
@@ -58,14 +58,21 @@ BimReader::BimReader(Configuration& configuration) :
         throw FileReaderException(tmp.c_str());
       }
 
-      if(baseSNP < 0){
-        snp = new SNP(id, false);
+      //Read alleles
+      std::string alleleOneName = lineSplit[4];
+      std::string alleleTwoName = lineSplit[5];
+
+      //Should SNPs with negative position be excluded?
+      if(configuration.excludeSNPsWithNegativePosition()){
+        if(baseSNP < 0){
+          snp = new SNP(id, alleleOneName, alleleTwoName, false);
+        }else{
+          snp = new SNP(id, alleleOneName, alleleTwoName, true);
+        }
       }else{
-        snp = new SNP(id, false);
+        snp = new SNP(id, alleleOneName, alleleTwoName, true);
       }
       SNPVector[pos] = snp;
-
-      //Read allels? TODO
 
       pos++;
     } /* while getline */
@@ -87,11 +94,11 @@ BimReader::~BimReader() {
 
 }
 
-int BimReader::getNumberOfSNPs() {
+int BimReader::getNumberOfSNPs() const {
   return numberOfSNPs;
 }
 
-std::vector<SNP*> BimReader::getSNPs() {
+std::vector<SNP*> BimReader::getSNPs() const {
   return SNPVector;
 }
 

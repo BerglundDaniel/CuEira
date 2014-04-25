@@ -13,5 +13,5 @@
 int main(int argc, char* argv[]) {
   CuEira::Configuration configuration = CuEira::Configuration(argc, argv);
   CuEira::FileIO::BimReader bimReader(configuration);
-  CuEira::FileIO::BedReader bedReader(configuration);
+  //CuEira::FileIO::BedReader bedReader(configuration);
 }

@@ -23,14 +23,14 @@ namespace FileIO {
  */
 class BimReader {
 public:
-  explicit BimReader(Configuration& configuration);
+  explicit BimReader(const Configuration& configuration);
   virtual ~BimReader();
 
-  int getNumberOfSNPs();
-  std::vector<SNP*> getSNPs();
+  int getNumberOfSNPs() const;
+  std::vector<SNP*> getSNPs() const;
 
 private:
-  Configuration& configuration;
+  const Configuration& configuration;
   int numberOfSNPs;
   std::vector<SNP*> SNPVector;
 };

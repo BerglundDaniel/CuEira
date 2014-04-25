@@ -3,7 +3,7 @@
 namespace CuEira {
 namespace FileIO {
 
-FamReader::FamReader(Configuration& configuration) :
+FamReader::FamReader(const Configuration& configuration) :
     configuration(configuration), numberOfIndividuals(0) {
 
   std::string famFileStr = configuration.getFamFilePath();
@@ -137,15 +137,15 @@ FamReader::~FamReader() {
 
 }
 
-Container::HostVector FamReader::getOutcomes() {
+const Container::HostVector& FamReader::getOutcomes() const {
   return outcomes;
 }
 
-int FamReader::getNumberOfIndividuals() {
+int FamReader::getNumberOfIndividuals() const {
   return numberOfIndividuals;
 }
 
-std::vector<Person*> FamReader::getPersons() {
+const std::vector<Person*>& FamReader::getPersons() const {
   return persons;
 }
 

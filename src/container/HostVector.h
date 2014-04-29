@@ -11,8 +11,21 @@ namespace Container {
  */
 class HostVector {
 public:
-  HostVector();
+  HostVector(int numberOfRows, int numberOfColumns, bool subview, PRECISION* hostVector);
   virtual ~HostVector();
+
+  int getNumberOfRows();
+  int getNumberOfColumns();
+  virtual PRECISION& operator()(int index)=0;
+  virtual const PRECISION& operator()(int index) const=0;
+
+private:
+  PRECISION* getMemoryPointer();
+
+  PRECISION* hostVector;
+  const int numberOfRows;
+  const int numberOfColumns;
+  const bool subview;
 };
 
 } /* namespace Container */

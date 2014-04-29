@@ -16,19 +16,22 @@ namespace CuEira {
  */
 class Person {
 public:
-  explicit Person(Id id, Sex sex, Phenotype phenotype, int rowNumber);
+  explicit Person(Id id, Sex sex, Phenotype phenotype);
   virtual ~Person();
 
   Id getId();
   Sex getSex();
-  int getRowNumber();
   Phenotype getPhenotype();
+  void setInclude(bool include);
+  bool getInclude();
 
 private:
+  bool shouldPersonBeIncluded();
+
   Id id;
   Sex sex;
-  int rowNumber;
   Phenotype phenotype;
+  bool include;
 };
 
 } /* namespace CuEira */

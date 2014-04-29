@@ -18,17 +18,35 @@ set(Boost_USE_MULTITHREADED OFF)
 option(VERBOSE "Set CMake and compilation to verbose" on) #Change to off later
 set(PRECISION "Set the precision for the program, either single or double" single) #single or double
 set(TARGET_ARCHITECTURE "Target GPU architecture" fermi) #fermi or kepler
-#add_definitions ("-Wall") #Remove later or somethign
+set(CPU "Use cpu instead of GPU" on) #Change to of later
 
 #Set things based on options
-IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
-  add_definitions(-DDEBUG=1)
-endif (CMAKE_BUILD_TYPE MATCHES DEBUG)
-
 if(${VERBOSE})
   set (CMAKE_VERBOSE_MAKEFILE true)
   set (CUDA_VERBOSE_BUILD ON)
 endif(${VERBOSE})
+
+if(${CPU})
+  set (PRECISION double)
+  add_definitions(-DCPU=1)
+endif(${CPU})
+
+#Set preproccessor variables
+add_definitions(-DCuEira_VERSION_MAJOR=${CuEira_VERSION_MAJOR})
+add_definitions(-DCuEira_VERSION_MINOR=${CuEira_VERSION_MINOR})
+#add_definitions ("-Wall") #Remove later or somethign
+
+IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+  add_definitions(-DDEBUG=1)
+endif (CMAKE_BUILD_TYPE MATCHES DEBUG)
+
+if(${PRECISION} MATCHES single)
+  add_definitions(-DPRECISION=float)
+endif(${PRECISION} MATCHES single)
+if(${PRECISION} MATCHES double)
+  add_definitions(-DPRECISION=double)
+endif(${PRECISION} MATCHES double)
+
 
 MESSAGE( STATUS "Building CuEIRA:" )
 
@@ -60,10 +78,6 @@ MESSAGE( STATUS "GOOGLE_TEST_PATH = ${GOOGLE_TEST_PATH}" )
 MESSAGE( STATUS "CUDA_CUBLAS_LIBRARIES = ${CUDA_CUBLAS_LIBRARIES}" )
 MESSAGE( STATUS "CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS}" )
 MESSAGE( STATUS "BOOST_PATH = ${Boost_INCLUDE_DIR}" )
-
-#Set preproccessor variables
-add_definitions(-DCuEira_VERSION_MAJOR=${CuEira_VERSION_MAJOR})
-add_definitions(-DCuEira_VERSION_MINOR=${CuEira_VERSION_MINOR})
 
 #Compile
 add_subdirectory(src)

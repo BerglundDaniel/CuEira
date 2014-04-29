@@ -4,11 +4,11 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <vector>
 
-#include <HostVector.h>
 #include <Id.h>
+#include <Sex.h>
 #include <Person.h>
+#include <PersonHandler.h>
 #include <Phenotype.h>
 #include <PhenotypeCoding.h>
 #include <Configuration.h>
@@ -24,18 +24,17 @@ namespace FileIO {
  */
 class FamReader {
 public:
-  explicit FamReader(const Configuration& configuration);
+  explicit FamReader(const Configuration& configuration, PersonHandler& personHandler);
   virtual ~FamReader();
 
-  const Container::HostVector& getOutcomes() const;
-  int getNumberOfIndividuals() const;
-  const std::vector<Person*>& getPersons() const;
+  PersonHandler& getPersonHandler() const;
 
 private:
+  Phenotype stringToPhenoType(std::string phenotypeString) const;
+  Sex stringToSex(std::string sexString) const;
+
   const Configuration& configuration;
-  int numberOfIndividuals;
-  std::vector<Person*> persons;
-  Container::HostVector outcomes;
+  PersonHandler& personHandler;
 };
 
 } /* namespace FileIO */

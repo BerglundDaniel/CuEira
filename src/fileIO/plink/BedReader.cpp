@@ -3,10 +3,9 @@
 namespace CuEira {
 namespace FileIO {
 
-BedReader::BedReader(const Configuration& configuration, const Container::HostVector& outcomes,
-    const int numberOfIndividuals, const int numberOfSNPs) :
-    configuration(configuration), outcomes(outcomes), bedFileStr(configuration.getBedFilePath()), geneticModel(
-        configuration.getGeneticModel()), numberOfIndividuals(numberOfIndividuals), numberOfSNPs(numberOfSNPs) {
+BedReader::BedReader(const Configuration& configuration, const PersonHandler& personHandler, const int numberOfSNPs) :
+    configuration(configuration), personHandler(personHandler), bedFileStr(configuration.getBedFilePath()), geneticModel(
+        configuration.getGeneticModel()), numberOfSNPs(numberOfSNPs) {
 
   std::ifstream bedFile;
   openBedFile(bedFile);
@@ -57,14 +56,22 @@ BedReader::~BedReader() {
 
 }
 
-Container::HostVector BedReader::readSNP(SNP& snp) const {
-  //Initialise vector
-  Container::HostVector SNPVector(numberOfIndividuals);
+Container::HostVector& BedReader::readSNP(SNP& snp) const {
+  int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
+  int numberOfIndividualsTotal = personHandler.getNumberOfIndividualsTotal();
   std::ifstream bedFile;
-  size_t alleleOneCaseFrequency = 0;
-  size_t alleleTwoCaseFrequency = 0;
-  size_t alleleOneFrequency = 0;
-  size_t alleleTwoFrequency = 0;
+  int alleleOneCaseFrequency = 0;
+  int alleleTwoCaseFrequency = 0;
+  int alleleOneFrequency = 0;
+  int alleleTwoFrequency = 0;
+
+  //Initialise vector
+#ifdef CPU
+  LaVectorDouble laVector(numberOfIndividualsToInclude);
+  Container::LapackppVector SNPVector(laVector);
+#else
+  Container::PinnedVector SNPVector(numberOfIndividualsToInclude);
+#endif
 
   openBedFile(bedFile);
 
@@ -72,7 +79,7 @@ Container::HostVector BedReader::readSNP(SNP& snp) const {
   try{
     //Read depending on the mode
     if(mode == SNPMAJOR){
-      const int numberOfBitsPerRow = numberOfIndividuals * 2;
+      const int numberOfBitsPerRow = numberOfIndividualsTotal * 2;
       //Each individuals genotype is stored as 2 bits, there are no incomplete bytes so we have to round the number up
       const int numberOfBytesPerRow = std::ceil(numberOfBitsPerRow / 8);
       int readBufferSize; //Number of bytes to read per read
@@ -88,6 +95,12 @@ Container::HostVector BedReader::readSNP(SNP& snp) const {
 
       //Read the file until we read all the info for this SNP
       for(int readNumber = 1; readNumber <= numberOfReads; ++readNumber){
+
+        //We have to fix the buffersize if it's the lastread and if we couldn't read the whole row at once
+        if(readNumber == numberOfReads && readNumber != 1){
+          readBufferSize = numberOfBytesPerRow - readBufferSize * (numberOfReads - 1);
+        }
+
         char buffer[readBufferSize];
         bedFile.seekg(headerSize + numberOfBytesPerRow * readNumber);
         bedFile.read(buffer, readBufferSize);
@@ -110,47 +123,52 @@ Container::HostVector BedReader::readSNP(SNP& snp) const {
             bool firstBit = getBit(currentByte, posInByte + 1);
             bool secondBit = getBit(currentByte, posInByte);
             //The position in the vector where we are going to store the geneotype for this individual
-            int SNPPos = (readNumber - 1) * readBufferSize + byteNumber * 4 + bitPairNumber - 1;
-            int genotype;
+            int personRowFileNumber = (readNumber - 1) * readBufferSize + byteNumber * 4 + bitPairNumber - 1;
+            Person& person = personHandler.getPersonFromRowAll(personRowFileNumber);
+            Phenotype phenotype = person.getPhenotype();
+            int currentPersonRow = personHandler.getRowIncludeFromPerson(person);
 
-            if(firstBit && !secondBit){ //The genotype is missing for this individual
-              //The genotype is missing for this individual so we will exclude the SNP it from the analysis.
-              excludeSNP(snp);
-              closeBedFile(bedFile);
-              return SNPVector; //Since we are going to exclude this SNP there is no point in reading more data.
-            }/* if check missing */
+            if(person.getIncluded){ //If the person shouldn't be included we will skip it
 
-            //Store the genotype as 0,1,2 until we can recode it. We have to know the risk allel before we can recode to 0 and 1.
-            //Also increase the counters for the alleles if it is a case.
-            if(!firstBit && !secondBit){
-              //Homozygote primary
-              SNPVector[SNPPos] = 0;
-              alleleOneFrequency += 2;
+              //If we are missing the genotype for one individual(that should be included) or more we excluded the SNP
+              if(firstBit && !secondBit){
+                excludeSNP(snp);
+                closeBedFile(bedFile);
+                return SNPVector; //Since we are going to exclude this SNP there is no point in reading more data.
+              }/* if check missing */
 
-              if(outcomes[SNPPos] == 1){
-                alleleOneCaseFrequency += 2;
+              //Store the genotype as 0,1,2 until we can recode it. We have to know the risk allele before we can recode.
+              //Also increase the counters for the alleles if it is a case.
+              if(!firstBit && !secondBit){
+                //Homozygote primary
+                SNPVector(currentPersonRow) = 0;
+                alleleOneFrequency += 2;
+
+                if(phenotype == AFFECTED){
+                  alleleOneCaseFrequency += 2;
+                }
+              }else if(!firstBit && secondBit){
+                //Hetrozygote
+                SNPVector(currentPersonRow) = 1;
+                alleleOneFrequency++;
+                alleleTwoFrequency++;
+
+                if(phenotype == AFFECTED){
+                  alleleOneCaseFrequency++;
+                  alleleTwoCaseFrequency++;
+                }
+              }else if(firstBit && secondBit){
+                //Homozygote secondary
+                SNPVector(currentPersonRow) = 2;
+                alleleTwoFrequency += 2;
+
+                if(phenotype == AFFECTED){
+                  alleleTwoCaseFrequency += 2;
+                }
               }
-            }else if(!firstBit && secondBit){
-              //Hetrozygote
-              SNPVector[SNPPos] = 1;
-              alleleOneFrequency++;
-              alleleTwoFrequency++;
 
-              if(outcomes[SNPPos] == 1){
-                alleleOneCaseFrequency++;
-                alleleTwoCaseFrequency++;
-              }
-            }else if(firstBit && secondBit){
-              //Homozygote secondary
-              SNPVector[SNPPos] = 2;
-              alleleTwoFrequency += 2;
+            }/* if person include */
 
-              if(outcomes[SNPPos] == 1){
-                alleleTwoCaseFrequency += 2;
-              }
-            }
-
-            SNPVector[SNPPos] = genotype;
           }/* for bitPairNumber */
 
         }/* for byteNumber */
@@ -202,7 +220,7 @@ Container::HostVector BedReader::readSNP(SNP& snp) const {
       throw FileReaderException("Unknown risk allele. This should not happen.");
     }
 
-    double minorAlleleFrequency = numberOfIndividuals * 2 / numberOfMinorAllele;
+    double minorAlleleFrequency = numberOfIndividualsTotal * 2 / numberOfMinorAllele;
     snp.setMinorAlleleFrequency(minorAlleleFrequency);
     if(minorAlleleFrequencyThreshold > minorAlleleFrequency){
       excludeSNP(snp);
@@ -210,21 +228,21 @@ Container::HostVector BedReader::readSNP(SNP& snp) const {
   }/* if maf treshold!=0 */
 
   //Recode based on which allele is the risk
-  for(int i = 0; i < numberOfIndividuals; ++i){
+  for(int i = 0; i < numberOfIndividualsToInclude; ++i){
     if(geneticModel == DOMINANT){
       if(snp.getRiskAllele() == ALLELE_ONE){
-        if(SNPVector[i] == 0 || SNPVector[i] == 1){
-          SNPVector[i] = 1;
-        }else if(SNPVector[i] == 2){
-          SNPVector[i] = 0;
+        if(SNPVector(i) == 0 || SNPVector(i) == 1){
+          SNPVector(i) = 1;
+        }else if(SNPVector(i) == 2){
+          SNPVector(i) = 0;
         }else{
           throw FileReaderException("Unknown genotype. This should not happen.");
         }
       }else if(snp.getRiskAllele() == ALLELE_TWO){
-        if(SNPVector[i] == 2 || SNPVector[i] == 1){
-          SNPVector[i] = 1;
-        }else if(SNPVector[i] == 0){
-          SNPVector[i] = 0;
+        if(SNPVector(i) == 2 || SNPVector(i) == 1){
+          SNPVector(i) = 1;
+        }else if(SNPVector(i) == 0){
+          SNPVector(i) = 0;
         }else{
           throw FileReaderException("Unknown genotype. This should not happen.");
         }
@@ -233,18 +251,18 @@ Container::HostVector BedReader::readSNP(SNP& snp) const {
       }
     }else if(geneticModel == RECESSIVE){
       if(snp.getRiskAllele() == ALLELE_ONE){
-        if(SNPVector[i] == 0){
-          SNPVector[i] = 1;
-        }else if(SNPVector[i] == 2 || SNPVector[i] == 1){
-          SNPVector[i] = 0;
+        if(SNPVector(i) == 0){
+          SNPVector(i) = 1;
+        }else if(SNPVector(i) == 2 || SNPVector(i) == 1){
+          SNPVector(i) = 0;
         }else{
           throw FileReaderException("Unknown genotype. This should not happen.");
         }
       }else if(snp.getRiskAllele() == ALLELE_TWO){
-        if(SNPVector[i] == 2){
-          SNPVector[i] = 1;
-        }else if(SNPVector[i] == 0 || SNPVector[i] == 1){
-          SNPVector[i] = 0;
+        if(SNPVector(i) == 2){
+          SNPVector(i) = 1;
+        }else if(SNPVector(i) == 0 || SNPVector(i) == 1){
+          SNPVector(i) = 0;
         }else{
           throw FileReaderException("Unknown genotype. This should not happen.");
         }
@@ -257,10 +275,9 @@ Container::HostVector BedReader::readSNP(SNP& snp) const {
       const std::string& tmp = os.str();
       throw std::invalid_argument(tmp.c_str());
     }
-  }/* for i[0,numberOfIndividuals] */
+  }/* for i[0,numberOfIndividualsToInclude] */
 
   return SNPVector;
-
 }/* readSNP */
 
 // position in range 0-7

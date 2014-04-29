@@ -3,12 +3,8 @@
 namespace CuEira {
 namespace FileIO {
 
-FamReader::FamReader(const Configuration& configuration) :
-    configuration(configuration), numberOfIndividuals(0) {
-
-  std::string famFileStr = configuration.getFamFilePath();
-  std::string line;
-  std::ifstream famFile;
+FamReader::FamReader(const Configuration& configuration, PersonHandler& personHandler) :
+    configuration(configuration), personHandler(personHandler) {
 
   /*
    * Columns in the file
@@ -21,26 +17,9 @@ FamReader::FamReader(const Configuration& configuration) :
    *
    * */
 
-  //Read the whole file once to count the number of individuals
-  try{
-    famFile.open(famFileStr, std::ifstream::in);
-    while(std::getline(famFile, line)){
-      numberOfIndividuals++;
-    }
-    famFile.close();
-  } catch(const std::ios_base::failure& exception){
-    std::ostringstream os;
-    os << "Problem reading fam file " << famFileStr << std::endl;
-#ifdef DEBUG
-    os << exception.what();
-#endif
-    const std::string& tmp = os.str();
-    throw FileReaderException(tmp.c_str());
-  }
-
-  int rowNumber = 0;
-  char * temp; //Used for error checking of string to long int conversion (strtol)
-  persons = std::vector<Person*>(numberOfIndividuals);
+  std::string famFileStr = configuration.getFamFilePath();
+  std::string line;
+  std::ifstream famFile;
 
   try{
     famFile.open(famFileStr, std::ifstream::in);
@@ -50,75 +29,16 @@ FamReader::FamReader(const Configuration& configuration) :
       std::vector<std::string> lineSplit;
       boost::split(lineSplit, line, boost::is_any_of("\t "));
 
-      //Handle the persons id
       Id id(lineSplit[1]);
+      Sex sex = strToSex(lineSplit[4]);
+      Phenotype phenotype = strToPhenoType(lineSplit[5]);
+      Person person(id, sex, phenotype);
 
-      //Handle the persons sex
-      long int sexInt = strtol(lineSplit[4].c_str(), &temp, 0);
-      Sex sex;
-      if(*temp != '\0'){ //Check if there was an error with strtol
-        std::ostringstream os;
-        os << "Problem with string to int conversion of sex in fam file " << famFileStr << std::endl;
-        const std::string& tmp = os.str();
-        throw FileReaderException(tmp.c_str());
-      }
+      //Add the person
+      personHandler.addPerson(person, individualNumber);
+      individualNumber++;
 
-      if(sexInt == 1){
-        sex = MALE;
-      }else if(sexInt == 2){
-        sex = FEMALE;
-      }else{
-        sex = UNKNOWN;
-      }
-
-      //Handle the persons phenotype
-      long int phenotypeInt = strtol(lineSplit[5].c_str(), &temp, 0);
-      Phenotype phenotype;
-      if(*temp != '\0'){ //Check if there was an error with strtol
-        std::ostringstream os;
-        os << "Problem with string to int conversion of phenotype in fam file " << famFileStr << std::endl;
-        const std::string& tmp = os.str();
-        throw FileReaderException(tmp.c_str());
-      }
-      if(configuration.getPhenotypeCoding() == ONE_TWO_CODING){
-        if(phenotypeInt == 2){
-          phenotype = AFFECTED;
-        }else if(phenotypeInt == 1){
-          phenotype = UNAFFECTED;
-        }else if(phenotypeInt == 9 || phenotypeInt == 0){
-          phenotype = MISSING;
-        }else{
-          std::ostringstream os;
-          os << "Unknown phenotype status in fam file " << famFileStr << std::endl;
-          const std::string& tmp = os.str();
-          throw FileReaderException(tmp.c_str());
-        }
-      }else if(configuration.getPhenotypeCoding() == ZERO_ONE_CODING){
-        if(phenotypeInt == 1){
-          phenotype = AFFECTED;
-        }else if(phenotypeInt == 0){
-          phenotype = UNAFFECTED;
-        }else if(phenotypeInt == 9){
-          phenotype = MISSING;
-        }else{
-          std::ostringstream os;
-          os << "Unknown phenotype status in fam file " << famFileStr << std::endl;
-          const std::string& tmp = os.str();
-          throw FileReaderException(tmp.c_str());
-        }
-      }else{
-        std::ostringstream os;
-        os << "Unknown phenotype coding" << std::endl;
-        const std::string& tmp = os.str();
-        throw FileReaderException(tmp.c_str());
-      }
-
-      Person* person = new Person(id, sex, phenotype, rowNumber);
-      persons[rowNumber] = person;
-
-      rowNumber++;
-    }
-    /* while getline */
+    } /* while getline */
 
     famFile.close();
 
@@ -134,19 +54,73 @@ FamReader::FamReader(const Configuration& configuration) :
 }
 
 FamReader::~FamReader() {
-
+  delete personHandler;
 }
 
-const Container::HostVector& FamReader::getOutcomes() const {
-  return outcomes;
+PersonHandler& FamReader::getPersonHandler() const {
+  return personHandler;
 }
 
-int FamReader::getNumberOfIndividuals() const {
-  return numberOfIndividuals;
+Phenotype FamReader::stringToPhenoType(std::string phenotypeString) const {
+  char * temp; //Used for error checking of string to long int conversion (strtol)
+  long int phenotypeInt = strtol(phenotypeString.c_str(), &temp, 0);
+  if(*temp != '\0'){ //Check if there was an error with strtol
+    std::ostringstream os;
+    os << "Problem with string to int conversion of phenotype in fam file " << famFileStr << std::endl;
+    const std::string& tmp = os.str();
+    throw FileReaderException(tmp.c_str());
+  }
+  if(configuration.getPhenotypeCoding() == ONE_TWO_CODING){
+    if(phenotypeInt == 2){
+      return (AFFECTED);
+    }else if(phenotypeInt == 1){
+      return (UNAFFECTED);
+    }else if(phenotypeInt == 9 || phenotypeInt == 0){
+      return (MISSING);
+    }else{
+      std::ostringstream os;
+      os << "Unknown phenotype status in fam file " << famFileStr << std::endl;
+      const std::string& tmp = os.str();
+      throw FileReaderException(tmp.c_str());
+    }
+  }else if(configuration.getPhenotypeCoding() == ZERO_ONE_CODING){
+    if(phenotypeInt == 1){
+      return (AFFECTED);
+    }else if(phenotypeInt == 0){
+      return (UNAFFECTED);
+    }else if(phenotypeInt == 9){
+      return (MISSING);
+    }else{
+      std::ostringstream os;
+      os << "Unknown phenotype status in fam file " << famFileStr << std::endl;
+      const std::string& tmp = os.str();
+      throw FileReaderException(tmp.c_str());
+    }
+  }else{
+    std::ostringstream os;
+    os << "Unknown phenotype coding" << std::endl;
+    const std::string& tmp = os.str();
+    throw FileReaderException(tmp.c_str());
+  }
 }
 
-const std::vector<Person*>& FamReader::getPersons() const {
-  return persons;
+Sex FamReader::stringToSex(std::string sexString) const {
+  char * temp; //Used for error checking of string to long int conversion (strtol)
+  long int sexInt = strtol(sexString.c_str(), &temp, 0);
+  if(*temp != '\0'){ //Check if there was an error with strtol
+    std::ostringstream os;
+    os << "Problem with string to int conversion of sex in fam file " << famFileStr << std::endl;
+    const std::string& tmp = os.str();
+    throw FileReaderException(tmp.c_str());
+  }
+
+  if(sexInt == 1){
+    return (MALE);
+  }else if(sexInt == 2){
+    return (FEMALE);
+  }else{
+    return (UNKNOWN);
+  }
 }
 
 } /* namespace FileIO */

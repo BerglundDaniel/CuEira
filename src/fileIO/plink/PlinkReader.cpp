@@ -12,20 +12,12 @@ PlinkReader::~PlinkReader() {
 
 }
 
-Container::HostVector PlinkReader::readSNP(SNP& snp) {
+Container::HostVector& PlinkReader::readSNP(SNP& snp) {
   return bedReader.readSNP(snpid);
 }
 
-const Container::HostVector& PlinkReader::getOutcomes() {
-  return famReader.getOutcomes();
-}
-
-int PlinkReader::getNumberOfIndividuals() {
-  return famReader.getNumberOfIndividuals();
-}
-
-std::map<Id, Person>& PlinkReader::getIdToPersonMap() {
-  return famReader.getIdToPersonMap();
+const PersonHandler& PlinkReader::getPersonHandler() const {
+  return famReader.getPersonHandler();
 }
 
 } /* namespace FileIO */

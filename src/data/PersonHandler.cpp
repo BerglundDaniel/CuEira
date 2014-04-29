@@ -12,6 +12,20 @@ PersonHandler::~PersonHandler() {
 }
 
 void PersonHandler::addPerson(Person person, int individualNumber) {
+  if(rowToPersonAll.count(individualNumber) > 0){
+    std::ostringstream os;
+    os << "There already is a person with individual number: " << individualNumber << " Person " << person.getId()
+        << std::endl;
+    const std::string& tmp = os.str();
+    throw PersonHandlerException(tmp.c_str());
+  }
+  if(idToPerson.count(person.getId()) > 0){
+    std::ostringstream os;
+    os << "There already is a person with id: " << person.getId() << std::endl;
+    const std::string& tmp = os.str();
+    throw PersonHandlerException(tmp.c_str());
+  }
+
   idToPerson[person.getId()] = person;
   rowToPersonAll[individualNumber] = person;
 
@@ -36,7 +50,7 @@ Person& PersonHandler::getPersonFromId(Id id) const {
     std::ostringstream os;
     os << "No person with id " << id.getString() << std::endl;
     const std::string& tmp = os.str();
-    throw FileReaderException(tmp.c_str());
+    throw PersonHandlerException(tmp.c_str());
   }
   return idToPerson[id];
 }
@@ -46,7 +60,7 @@ Person& PersonHandler::getPersonFromRowAll(int row) const {
     std::ostringstream os;
     os << "No person from row all: " << row << std::endl;
     const std::string& tmp = os.str();
-    throw FileReaderException(tmp.c_str());
+    throw PersonHandlerException(tmp.c_str());
   }
   return rowToPersonAll[row];
 }
@@ -56,7 +70,7 @@ Person& PersonHandler::getPersonFromRowInclude(int row) const {
     std::ostringstream os;
     os << "No person from row include: " << row << std::endl;
     const std::string& tmp = os.str();
-    throw FileReaderException(tmp.c_str());
+    throw PersonHandlerException(tmp.c_str());
   }
   return rowToPersonInclude[row];
 }
@@ -67,7 +81,7 @@ int PersonHandler::getRowIncludeFromPerson(Person& person) const {
     std::ostringstream os;
     os << "No person from row include: " << row << std::endl;
     const std::string& tmp = os.str();
-    throw FileReaderException(tmp.c_str());
+    throw PersonHandlerException(tmp.c_str());
   }
   return *personIterator;
 }

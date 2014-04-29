@@ -10,6 +10,7 @@
 #include <Person.h>
 #include <Phenotype.h>
 #include <Configuration.h>
+#include <PersonHandlerException.h>
 
 namespace CuEira {
 

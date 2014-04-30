@@ -16,9 +16,9 @@ set(Boost_USE_MULTITHREADED OFF)
 
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" on) #Change to off later
-set(PRECISION "Set the precision for the program, either single or double" single) #single or double
-set(TARGET_ARCHITECTURE "Target GPU architecture" fermi) #fermi or kepler
-set(CPU "Use cpu instead of GPU" on) #Change to of later
+set(PRECISION single) #single or double
+set(TARGET_ARCHITECTURE fermi) #fermi or kepler
+set(CPU on) #Change to of later
 
 #Set things based on options
 if(${VERBOSE})

@@ -13,6 +13,9 @@ class HostMatrix {
 public:
   HostMatrix();
   virtual ~HostMatrix();
+
+  //op(i) column vector i
+  //op(i,j) element
 };
 
 } /* namespace Container */

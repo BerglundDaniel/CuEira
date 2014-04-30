@@ -12,7 +12,7 @@ namespace CuEira {
  */
 class EnvironmentFactor {
 public:
-  EnvironmentFactor(Id id, bool include=true);
+  EnvironmentFactor(Id id, bool include = true);
   virtual ~EnvironmentFactor();
 
   Id getId();

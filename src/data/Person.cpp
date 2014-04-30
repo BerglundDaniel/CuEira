@@ -31,7 +31,7 @@ bool Person::getInclude() {
 }
 
 bool Person::shouldPersonBeIncluded() {
-  if(phenotype() == MISSING){
+  if(phenotype == MISSING){
     return false;
   }else{
     return true;

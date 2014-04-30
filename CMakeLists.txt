@@ -74,17 +74,18 @@ MESSAGE( STATUS "PRECISION = ${PRECISION}" )
 MESSAGE( STATUS "TARGET_ARCHITECTURE = ${TARGET_ARCHITECTURE}" )
 MESSAGE( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
 MESSAGE( STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}" )
-MESSAGE( STATUS "GOOGLE_TEST_PATH = ${GOOGLE_TEST_PATH}" )
 MESSAGE( STATUS "CUDA_CUBLAS_LIBRARIES = ${CUDA_CUBLAS_LIBRARIES}" )
 MESSAGE( STATUS "CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS}" )
 MESSAGE( STATUS "BOOST_PATH = ${Boost_INCLUDE_DIR}" )
 
 #Compile
+enable_testing()
+add_subdirectory(gmock-1.7.0)
 add_subdirectory(src)
+add_subdirectory(test)
 
 #Tests
-enable_testing()
-add_subdirectory(test)
+
 
 #Check if bumblbee is used
 #if(tests are enabled)

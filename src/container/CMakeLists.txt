@@ -13,27 +13,11 @@ set(SOURCE
   PARENT_SCOPE
 )
 
-set(HEADERS
-  ${HEADERS}
-  ${CMAKE_CURRENT_SOURCE_DIR}/HostVector.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/HostMatrix.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostVector.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostMatrix.h
-  PARENT_SCOPE
-)
-
 if(${CPU})
   set(SOURCE
     ${SOURCE}
     ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostVector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostMatrix.cpp
-    PARENT_SCOPE
-  )
-
-  set(HEADERS
-    ${HEADERS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostVector.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostMatrix.h
     PARENT_SCOPE
   )
 endif(${CPU})

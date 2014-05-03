@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 project (CuEira)
+enable_testing()
 
 #The version number
 set (CuEira_VERSION_MAJOR 1)
@@ -12,7 +13,8 @@ set(INCLUDE_DIRECTORIES
   ${PROJECT_BINARY_DIR}
 )
 set(Boost_USE_STATIC_LIBS OFF) 
-set(Boost_USE_MULTITHREADED OFF)  
+set(Boost_USE_MULTITHREADED OFF)
+set(CUEIRA_LIB CuEira_lib)
 
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" on) #Change to off later
@@ -78,13 +80,21 @@ MESSAGE( STATUS "CUDA_CUBLAS_LIBRARIES = ${CUDA_CUBLAS_LIBRARIES}" )
 MESSAGE( STATUS "CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS}" )
 MESSAGE( STATUS "BOOST_PATH = ${Boost_INCLUDE_DIR}" )
 
-#Compile
-enable_testing()
+#Add all sub dirs, the src sub dir will create librart ${CUEIRA_LIB} and set ${INCLUDE_DIRECTORIES}
 add_subdirectory(gmock-1.7.0)
 add_subdirectory(src)
-add_subdirectory(test)
+include_directories(${INCLUDE_DIRECTORIES})
+
+#Add executable
+add_executable(CuEira ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp)
+
+#Link
+TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${Boost_LIBRARIES} ${CUDA_LIBRARIES} )
 
 #Tests
+add_subdirectory(test)
+#include_directories(${TEST_INCLUDE_DIRECTORIES})
+
 
 
 #Check if bumblbee is used

@@ -93,7 +93,11 @@ TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${Boost_LIBRARIES} ${CUDA_LIBRARIES} 
 
 #Tests
 add_subdirectory(test)
-#include_directories(${TEST_INCLUDE_DIRECTORIES})
+include_directories(${TEST_INCLUDE_DIRECTORIES})
+
+add_executable(CuEira_Test ${TEST_SOURCE})
+target_link_libraries(CuEira_Test ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES})
+#add_test(CuEira_Test ${CMAKE_CURRENT_BINARY_DIR}/CuEira_Test)
 
 
 

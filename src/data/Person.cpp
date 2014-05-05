@@ -35,11 +35,11 @@ bool Person::shouldPersonBeIncluded() const {
 }
 
 bool Person::operator<(const Person& otherPerson) const {
-  if(id < otherPerson.getId()){
-    return true;
-  }else{
-    return false;
-  }
+  return id < otherPerson.getId();
+}
+
+bool Person::operator==(const Person& otherPerson) const {
+  return id == otherPerson.getId();
 }
 
 } /* namespace CuEira */

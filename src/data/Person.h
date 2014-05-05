@@ -25,6 +25,7 @@ public:
   bool getInclude() const;
 
   bool operator<(const Person& otherPerson) const;
+  bool operator==(const Person& otherPerson) const;
 
 private:
   bool shouldPersonBeIncluded() const;

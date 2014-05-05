@@ -1,5 +1,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <vector>
+#include <string>
+#include <sstream>
 
 #include <Person.h>
 #include <Sex.h>
@@ -7,6 +10,7 @@
 #include <Phenotype.h>
 #include <PersonHandler.h>
 #include <PersonHandlerException.h>
+#include <ConstructorHelpers.h>
 
 namespace CuEira {
 namespace CuEira_Test {
@@ -24,6 +28,7 @@ protected:
   virtual void TearDown();
 
   PersonHandler personHandler;
+  ConstructorHelpers constructorHelpers;
 };
 
 PersonHandlerTest::PersonHandlerTest() {
@@ -43,31 +48,44 @@ void PersonHandlerTest::TearDown() {
 }
 
 TEST_F(PersonHandlerTest, ExceptionSamePersonSameRow){
-  Id id("person1");
-  Person person(id, MALE, AFFECTED);
-  personHandler.addPerson(person,0);
+  Person person=constructorHelpers.constructPersonInclude(1);
 
+  personHandler.addPerson(person,0);
   ASSERT_THROW(personHandler.addPerson(person,0), PersonHandlerException);
 }
 
 TEST_F(PersonHandlerTest, ExceptionSamePersonDifferentRow){
-  Id id("person1");
-  Person person(id, MALE, AFFECTED);
-  personHandler.addPerson(person,0);
+  Person person=constructorHelpers.constructPersonInclude(1);
 
+  personHandler.addPerson(person,0);
   ASSERT_THROW(personHandler.addPerson(person,1), PersonHandlerException);
 }
 
 TEST_F(PersonHandlerTest, ExceptionDifferentPersonSameRow){
-  Id id1("person1");
-  Person person1(id1, MALE, AFFECTED);
-
-  Id id2("person2");
-  Person person2(id2, FEMALE, AFFECTED);
+  Person person1=constructorHelpers.constructPersonInclude(1);
+  Person person2=constructorHelpers.constructPersonInclude(2);
 
   personHandler.addPerson(person1,0);
-
   ASSERT_THROW(personHandler.addPerson(person2,0), PersonHandlerException);
+}
+
+TEST_F(PersonHandlerTest, NumberOfIndividuals){
+  int numberOfIndividuals=10;
+  int numberOfIndividualsNotInclude=4;
+  int notInclude[4]={1,2,5,7};
+  int j=0;
+
+  for(int i=0;i<numberOfIndividuals;++i){
+    if(i==notInclude[j]){
+      ++j;
+      personHandler.addPerson(constructorHelpers.constructPersonNotInclude(i), i);
+    } else{
+      personHandler.addPerson(constructorHelpers.constructPersonInclude(i), i);
+    }
+  }
+
+  ASSERT_EQ(numberOfIndividuals, personHandler.getNumberOfIndividualsTotal());
+  ASSERT_EQ(numberOfIndividuals-numberOfIndividualsNotInclude, personHandler.getNumberOfIndividualsToInclude());
 }
 
 } /* namespace CuEira_Test */

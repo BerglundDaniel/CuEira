@@ -13,7 +13,6 @@
 #include <PersonHandlerException.h>
 
 namespace CuEira {
-//TODO change to pointers for person
 /**
  * This is ...
  *

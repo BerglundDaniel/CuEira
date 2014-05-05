@@ -14,12 +14,12 @@ public:
   HostVector(int numberOfRows, int numberOfColumns, bool subview, PRECISION* hostVector);
   virtual ~HostVector();
 
-  int getNumberOfRows();
+  virtual int getNumberOfRows();
   int getNumberOfColumns();
   virtual PRECISION& operator()(int index)=0;
   virtual const PRECISION& operator()(int index) const=0;
 
-private:
+protected:
   PRECISION* getMemoryPointer();
 
   PRECISION* hostVector;

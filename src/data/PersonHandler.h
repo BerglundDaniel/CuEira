@@ -30,7 +30,7 @@ public:
   const Person& getPersonFromId(Id id) const;
   const Person& getPersonFromRowAll(int row) const;
   const Person& getPersonFromRowInclude(int row) const;
-  int getRowIncludeFromPerson(Person& person) const;
+  int getRowIncludeFromPerson(const Person& person) const;
 
 private:
   int numberOfIndividualsTotal;

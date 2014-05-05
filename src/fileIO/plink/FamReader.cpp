@@ -4,7 +4,7 @@ namespace CuEira {
 namespace FileIO {
 
 FamReader::FamReader(const Configuration& configuration, PersonHandler& personHandler) :
-    configuration(configuration), personHandler(personHandler) {
+    configuration(configuration), personHandler(personHandler), famFileStr(configuration.getFamFilePath()) {
 
   /*
    * Columns in the file
@@ -17,9 +17,9 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler& personHa
    *
    * */
 
-  std::string famFileStr = configuration.getFamFilePath();
   std::string line;
   std::ifstream famFile;
+  int individualNumber = 0;
 
   try{
     famFile.open(famFileStr, std::ifstream::in);
@@ -30,8 +30,8 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler& personHa
       boost::split(lineSplit, line, boost::is_any_of("\t "));
 
       Id id(lineSplit[1]);
-      Sex sex = strToSex(lineSplit[4]);
-      Phenotype phenotype = strToPhenoType(lineSplit[5]);
+      Sex sex = stringToSex(lineSplit[4]);
+      Phenotype phenotype = stringToPhenoType(lineSplit[5]);
       Person person(id, sex, phenotype);
 
       //Add the person
@@ -54,10 +54,10 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler& personHa
 }
 
 FamReader::~FamReader() {
-  delete personHandler;
+
 }
 
-PersonHandler& FamReader::getPersonHandler() const {
+const PersonHandler& FamReader::getPersonHandler() const {
   return personHandler;
 }
 

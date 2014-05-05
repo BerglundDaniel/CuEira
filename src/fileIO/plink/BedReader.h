@@ -9,8 +9,8 @@
 #include <stdexcept>
 
 #ifdef CPU
-#include <lapackpp/lavd.h>
-#include <lapackpp/laexcp.h>
+//#include <lapackpp/lavd.h>
+//#include <lapackpp/laexcp.h>
 #include <LapackppHostVector.h>
 #else
 #include <PinnedHostVector.h>
@@ -39,7 +39,7 @@ public:
   explicit BedReader(const Configuration& configuration, const PersonHandler& personHandler, const int numberOfSNPs);
   virtual ~BedReader();
 
-  Container::HostVector& readSNP(SNP& snp) const;
+  Container::LapackppHostVector* readSNP(SNP& snp) const;
 
 private:
   enum Mode {

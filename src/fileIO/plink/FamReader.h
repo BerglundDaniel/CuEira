@@ -27,7 +27,7 @@ public:
   explicit FamReader(const Configuration& configuration, PersonHandler& personHandler);
   virtual ~FamReader();
 
-  PersonHandler& getPersonHandler() const;
+  const PersonHandler& getPersonHandler() const;
 
 private:
   Phenotype stringToPhenoType(std::string phenotypeString) const;
@@ -35,6 +35,7 @@ private:
 
   const Configuration& configuration;
   PersonHandler& personHandler;
+  const std::string famFileStr;
 };
 
 } /* namespace FileIO */

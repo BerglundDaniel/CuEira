@@ -1,8 +1,8 @@
-add_subdirectory(data)
 add_subdirectory(exception)
-#add_subdirectory(container)
+add_subdirectory(data)
+add_subdirectory(container)
 add_subdirectory(programOptions)
-#add_subdirectory(fileIO)
+add_subdirectory(fileIO)
 
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}
@@ -12,7 +12,6 @@ set(INCLUDE_DIRECTORIES
 
 set(SOURCE
   ${SOURCE}
-  #${CMAKE_CURRENT_SOURCE_DIR}/Main.cpp
 )
 
 include_directories(${INCLUDE_DIRECTORIES})

@@ -5,7 +5,6 @@
 #include <lapackpp/laexcp.h>
 
 #include <HostVector.h>
-#include <DimensionMismatch.h>
 
 namespace CuEira {
 namespace Container {

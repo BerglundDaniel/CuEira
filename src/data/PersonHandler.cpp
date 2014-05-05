@@ -76,7 +76,7 @@ const Person& PersonHandler::getPersonFromRowInclude(int row) const {
   return rowToPersonInclude.at(row);
 }
 
-int PersonHandler::getRowIncludeFromPerson(Person& person) const {
+int PersonHandler::getRowIncludeFromPerson(const Person& person) const {
   if(personToRowInclude.count(person) <= 0){
     std::ostringstream os;
     os << "Person not included: " << person.getId().getString() << std::endl;

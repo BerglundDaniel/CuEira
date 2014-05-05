@@ -16,6 +16,8 @@ public:
 
   //op(i) column vector i
   //op(i,j) element
+
+protected:
 };
 
 } /* namespace Container */

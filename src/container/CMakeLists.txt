@@ -4,20 +4,20 @@ set(INCLUDE_DIRECTORIES
   PARENT_SCOPE
 )
 
+if(${CPU})
+  set(CPU_SOURCE
+    #${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostVector.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostMatrix.cpp
+  )
+endif(${CPU})
+
 set(SOURCE
   ${SOURCE}
+  ${CPU_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/HostVector.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/HostMatrix.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostVector.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostMatrix.cpp
+  #${CMAKE_CURRENT_SOURCE_DIR}/HostMatrix.cpp
+  #${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostVector.cpp
+  #${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostMatrix.cpp
   PARENT_SCOPE
 )
 
-if(${CPU})
-  set(SOURCE
-    ${SOURCE}
-    ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostVector.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostMatrix.cpp
-    PARENT_SCOPE
-  )
-endif(${CPU})

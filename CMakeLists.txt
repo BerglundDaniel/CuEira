@@ -36,7 +36,6 @@ endif(${CPU})
 #Set preproccessor variables
 add_definitions(-DCuEira_VERSION_MAJOR=${CuEira_VERSION_MAJOR})
 add_definitions(-DCuEira_VERSION_MINOR=${CuEira_VERSION_MINOR})
-#add_definitions ("-Wall") #Remove later or somethign
 
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
   add_definitions(-DDEBUG=1)
@@ -60,6 +59,14 @@ include_directories( ${Boost_INCLUDE_DIR} )
 find_package( CUDA REQUIRED )
 include_directories( ${CUDA_INCLUDE_DIR} )
 
+if(${CPU})
+  set(LAPACKPP_INCLUDE_DIR /usr/local/include/lapackpp/)
+  set(BLAS_LIBRARIES "-lgfortran -llapackpp -I /usr/local/include/lapackpp/")
+  add_definitions(-llapackpp)
+  add_definitions(-lgfortran)
+  include_directories( ${LAPACKPP_INCLUDE_DIR} )
+endif(${CPU})
+
 #Checks that the CUDA version is correct
 if(${CUDA_VERSION_MAJOR} LESS 5)
   message( FATAL_ERROR "Requires CUDA version 5.5 or later" )
@@ -79,6 +86,10 @@ MESSAGE( STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}" )
 MESSAGE( STATUS "CUDA_CUBLAS_LIBRARIES = ${CUDA_CUBLAS_LIBRARIES}" )
 MESSAGE( STATUS "CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS}" )
 MESSAGE( STATUS "BOOST_PATH = ${Boost_INCLUDE_DIR}" )
+if(${CPU})
+  MESSAGE( STATUS "LAPACKPP_INCLUDE_DIR = ${LAPACKPP_INCLUDE_DIR}" )
+  MESSAGE( STATUS "BLAS_LIBRARIES = ${BLAS_LIBRARIES}" )
+endif(${CPU})
 
 #Add all sub dirs, the src sub dir will create librart ${CUEIRA_LIB} and set ${INCLUDE_DIRECTORIES}
 add_subdirectory(gmock-1.7.0)
@@ -87,14 +98,14 @@ include_directories(${INCLUDE_DIRECTORIES})
 
 #Add executable and link
 add_executable(CuEira ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp)
-TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${Boost_LIBRARIES} ${CUDA_LIBRARIES} )
+TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
 
 #Tests
 add_subdirectory(test)
 include_directories(${TEST_INCLUDE_DIRECTORIES})
 
 add_executable(CuEira_Test ${TEST_SOURCE})
-target_link_libraries(CuEira_Test ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES})
+target_link_libraries(CuEira_Test ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
 add_test(CuEira_Test ${CMAKE_CURRENT_BINARY_DIR}/CuEira_Test)
 
 #Check if bumblbee is used

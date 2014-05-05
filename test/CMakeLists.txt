@@ -1,5 +1,6 @@
 add_subdirectory(data)
 add_subdirectory(container)
+add_subdirectory(fileIO)
 
 set(TEST_INCLUDE_DIRECTORIES
   ${TEST_INCLUDE_DIRECTORIES}

@@ -6,7 +6,7 @@ set(INCLUDE_DIRECTORIES
 
 if(${CPU})
   set(CPU_SOURCE
-    #${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostVector.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostVector.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostMatrix.cpp
   )
 endif(${CPU})

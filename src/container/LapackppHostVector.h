@@ -16,7 +16,7 @@ namespace Container {
  */
 class LapackppHostVector: public HostVector {
 public:
-  LapackppHostVector(LaVectorDouble lapackppContainer);
+  LapackppHostVector(int numberOfIndividualsToInclude);
   virtual ~LapackppHostVector();
 
   LaVectorDouble& getLapackpp();

@@ -3,9 +3,8 @@
 namespace CuEira {
 namespace Container {
 
-LapackppHostVector::LapackppHostVector(LaVectorDouble lapackppContainer) :
-    HostVector(lapackppContainer.rows(), lapackppContainer.cols(), false, lapackppContainer.addr()), lapackppContainer(
-        lapackppContainer) {
+LapackppHostVector::LapackppHostVector(int numberOfIndividualsToInclude) : lapackppContainer(numberOfIndividualsToInclude),
+    HostVector(lapackppContainer.rows(), lapackppContainer.cols(), false, lapackppContainer.addr()) {
 }
 
 LapackppHostVector::~LapackppHostVector() {

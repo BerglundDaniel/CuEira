@@ -66,13 +66,11 @@ Container::LapackppHostVector* BedReader::readSNP(SNP& snp) const {
   int alleleTwoFrequency = 0;
 
   //Initialise vector
-//#ifdef CPU
-  //LaVectorDouble laVector(numberOfIndividualsToInclude);
-  //Container::LapackppHostVector* SNPVector = new Container::LapackppHostVector(laVector);
-  Container::LapackppHostVector* SNPVector = new Container::LapackppHostVector();
-//#else
-//  Container::PinnedHostVector* SNPVector = new Container::PinnedHostVector(numberOfIndividualsToInclude);
-//#endif
+#ifdef CPU
+  Container::LapackppHostVector* SNPVector = new Container::LapackppHostVector(numberOfIndividualsToInclude);
+#else
+  Container::PinnedHostVector* SNPVector = new Container::PinnedHostVector(numberOfIndividualsToInclude);
+#endif
 
   openBedFile(bedFile);
 

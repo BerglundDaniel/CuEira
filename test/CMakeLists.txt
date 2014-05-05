@@ -1,4 +1,5 @@
 add_subdirectory(data)
+add_subdirectory(container)
 
 set(TEST_INCLUDE_DIRECTORIES
   ${TEST_INCLUDE_DIRECTORIES}

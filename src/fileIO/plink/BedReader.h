@@ -9,8 +9,7 @@
 #include <stdexcept>
 
 #ifdef CPU
-//#include <lapackpp/lavd.h>
-//#include <lapackpp/laexcp.h>
+#include <lapackpp/lavd.h>
 #include <LapackppHostVector.h>
 #else
 #include <PinnedHostVector.h>

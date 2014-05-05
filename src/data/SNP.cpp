@@ -54,4 +54,12 @@ RiskAllele SNP::getRiskAllele() const {
   return riskAllele;
 }
 
+std::string SNP::getAlleleOneName() {
+  return alleleOneName;
+}
+
+std::string SNP::getAlleleTwoName() {
+  return alleleTwoName;
+}
+
 } /* namespace CuEira */

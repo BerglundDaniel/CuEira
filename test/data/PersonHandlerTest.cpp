@@ -147,7 +147,46 @@ TEST_F(PersonHandlerTest, Getters){
 
     delete person;
   }
+}
 
+TEST_F(PersonHandlerTest, GettersException){
+  int numberOfIndividuals=10;
+  int numberOfIndividualsNotInclude=4;
+  int notInclude[4]={0,3,5,8};
+  int j=0;
+  std::vector<Person*> personVector(numberOfIndividuals);
+
+  for(int i=0;i<numberOfIndividuals;++i){
+    Person* person;
+    if(i==notInclude[j]){
+      ++j;
+      person=constructorHelpers.constructPersonNotInclude(i);
+    } else{
+      person=constructorHelpers.constructPersonInclude(i);
+    }
+    personHandler.addPerson(*person, i);
+    personVector[i]=person;
+  }
+
+  int personNumber=22;
+  Person* personNotInHandler=constructorHelpers.constructPersonInclude(personNumber);
+
+  //Id to person
+  ASSERT_THROW(personHandler.getPersonFromId(personNotInHandler->getId()), PersonHandlerException);
+
+  //Plink row to person
+  ASSERT_THROW(personHandler.getPersonFromRowAll(personNumber), PersonHandlerException);
+
+  //Row include to person
+  ASSERT_THROW(personHandler.getPersonFromRowInclude(personNumber), PersonHandlerException);
+
+  //Person to row include
+  ASSERT_THROW(personHandler.getRowIncludeFromPerson(*personNotInHandler), PersonHandlerException);
+
+  for(int i=0;i<numberOfIndividuals;++i){
+    Person* person=personVector[i];
+    delete person;
+  }
 }
 
 }

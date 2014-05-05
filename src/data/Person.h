@@ -22,7 +22,6 @@ public:
   Id getId() const;
   Sex getSex() const;
   Phenotype getPhenotype() const;
-  void setInclude(bool include);
   bool getInclude() const;
 
   bool operator<(const Person& otherPerson) const;

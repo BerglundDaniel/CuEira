@@ -24,8 +24,8 @@ public:
   ConstructorHelpers();
   virtual ~ConstructorHelpers();
 
-  Person constructPersonInclude(int number);
-  Person constructPersonNotInclude(int number);
+  Person* constructPersonInclude(int number);
+  Person* constructPersonNotInclude(int number);
 
 private:
 };

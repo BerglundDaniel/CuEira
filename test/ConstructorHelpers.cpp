@@ -11,7 +11,7 @@ ConstructorHelpers::~ConstructorHelpers() {
 
 }
 
-Person ConstructorHelpers::constructPersonInclude(int number) {
+Person* ConstructorHelpers::constructPersonInclude(int number) {
   std::ostringstream os;
   os << "Person" << number;
   Id id(os.str());
@@ -30,10 +30,10 @@ Person ConstructorHelpers::constructPersonInclude(int number) {
     phenotype = UNAFFECTED;
   }
 
-  return Person(id, sex, phenotype);
+  return new Person(id, sex, phenotype);
 }
 
-Person ConstructorHelpers::constructPersonNotInclude(int number) {
+Person* ConstructorHelpers::constructPersonNotInclude(int number) {
   std::ostringstream os;
   os << "Person" << number;
   Id id(os.str());
@@ -45,7 +45,7 @@ Person ConstructorHelpers::constructPersonNotInclude(int number) {
     sex = FEMALE;
   }
 
-  return Person(id, sex, MISSING);
+  return new Person(id, sex, MISSING);
 }
 
 } /* namespace CuEira_Test */

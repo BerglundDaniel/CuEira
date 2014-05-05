@@ -103,7 +103,7 @@ TEST_F(PersonHandlerTest, NumberOfIndividuals){
   }
 }
 
-TEST_F(PersonHandlerTest, getters){
+TEST_F(PersonHandlerTest, Getters){
   int numberOfIndividuals=10;
   int numberOfIndividualsNotInclude=4;
   int notInclude[4]={0,3,5,8};
@@ -122,21 +122,35 @@ TEST_F(PersonHandlerTest, getters){
     personVector[i]=person;
   }
 
+  int rowInclude=0;
+  j=0;
   for(int i=0;i<numberOfIndividuals;++i){
     Person* person=personVector[i];
+
+    //Id to person
     ASSERT_EQ(*person,personHandler.getPersonFromId(person->getId()));
+
+    //Plink row to person
+    ASSERT_EQ(*person,personHandler.getPersonFromRowAll(i));
+
+    if(i==notInclude[j]){
+      j++;
+    } else{
+      //Row include to person
+      ASSERT_EQ(*person,personHandler.getPersonFromRowInclude(rowInclude));
+
+      //Person to row include
+      ASSERT_EQ(rowInclude,personHandler.getRowIncludeFromPerson(*person));
+
+      rowInclude++;
+    }
+
     delete person;
   }
 
-  /*const Person& getPersonFromId(Id id)
-
-   const Person& getPersonFromRowAll(int row) const;
-
-   const Person& getPersonFromRowInclude(int row) const;
-
-   int getRowIncludeFromPerson(Person& person) const;*/
 }
 
-} /* namespace CuEira_Test */
+}
+/* namespace CuEira_Test */
 } /* namespace CuEira */
 

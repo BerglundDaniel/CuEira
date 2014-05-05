@@ -19,6 +19,8 @@ public:
 
   const std::string getString() const;
 
+  bool operator<(const Id& otherId) const;
+
 private:
   std::string id;
 };

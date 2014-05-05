@@ -11,26 +11,27 @@ PersonHandler::~PersonHandler() {
 
 }
 
-void PersonHandler::addPerson(Person person, int individualNumber) {
-  if(rowToPersonAll.count(individualNumber) > 0){
+void PersonHandler::addPerson(Person person, int rowAll) {
+  if(rowToPersonAll.count(rowAll) > 0){
     std::ostringstream os;
-    os << "There already is a person with individual number: " << individualNumber << " Person " << person.getId()
-        << std::endl;
+    os << "There already is a person with plink row: " << rowAll << " Person "
+        << person.getId().getString() << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
   if(idToPerson.count(person.getId()) > 0){
     std::ostringstream os;
-    os << "There already is a person with id: " << person.getId() << std::endl;
+    os << "There already is a person with id: " << person.getId().getString() << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
 
-  idToPerson[person.getId()] = person;
-  rowToPersonAll[individualNumber] = person;
+  idToPerson.insert(std::pair<Id, Person>(person.getId(), person));
+  rowToPersonAll.insert(std::pair<int, Person>(rowAll, person));
 
   if(person.getInclude()){
-    rowToPersonInclude[numberOfIndividualsToInclude] = person;
+    rowToPersonInclude.insert(std::pair<int, Person>(numberOfIndividualsToInclude, person));
+    personToRowInclude.insert(std::pair<Person, int>(person, numberOfIndividualsToInclude));
 
     numberOfIndividualsToInclude++;
   }
@@ -45,45 +46,44 @@ int PersonHandler::getNumberOfIndividualsToInclude() const {
   return numberOfIndividualsToInclude;
 }
 
-Person& PersonHandler::getPersonFromId(Id id) const {
+const Person& PersonHandler::getPersonFromId(Id id) const {
   if(idToPerson.count(id) <= 0){
     std::ostringstream os;
     os << "No person with id " << id.getString() << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return idToPerson[id];
+  return idToPerson.at(id);
 }
 
-Person& PersonHandler::getPersonFromRowAll(int row) const {
+const Person& PersonHandler::getPersonFromRowAll(int row) const {
   if(rowToPersonAll.count(row) <= 0){
     std::ostringstream os;
     os << "No person from row all: " << row << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return rowToPersonAll[row];
+  return rowToPersonAll.at(row);
 }
 
-Person& PersonHandler::getPersonFromRowInclude(int row) const {
+const Person& PersonHandler::getPersonFromRowInclude(int row) const {
   if(rowToPersonInclude.count(row) <= 0){
     std::ostringstream os;
     os << "No person from row include: " << row << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return rowToPersonInclude[row];
+  return rowToPersonInclude.at(row);
 }
 
 int PersonHandler::getRowIncludeFromPerson(Person& person) const {
-  std::map<int, Person>::iterator personIterator = rowToPersonInclude.find(person);
-  if(personIterator == rowToPersonInclude.end()){
+  if(personToRowInclude.count(person) <= 0){
     std::ostringstream os;
-    os << "No person from row include: " << row << std::endl;
+    os << "Person not included: " << person.getId().getString() << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return *personIterator;
+  return personToRowInclude.at(person);
 }
 
 } /* namespace CuEira */

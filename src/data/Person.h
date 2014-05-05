@@ -19,14 +19,16 @@ public:
   explicit Person(Id id, Sex sex, Phenotype phenotype);
   virtual ~Person();
 
-  Id getId();
-  Sex getSex();
-  Phenotype getPhenotype();
+  Id getId() const;
+  Sex getSex() const;
+  Phenotype getPhenotype() const;
   void setInclude(bool include);
-  bool getInclude();
+  bool getInclude() const;
+
+  bool operator<(const Person& otherPerson) const;
 
 private:
-  bool shouldPersonBeIncluded();
+  bool shouldPersonBeIncluded() const;
 
   Id id;
   Sex sex;

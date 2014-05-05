@@ -10,15 +10,15 @@ Person::~Person() {
 
 }
 
-Id Person::getId() {
+Id Person::getId() const {
   return id;
 }
 
-Sex Person::getSex() {
+Sex Person::getSex() const {
   return sex;
 }
 
-Phenotype Person::getPhenotype() {
+Phenotype Person::getPhenotype() const {
   return phenotype;
 }
 
@@ -26,15 +26,23 @@ void Person::setInclude(bool include) {
   this->include = include;
 }
 
-bool Person::getInclude() {
+bool Person::getInclude() const {
   return include;
 }
 
-bool Person::shouldPersonBeIncluded() {
+bool Person::shouldPersonBeIncluded() const {
   if(phenotype == MISSING){
     return false;
   }else{
     return true;
+  }
+}
+
+bool Person::operator<(const Person& otherPerson) const {
+  if(id < otherPerson.getId()){
+    return true;
+  }else{
+    return false;
   }
 }
 

@@ -15,4 +15,12 @@ const std::string Id::getString() const {
   return id;
 }
 
+bool Id::operator<(const Id& otherId) const {
+  if(id < otherId.getString()){
+    return true;
+  }else{
+    return false;
+  }
+}
+
 } /* namespace CuEira */

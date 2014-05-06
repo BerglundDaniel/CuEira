@@ -14,7 +14,7 @@ set(INCLUDE_DIRECTORIES
 )
 set(Boost_USE_STATIC_LIBS OFF) 
 set(Boost_USE_MULTITHREADED OFF)
-set(CUEIRA_LIB CuEira_lib)
+set(CUEIRA_LIB CuEira_Core)
 
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" on) #Change to off later
@@ -33,11 +33,14 @@ if(${CPU})
   add_definitions(-DCPU=1)
 endif(${CPU})
 
+MESSAGE( STATUS "Building CuEira:" )
+
 #Set preproccessor variables
 add_definitions(-DCuEira_VERSION_MAJOR=${CuEira_VERSION_MAJOR})
 add_definitions(-DCuEira_VERSION_MINOR=${CuEira_VERSION_MINOR})
 
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+  MESSAGE( STATUS "Debug build." )
   add_definitions(-DDEBUG=1)
 endif (CMAKE_BUILD_TYPE MATCHES DEBUG)
 
@@ -47,9 +50,6 @@ endif(${PRECISION} MATCHES single)
 if(${PRECISION} MATCHES double)
   add_definitions(-DPRECISION=double)
 endif(${PRECISION} MATCHES double)
-
-
-MESSAGE( STATUS "Building CuEIRA:" )
 
 #Find required libraries
 MESSAGE( STATUS "Checking packages:" )

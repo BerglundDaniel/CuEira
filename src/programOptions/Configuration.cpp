@@ -79,6 +79,10 @@ Configuration::~Configuration() {
 
 }
 
+Configuration::Configuration(){
+
+}
+
 int Configuration::getNumberOfStreams() const {
   //return optionsMap["nstreams"].as<int>();
   return 3;

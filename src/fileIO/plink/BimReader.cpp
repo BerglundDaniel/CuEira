@@ -20,21 +20,18 @@ BimReader::BimReader(const Configuration& configuration) :
    * */
 
   //Read whole file once to count the number of SNPs
-  try{
-    bimFile.open(bimFileStr, std::ifstream::in);
-    while(std::getline(bimFile, line)){
-      numberOfSNPs++;
-    }
-    bimFile.close();
-  } catch(const std::ios_base::failure& exception){
+  bimFile.open(bimFileStr, std::ifstream::in);
+  if(!bimFile){
     std::ostringstream os;
-    os << "Problem reading bim file " << bimFileStr << std::endl;
-#ifdef DEBUG
-    os << exception.what();
-#endif
+    os << "Problem opening bim file " << bimFileStr << std::endl;
     const std::string& tmp = os.str();
     throw FileReaderException(tmp.c_str());
   }
+
+  while(std::getline(bimFile, line)){
+    numberOfSNPs++;
+  }
+  bimFile.close();
 
   SNPVector = std::vector<SNP*>(numberOfSNPs);
   int pos = 0;
@@ -42,51 +39,47 @@ BimReader::BimReader(const Configuration& configuration) :
   long int baseSNP;
   char * temp; //Used for error checking of string to long int conversion (strtol)
 
-  try{
-    bimFile.open(bimFileStr, std::ifstream::in);
-    while(std::getline(bimFile, line)){
-      std::vector<std::string> lineSplit;
-      boost::split(lineSplit, line, boost::is_any_of("\t "));
-
-      Id id(lineSplit[1]);
-
-      baseSNP = strtol(lineSplit[3].c_str(), &temp, 0);
-      if(*temp != '\0'){ //Check if there was an error with strtol
-        std::ostringstream os;
-        os << "Problem with string to int conversion of basepositions in bim file " << bimFileStr << std::endl;
-        const std::string& tmp = os.str();
-        throw FileReaderException(tmp.c_str());
-      }
-
-      //Read alleles
-      std::string alleleOneName = lineSplit[4];
-      std::string alleleTwoName = lineSplit[5];
-
-      //Should SNPs with negative position be excluded?
-      if(configuration.excludeSNPsWithNegativePosition()){
-        if(baseSNP < 0){
-          snp = new SNP(id, alleleOneName, alleleTwoName, false);
-        }else{
-          snp = new SNP(id, alleleOneName, alleleTwoName, true);
-        }
-      }else{
-        snp = new SNP(id, alleleOneName, alleleTwoName, true);
-      }
-      SNPVector[pos] = snp;
-
-      pos++;
-    } /* while getline */
-    bimFile.close();
-
-  } catch(const std::ios_base::failure& exception){
+  bimFile.open(bimFileStr, std::ifstream::in);
+  if(!bimFile){
     std::ostringstream os;
-    os << "Problem reading bim file " << bimFileStr << std::endl;
-#ifdef DEBUG
-    os << exception.what();
-#endif
+    os << "Problem opening bim file " << bimFileStr << std::endl;
     const std::string& tmp = os.str();
     throw FileReaderException(tmp.c_str());
   }
+
+  while(std::getline(bimFile, line)){
+    std::vector<std::string> lineSplit;
+    boost::split(lineSplit, line, boost::is_any_of("\t "));
+
+    Id id(lineSplit[1]);
+
+    baseSNP = strtol(lineSplit[3].c_str(), &temp, 0);
+    if(*temp != '\0'){ //Check if there was an error with strtol
+      std::ostringstream os;
+      os << "Problem with string to int conversion of basepositions in bim file " << bimFileStr << std::endl;
+      const std::string& tmp = os.str();
+      throw FileReaderException(tmp.c_str());
+    }
+
+    //Read alleles
+    std::string alleleOneName = lineSplit[4];
+    std::string alleleTwoName = lineSplit[5];
+
+    //Should SNPs with negative position be excluded?
+    if(configuration.excludeSNPsWithNegativePosition()){
+      if(baseSNP < 0){
+        snp = new SNP(id, alleleOneName, alleleTwoName, false);
+      }else{
+        snp = new SNP(id, alleleOneName, alleleTwoName, true);
+      }
+    }else{
+      snp = new SNP(id, alleleOneName, alleleTwoName, true);
+    }
+    SNPVector[pos] = snp;
+
+    pos++;
+  } /* while getline */
+  bimFile.close();
 
 }
 

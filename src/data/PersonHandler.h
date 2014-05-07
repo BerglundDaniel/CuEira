@@ -23,14 +23,14 @@ public:
   PersonHandler();
   virtual ~PersonHandler();
 
-  void addPerson(Person person, int rowAll);
+  virtual void addPerson(Person person, int rowAll);
 
-  int getNumberOfIndividualsTotal() const;
-  int getNumberOfIndividualsToInclude() const;
-  const Person& getPersonFromId(Id id) const;
-  const Person& getPersonFromRowAll(int row) const;
-  const Person& getPersonFromRowInclude(int row) const;
-  int getRowIncludeFromPerson(const Person& person) const;
+  virtual int getNumberOfIndividualsTotal() const;
+  virtual int getNumberOfIndividualsToInclude() const;
+  virtual const Person& getPersonFromId(Id id) const;
+  virtual const Person& getPersonFromRowAll(int row) const;
+  virtual const Person& getPersonFromRowInclude(int row) const;
+  virtual int getRowIncludeFromPerson(const Person& person) const;
 
 private:
   int numberOfIndividualsTotal;

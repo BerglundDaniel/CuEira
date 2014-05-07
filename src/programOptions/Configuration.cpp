@@ -79,7 +79,7 @@ Configuration::~Configuration() {
 
 }
 
-Configuration::Configuration(){
+Configuration::Configuration() {
 
 }
 
@@ -152,6 +152,14 @@ bool Configuration::excludeSNPsWithNegativePosition() const {
 
 double Configuration::getMinorAlleleFrequencyThreshold() const {
   return optionsMap["maf"].as<double>();
+}
+
+std::string Configuration::getEnvironmentDelimiter() const {
+  return "\t ";
+}
+
+std::string Configuration::getCovariateDelimiter() const {
+  return "\t ";
 }
 
 } /* namespace CuEira */

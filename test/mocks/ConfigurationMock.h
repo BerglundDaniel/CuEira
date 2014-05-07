@@ -35,6 +35,8 @@ public:
   MOCK_CONST_METHOD0(getPhenotypeCoding, PhenotypeCoding());
   MOCK_CONST_METHOD0(excludeSNPsWithNegativePosition, bool());
   MOCK_CONST_METHOD0(getMinorAlleleFrequencyThreshold, double());
+  MOCK_CONST_METHOD0(getEnvironmentDelimiter, std::string());
+  MOCK_CONST_METHOD0(getCovariateDelimiter, std::string());
 };
 
 } /* namespace CuEira */

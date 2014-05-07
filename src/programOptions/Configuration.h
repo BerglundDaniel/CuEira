@@ -95,6 +95,16 @@ public:
    */
   virtual double getMinorAlleleFrequencyThreshold() const;
 
+  /**
+   * Returns the delimiter for the environment csv file
+   */
+  virtual std::string getEnvironmentDelimiter() const;
+
+  /**
+   * Returns the delimiter for the covariate csv file
+   */
+  virtual std::string getCovariateDelimiter() const;
+
 protected:
   Configuration();
 

@@ -41,9 +41,9 @@ void PersonTest::TearDown() {
 
 }
 
-TEST_F(PersonTest, Getters){
+TEST_F(PersonTest, Getters) {
   Id id1("Person1");
-  Person person1(id1,MALE,UNAFFECTED);
+  Person person1(id1, MALE, UNAFFECTED);
 
   ASSERT_EQ(id1, person1.getId());
   ASSERT_TRUE(person1.getInclude());
@@ -51,7 +51,7 @@ TEST_F(PersonTest, Getters){
   ASSERT_EQ(UNAFFECTED, person1.getPhenotype());
 
   Id id2("Person2");
-  Person person2(id2,FEMALE,AFFECTED);
+  Person person2(id2, FEMALE, AFFECTED);
 
   ASSERT_EQ(id2, person2.getId());
   ASSERT_TRUE(person2.getInclude());
@@ -59,7 +59,7 @@ TEST_F(PersonTest, Getters){
   ASSERT_EQ(AFFECTED, person2.getPhenotype());
 
   Id id3("Person3");
-  Person person3(id3,MALE,MISSING);
+  Person person3(id3, MALE, MISSING);
 
   ASSERT_EQ(id3, person3.getId());
   ASSERT_FALSE(person3.getInclude());
@@ -67,33 +67,33 @@ TEST_F(PersonTest, Getters){
   ASSERT_EQ(MISSING, person3.getPhenotype());
 }
 
-TEST_F(PersonTest, Include){
+TEST_F(PersonTest, Include) {
   Id id1("Person1");
-  Person person1(id1,FEMALE,UNAFFECTED);
+  Person person1(id1, FEMALE, UNAFFECTED);
   ASSERT_TRUE(person1.getInclude());
 
   Id id2("Person2");
-  Person person2(id2,MALE,MISSING);
+  Person person2(id2, MALE, MISSING);
   ASSERT_FALSE(person2.getInclude());
 }
 
-TEST_F(PersonTest, Operators){
+TEST_F(PersonTest, Operators) {
   Id id1("Person1");
-  Person person1(id1,MALE,UNAFFECTED);
-  Person person2(id1,MALE,UNAFFECTED);
+  Person person1(id1, MALE, UNAFFECTED);
+  Person person2(id1, MALE, UNAFFECTED);
 
   Id id3("Person3");
-  Person person3(id3,FEMALE,AFFECTED);
+  Person person3(id3, FEMALE, AFFECTED);
 
-  ASSERT_TRUE(person1==person2);
-  ASSERT_FALSE(person1<person2);
-  ASSERT_FALSE(person2<person1);
+  ASSERT_TRUE(person1 == person2);
+  ASSERT_FALSE(person1 < person2);
+  ASSERT_FALSE(person2 < person1);
 
- if(id1<id3){
-   ASSERT_TRUE(person1<person3);
- } else{
-   ASSERT_TRUE(person3<person1);
- }
+  if(id1 < id3){
+    ASSERT_TRUE(person1 < person3);
+  }else{
+    ASSERT_TRUE(person3 < person1);
+  }
 
 }
 

@@ -1,6 +1,8 @@
 #ifndef HOSTMATRIX_H_
 #define HOSTMATRIX_H_
 
+#include <HostVector.h>
+
 namespace CuEira {
 namespace Container {
 
@@ -11,13 +13,22 @@ namespace Container {
  */
 class HostMatrix {
 public:
-  HostMatrix();
+  HostMatrix(int numberOfRows, int numberOfColums, PRECISION* hostMatrix);
   virtual ~HostMatrix();
 
-  //op(i) column vector i
-  //op(i,j) element
+  int getNumberOfRows();
+  int getNumberOfColumns();
+  virtual HostVector* operator()(int column)=0;
+  virtual const HostVector* operator()(int column) const=0;
+  virtual PRECISION& operator()(int row, int column)=0;
+  virtual const PRECISION& operator()(int row, int column) const=0;
 
 protected:
+  PRECISION* getMemoryPointer();
+
+  PRECISION* hostMatrix;
+  const int numberOfRows;
+  const int numberOfColumns;
 };
 
 } /* namespace Container */

@@ -1,7 +1,13 @@
 #ifndef LAPACKPPHOSTMATRIX_H_
 #define LAPACKPPHOSTMATRIX_H_
 
-#include "HostMatrix.h"
+#include <lapackpp/gmd.h>
+#include <lapackpp/lavd.h>
+#include <lapackpp/laexcp.h>
+
+#include <HostMatrix.h>
+#include <HostVector.h>
+#include <LapackppHostVector.h>
 
 namespace CuEira {
 namespace Container {
@@ -13,8 +19,16 @@ namespace Container {
  */
 class LapackppHostMatrix: public HostMatrix {
 public:
-  LapackppHostMatrix();
+  LapackppHostMatrix(LaGenMatDouble lapackppContainer);
   virtual ~LapackppHostMatrix();
+
+  LaGenMatDouble& getLapackpp();
+  virtual HostVector* operator()(int column);
+  virtual const HostVector* operator()(int column) const;
+  virtual double& operator()(int row, int column);
+  virtual const double& operator()(int row, int column) const;
+private:
+  LaGenMatDouble lapackppContainer;
 };
 
 } /* namespace Container */

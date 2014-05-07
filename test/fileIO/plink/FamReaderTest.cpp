@@ -56,11 +56,18 @@ void FamReaderTest::TearDown() {
 }
 
 TEST_F(FamReaderTest, ReadFile) {
-  EXPECT_CALL(personHandlerMock, addPerson(_,_)).Times(numberOfIndividuals);
+  EXPECT_CALL(personHandlerMock, addPerson(_,0)).Times(1);
+  EXPECT_CALL(personHandlerMock, addPerson(_,1)).Times(1);
+  EXPECT_CALL(personHandlerMock, addPerson(_,2)).Times(1);
+  EXPECT_CALL(personHandlerMock, addPerson(_,3)).Times(1);
+  EXPECT_CALL(personHandlerMock, addPerson(_,4)).Times(1);
+  EXPECT_CALL(personHandlerMock, addPerson(_,5)).Times(1);
+  EXPECT_CALL(personHandlerMock, addPerson(_,6)).Times(1);
+  EXPECT_CALL(personHandlerMock, addPerson(_,7)).Times(1);
+  EXPECT_CALL(personHandlerMock, addPerson(_,8)).Times(1);
+  EXPECT_CALL(personHandlerMock, addPerson(_,9)).Times(1);
 
   CuEira::FileIO::FamReader famReader(configMock, personHandlerMock);
-
-  //ASSERT_EQ();
 }
 
 TEST_F(FamReaderTest, StringToSex) {

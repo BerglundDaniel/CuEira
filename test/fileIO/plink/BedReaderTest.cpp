@@ -16,7 +16,6 @@
 #include <SNP.h>
 
 using testing::Return;
-using testing::_;
 
 namespace CuEira {
 namespace CuEira_Test {
@@ -50,12 +49,12 @@ void BedReaderTest::TearDown() {
 
 }
 
-TEST_F(BedReaderTest, ReadDominantInclude){
-  int numberOfSNPs=10;
-  int numberOfIndividualsTotal=10;
-  int numberOfIndividualsToInclude=8;
+TEST_F(BedReaderTest, ReadDominantInclude) {
+  int numberOfSNPs = 10;
+  int numberOfIndividualsTotal = 10;
+  int numberOfIndividualsToInclude = 8;
   ConfigurationMock configMock;
-  //PersonHandlerMock personHandlerMock;
+  PersonHandlerMock personHandlerMock;
 
   //Expect Configuration
   EXPECT_CALL(configMock, getBedFilePath()).Times(1).WillRepeatedly(Return("../data/test.bed"));
@@ -76,7 +75,6 @@ TEST_F(BedReaderTest, ReadDominantInclude){
 }
 
 //TODO read snp ressecive test
-
 
 }
 /* namespace CuEira_Test */

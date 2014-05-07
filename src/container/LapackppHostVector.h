@@ -3,7 +3,6 @@
 
 #include <lapackpp/lavd.h>
 #include <lapackpp/laexcp.h>
-#include <iostream>
 
 #include <HostVector.h>
 
@@ -18,6 +17,7 @@ namespace Container {
 class LapackppHostVector: public HostVector {
 public:
   LapackppHostVector(LaVectorDouble lapackppContainer);
+  LapackppHostVector(LaVectorDouble lapackppContainer, bool subview);
   virtual ~LapackppHostVector();
 
   LaVectorDouble& getLapackpp();

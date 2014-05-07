@@ -42,11 +42,11 @@ void SNPTest::TearDown() {
 
 }
 
-TEST_F(SNPTest, Getters){
+TEST_F(SNPTest, Getters) {
   Id id1("SNP1");
   std::string alleOneString1("a1_1");
   std::string alleTwoString1("a1_2");
-  SNP snp1(id1,alleOneString1,alleTwoString1);
+  SNP snp1(id1, alleOneString1, alleTwoString1);
 
   ASSERT_TRUE(snp1.getInclude());
   ASSERT_EQ(id1, snp1.getId());
@@ -56,7 +56,7 @@ TEST_F(SNPTest, Getters){
   Id id2("SNP2");
   std::string alleOneString2("a2_1");
   std::string alleTwoString2("a2_2");
-  SNP snp2(id2,alleOneString2,alleTwoString2,false);
+  SNP snp2(id2, alleOneString2, alleTwoString2, false);
 
   ASSERT_FALSE(snp2.getInclude());
   ASSERT_EQ(id2, snp2.getId());
@@ -64,11 +64,11 @@ TEST_F(SNPTest, Getters){
   ASSERT_EQ(alleTwoString2, snp2.getAlleleTwoName());
 }
 
-TEST_F(SNPTest, Include){
+TEST_F(SNPTest, Include) {
   Id id1("SNP1");
   std::string alleOneString1("a1_1");
   std::string alleTwoString1("a1_2");
-  SNP snp1(id1,alleOneString1,alleTwoString1);
+  SNP snp1(id1, alleOneString1, alleTwoString1);
 
   snp1.setInclude(true);
   ASSERT_TRUE(snp1.getInclude());
@@ -77,48 +77,48 @@ TEST_F(SNPTest, Include){
   ASSERT_FALSE(snp1.getInclude());
 }
 
-TEST_F(SNPTest, MafException){
+TEST_F(SNPTest, MafException) {
   Id id1("SNP1");
   std::string alleOneString1("a1_1");
   std::string alleTwoString1("a1_2");
-  SNP snp1(id1,alleOneString1,alleTwoString1);
+  SNP snp1(id1, alleOneString1, alleTwoString1);
 
-  ASSERT_THROW(snp1.getMinorAlleleFrequency(),std::invalid_argument);
+  ASSERT_THROW(snp1.getMinorAlleleFrequency(), std::invalid_argument);
 }
 
-TEST_F(SNPTest, RiskAlleleException){
+TEST_F(SNPTest, RiskAlleleException) {
   Id id1("SNP1");
   std::string alleOneString1("a1_1");
   std::string alleTwoString1("a1_2");
-  SNP snp1(id1,alleOneString1,alleTwoString1);
+  SNP snp1(id1, alleOneString1, alleTwoString1);
 
-  ASSERT_THROW(snp1.getRiskAllele(),std::invalid_argument);
+  ASSERT_THROW(snp1.getRiskAllele(), std::invalid_argument);
 }
 
-TEST_F(SNPTest, Maf){
+TEST_F(SNPTest, Maf) {
   Id id1("SNP1");
   std::string alleOneString1("a1_1");
   std::string alleTwoString1("a1_2");
-  SNP snp1(id1,alleOneString1,alleTwoString1);
+  SNP snp1(id1, alleOneString1, alleTwoString1);
 
-  double maf=0.5;
+  double maf = 0.5;
   snp1.setMinorAlleleFrequency(maf);
-  ASSERT_EQ(maf,snp1.getMinorAlleleFrequency());
+  ASSERT_EQ(maf, snp1.getMinorAlleleFrequency());
 }
 
-TEST_F(SNPTest, RiskAllele){
+TEST_F(SNPTest, RiskAllele) {
   Id id1("SNP1");
   std::string alleOneString1("a1_1");
   std::string alleTwoString1("a1_2");
-  SNP snp1(id1,alleOneString1,alleTwoString1);
+  SNP snp1(id1, alleOneString1, alleTwoString1);
 
-  RiskAllele riskAllele=ALLELE_ONE;
+  RiskAllele riskAllele = ALLELE_ONE;
   snp1.setRiskAllele(riskAllele);
-  ASSERT_EQ(riskAllele,snp1.getRiskAllele());
+  ASSERT_EQ(riskAllele, snp1.getRiskAllele());
 
-  riskAllele=ALLELE_TWO;
+  riskAllele = ALLELE_TWO;
   snp1.setRiskAllele(riskAllele);
-  ASSERT_EQ(riskAllele,snp1.getRiskAllele());
+  ASSERT_EQ(riskAllele, snp1.getRiskAllele());
 }
 
 }

@@ -38,14 +38,14 @@ void IdTest::TearDown() {
 
 }
 
-TEST_F(IdTest, Getters){
+TEST_F(IdTest, Getters) {
   std::string id1Str("Person1");
   Id id1(id1Str);
 
   ASSERT_EQ(id1Str, id1.getString());
 }
 
-TEST_F(IdTest, Operators){
+TEST_F(IdTest, Operators) {
   std::string id1Str("Person1");
   Id id1(id1Str);
 
@@ -54,16 +54,16 @@ TEST_F(IdTest, Operators){
 
   Id id3(id1Str);
 
-  ASSERT_TRUE(id1==id3);
+  ASSERT_TRUE(id1 == id3);
 
-  ASSERT_FALSE(id1<id3);
-  ASSERT_FALSE(id3<id1);
+  ASSERT_FALSE(id1 < id3);
+  ASSERT_FALSE(id3 < id1);
 
- if(id1Str<id2Str){
-   ASSERT_TRUE(id1<id2);
- } else{
-   ASSERT_TRUE(id2<id1);
- }
+  if(id1Str < id2Str){
+    ASSERT_TRUE(id1 < id2);
+  }else{
+    ASSERT_TRUE(id2 < id1);
+  }
 }
 
 }

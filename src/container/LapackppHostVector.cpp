@@ -8,6 +8,11 @@ LapackppHostVector::LapackppHostVector(LaVectorDouble lapackppContainer) :
 
 }
 
+LapackppHostVector::LapackppHostVector(LaVectorDouble lapackppContainer, bool subview) :
+    HostVector(lapackppContainer.size(), subview, lapackppContainer.addr()), lapackppContainer(lapackppContainer) {
+
+}
+
 LapackppHostVector::~LapackppHostVector() {
 
 }

@@ -21,36 +21,31 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler& personHa
   std::ifstream famFile;
   int individualNumber = 0;
 
-  try{
-    famFile.open(famFileStr, std::ifstream::in);
-
-    //Read file
-    while(std::getline(famFile, line)){
-      std::vector<std::string> lineSplit;
-      boost::split(lineSplit, line, boost::is_any_of("\t "));
-
-      Id id(lineSplit[1]);
-      Sex sex = stringToSex(lineSplit[4]);
-      Phenotype phenotype = stringToPhenoType(lineSplit[5]);
-      Person person(id, sex, phenotype);
-
-      //Add the person
-      personHandler.addPerson(person, individualNumber);
-      individualNumber++;
-
-    } /* while getline */
-
-    famFile.close();
-
-  } catch(const std::ios_base::failure& exception){
+  famFile.open(famFileStr, std::ifstream::in);
+  if(!famFile){
     std::ostringstream os;
-    os << "Problem reading fam file " << famFileStr << std::endl;
-#ifdef DEBUG
-    os << exception.what();
-#endif
+    os << "Problem opening fam file " << famFileStr << std::endl;
     const std::string& tmp = os.str();
     throw FileReaderException(tmp.c_str());
   }
+
+  //Read file
+  while(std::getline(famFile, line)){
+    std::vector<std::string> lineSplit;
+    boost::split(lineSplit, line, boost::is_any_of("\t "));
+
+    Id id(lineSplit[1]);
+    Sex sex = stringToSex(lineSplit[4]);
+    Phenotype phenotype = stringToPhenotype(lineSplit[5]);
+    Person person(id, sex, phenotype);
+
+    //Add the person
+    personHandler.addPerson(person, individualNumber);
+    individualNumber++;
+
+  } /* while getline */
+
+  famFile.close();
 }
 
 FamReader::~FamReader() {
@@ -61,7 +56,7 @@ const PersonHandler& FamReader::getPersonHandler() const {
   return personHandler;
 }
 
-Phenotype FamReader::stringToPhenoType(std::string phenotypeString) const {
+Phenotype FamReader::stringToPhenotype(std::string phenotypeString) const {
   char * temp; //Used for error checking of string to long int conversion (strtol)
   long int phenotypeInt = strtol(phenotypeString.c_str(), &temp, 0);
   if(*temp != '\0'){ //Check if there was an error with strtol

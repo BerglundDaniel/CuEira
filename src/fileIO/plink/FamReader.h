@@ -15,6 +15,11 @@
 #include <FileReaderException.h>
 
 namespace CuEira {
+
+namespace CuEira_Test {
+class FamReaderTest;
+}
+
 namespace FileIO {
 
 /**
@@ -23,6 +28,7 @@ namespace FileIO {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class FamReader {
+  friend CuEira_Test::FamReaderTest;
 public:
   explicit FamReader(const Configuration& configuration, PersonHandler& personHandler);
   virtual ~FamReader();
@@ -30,7 +36,7 @@ public:
   const PersonHandler& getPersonHandler() const;
 
 private:
-  Phenotype stringToPhenoType(std::string phenotypeString) const;
+  Phenotype stringToPhenotype(std::string phenotypeString) const;
   Sex stringToSex(std::string sexString) const;
 
   const Configuration& configuration;

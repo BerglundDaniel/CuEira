@@ -9,7 +9,6 @@
 #include <SNP.h>
 #include <ConfigurationMock.h>
 
-using testing::ByRef;
 using testing::Return;
 
 namespace CuEira {

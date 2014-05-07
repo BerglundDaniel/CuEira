@@ -102,6 +102,23 @@ TEST_F(LapackppHostMatrixTest, AccessOperatorColumn) {
   delete colVector;
 }
 
+TEST_F(LapackppHostMatrixTest, AccessOperatorColumnMemory) {
+  double a = 5;
+  double b = 3.2;
+  double c = 2.1;
+
+  HostVector* colVector = (*hostMatrix)(1);
+  (*hostMatrix)(0, 1) = a;
+  (*hostMatrix)(3, 1) = b;
+  (*colVector)(2) = c;
+
+  delete colVector;
+
+  EXPECT_EQ(a, (*hostMatrix)(0, 1));
+  EXPECT_EQ(b, (*hostMatrix)(3, 1));
+  EXPECT_EQ(c, (*hostMatrix)(2, 1));
+}
+
 }
 /* namespace CuEira_Test */
 } /* namespace CuEira */

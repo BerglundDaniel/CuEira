@@ -15,6 +15,8 @@
 #include <HostMatrix.h>
 
 #ifdef CPU
+#include <lapackpp/gmd.h>
+#include <lapackpp/lavd.h>
 #include <LapackppHostMatrix.h>
 #else
 #include <PinnedHostMatrix.h>
@@ -35,6 +37,7 @@ public:
   virtual ~CSVReader();
 
   int getNumberOfColumns(); //Not including id
+  int getNumberOfRows(); //Not including header
   std::vector<std::string> getDataColumnHeaders();
   Container::HostMatrix& getData();
   Container::HostVector& getData(std::string column);
@@ -42,17 +45,19 @@ public:
 private:
   void storeData(std::vector<std::string> lineSplit);
 
+  const PersonHandler& personHandler;
   const std::string delim;
   const std::string filePath;
   const std::string idColumnName;
-  const PersonHandler& personHandler;
   const int numberOfIndividualsToInclude;
+  const int numberOfIndividualsTotal;
   int numberOfColumns; //Not including id
+  int numberOfRows; //Not including header
   int idColumnNumber;
   std::vector<std::string> dataColumnNames;
 
 #ifdef CPU
-  Container::LapackppHostMatrix dataMatrix;
+  Container::LapackppHostMatrix* dataMatrix;
 #else
   Container::PinnedHostMatrix dataMatrix;
 #endif

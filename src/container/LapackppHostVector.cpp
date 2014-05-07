@@ -14,9 +14,7 @@ LapackppHostVector::LapackppHostVector(LaVectorDouble* lapackppContainer, bool s
 }
 
 LapackppHostVector::~LapackppHostVector() {
-  //if(!subview){
    delete lapackppContainer;
-  //}
 }
 
 LaVectorDouble& LapackppHostVector::getLapackpp() {

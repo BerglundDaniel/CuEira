@@ -14,7 +14,7 @@ LapackppHostMatrix::~LapackppHostMatrix() {
 }
 
 LaGenMatDouble& LapackppHostMatrix::getLapackpp() {
-  return lapackppContainer;
+  return *lapackppContainer;
 }
 
 HostVector* LapackppHostMatrix::operator()(int column) {
@@ -30,11 +30,11 @@ const HostVector* LapackppHostMatrix::operator()(int column) const {
 }
 
 double& LapackppHostMatrix::operator()(int row, int column) {
-  return lapackppContainer(row, column);
+  return (*lapackppContainer)(row, column);
 }
 
 const double& LapackppHostMatrix::operator()(int row, int column) const {
-  return lapackppContainer(row, column);
+  return (*lapackppContainer)(row, column);
 }
 
 }

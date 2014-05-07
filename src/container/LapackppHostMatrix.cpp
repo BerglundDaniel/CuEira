@@ -3,14 +3,14 @@
 namespace CuEira {
 namespace Container {
 
-LapackppHostMatrix::LapackppHostMatrix(LaGenMatDouble lapackppContainer) :
-    HostMatrix(lapackppContainer.rows(), lapackppContainer.cols(), lapackppContainer.addr()), lapackppContainer(
+LapackppHostMatrix::LapackppHostMatrix(LaGenMatDouble* lapackppContainer) :
+    HostMatrix(lapackppContainer->rows(), lapackppContainer->cols(), lapackppContainer->addr()), lapackppContainer(
         lapackppContainer) {
 
 }
 
 LapackppHostMatrix::~LapackppHostMatrix() {
-
+  delete lapackppContainer;
 }
 
 LaGenMatDouble& LapackppHostMatrix::getLapackpp() {
@@ -18,11 +18,15 @@ LaGenMatDouble& LapackppHostMatrix::getLapackpp() {
 }
 
 HostVector* LapackppHostMatrix::operator()(int column) {
-  return new LapackppHostVector(lapackppContainer.col(column), false);
+  LaVectorDouble* laVector = new LaVectorDouble(numberOfRows);
+  laVector->ref(lapackppContainer->col(column));
+  return new LapackppHostVector(laVector, true);
 }
 
 const HostVector* LapackppHostMatrix::operator()(int column) const {
-  return new LapackppHostVector(lapackppContainer.col(column), false);
+  LaVectorDouble* laVector = new LaVectorDouble(numberOfRows);
+  laVector->ref(lapackppContainer->col(column));
+  return new LapackppHostVector(laVector, true);
 }
 
 double& LapackppHostMatrix::operator()(int row, int column) {

@@ -19,7 +19,7 @@ namespace Container {
  */
 class LapackppHostMatrix: public HostMatrix {
 public:
-  LapackppHostMatrix(LaGenMatDouble lapackppContainer);
+  LapackppHostMatrix(LaGenMatDouble* lapackppContainer);
   virtual ~LapackppHostMatrix();
 
   LaGenMatDouble& getLapackpp();
@@ -28,7 +28,7 @@ public:
   virtual double& operator()(int row, int column);
   virtual const double& operator()(int row, int column) const;
 private:
-  LaGenMatDouble lapackppContainer;
+  LaGenMatDouble* lapackppContainer;
 };
 
 } /* namespace Container */

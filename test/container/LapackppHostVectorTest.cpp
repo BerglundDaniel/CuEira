@@ -43,7 +43,7 @@ void LapackppHostVectorTest::TearDown() {
 
 TEST_F(LapackppHostVectorTest, Getters) {
   const int size = 5;
-  LaVectorDouble laVector(size);
+  LaVectorDouble* laVector = new LaVectorDouble(size);
   LapackppHostVector hostVector(laVector);
 
   ASSERT_EQ(1, hostVector.getNumberOfColumns());
@@ -52,15 +52,15 @@ TEST_F(LapackppHostVectorTest, Getters) {
 
 TEST_F(LapackppHostVectorTest, GetLapackpp) {
   const int size = 5;
-  LaVectorDouble laVector(size);
+  LaVectorDouble* laVector = new LaVectorDouble(size);
   LapackppHostVector hostVector(laVector);
 
   LaVectorDouble& laVectorGet = hostVector.getLapackpp();
 
   ASSERT_EQ(size, laVectorGet.size());
 
-  int a = 5;
-  int b = 3.2;
+  double a = 5;
+  double b = 3.2;
   laVectorGet(0) = a;
   laVectorGet(2) = b;
 
@@ -72,11 +72,11 @@ TEST_F(LapackppHostVectorTest, GetLapackpp) {
 
 TEST_F(LapackppHostVectorTest, AccessOperator) {
   const int size = 5;
-  LaVectorDouble laVector(size);
+  LaVectorDouble* laVector = new LaVectorDouble(size);
   LapackppHostVector hostVector(laVector);
 
-  int a = 5;
-  int b = 3.2;
+  double a = 5;
+  double b = 3.2;
 
   hostVector(0) = a;
   hostVector(3) = b;

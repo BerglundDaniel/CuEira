@@ -16,8 +16,8 @@ namespace Container {
  */
 class LapackppHostVector: public HostVector {
 public:
-  LapackppHostVector(LaVectorDouble lapackppContainer);
-  LapackppHostVector(LaVectorDouble lapackppContainer, bool subview);
+  LapackppHostVector(LaVectorDouble* lapackppContainer);
+  LapackppHostVector(LaVectorDouble* lapackppContainer, bool subview);
   virtual ~LapackppHostVector();
 
   LaVectorDouble& getLapackpp();
@@ -25,7 +25,7 @@ public:
   virtual const double& operator()(int index) const;
 
 private:
-  LaVectorDouble lapackppContainer;
+  LaVectorDouble* lapackppContainer;
 };
 
 } /* namespace Container */

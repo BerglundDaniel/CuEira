@@ -67,7 +67,7 @@ Container::LapackppHostVector* BedReader::readSNP(SNP& snp) const {
 
   //Initialise vector
 #ifdef CPU
-  LaVectorDouble laVector(numberOfIndividualsToInclude);
+  LaVectorDouble* laVector = new LaVectorDouble(numberOfIndividualsToInclude);
   Container::LapackppHostVector* SNPVector = new Container::LapackppHostVector(laVector);
 #else
   Container::PinnedHostVector* SNPVector = new Container::PinnedHostVector(numberOfIndividualsToInclude);

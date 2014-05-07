@@ -4,6 +4,10 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <iostream>
+#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
+
 
 #include <Id.h>
 #include <Sex.h>
@@ -15,12 +19,8 @@
 #include <FileReaderException.h>
 
 namespace CuEira {
-
-namespace CuEira_Test {
-class FamReaderTest;
-}
-
 namespace FileIO {
+class FamReaderTest;
 
 /**
  * This is ...
@@ -28,7 +28,13 @@ namespace FileIO {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class FamReader {
-  friend CuEira_Test::FamReaderTest;
+  friend FamReaderTest;
+  FRIEND_TEST(FamReaderTest, StringToSex);
+  FRIEND_TEST(FamReaderTest, StringToSexException);
+  FRIEND_TEST(FamReaderTest, StringToPhenotypeOneTwoCoding);
+  FRIEND_TEST(FamReaderTest, StringToPhenotypeZeroOneCoding);
+  FRIEND_TEST(FamReaderTest, StringToPhenotypeOneTwoCodingException);
+  FRIEND_TEST(FamReaderTest, StringToPhenotypeZeroOneCodingException);
 public:
   explicit FamReader(const Configuration& configuration, PersonHandler& personHandler);
   virtual ~FamReader();

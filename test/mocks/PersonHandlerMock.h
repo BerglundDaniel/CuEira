@@ -13,7 +13,7 @@ namespace CuEira {
 
 class PersonHandlerMock : public PersonHandler{
 public:
-  PersonHandlerMock():PersonHandlerMock(){
+  PersonHandlerMock():PersonHandler(){
 
   }
 

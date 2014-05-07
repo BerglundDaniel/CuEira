@@ -19,8 +19,8 @@ Configuration::Configuration(int argc, char* argv[]) {
       options::value<std::string>(), "Set the name of the column in the covariates file that holds the person ids.")(
       "output,o", options::value<std::string>()->required(), "Set output file.")
   //("nstreams,n",options::value<int>()->default_value(2), "Set number of streams to use for each GPU. Default 2.")
-  ("maf,m", options::value<double>()->default_value(0.5),
-      "Set the threshold for minor allele frequency(MAF) in range 0 to 1. Any SNPs with MAF below the threshold will be excluded from the analysis. Default 0,5.")(
+  ("maf,m", options::value<double>()->default_value(0.05),
+      "Set the threshold for minor allele frequency(MAF) in range 0 to 1. Any SNPs with MAF below the threshold will be excluded from the analysis. Default 0.05.")(
       "p", options::value<bool>()->zero_tokens(),
       "Use alternative coding for the phenotype, 0 for unaffected and 1 for affected instead of 1 for unaffected and 2 for affected.")(
       "e", options::value<bool>()->zero_tokens(), "Excluded SNPs with negative position from the analysis.")(

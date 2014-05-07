@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
 
 #include <SNP.h>
 #include <Id.h>

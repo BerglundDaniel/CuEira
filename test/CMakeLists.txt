@@ -6,8 +6,6 @@ add_subdirectory(fileIO)
 set(TEST_INCLUDE_DIRECTORIES
   ${TEST_INCLUDE_DIRECTORIES}
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${gtest_SOURCE_DIR}/include
-  ${gmock_SOURCE_DIR}/include
   PARENT_SCOPE
 )
 

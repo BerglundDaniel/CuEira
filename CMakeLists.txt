@@ -11,6 +11,8 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(INCLUDE_DIRECTORIES
   ${PROJECT_BINARY_DIR}
+  ${gtest_SOURCE_DIR}/include
+  ${gmock_SOURCE_DIR}/include
 )
 set(Boost_USE_STATIC_LIBS OFF) 
 set(Boost_USE_MULTITHREADED OFF)
@@ -96,14 +98,14 @@ add_subdirectory(gmock-1.7.0)
 add_subdirectory(src)
 include_directories(${INCLUDE_DIRECTORIES})
 
-#Add executable and link
-add_executable(CuEira ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp)
-TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
-
-#Tests
 add_subdirectory(test)
 include_directories(${TEST_INCLUDE_DIRECTORIES})
 
+#Add executable and link
+add_executable(CuEira ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp)
+TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
+
+#Tests
 add_executable(CuEira_Test ${TEST_SOURCE})
 target_link_libraries(CuEira_Test ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
 add_test(CuEira_Test ${CMAKE_CURRENT_BINARY_DIR}/CuEira_Test)

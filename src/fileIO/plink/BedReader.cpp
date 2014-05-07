@@ -76,6 +76,7 @@ Container::LapackppHostVector* BedReader::readSNP(SNP& snp) const {
   openBedFile(bedFile);
 
   //Read SNP
+  //FIXME which snp number are we actually at?
   try{
     //Read depending on the mode
     if(mode == SNPMAJOR){
@@ -125,10 +126,10 @@ Container::LapackppHostVector* BedReader::readSNP(SNP& snp) const {
             //The position in the vector where we are going to store the geneotype for this individual
             int personRowFileNumber = (readNumber - 1) * readBufferSize + byteNumber * 4 + bitPairNumber - 1;
             const Person& person = personHandler.getPersonFromRowAll(personRowFileNumber);
-            Phenotype phenotype = person.getPhenotype();
-            int currentPersonRow = personHandler.getRowIncludeFromPerson(person);
 
             if(person.getInclude()){ //If the person shouldn't be included we will skip it
+              Phenotype phenotype = person.getPhenotype();
+              int currentPersonRow = personHandler.getRowIncludeFromPerson(person);
 
               //If we are missing the genotype for one individual(that should be included) or more we excluded the SNP
               if(firstBit && !secondBit){

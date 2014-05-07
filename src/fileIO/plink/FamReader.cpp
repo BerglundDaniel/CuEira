@@ -31,6 +31,7 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler& personHa
 
   //Read file
   while(std::getline(famFile, line)){
+    //std::cerr << individualNumber << std::endl;
     std::vector<std::string> lineSplit;
     boost::split(lineSplit, line, boost::is_any_of("\t "));
 

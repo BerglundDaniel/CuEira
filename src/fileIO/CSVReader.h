@@ -34,7 +34,6 @@ class CSVReaderTest;
  */
 class CSVReader {
   friend CSVReaderTest;
-  FRIEND_TEST(CSVReaderTest, StoreAndGet);
   FRIEND_TEST(CSVReaderTest, StoreDataException);
   FRIEND_TEST(CSVReaderTest, GetDataException);
 public:
@@ -44,7 +43,7 @@ public:
 
   int getNumberOfColumns() const; //Not including id
   int getNumberOfRows() const; //Not including header
-  const std::vector<std::string>& getDataColumnHeaders() const;
+  const std::vector<std::string>& getDataColumnHeaders() const; //Not including id
   const Container::HostMatrix& getData() const;
   const Container::HostVector& getData(std::string column) const;
 

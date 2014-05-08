@@ -16,14 +16,6 @@
 #include <HostVector.h>
 #include <ConstructorHelpers.h>
 
-#ifdef CPU
-#include <LapackppHostMatrix.h>
-#include <LapackppHostVector.h>
-#else
-#include <PinnedHostMatrix.h>
-#include <PinnedHostVector.h>
-#endif
-
 using testing::Return;
 using testing::_;
 using testing::ReturnRef;
@@ -53,7 +45,7 @@ protected:
   std::string filePath;
   std::string delimiter;
   std::string idColumnName;
-  const int notInclude[4] = {1, 2, 5, 7};
+  const int notInclude[4] = {1, 2, 5, 7}; //Index 0 based
   const int numberOfColumns = 2;
 
   Id* ids[numberOfIndividualsTotalStatic];
@@ -115,6 +107,10 @@ TEST_F(CSVReaderTest, ReadFile) {
 
   ASSERT_EQ(numberOfIndividualsTotal, csvReader.getNumberOfRows());
   ASSERT_EQ(numberOfColumns, csvReader.getNumberOfColumns());
+
+  const std::vector<std::string>& columnNames = csvReader.getDataColumnHeaders();
+  ASSERT_TRUE("cov1" == columnNames[0]);
+  ASSERT_TRUE("cov2" == columnNames[1]);
 }
 
 TEST_F(CSVReaderTest, ReadFileWrongNumber) {
@@ -123,11 +119,37 @@ TEST_F(CSVReaderTest, ReadFileWrongNumber) {
   ASSERT_THROW(CSVReader(filePath, idColumnName, delimiter, personHandlerMock), FileReaderException);
 }
 
-//read and get data, both all and by column
+TEST_F(CSVReaderTest, ReadAndGetData) {
+  CuEira::FileIO::CSVReader csvReader(filePath, idColumnName, delimiter, personHandlerMock);
+  PRECISION column1[numberOfIndividualsToIncludeStatic] = {1, 0, 1, 0, 1, 0};
+  PRECISION column2[numberOfIndividualsToIncludeStatic] = {1.1, -3, -10, 3, 2, 2};
 
-//store and get data
-//store data exception
-//get data exception
+  const Container::HostMatrix& dataMatrix = csvReader.getData();
+  ASSERT_EQ(numberOfIndividualsToInclude, dataMatrix.getNumberOfRows());
+  ASSERT_EQ(numberOfColumns, dataMatrix.getNumberOfColumns());
+
+  for(int i = 0; i < numberOfIndividualsToInclude; ++i){
+    ASSERT_EQ(column1[i], dataMatrix(i, 0));
+    ASSERT_EQ(column2[i], dataMatrix(i, 1));
+  }
+}
+
+TEST_F(CSVReaderTest, StoreDataException) {
+  CuEira::FileIO::CSVReader csvReader(filePath, idColumnName, delimiter, personHandlerMock);
+  std::vector<std::string> lineSplit(3);
+  lineSplit[0] = "1";
+  lineSplit[1] = "NotANumber";
+  lineSplit[2] = "ind0";
+
+  ASSERT_THROW(csvReader.storeData(lineSplit), FileReaderException);
+}
+
+TEST_F(CSVReaderTest, GetDataException) {
+  CuEira::FileIO::CSVReader csvReader(filePath, idColumnName, delimiter, personHandlerMock);
+
+  ASSERT_THROW(csvReader.getData("NotAColumn"), FileReaderException);
+}
+
 }
 /* namespace FileIO */
 } /* namespace CuEira */

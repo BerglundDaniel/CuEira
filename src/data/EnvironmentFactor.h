@@ -12,14 +12,15 @@ namespace CuEira {
  */
 class EnvironmentFactor {
 public:
-  EnvironmentFactor(Id id, bool include = true);
+  EnvironmentFactor(Id id);
   virtual ~EnvironmentFactor();
 
-  Id getId();
-  bool getInclude();
-  void setInclude(bool include);
+  Id getId() const;
+  bool getInclude() const;
 
 private:
+  bool shouldEnvironmentFactorBeIncluded() const;
+
   Id id;
   bool include;
 };

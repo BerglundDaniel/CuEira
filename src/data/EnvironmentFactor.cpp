@@ -2,8 +2,8 @@
 
 namespace CuEira {
 
-EnvironmentFactor::EnvironmentFactor(Id id, bool include) :
-    id(id), include(include) {
+EnvironmentFactor::EnvironmentFactor(Id id) :
+    id(id), include(shouldEnvironmentFactorBeIncluded()) {
 
 }
 
@@ -11,16 +11,16 @@ EnvironmentFactor::~EnvironmentFactor() {
 
 }
 
-Id EnvironmentFactor::getId() {
+Id EnvironmentFactor::getId() const {
   return id;
 }
 
-bool EnvironmentFactor::getInclude() {
+bool EnvironmentFactor::getInclude() const {
   return include;
 }
 
-void EnvironmentFactor::setInclude(bool include) {
-  this->include = include;
+bool EnvironmentFactor::shouldEnvironmentFactorBeIncluded() const {
+  return true;
 }
 
 } /* namespace CuEira */

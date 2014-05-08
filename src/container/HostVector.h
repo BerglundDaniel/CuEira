@@ -11,20 +11,20 @@ namespace Container {
  */
 class HostVector {
 public:
-  HostVector(int numberOfRows, bool subview, PRECISION* hostVector);
+  HostVector(unsigned int numberOfRows, bool subview, PRECISION* hostVector);
   virtual ~HostVector();
 
   int getNumberOfRows();
   int getNumberOfColumns();
-  virtual PRECISION& operator()(int index)=0;
-  virtual const PRECISION& operator()(int index) const=0;
+  virtual PRECISION& operator()(unsigned int index)=0;
+  virtual const PRECISION& operator()(unsigned int index) const=0;
 
 protected:
   PRECISION* getMemoryPointer();
 
   PRECISION* hostVector;
-  const int numberOfRows;
-  const int numberOfColumns;
+  const unsigned int numberOfRows;
+  const unsigned int numberOfColumns;
   const bool subview;
 };
 

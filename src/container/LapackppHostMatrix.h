@@ -8,6 +8,7 @@
 #include <HostMatrix.h>
 #include <HostVector.h>
 #include <LapackppHostVector.h>
+#include <DimensionMismatch.h>
 
 namespace CuEira {
 namespace Container {
@@ -23,10 +24,10 @@ public:
   virtual ~LapackppHostMatrix();
 
   LaGenMatDouble& getLapackpp();
-  virtual HostVector* operator()(int column);
-  virtual const HostVector* operator()(int column) const;
-  virtual double& operator()(int row, int column);
-  virtual const double& operator()(int row, int column) const;
+  virtual HostVector* operator()(unsigned int column);
+  virtual const HostVector* operator()(unsigned int column) const;
+  virtual double& operator()(unsigned int row, unsigned int column);
+  virtual const double& operator()(unsigned int row, unsigned int column) const;
 private:
   LaGenMatDouble* lapackppContainer;
 };

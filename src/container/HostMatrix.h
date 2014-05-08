@@ -13,22 +13,22 @@ namespace Container {
  */
 class HostMatrix {
 public:
-  HostMatrix(int numberOfRows, int numberOfColums, PRECISION* hostMatrix);
+  HostMatrix(unsigned int numberOfRows, unsigned int numberOfColums, PRECISION* hostMatrix);
   virtual ~HostMatrix();
 
   int getNumberOfRows();
   int getNumberOfColumns();
-  virtual HostVector* operator()(int column)=0;
-  virtual const HostVector* operator()(int column) const=0;
-  virtual PRECISION& operator()(int row, int column)=0;
-  virtual const PRECISION& operator()(int row, int column) const=0;
+  virtual HostVector* operator()(unsigned int column)=0;
+  virtual const HostVector* operator()(unsigned int column) const=0;
+  virtual PRECISION& operator()(unsigned int row, unsigned int column)=0;
+  virtual const PRECISION& operator()(unsigned int row, unsigned int column) const=0;
 
 protected:
   PRECISION* getMemoryPointer();
 
   PRECISION* hostMatrix;
-  const int numberOfRows;
-  const int numberOfColumns;
+  const unsigned int numberOfRows;
+  const unsigned int numberOfColumns;
 };
 
 } /* namespace Container */

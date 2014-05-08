@@ -3,7 +3,7 @@
 namespace CuEira {
 namespace Container {
 
-HostMatrix::HostMatrix(int numberOfRows, int numberOfColums, PRECISION* hostMatrix) :
+HostMatrix::HostMatrix(unsigned int numberOfRows, unsigned int numberOfColums, PRECISION* hostMatrix) :
     numberOfRows(numberOfRows), numberOfColumns(numberOfColums), hostMatrix(hostMatrix) {
 
 }

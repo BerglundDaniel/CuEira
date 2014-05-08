@@ -3,7 +3,7 @@
 namespace CuEira {
 namespace Container {
 
-HostVector::HostVector(int numberOfRows, bool subview, PRECISION* hostVector) :
+HostVector::HostVector(unsigned int numberOfRows, bool subview, PRECISION* hostVector) :
     numberOfRows(numberOfRows), numberOfColumns(1), subview(subview), hostVector(hostVector) {
 
 }

@@ -5,6 +5,7 @@
 #include <lapackpp/laexcp.h>
 
 #include <HostVector.h>
+#include <DimensionMismatch.h>
 
 namespace CuEira {
 namespace Container {
@@ -21,8 +22,8 @@ public:
   virtual ~LapackppHostVector();
 
   LaVectorDouble& getLapackpp();
-  virtual double& operator()(int index);
-  virtual const double& operator()(int index) const;
+  virtual double& operator()(unsigned int index);
+  virtual const double& operator()(unsigned int index) const;
 
 private:
   LaVectorDouble* lapackppContainer;

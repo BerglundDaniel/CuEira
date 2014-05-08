@@ -21,11 +21,14 @@ LaVectorDouble& LapackppHostVector::getLapackpp() {
   return *lapackppContainer;
 }
 
-double& LapackppHostVector::operator()(int index) {
+double& LapackppHostVector::operator()(unsigned int index) {
+  //if(){
+    //throw DimensionMismatch();
+  //}
   return (*lapackppContainer)(index);
 }
 
-const double& LapackppHostVector::operator()(int index) const {
+const double& LapackppHostVector::operator()(unsigned int index) const {
   return (*lapackppContainer)(index);
 }
 

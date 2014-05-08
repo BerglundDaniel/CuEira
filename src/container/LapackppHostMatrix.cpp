@@ -17,23 +17,23 @@ LaGenMatDouble& LapackppHostMatrix::getLapackpp() {
   return *lapackppContainer;
 }
 
-HostVector* LapackppHostMatrix::operator()(int column) {
+HostVector* LapackppHostMatrix::operator()(unsigned int column) {
   LaVectorDouble* laVector = new LaVectorDouble(numberOfRows);
   laVector->ref(lapackppContainer->col(column));
   return new LapackppHostVector(laVector, true);
 }
 
-const HostVector* LapackppHostMatrix::operator()(int column) const {
+const HostVector* LapackppHostMatrix::operator()(unsigned int column) const {
   LaVectorDouble* laVector = new LaVectorDouble(numberOfRows);
   laVector->ref(lapackppContainer->col(column));
   return new LapackppHostVector(laVector, true);
 }
 
-double& LapackppHostMatrix::operator()(int row, int column) {
+double& LapackppHostMatrix::operator()(unsigned int row, unsigned int column) {
   return (*lapackppContainer)(row, column);
 }
 
-const double& LapackppHostMatrix::operator()(int row, int column) const {
+const double& LapackppHostMatrix::operator()(unsigned int row, unsigned int column) const {
   return (*lapackppContainer)(row, column);
 }
 

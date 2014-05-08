@@ -16,7 +16,6 @@
 
 #ifdef CPU
 #include <lapackpp/gmd.h>
-#include <lapackpp/lavd.h>
 #include <LapackppHostMatrix.h>
 #else
 #include <PinnedHostMatrix.h>

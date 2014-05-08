@@ -26,9 +26,9 @@ public:
   MOCK_CONST_METHOD0(getNumberOfIndividualsTotal, int());
   MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());
 
-  MOCK_CONST_METHOD1(getPersonFromId, Person&(Id));
-  MOCK_CONST_METHOD1(getPersonFromRowAll, Person&(int));
-  MOCK_CONST_METHOD1(getPersonFromRowInclude, Person&(int));
+  MOCK_CONST_METHOD1(getPersonFromId, const Person&(Id));
+  MOCK_CONST_METHOD1(getPersonFromRowAll, const Person&(int));
+  MOCK_CONST_METHOD1(getPersonFromRowInclude, const Person&(int));
   MOCK_CONST_METHOD1(getRowIncludeFromPerson, int(const Person&));
 
 };

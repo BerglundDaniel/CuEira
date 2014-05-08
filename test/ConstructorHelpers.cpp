@@ -13,7 +13,7 @@ ConstructorHelpers::~ConstructorHelpers() {
 
 Person* ConstructorHelpers::constructPersonInclude(int number) {
   std::ostringstream os;
-  os << "Person" << number;
+  os << "ind" << number;
   Id id(os.str());
   Sex sex;
   Phenotype phenotype;
@@ -35,7 +35,7 @@ Person* ConstructorHelpers::constructPersonInclude(int number) {
 
 Person* ConstructorHelpers::constructPersonNotInclude(int number) {
   std::ostringstream os;
-  os << "Person" << number;
+  os << "ind" << number;
   Id id(os.str());
   Sex sex;
 

@@ -23,8 +23,8 @@ CSVReader::CSVReader(std::string filePath, std::string idColumnName, std::string
 
   while(std::getline(csvFile, line)){
     std::vector<std::string> lineSplit;
-    int lineSplitSize = lineSplit.size();
     boost::split(lineSplit, line, boost::is_any_of(delim));
+    int lineSplitSize = lineSplit.size();
 
     if(header){
       header = false;
@@ -104,7 +104,7 @@ void CSVReader::storeData(std::vector<std::string> lineSplit) {
   Id id(lineSplit[idColumnNumber]);
   const Person& person = personHandler.getPersonFromId(id);
   if(person.getInclude()){
-    const int personRowNumber = personHandler.getRowIncludeFromPerson(person);
+    const unsigned int personRowNumber = personHandler.getRowIncludeFromPerson(person);
     int index = 0;
     for(int i = 0; i < numberOfColumns + 1; ++i){
 

@@ -12,11 +12,11 @@ HostVector::~HostVector() {
 
 }
 
-int HostVector::getNumberOfRows() {
+int HostVector::getNumberOfRows() const {
   return numberOfRows;
 }
 
-int HostVector::getNumberOfColumns() {
+int HostVector::getNumberOfColumns() const {
   return numberOfColumns;
 }
 

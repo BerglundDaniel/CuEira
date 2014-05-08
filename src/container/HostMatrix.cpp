@@ -12,11 +12,11 @@ HostMatrix::~HostMatrix() {
 
 }
 
-int HostMatrix::getNumberOfRows() {
+int HostMatrix::getNumberOfRows() const {
   return numberOfRows;
 }
 
-int HostMatrix::getNumberOfColumns() {
+int HostMatrix::getNumberOfColumns() const {
   return numberOfColumns;
 }
 

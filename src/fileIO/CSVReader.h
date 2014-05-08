@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 #include <boost/algorithm/string.hpp>
+#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
 
 #include <FileReaderException.h>
 #include <Person.h>
@@ -23,6 +25,7 @@
 
 namespace CuEira {
 namespace FileIO {
+class CSVReaderTest;
 
 /**
  * This is ...
@@ -30,16 +33,20 @@ namespace FileIO {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class CSVReader {
+  friend CSVReaderTest;
+  FRIEND_TEST(CSVReaderTest, StoreAndGet);
+  FRIEND_TEST(CSVReaderTest, StoreDataException);
+  FRIEND_TEST(CSVReaderTest, GetDataException);
 public:
   explicit CSVReader(std::string filePath, std::string idColumnName, std::string delim,
       const PersonHandler& personHandler);
   virtual ~CSVReader();
 
-  int getNumberOfColumns(); //Not including id
-  int getNumberOfRows(); //Not including header
-  std::vector<std::string> getDataColumnHeaders();
-  Container::HostMatrix& getData();
-  Container::HostVector& getData(std::string column);
+  int getNumberOfColumns() const; //Not including id
+  int getNumberOfRows() const; //Not including header
+  const std::vector<std::string>& getDataColumnHeaders() const;
+  const Container::HostMatrix& getData() const;
+  const Container::HostVector& getData(std::string column) const;
 
 private:
   void storeData(std::vector<std::string> lineSplit);

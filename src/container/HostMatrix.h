@@ -16,8 +16,8 @@ public:
   HostMatrix(unsigned int numberOfRows, unsigned int numberOfColums, PRECISION* hostMatrix);
   virtual ~HostMatrix();
 
-  int getNumberOfRows();
-  int getNumberOfColumns();
+  int getNumberOfRows() const;
+  int getNumberOfColumns() const;
   virtual HostVector* operator()(unsigned int column)=0;
   virtual const HostVector* operator()(unsigned int column) const=0;
   virtual PRECISION& operator()(unsigned int row, unsigned int column)=0;

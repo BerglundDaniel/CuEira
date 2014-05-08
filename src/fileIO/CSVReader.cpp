@@ -73,22 +73,22 @@ CSVReader::~CSVReader() {
 #endif
 }
 
-int CSVReader::getNumberOfColumns() {
+int CSVReader::getNumberOfColumns() const {
   return numberOfColumns;
 }
 
-int CSVReader::getNumberOfRows() {
+int CSVReader::getNumberOfRows() const {
   return numberOfRows;
 }
 
-std::vector<std::string> CSVReader::getDataColumnHeaders() {
+const std::vector<std::string>& CSVReader::getDataColumnHeaders() const {
   return dataColumnNames;
 }
-Container::HostMatrix& CSVReader::getData() {
+const Container::HostMatrix& CSVReader::getData() const {
   return *dataMatrix;
 }
 
-Container::HostVector& CSVReader::getData(std::string column) {
+const Container::HostVector& CSVReader::getData(std::string column) const {
   for(int i = 0; i < numberOfColumns; ++i){
     if(strcmp(dataColumnNames[i].c_str(), column.c_str()) == 0){
       return *((*dataMatrix)(i));

@@ -10,5 +10,6 @@ set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/SNP.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Person.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/PersonHandler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentFactor.cpp
   PARENT_SCOPE
 )

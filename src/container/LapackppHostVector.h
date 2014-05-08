@@ -6,9 +6,11 @@
 
 #include <HostVector.h>
 #include <DimensionMismatch.h>
+#include <LapackppHostMatrix.h>
 
 namespace CuEira {
 namespace Container {
+class LapackppHostMatrix;
 
 /**
  * This is ...
@@ -16,14 +18,17 @@ namespace Container {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class LapackppHostVector: public HostVector {
+  friend LapackppHostMatrix;
 public:
   LapackppHostVector(LaVectorDouble* lapackppContainer);
-  LapackppHostVector(LaVectorDouble* lapackppContainer, bool subview);
   virtual ~LapackppHostVector();
 
   LaVectorDouble& getLapackpp();
   virtual double& operator()(unsigned int index);
   virtual const double& operator()(unsigned int index) const;
+
+protected:
+  LapackppHostVector(LaVectorDouble* lapackppContainer, bool subview);
 
 private:
   LaVectorDouble* lapackppContainer;

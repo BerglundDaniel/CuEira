@@ -22,9 +22,6 @@ LaVectorDouble& LapackppHostVector::getLapackpp() {
 }
 
 double& LapackppHostVector::operator()(unsigned int index) {
-  //if(){
-    //throw DimensionMismatch();
-  //}
   return (*lapackppContainer)(index);
 }
 

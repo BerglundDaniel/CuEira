@@ -13,6 +13,7 @@
 #include <SNP.h>
 #include <EnvironmentFactor.h>
 #include <PlinkReader.h>
+#include <PersonHandler.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -24,23 +25,21 @@ namespace FileIO {
  */
 class DataFilesReader {
 public:
-  explicit DataFilesReader(PlinkReader& plinkReader, CSVReader& environmentCSVReader,
-      CSVReader& covariateCSVReader);
+  explicit DataFilesReader(PlinkReader* plinkReader, const CSVReader& environmentCSVReader, const CSVReader& covariateCSVReader);
   virtual ~DataFilesReader();
 
-  Container::HostVector readSNP(SNP& snp);
-  Container::HostVector getEnvironmentFactor(EnvironmentFactor& environmentFactor);
-  Container::HostMatrix getCovariates();
-  Container::HostVector getOutcomes();
+  Container::HostVector* readSNP(SNP& snp) const;
+  const Container::HostVector& getEnvironmentFactor(EnvironmentFactor& environmentFactor) const;
+  const Container::HostMatrix& getCovariates() const;
+  const PersonHandler& getPersonHandler() const;
 
-  int getNumberOfIndividuals();
-  int getNumberOfCovariates();
-  int getNumberOfEnvironmentFactors();
+  int getNumberOfCovariates() const;
+  int getNumberOfEnvironmentFactors() const;
 
 private:
-  PlinkReader& plinkReader;
-  CSVReader& environmentCSVReader;
-  CSVReader& covariateCSVReader;
+  PlinkReader* plinkReader;
+  const CSVReader& environmentCSVReader;
+  const CSVReader& covariateCSVReader;
 };
 
 } /* namespace FileIO */

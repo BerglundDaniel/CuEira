@@ -3,7 +3,7 @@
 namespace CuEira {
 namespace FileIO {
 
-FamReader::FamReader(const Configuration& configuration, PersonHandler& personHandler) :
+FamReader::FamReader(const Configuration& configuration, PersonHandler* personHandler) :
     configuration(configuration), personHandler(personHandler), famFileStr(configuration.getFamFilePath()) {
 
   /*
@@ -41,7 +41,7 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler& personHa
     Person person(id, sex, phenotype);
 
     //Add the person
-    personHandler.addPerson(person, individualNumber);
+    personHandler->addPerson(person, individualNumber);
     individualNumber++;
 
   } /* while getline */
@@ -50,11 +50,11 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler& personHa
 }
 
 FamReader::~FamReader() {
-
+  delete personHandler;
 }
 
 const PersonHandler& FamReader::getPersonHandler() const {
-  return personHandler;
+  return *personHandler;
 }
 
 Phenotype FamReader::stringToPhenotype(std::string phenotypeString) const {

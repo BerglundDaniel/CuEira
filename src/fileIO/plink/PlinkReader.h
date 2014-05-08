@@ -26,7 +26,7 @@ public:
   PlinkReader(BedReader& bedReader, BimReader& bimReader, FamReader& famReader);
   virtual ~PlinkReader();
 
-  Container::HostVector& readSNP(SNP& snp);
+  Container::HostVector* readSNP(SNP& snp) const;
   const PersonHandler& getPersonHandler() const;
 
 private:

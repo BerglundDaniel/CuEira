@@ -9,5 +9,7 @@ set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/BimReader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/BedReader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/FamReader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PlinkReader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PlinkReaderFactory.cpp
   PARENT_SCOPE
 )

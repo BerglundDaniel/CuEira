@@ -74,7 +74,7 @@ TEST_F(BedReaderTest, ReadDominantInclude) {
 
 }
 
-//TODO read snp ressecive test
+//read snp ressecive test
 
 }
 /* namespace CuEira_Test */

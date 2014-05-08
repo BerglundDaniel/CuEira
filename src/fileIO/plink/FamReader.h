@@ -36,7 +36,7 @@ class FamReader {
   FRIEND_TEST(FamReaderTest, StringToPhenotypeOneTwoCodingException);
   FRIEND_TEST(FamReaderTest, StringToPhenotypeZeroOneCodingException);
 public:
-  explicit FamReader(const Configuration& configuration, PersonHandler& personHandler);
+  explicit FamReader(const Configuration& configuration, PersonHandler* personHandler);
   virtual ~FamReader();
 
   const PersonHandler& getPersonHandler() const;
@@ -46,7 +46,7 @@ private:
   Sex stringToSex(std::string sexString) const;
 
   const Configuration& configuration;
-  PersonHandler& personHandler;
+  PersonHandler* personHandler;
   const std::string famFileStr;
 };
 

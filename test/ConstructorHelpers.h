@@ -28,6 +28,7 @@ public:
   Person* constructPersonNotInclude(int number);
 
 private:
+
 };
 
 } /* namespace CuEira_Test */

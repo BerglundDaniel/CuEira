@@ -11,31 +11,35 @@ PersonHandler::~PersonHandler() {
 
 }
 
-void PersonHandler::addPerson(Person person, int rowAll) {
+const Person& PersonHandler::createPerson(Id id, Sex sex, Phenotype phenotype, int rowAll) {
   if(rowToPersonAll.count(rowAll) > 0){
     std::ostringstream os;
-    os << "There already is a person with plink row: " << rowAll << " Person "
-        << person.getId().getString() << std::endl;
+    os << "There already is a person with plink row: " << rowAll << " id: " << id.getString() << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  if(idToPerson.count(person.getId()) > 0){
+  if(idToPerson.count(id) > 0){
     std::ostringstream os;
-    os << "There already is a person with id: " << person.getId().getString() << std::endl;
+    os << "There already is a person with id: " << id.getString() << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
+
+  bool include = shouldPersonBeIncluded(id, sex, phenotype);
+  Person person(id, sex, phenotype, include);
 
   idToPerson.insert(std::pair<Id, Person>(person.getId(), person));
   rowToPersonAll.insert(std::pair<int, Person>(rowAll, person));
 
-  if(person.getInclude()){
+  if(include){
     rowToPersonInclude.insert(std::pair<int, Person>(numberOfIndividualsToInclude, person));
     personToRowInclude.insert(std::pair<Person, int>(person, numberOfIndividualsToInclude));
 
     numberOfIndividualsToInclude++;
   }
   numberOfIndividualsTotal++;
+
+  return idToPerson.at(id);
 }
 
 int PersonHandler::getNumberOfIndividualsTotal() const {
@@ -84,6 +88,14 @@ int PersonHandler::getRowIncludeFromPerson(const Person& person) const {
     throw PersonHandlerException(tmp.c_str());
   }
   return personToRowInclude.at(person);
+}
+
+bool PersonHandler::shouldPersonBeIncluded(Id id, Sex sex, Phenotype phenotype) const {
+  if(phenotype == MISSING){
+    return false;
+  }else{
+    return true;
+  }
 }
 
 } /* namespace CuEira */

@@ -50,8 +50,8 @@ void PersonHandlerTest::TearDown() {
 TEST_F(PersonHandlerTest, ExceptionSamePersonSameRow) {
   Person* person = constructorHelpers.constructPersonInclude(1);
 
-  personHandler.addPerson(*person, 0);
-  ASSERT_THROW(personHandler.addPerson(*person, 0), PersonHandlerException);
+  personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 0);
+  ASSERT_THROW(personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 0), PersonHandlerException);
 
   delete person;
 }
@@ -59,8 +59,8 @@ TEST_F(PersonHandlerTest, ExceptionSamePersonSameRow) {
 TEST_F(PersonHandlerTest, ExceptionSamePersonDifferentRow) {
   Person* person = constructorHelpers.constructPersonInclude(1);
 
-  personHandler.addPerson(*person, 0);
-  ASSERT_THROW(personHandler.addPerson(*person, 1), PersonHandlerException);
+  personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 0);
+  ASSERT_THROW(personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 1), PersonHandlerException);
 
   delete person;
 }
@@ -69,8 +69,8 @@ TEST_F(PersonHandlerTest, ExceptionDifferentPersonSameRow) {
   Person* person1 = constructorHelpers.constructPersonInclude(1);
   Person* person2 = constructorHelpers.constructPersonInclude(2);
 
-  personHandler.addPerson(*person1, 0);
-  ASSERT_THROW(personHandler.addPerson(*person2, 0), PersonHandlerException);
+  personHandler.createPerson(person1->getId(), person1->getSex(), person1->getPhenotype(), 0);
+  ASSERT_THROW(personHandler.createPerson(person2->getId(), person2->getSex(), person2->getPhenotype(), 0), PersonHandlerException);
 
   delete person1;
   delete person2;
@@ -91,7 +91,7 @@ TEST_F(PersonHandlerTest, NumberOfIndividuals) {
     }else{
       person = constructorHelpers.constructPersonInclude(i);
     }
-    personHandler.addPerson(*person, i);
+    personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
     personVector[i] = person;
   }
 
@@ -118,7 +118,7 @@ TEST_F(PersonHandlerTest, Getters) {
     }else{
       person = constructorHelpers.constructPersonInclude(i);
     }
-    personHandler.addPerson(*person, i);
+    personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
     personVector[i] = person;
   }
 
@@ -164,7 +164,7 @@ TEST_F(PersonHandlerTest, GettersException) {
     }else{
       person = constructorHelpers.constructPersonInclude(i);
     }
-    personHandler.addPerson(*person, i);
+    personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
     personVector[i] = person;
   }
 

@@ -21,7 +21,7 @@ public:
 
   }
 
-  MOCK_METHOD2(addPerson, void(Person, int));
+  MOCK_METHOD4(createPerson, const Person&(Id id, Sex sex, Phenotype phenotype, int));
 
   MOCK_CONST_METHOD0(getNumberOfIndividualsTotal, int());
   MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());

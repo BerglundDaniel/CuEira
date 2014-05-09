@@ -2,12 +2,19 @@
 #define PERSON_H_
 
 #include <string>
+#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
 
 #include <Sex.h>
 #include <Id.h>
 #include <Phenotype.h>
 
 namespace CuEira {
+class PersonTest;
+class PersonHandler;
+namespace CuEira_Test {
+class ConstructorHelpers;
+}
 
 /**
  * This class contains the information about a person, its id, sex and associated row in the data.
@@ -15,8 +22,12 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class Person {
+  friend PersonTest;
+  FRIEND_TEST(PersonTest, Getters);
+  FRIEND_TEST(PersonTest, Operators);
+  friend PersonHandler;
+  friend CuEira_Test::ConstructorHelpers;
 public:
-  explicit Person(Id id, Sex sex, Phenotype phenotype);
   virtual ~Person();
 
   Id getId() const;
@@ -27,13 +38,14 @@ public:
   bool operator<(const Person& otherPerson) const;
   bool operator==(const Person& otherPerson) const;
 
-private:
-  bool shouldPersonBeIncluded() const;
+protected:
+  explicit Person(Id id, Sex sex, Phenotype phenotype, bool include);
 
-  Id id;
-  Sex sex;
-  Phenotype phenotype;
-  bool include;
+private:
+  const Id id;
+  const Sex sex;
+  const Phenotype phenotype;
+  const bool include;
 };
 
 } /* namespace CuEira */

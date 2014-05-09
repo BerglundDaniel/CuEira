@@ -38,10 +38,9 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler* personHa
     Id id(lineSplit[1]);
     Sex sex = stringToSex(lineSplit[4]);
     Phenotype phenotype = stringToPhenotype(lineSplit[5]);
-    Person person(id, sex, phenotype);
 
     //Add the person
-    personHandler->addPerson(person, individualNumber);
+    personHandler->createPerson(id, sex, phenotype, individualNumber);
     individualNumber++;
 
   } /* while getline */

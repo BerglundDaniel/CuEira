@@ -2,8 +2,8 @@
 
 namespace CuEira {
 
-Person::Person(Id id, Sex sex, Phenotype phenotype) :
-    id(id), sex(sex), phenotype(phenotype), include(shouldPersonBeIncluded()) {
+Person::Person(Id id, Sex sex, Phenotype phenotype, bool include) :
+    id(id), sex(sex), phenotype(phenotype), include(include) {
 }
 
 Person::~Person() {
@@ -24,14 +24,6 @@ Phenotype Person::getPhenotype() const {
 
 bool Person::getInclude() const {
   return include;
-}
-
-bool Person::shouldPersonBeIncluded() const {
-  if(phenotype == MISSING){
-    return false;
-  }else{
-    return true;
-  }
 }
 
 bool Person::operator<(const Person& otherPerson) const {

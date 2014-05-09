@@ -8,7 +8,6 @@
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
 
-
 #include <Id.h>
 #include <Sex.h>
 #include <Person.h>

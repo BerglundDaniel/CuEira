@@ -12,10 +12,13 @@
 #include <Id.h>
 #include <Sex.h>
 #include <Phenotype.h>
+#include <Person.h>
 #include <FileReaderException.h>
+#include <ConstructorHelpers.h>
 
 using testing::Return;
 using testing::_;
+using testing::ReturnRef;
 
 namespace CuEira {
 namespace FileIO {
@@ -35,16 +38,19 @@ protected:
   int numberOfIndividuals;
   ConfigurationMock configMock;
   PersonHandlerMock* personHandlerMock;
+  CuEira_Test::ConstructorHelpers constructorHelpers;
+  Person* person;
 };
 
 FamReaderTest::FamReaderTest() :
-    personHandlerMock(new PersonHandlerMock), numberOfIndividuals(10) {
+    personHandlerMock(new PersonHandlerMock), numberOfIndividuals(10), person(
+        constructorHelpers.constructPersonInclude(0)) {
   EXPECT_CALL(configMock, getFamFilePath()).Times(1).WillRepeatedly(Return("../data/test.fam"));
   EXPECT_CALL(configMock, getPhenotypeCoding()).WillRepeatedly(Return(ONE_TWO_CODING));
 }
 
 FamReaderTest::~FamReaderTest() {
-
+  delete person;
 }
 
 void FamReaderTest::SetUp() {
@@ -56,22 +62,15 @@ void FamReaderTest::TearDown() {
 }
 
 TEST_F(FamReaderTest, ReadFile) {
-  EXPECT_CALL(*personHandlerMock, addPerson(_,0)).Times(1);
-  EXPECT_CALL(*personHandlerMock, addPerson(_,1)).Times(1);
-  EXPECT_CALL(*personHandlerMock, addPerson(_,2)).Times(1);
-  EXPECT_CALL(*personHandlerMock, addPerson(_,3)).Times(1);
-  EXPECT_CALL(*personHandlerMock, addPerson(_,4)).Times(1);
-  EXPECT_CALL(*personHandlerMock, addPerson(_,5)).Times(1);
-  EXPECT_CALL(*personHandlerMock, addPerson(_,6)).Times(1);
-  EXPECT_CALL(*personHandlerMock, addPerson(_,7)).Times(1);
-  EXPECT_CALL(*personHandlerMock, addPerson(_,8)).Times(1);
-  EXPECT_CALL(*personHandlerMock, addPerson(_,9)).Times(1);
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    EXPECT_CALL(*personHandlerMock, createPerson(_,_,_,i)).Times(1).WillRepeatedly(ReturnRef(*person));
+  }
 
   CuEira::FileIO::FamReader famReader(configMock, personHandlerMock);
 }
 
 TEST_F(FamReaderTest, StringToSex) {
-  EXPECT_CALL(*personHandlerMock, addPerson(_,_)).Times(numberOfIndividuals);
+  EXPECT_CALL(*personHandlerMock, createPerson(_,_,_,_)).Times(numberOfIndividuals).WillRepeatedly(ReturnRef(*person));
   CuEira::FileIO::FamReader famReader(configMock, personHandlerMock);
 
   Sex sex = famReader.stringToSex("1");
@@ -85,14 +84,14 @@ TEST_F(FamReaderTest, StringToSex) {
 }
 
 TEST_F(FamReaderTest, StringToSexException) {
-  EXPECT_CALL(*personHandlerMock, addPerson(_,_)).Times(numberOfIndividuals);
+  EXPECT_CALL(*personHandlerMock, createPerson(_,_,_,_)).Times(numberOfIndividuals).WillRepeatedly(ReturnRef(*person));
   CuEira::FileIO::FamReader famReader(configMock, personHandlerMock);
 
   ASSERT_THROW(famReader.stringToSex("asdf"), FileReaderException);
 }
 
 TEST_F(FamReaderTest, StringToPhenotypeOneTwoCoding) {
-  EXPECT_CALL(*personHandlerMock, addPerson(_,_)).Times(numberOfIndividuals);
+  EXPECT_CALL(*personHandlerMock, createPerson(_,_,_,_)).Times(numberOfIndividuals).WillRepeatedly(ReturnRef(*person));
   CuEira::FileIO::FamReader famReader(configMock, personHandlerMock);
 
   Phenotype phenotype = famReader.stringToPhenotype("2");
@@ -106,7 +105,7 @@ TEST_F(FamReaderTest, StringToPhenotypeOneTwoCoding) {
 }
 
 TEST_F(FamReaderTest, StringToPhenotypeZeroOneCoding) {
-  EXPECT_CALL(*personHandlerMock, addPerson(_,_)).Times(numberOfIndividuals);
+  EXPECT_CALL(*personHandlerMock, createPerson(_,_,_,_)).Times(numberOfIndividuals).WillRepeatedly(ReturnRef(*person));
   CuEira::FileIO::FamReader famReader(configMock, personHandlerMock);
   EXPECT_CALL(configMock, getPhenotypeCoding()).WillRepeatedly(Return(ZERO_ONE_CODING));
 
@@ -121,7 +120,7 @@ TEST_F(FamReaderTest, StringToPhenotypeZeroOneCoding) {
 }
 
 TEST_F(FamReaderTest, StringToPhenotypeOneTwoCodingException) {
-  EXPECT_CALL(*personHandlerMock, addPerson(_,_)).Times(numberOfIndividuals);
+  EXPECT_CALL(*personHandlerMock, createPerson(_,_,_,_)).Times(numberOfIndividuals).WillRepeatedly(ReturnRef(*person));
   CuEira::FileIO::FamReader famReader(configMock, personHandlerMock);
 
   ASSERT_THROW(famReader.stringToPhenotype("-3"), FileReaderException);
@@ -129,7 +128,7 @@ TEST_F(FamReaderTest, StringToPhenotypeOneTwoCodingException) {
 }
 
 TEST_F(FamReaderTest, StringToPhenotypeZeroOneCodingException) {
-  EXPECT_CALL(*personHandlerMock, addPerson(_,_)).Times(numberOfIndividuals);
+  EXPECT_CALL(*personHandlerMock, createPerson(_,_,_,_)).Times(numberOfIndividuals).WillRepeatedly(ReturnRef(*person));
   CuEira::FileIO::FamReader famReader(configMock, personHandlerMock);
   EXPECT_CALL(configMock, getPhenotypeCoding()).WillRepeatedly(Return(ZERO_ONE_CODING));
 

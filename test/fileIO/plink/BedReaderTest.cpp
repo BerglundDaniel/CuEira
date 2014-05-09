@@ -75,6 +75,14 @@ void BedReaderTest::TearDown() {
 
 }
 
+TEST_F(BedReaderTest, ConstructorCheckMode) {
+  EXPECT_CALL(configMock, getGeneticModel()).Times(1).WillRepeatedly(Return(DOMINANT));
+
+  CuEira::FileIO::BedReader bedReader(configMock, personHandlerMock, numberOfSNPs);
+
+  ASSERT_EQ(0, bedReader.mode);
+}
+
 TEST_F(BedReaderTest, ReadDominantInclude) {
   EXPECT_CALL(configMock, getGeneticModel()).Times(1).WillRepeatedly(Return(DOMINANT));
 

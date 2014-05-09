@@ -30,7 +30,7 @@ Person* ConstructorHelpers::constructPersonInclude(int number) {
     phenotype = UNAFFECTED;
   }
 
-  return new Person(id, sex, phenotype);
+  return new Person(id, sex, phenotype, true);
 }
 
 Person* ConstructorHelpers::constructPersonNotInclude(int number) {
@@ -45,7 +45,7 @@ Person* ConstructorHelpers::constructPersonNotInclude(int number) {
     sex = FEMALE;
   }
 
-  return new Person(id, sex, MISSING);
+  return new Person(id, sex, MISSING, false);
 }
 
 } /* namespace CuEira_Test */

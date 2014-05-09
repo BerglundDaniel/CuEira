@@ -23,7 +23,7 @@ public:
   PersonHandler();
   virtual ~PersonHandler();
 
-  virtual void addPerson(Person person, int rowAll);
+  virtual const Person& createPerson(Id id, Sex sex, Phenotype phenotype, int rowAll);
 
   virtual int getNumberOfIndividualsTotal() const;
   virtual int getNumberOfIndividualsToInclude() const;
@@ -33,6 +33,8 @@ public:
   virtual int getRowIncludeFromPerson(const Person& person) const;
 
 private:
+  bool shouldPersonBeIncluded(Id id, Sex sex, Phenotype phenotype) const;
+
   int numberOfIndividualsTotal;
   int numberOfIndividualsToInclude;
   std::map<int, Person> rowToPersonAll;

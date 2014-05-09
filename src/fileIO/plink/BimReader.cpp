@@ -68,12 +68,12 @@ BimReader::BimReader(const Configuration& configuration) :
     //Should SNPs with negative position be excluded?
     if(configuration.excludeSNPsWithNegativePosition()){
       if(baseSNP < 0){
-        snp = new SNP(id, alleleOneName, alleleTwoName, false);
+        snp = new SNP(id, alleleOneName, alleleTwoName, pos, false);
       }else{
-        snp = new SNP(id, alleleOneName, alleleTwoName, true);
+        snp = new SNP(id, alleleOneName, alleleTwoName, pos, true);
       }
     }else{
-      snp = new SNP(id, alleleOneName, alleleTwoName, true);
+      snp = new SNP(id, alleleOneName, alleleTwoName, pos, true);
     }
     SNPVector[pos] = snp;
 

@@ -2,9 +2,9 @@
 
 namespace CuEira {
 
-SNP::SNP(Id id, std::string alleleOneName, std::string alleleTwoName, bool include) :
-    id(id), alleleOneName(alleleOneName), alleleTwoName(alleleTwoName), include(include), minorAlleleFrequency(1), minorAlleleFrequencyHasBeenSet(
-        false), riskAllele(ALLELE_ONE), riskAlleleHasBeenSet(false) {
+SNP::SNP(Id id, std::string alleleOneName, std::string alleleTwoName, unsigned int position, bool include) :
+    id(id), alleleOneName(alleleOneName), alleleTwoName(alleleTwoName), include(include), position(position), minorAlleleFrequency(
+        1), minorAlleleFrequencyHasBeenSet(false), riskAllele(ALLELE_ONE), riskAlleleHasBeenSet(false) {
 
 }
 
@@ -12,11 +12,11 @@ SNP::~SNP() {
 
 }
 
-Id SNP::getId() {
+Id SNP::getId() const {
   return id;
 }
 
-bool SNP::getInclude() {
+bool SNP::getInclude() const {
   return include;
 }
 
@@ -54,12 +54,16 @@ RiskAllele SNP::getRiskAllele() const {
   return riskAllele;
 }
 
-std::string SNP::getAlleleOneName() {
+std::string SNP::getAlleleOneName() const {
   return alleleOneName;
 }
 
-std::string SNP::getAlleleTwoName() {
+std::string SNP::getAlleleTwoName() const {
   return alleleTwoName;
+}
+
+unsigned int SNP::getPosition() const {
+  return position;
 }
 
 } /* namespace CuEira */

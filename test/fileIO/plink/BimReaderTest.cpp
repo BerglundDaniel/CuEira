@@ -97,6 +97,8 @@ TEST_F(BimReaderTest, ReadFile) {
       ASSERT_TRUE(snp.getInclude());
     }
 
+    ASSERT_EQ(i, snp.getPosition());
+
     //Check alleles
     ASSERT_TRUE(alleleOneVector[i] == snp.getAlleleOneName());
     ASSERT_TRUE(alleleTwoVector[i] == snp.getAlleleTwoName());

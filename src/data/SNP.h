@@ -16,16 +16,17 @@ namespace CuEira {
  */
 class SNP {
 public:
-  explicit SNP(Id id, std::string alleleOneName, std::string alleleTwoName, bool include = true);
+  explicit SNP(Id id, std::string alleleOneName, std::string alleleTwoName, unsigned int position, bool include = true);
   virtual ~SNP();
 
-  Id getId();
+  Id getId() const;
 
-  bool getInclude();
+  bool getInclude() const;
   void setInclude(bool include);
 
-  std::string getAlleleOneName();
-  std::string getAlleleTwoName();
+  unsigned int getPosition() const;
+  std::string getAlleleOneName() const;
+  std::string getAlleleTwoName() const;
 
   void setMinorAlleleFrequency(double maf);
   double getMinorAlleleFrequency() const;
@@ -36,8 +37,9 @@ public:
 private:
   Id id;
   bool include;
-  std::string alleleOneName;
-  std::string alleleTwoName;
+  const std::string alleleOneName;
+  const std::string alleleTwoName;
+  const unsigned int position;
 
   double minorAlleleFrequency;
   bool minorAlleleFrequencyHasBeenSet;

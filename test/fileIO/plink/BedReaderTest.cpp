@@ -14,11 +14,15 @@
 #include <Id.h>
 #include <Phenotype.h>
 #include <SNP.h>
+#include <ConstructorHelpers.h>
+#include <HostMatrix.h>
+#include <HostVector.h>
+#include <FileReaderException.h>
 
 using testing::Return;
 
 namespace CuEira {
-namespace CuEira_Test {
+namespace FileIO {
 
 /**
  * Test for testing ....
@@ -31,9 +35,23 @@ protected:
   virtual ~BedReaderTest();
   virtual void SetUp();
   virtual void TearDown();
+
+  static const int numberOfIndividualsTotalStatic = 10;
+  static const int numberOfIndividualsToIncludeStatic = 6;
+  const int numberOfIndividualsTotal;
+  const int numberOfIndividualsToInclude;
+  PersonHandlerMock personHandlerMock;
+  ConfigurationMock configMock;
+  CuEira_Test::ConstructorHelpers constructorHelpers;
+  std::string filePath;
+  const int notInclude[4] = {1, 2, 5, 7}; //Index 0 based
+  const int numberOfSNPs = 10;
+  const int numberOfSNPsToInclude = 8;
 };
 
-BedReaderTest::BedReaderTest() {
+BedReaderTest::BedReaderTest() :
+    filePath("../data/test.bed"), numberOfIndividualsTotal(numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(
+        numberOfIndividualsToIncludeStatic) {
 
 }
 
@@ -42,7 +60,15 @@ BedReaderTest::~BedReaderTest() {
 }
 
 void BedReaderTest::SetUp() {
+  //Expect Configuration
+  EXPECT_CALL(configMock, getMinorAlleleFrequencyThreshold()).WillRepeatedly(Return(0.05));
+  EXPECT_CALL(configMock, getBedFilePath()).Times(1).WillRepeatedly(Return(filePath));
 
+  //Expect PersonHandler
+  EXPECT_CALL(personHandlerMock, getNumberOfIndividualsTotal()).Times(1).WillRepeatedly(
+      Return(numberOfIndividualsTotal));
+  EXPECT_CALL(personHandlerMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
+      Return(numberOfIndividualsToInclude));
 }
 
 void BedReaderTest::TearDown() {
@@ -50,24 +76,15 @@ void BedReaderTest::TearDown() {
 }
 
 TEST_F(BedReaderTest, ReadDominantInclude) {
-  int numberOfSNPs = 10;
-  int numberOfIndividualsTotal = 10;
-  int numberOfIndividualsToInclude = 8;
-  ConfigurationMock configMock;
-  PersonHandlerMock personHandlerMock;
-
-  //Expect Configuration
-  EXPECT_CALL(configMock, getBedFilePath()).Times(1).WillRepeatedly(Return("../data/test.bed"));
   EXPECT_CALL(configMock, getGeneticModel()).Times(1).WillRepeatedly(Return(DOMINANT));
-  EXPECT_CALL(configMock, getMinorAlleleFrequencyThreshold()).WillRepeatedly(Return(0.05));
 
   //Expect PersonHandler
-  //getNumberOfIndividualsToInclude
-  //getNumberOfIndividualsTotal
+
+
   //getPersonFromRowAll
   //getRowIncludeFromPerson
 
-  //CuEira::FileIO::BedReader bedReader(configMock, personHandlerMock, numberOfSNPs);
+  CuEira::FileIO::BedReader bedReader(configMock, personHandlerMock, numberOfSNPs);
 
   //SNP snp(??);
   //bedReader.readSNP(snp);
@@ -77,6 +94,6 @@ TEST_F(BedReaderTest, ReadDominantInclude) {
 //read snp ressecive test
 
 }
-/* namespace CuEira_Test */
+/* namespace FileIO */
 } /* namespace CuEira */
 

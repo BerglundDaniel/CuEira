@@ -2,10 +2,10 @@
 #define SNP_H_
 
 #include <sstream>
-#include <stdexcept>
 
 #include <RiskAllele.h>
 #include <Id.h>
+#include <InvalidState.h>
 
 namespace CuEira {
 

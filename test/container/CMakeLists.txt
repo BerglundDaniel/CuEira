@@ -8,5 +8,6 @@ set(TEST_SOURCE
   ${TEST_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostVectorTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostMatrixTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/SNPVectorTest.cpp
   PARENT_SCOPE
 )

@@ -20,5 +20,9 @@ const PersonHandler& PlinkReader::getPersonHandler() const {
   return famReader.getPersonHandler();
 }
 
+std::vector<SNP*> PlinkReader::getSNPInformation() {
+  return bimReader.getSNPInformation();
+}
+
 } /* namespace FileIO */
 } /* namespace CuEira */

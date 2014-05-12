@@ -37,5 +37,9 @@ const PersonHandler& DataFilesReader::getPersonHandler() const {
   return plinkReader->getPersonHandler();
 }
 
+std::vector<SNP*> DataFilesReader::getSNPInformation() {
+  return plinkReader->getSNPInformation();
+}
+
 } /* namespace FileIO */
 } /* namespace CuEira */

@@ -33,6 +33,7 @@ public:
   const Container::HostVector& getEnvironmentFactor(EnvironmentFactor& environmentFactor) const;
   const Container::HostMatrix& getCovariates() const;
   const PersonHandler& getPersonHandler() const;
+  std::vector<SNP*> getSNPInformation();
 
   int getNumberOfCovariates() const;
   int getNumberOfEnvironmentFactors() const;

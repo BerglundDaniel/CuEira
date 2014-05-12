@@ -28,6 +28,7 @@ public:
 
   Container::HostVector* readSNP(SNP& snp) const;
   const PersonHandler& getPersonHandler() const;
+  std::vector<SNP*> getSNPInformation();
 
 private:
   BedReader bedReader;

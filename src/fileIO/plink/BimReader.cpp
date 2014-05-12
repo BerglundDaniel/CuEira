@@ -33,7 +33,7 @@ BimReader::BimReader(const Configuration& configuration) :
   }
   bimFile.close();
 
-  SNPVector = std::vector<SNP*>(numberOfSNPs);
+  SNPInformation = std::vector<SNP*>(numberOfSNPs);
   int pos = 0;
   SNP* snp = nullptr;
   long int baseSNP;
@@ -75,7 +75,7 @@ BimReader::BimReader(const Configuration& configuration) :
     }else{
       snp = new SNP(id, alleleOneName, alleleTwoName, pos, true);
     }
-    SNPVector[pos] = snp;
+    SNPInformation[pos] = snp;
 
     pos++;
   } /* while getline */
@@ -91,8 +91,8 @@ int BimReader::getNumberOfSNPs() const {
   return numberOfSNPs;
 }
 
-std::vector<SNP*> BimReader::getSNPs() const {
-  return SNPVector;
+std::vector<SNP*> BimReader::getSNPInformation() {
+  return SNPInformation;
 }
 
 } /* namespace FileIO */

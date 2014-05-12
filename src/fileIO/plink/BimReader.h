@@ -27,12 +27,12 @@ public:
   virtual ~BimReader();
 
   int getNumberOfSNPs() const;
-  std::vector<SNP*> getSNPs() const;
+  std::vector<SNP*> getSNPInformation();
 
 private:
   const Configuration& configuration;
   int numberOfSNPs;
-  std::vector<SNP*> SNPVector;
+  std::vector<SNP*> SNPInformation;
 };
 
 } /* namespace FileIO */

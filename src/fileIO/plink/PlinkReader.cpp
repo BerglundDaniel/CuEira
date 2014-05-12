@@ -12,7 +12,7 @@ PlinkReader::~PlinkReader() {
 
 }
 
-Container::HostVector* PlinkReader::readSNP(SNP& snp) const {
+Container::SNPVector* PlinkReader::readSNP(SNP& snp) const {
   return bedReader.readSNP(snp);
 }
 

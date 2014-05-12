@@ -16,6 +16,7 @@ set(SOURCE
   ${CPU_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/HostVector.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/HostMatrix.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/SNPVector.cpp
   #${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostVector.cpp
   #${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostMatrix.cpp
   PARENT_SCOPE

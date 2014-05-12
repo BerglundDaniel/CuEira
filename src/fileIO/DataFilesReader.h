@@ -10,6 +10,7 @@
 #include <EnvironmentCSVReader.h>
 #include <Configuration.h>
 #include <HostVector.h>
+#include <SNPVector.h>
 #include <HostMatrix.h>
 #include <SNP.h>
 #include <EnvironmentFactor.h>
@@ -29,7 +30,7 @@ public:
   explicit DataFilesReader(PlinkReader* plinkReader, const EnvironmentCSVReader& environmentCSVReader, const CSVReader& covariateCSVReader);
   virtual ~DataFilesReader();
 
-  Container::HostVector* readSNP(SNP& snp) const;
+  Container::SNPVector* readSNP(SNP& snp) const;
   const Container::HostVector& getEnvironmentFactor(EnvironmentFactor& environmentFactor) const;
   const Container::HostMatrix& getCovariates() const;
   const PersonHandler& getPersonHandler() const;

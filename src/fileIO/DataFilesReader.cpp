@@ -13,7 +13,7 @@ DataFilesReader::~DataFilesReader() {
   delete plinkReader;
 }
 
-Container::HostVector* DataFilesReader::readSNP(SNP& snp) const {
+Container::SNPVector* DataFilesReader::readSNP(SNP& snp) const {
   return plinkReader->readSNP(snp);
 }
 

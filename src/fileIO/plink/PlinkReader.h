@@ -7,11 +7,11 @@
 #include <BedReader.h>
 #include <BimReader.h>
 #include <FamReader.h>
-#include <HostVector.h>
 #include <Id.h>
 #include <SNP.h>
 #include <Person.h>
 #include <PersonHandler.h>
+#include <SNPVector.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -26,7 +26,7 @@ public:
   PlinkReader(BedReader& bedReader, BimReader& bimReader, FamReader& famReader);
   virtual ~PlinkReader();
 
-  Container::HostVector* readSNP(SNP& snp) const;
+  Container::SNPVector* readSNP(SNP& snp) const;
   const PersonHandler& getPersonHandler() const;
   std::vector<SNP*> getSNPInformation();
 

@@ -10,14 +10,7 @@
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
 
-#ifdef CPU
-#include <lapackpp/lavd.h>
-#include <LapackppHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#endif
-
-#include <HostVector.h>
+#include <SNPVector.h>
 #include <Person.h>
 #include <PersonHandler.h>
 #include <SNP.h>
@@ -43,7 +36,7 @@ public:
   explicit BedReader(const Configuration& configuration, const PersonHandler& personHandler, const int numberOfSNPs);
   virtual ~BedReader();
 
-  Container::LapackppHostVector* readSNP(SNP& snp) const;
+  Container::SNPVector* readSNP(SNP& snp) const;
 
 private:
   enum Mode {

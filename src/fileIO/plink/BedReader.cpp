@@ -57,7 +57,7 @@ BedReader::~BedReader() {
 
 }
 
-Container::LapackppHostVector* BedReader::readSNP(SNP& snp) const {
+Container::SNPVector* BedReader::readSNP(SNP& snp) const {
   std::ifstream bedFile;
   int numberOfAlleleOneCase = 0;
   int numberOfAlleleTwoCase = 0;
@@ -65,15 +65,10 @@ Container::LapackppHostVector* BedReader::readSNP(SNP& snp) const {
   int numberOfAlleleTwoControl = 0;
   int numberOfAlleleOneAll = 0;
   int numberOfAlleleTwoAll = 0;
-  const int snpPos=snp.getPosition();
+  const int snpPos = snp.getPosition();
 
   //Initialise vector
-#ifdef CPU
-  LaVectorDouble* laVector = new LaVectorDouble(numberOfIndividualsToInclude);
-  Container::LapackppHostVector* SNPVector = new Container::LapackppHostVector(laVector);
-#else
-  Container::PinnedHostVector* SNPVector = new Container::PinnedHostVector(numberOfIndividualsToInclude);
-#endif
+  std::vector<int>* snpDataOriginal = new std::vector<int>(numberOfIndividualsToInclude);
 
   openBedFile(bedFile);
 
@@ -140,14 +135,14 @@ Container::LapackppHostVector* BedReader::readSNP(SNP& snp) const {
             if(firstBit && !secondBit){
               snp.setInclude(false);
               closeBedFile(bedFile);
-              return SNPVector; //Since we are going to exclude this SNP there is no point in reading more data.
+              return nullptr; //Since we are going to exclude this SNP there is no point in reading more data.
             }/* if check missing */
 
             //Store the genotype as 0,1,2 until we can recode it. We have to know the risk allele before we can recode.
             //Also increase the counters for the alleles if it is a case.
             if(!firstBit && !secondBit){
               //Homozygote primary
-              (*SNPVector)(currentPersonRow) = 0;
+              (*snpDataOriginal)[currentPersonRow]  = 0;
               numberOfAlleleOneAll += 2;
 
               if(phenotype == AFFECTED){
@@ -157,7 +152,7 @@ Container::LapackppHostVector* BedReader::readSNP(SNP& snp) const {
               }
             }else if(!firstBit && secondBit){
               //Hetrozygote
-              (*SNPVector)(currentPersonRow) = 1;
+              (*snpDataOriginal)[currentPersonRow] = 1;
               numberOfAlleleOneAll++;
               numberOfAlleleTwoAll++;
 
@@ -170,7 +165,7 @@ Container::LapackppHostVector* BedReader::readSNP(SNP& snp) const {
               }
             }else if(firstBit && secondBit){
               //Homozygote secondary
-              (*SNPVector)(currentPersonRow) = 2;
+              (*snpDataOriginal)[currentPersonRow]  = 2;
               numberOfAlleleTwoAll += 2;
 
               if(phenotype == AFFECTED){
@@ -242,35 +237,34 @@ Container::LapackppHostVector* BedReader::readSNP(SNP& snp) const {
     snp.setInclude(false);
   }
 
-  return SNPVector;
-}
-/* readSNP */
+  return new Container::SNPVector(snpDataOriginal, geneticModel);
+} /* readSNP */
 
 // position in range 0-7
 bool BedReader::getBit(unsigned char byte, int position) const {
-  return (byte >> position) & 0x1; //Shift the byte to the right so we have bit at the position as the last bit and then use bitwise and with 00000001
+return (byte >> position) & 0x1; //Shift the byte to the right so we have bit at the position as the last bit and then use bitwise and with 00000001
 }
 
 void BedReader::openBedFile(std::ifstream& bedFile) const {
-  bedFile.open(bedFileStr, std::ifstream::binary);
-  if(!bedFile){
-    std::ostringstream os;
-    os << "Problem opening bed file " << bedFileStr << std::endl;
-    const std::string& tmp = os.str();
-    throw FileReaderException(tmp.c_str());
-  }
+bedFile.open(bedFileStr, std::ifstream::binary);
+if(!bedFile){
+  std::ostringstream os;
+  os << "Problem opening bed file " << bedFileStr << std::endl;
+  const std::string& tmp = os.str();
+  throw FileReaderException(tmp.c_str());
+}
 }
 
 void BedReader::closeBedFile(std::ifstream& bedFile) const {
-  if(bedFile.is_open()){
-    bedFile.close();
-  }
-  if(!bedFile){
-    std::ostringstream os;
-    os << "Problem closing bed file " << bedFileStr << std::endl;
-    const std::string& tmp = os.str();
-    throw FileReaderException(tmp.c_str());
-  }
+if(bedFile.is_open()){
+  bedFile.close();
+}
+if(!bedFile){
+  std::ostringstream os;
+  os << "Problem closing bed file " << bedFileStr << std::endl;
+  const std::string& tmp = os.str();
+  throw FileReaderException(tmp.c_str());
+}
 }
 
 } /* namespace FileIO */

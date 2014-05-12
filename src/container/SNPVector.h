@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdexcept>
 
+#include <SNP.h>
 #include <Recode.h>
 #include <HostVector.h>
 #include <InvalidState.h>
@@ -28,8 +29,9 @@ class SNPVectorTest;
  */
 class SNPVector {
   friend SNPVectorTest;
+  //FRIEND_TEST(SNPVectorTest, ConstructorCheckMode);
 public:
-  SNPVector(const std::vector<int>* originalSNPData, GeneticModel geneticModel);
+  SNPVector(const std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel);
   virtual ~SNPVector();
 
   const std::vector<int>* getOrginalData() const;
@@ -40,12 +42,17 @@ public:
 private:
   void recodeAllRisk();
   void recodeSNPProtective();
-  void recodeEnvironmentProtective();
   void recodeInteractionProtective();
+  void doRecode();
+  RiskAllele invertRiskAllele(RiskAllele riskAllele);
 
   const int numberOfIndividualsToInclude;
+  SNP& snp;
   Recode currentRecode;
-  const GeneticModel geneticModel;
+  RiskAllele currentRiskAllele;
+  GeneticModel currentGeneticModel;
+  const RiskAllele originalRiskAllele;
+  const GeneticModel originalGeneticModel;
   const std::vector<int>* originalSNPData;
   Container::HostVector* modifiedSNPData;
 };

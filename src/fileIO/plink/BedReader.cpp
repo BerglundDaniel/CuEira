@@ -142,7 +142,7 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
             //Also increase the counters for the alleles if it is a case.
             if(!firstBit && !secondBit){
               //Homozygote primary
-              (*snpDataOriginal)[currentPersonRow]  = 0;
+              (*snpDataOriginal)[currentPersonRow] = 0;
               numberOfAlleleOneAll += 2;
 
               if(phenotype == AFFECTED){
@@ -165,7 +165,7 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
               }
             }else if(firstBit && secondBit){
               //Homozygote secondary
-              (*snpDataOriginal)[currentPersonRow]  = 2;
+              (*snpDataOriginal)[currentPersonRow] = 2;
               numberOfAlleleTwoAll += 2;
 
               if(phenotype == AFFECTED){
@@ -235,36 +235,37 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
   snp.setMinorAlleleFrequency(minorAlleleFrequency);
   if(minorAlleleFrequencyThreshold > minorAlleleFrequency){
     snp.setInclude(false);
+    return nullptr;
   }
 
-  return new Container::SNPVector(snpDataOriginal, geneticModel);
+  return new Container::SNPVector(snpDataOriginal, snp, geneticModel);
 } /* readSNP */
 
 // position in range 0-7
 bool BedReader::getBit(unsigned char byte, int position) const {
-return (byte >> position) & 0x1; //Shift the byte to the right so we have bit at the position as the last bit and then use bitwise and with 00000001
+  return (byte >> position) & 0x1; //Shift the byte to the right so we have bit at the position as the last bit and then use bitwise and with 00000001
 }
 
 void BedReader::openBedFile(std::ifstream& bedFile) const {
-bedFile.open(bedFileStr, std::ifstream::binary);
-if(!bedFile){
-  std::ostringstream os;
-  os << "Problem opening bed file " << bedFileStr << std::endl;
-  const std::string& tmp = os.str();
-  throw FileReaderException(tmp.c_str());
-}
+  bedFile.open(bedFileStr, std::ifstream::binary);
+  if(!bedFile){
+    std::ostringstream os;
+    os << "Problem opening bed file " << bedFileStr << std::endl;
+    const std::string& tmp = os.str();
+    throw FileReaderException(tmp.c_str());
+  }
 }
 
 void BedReader::closeBedFile(std::ifstream& bedFile) const {
-if(bedFile.is_open()){
-  bedFile.close();
-}
-if(!bedFile){
-  std::ostringstream os;
-  os << "Problem closing bed file " << bedFileStr << std::endl;
-  const std::string& tmp = os.str();
-  throw FileReaderException(tmp.c_str());
-}
+  if(bedFile.is_open()){
+    bedFile.close();
+  }
+  if(!bedFile){
+    std::ostringstream os;
+    os << "Problem closing bed file " << bedFileStr << std::endl;
+    const std::string& tmp = os.str();
+    throw FileReaderException(tmp.c_str());
+  }
 }
 
 } /* namespace FileIO */

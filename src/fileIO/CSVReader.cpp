@@ -88,18 +88,6 @@ const Container::HostMatrix& CSVReader::getData() const {
   return *dataMatrix;
 }
 
-const Container::HostVector& CSVReader::getData(std::string column) const {
-  for(int i = 0; i < numberOfColumns; ++i){
-    if(strcmp(dataColumnNames[i].c_str(), column.c_str()) == 0){
-      return *((*dataMatrix)(i));
-    }
-  }
-  std::ostringstream os;
-  os << "Can't find column name " << column << std::endl;
-  const std::string& tmp = os.str();
-  throw FileReaderException(tmp.c_str());
-}
-
 void CSVReader::storeData(std::vector<std::string> lineSplit) {
   Id id(lineSplit[idColumnNumber]);
   const Person& person = personHandler.getPersonFromId(id);

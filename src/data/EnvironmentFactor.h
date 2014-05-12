@@ -2,6 +2,7 @@
 #define ENVIRONMENTFACTOR_H_
 
 #include <Id.h>
+#include <VariableType.h>
 
 namespace CuEira {
 
@@ -17,12 +18,15 @@ public:
 
   Id getId() const;
   bool getInclude() const;
+  void setVariableType(VariableType variableType);
+  VariableType getVariableType() const;
 
 private:
   bool shouldEnvironmentFactorBeIncluded() const;
 
   Id id;
   bool include;
+  VariableType variableType;
 };
 
 } /* namespace CuEira */

@@ -3,7 +3,7 @@
 namespace CuEira {
 namespace FileIO {
 
-DataFilesReader::DataFilesReader(PlinkReader* plinkReader, const CSVReader& environmentCSVReader,
+DataFilesReader::DataFilesReader(PlinkReader* plinkReader, const EnvironmentCSVReader& environmentCSVReader,
     const CSVReader& covariateCSVReader) :
     plinkReader(plinkReader), environmentCSVReader(environmentCSVReader), covariateCSVReader(covariateCSVReader) {
 
@@ -18,7 +18,7 @@ Container::HostVector* DataFilesReader::readSNP(SNP& snp) const {
 }
 
 const Container::HostVector& DataFilesReader::getEnvironmentFactor(EnvironmentFactor& environmentFactor) const {
-  return environmentCSVReader.getData(environmentFactor.getId().getString());
+ return environmentCSVReader.getData(environmentFactor);
 }
 
 const Container::HostMatrix& DataFilesReader::getCovariates() const {

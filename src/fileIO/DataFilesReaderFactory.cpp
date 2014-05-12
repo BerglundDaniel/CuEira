@@ -16,7 +16,7 @@ DataFilesReader* DataFilesReaderFactory::constructDataFilesReader(Configuration&
   PlinkReader* plinkReader = plinkReaderFactory.constructPlinkReader(configuration);
   const PersonHandler& personHandler = plinkReader->getPersonHandler();
 
-  CSVReader environmentCSVReader(configuration.getEnvironmentFilePath(),
+  EnvironmentCSVReader environmentCSVReader(configuration.getEnvironmentFilePath(),
       configuration.getEnvironmentIndividualIdColumnName(), configuration.getEnvironmentDelimiter(), personHandler);
 
   CSVReader covariateCSVReader(configuration.getCovariateFilePath(), configuration.getCovariateIndividualIdColumnName(),

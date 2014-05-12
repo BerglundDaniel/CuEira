@@ -35,7 +35,6 @@ class CSVReaderTest;
 class CSVReader {
   friend CSVReaderTest;
   FRIEND_TEST(CSVReaderTest, StoreDataException);
-  FRIEND_TEST(CSVReaderTest, GetDataException);
 public:
   explicit CSVReader(std::string filePath, std::string idColumnName, std::string delim,
       const PersonHandler& personHandler);
@@ -45,17 +44,16 @@ public:
   int getNumberOfRows() const; //Not including header
   const std::vector<std::string>& getDataColumnHeaders() const; //Not including id
   const Container::HostMatrix& getData() const;
-  const Container::HostVector& getData(std::string column) const;
 
-private:
+protected:
   void storeData(std::vector<std::string> lineSplit);
 
   const PersonHandler& personHandler;
-  const std::string delim;
-  const std::string filePath;
   const std::string idColumnName;
   const int numberOfIndividualsToInclude;
   const int numberOfIndividualsTotal;
+  const std::string delim;
+  const std::string filePath;
   int numberOfColumns; //Not including id
   int numberOfRows; //Not including header
   int idColumnNumber;
@@ -68,7 +66,7 @@ private:
 #endif
 };
 
-#endif /* CSVREADER_H_ */
-
 } /* namespace FileIO */
 } /* namespace CuEira */
+
+#endif /* CSVREADER_H_ */

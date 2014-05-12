@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 #include <CSVReader.h>
+#include <EnvironmentCSVReader.h>
 #include <Configuration.h>
 #include <HostVector.h>
 #include <HostMatrix.h>
@@ -25,7 +26,7 @@ namespace FileIO {
  */
 class DataFilesReader {
 public:
-  explicit DataFilesReader(PlinkReader* plinkReader, const CSVReader& environmentCSVReader, const CSVReader& covariateCSVReader);
+  explicit DataFilesReader(PlinkReader* plinkReader, const EnvironmentCSVReader& environmentCSVReader, const CSVReader& covariateCSVReader);
   virtual ~DataFilesReader();
 
   Container::HostVector* readSNP(SNP& snp) const;
@@ -38,7 +39,7 @@ public:
 
 private:
   PlinkReader* plinkReader;
-  const CSVReader& environmentCSVReader;
+  const EnvironmentCSVReader& environmentCSVReader;
   const CSVReader& covariateCSVReader;
 };
 

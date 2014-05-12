@@ -9,6 +9,7 @@ set(INCLUDE_DIRECTORIES
 set(SOURCE
   ${SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/CSVReader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentCSVReader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DataFilesReader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DataFilesReaderFactory.cpp
   PARENT_SCOPE

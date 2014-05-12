@@ -1,0 +1,6 @@
+cov1	cov2	indid
+1	1.1	ind0
+2	0.3	ind1
+0	-0.2	ind2
+0	-3	ind3
+1	-10	ind4

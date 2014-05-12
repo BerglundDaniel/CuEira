@@ -9,6 +9,8 @@
 #include <PlinkReaderFactory.h>
 #include <PlinkReader.h>
 #include <DimensionMismatch.h>
+#include <CSVReader.h>
+#include <EnvironmentCSVReader.h>
 
 namespace CuEira {
 namespace FileIO {

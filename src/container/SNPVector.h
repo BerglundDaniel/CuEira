@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <stdexcept>
+#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
 
 #include <SNP.h>
 #include <Recode.h>
@@ -29,13 +31,18 @@ class SNPVectorTest;
  */
 class SNPVector {
   friend SNPVectorTest;
-  //FRIEND_TEST(SNPVectorTest, ConstructorCheckMode);
+  FRIEND_TEST(SNPVectorTest, DoRecodeDominantAlleleOne);
+  FRIEND_TEST(SNPVectorTest, DoRecodeDominantAlleleTwo);
+  FRIEND_TEST(SNPVectorTest, DoRecodeRecessiveAlleleOne);
+  FRIEND_TEST(SNPVectorTest, DoRecodeRecessiveAlleleTwo);
+  FRIEND_TEST(SNPVectorTest, InvertRiskAllele);
 public:
   SNPVector(const std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel);
   virtual ~SNPVector();
 
   const std::vector<int>* getOrginalData() const;
   const Container::HostVector* getRecodedData() const;
+  SNP& getAssociatedSNP() const;
   Recode getRecode() const;
   void recode(Recode recode);
 

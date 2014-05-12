@@ -22,7 +22,6 @@ SNPVector::SNPVector(const std::vector<int>* originalSNPData, SNP& snp, GeneticM
 }
 
 SNPVector::~SNPVector() {
-  delete originalSNPData;
   delete modifiedSNPData;
 }
 
@@ -32,6 +31,10 @@ const std::vector<int>* SNPVector::getOrginalData() const {
 
 const Container::HostVector* SNPVector::getRecodedData() const {
   return modifiedSNPData;
+}
+
+SNP& SNPVector::getAssociatedSNP() const {
+  return snp;
 }
 
 Recode SNPVector::getRecode() const {
@@ -93,9 +96,10 @@ RiskAllele SNPVector::invertRiskAllele(RiskAllele riskAllele) {
 }
 
 void SNPVector::doRecode() {
-  int* snpData0;
-  int* snpData1;
-  int* snpData2;
+  int* snpData0=new int(-1);
+  int* snpData1=new int(-1);
+  int* snpData2=new int(-1);
+
   if(currentGeneticModel == DOMINANT){
     if(currentRiskAllele == ALLELE_ONE){
       *snpData0 = 1;

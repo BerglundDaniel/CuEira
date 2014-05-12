@@ -4,7 +4,10 @@ namespace CuEira {
 
 SNP::SNP(Id id, std::string alleleOneName, std::string alleleTwoName, unsigned int position, bool include) :
     id(id), alleleOneName(alleleOneName), alleleTwoName(alleleTwoName), include(include), position(position), minorAlleleFrequency(
-        1), minorAlleleFrequencyHasBeenSet(false), riskAllele(ALLELE_ONE), riskAlleleHasBeenSet(false) {
+        1), minorAlleleFrequencyHasBeenSet(false), riskAllele(ALLELE_ONE), riskAlleleHasBeenSet(false), caseAlleleHasBeenSet(
+        false), controlAlleleHasBeenSet(false), allAlleleHasBeenSet(false), alleleOneCaseFrequency(-1), alleleTwoCaseFrequency(
+        -1), alleleOneControlFrequency(-1), alleleTwoControlFrequency(-1), alleleOneAllFrequency(-1), alleleTwoAllFrequency(
+        -1) {
 
 }
 
@@ -34,7 +37,7 @@ double SNP::getMinorAlleleFrequency() const {
     std::ostringstream os;
     os << "Can't get minor allele frequency since it has not been set for SNP " << id.getString() << std::endl;
     const std::string& tmp = os.str();
-    throw std::invalid_argument(tmp.c_str()); //FIXME
+    throw std::invalid_argument(tmp.c_str());
   }
   return minorAlleleFrequency;
 }
@@ -49,7 +52,7 @@ RiskAllele SNP::getRiskAllele() const {
     std::ostringstream os;
     os << "Can't get minor allele frequency since it has not been set for SNP " << id.getString() << std::endl;
     const std::string& tmp = os.str();
-    throw std::invalid_argument(tmp.c_str()); //FIXME
+    throw std::invalid_argument(tmp.c_str());
   }
   return riskAllele;
 }
@@ -64,6 +67,89 @@ std::string SNP::getAlleleTwoName() const {
 
 unsigned int SNP::getPosition() const {
   return position;
+}
+
+void SNP::setCaseAlleleFrequencies(double alleleOneCaseFrequency, double alleleTwoCaseFrequency) {
+  this->alleleOneCaseFrequency = alleleOneCaseFrequency;
+  this->alleleTwoCaseFrequency = alleleTwoCaseFrequency;
+}
+
+void SNP::setControlAlleleFrequencies(double alleleOneControlFrequency, double alleleTwoControlFrequency) {
+  this->alleleOneControlFrequency = alleleOneControlFrequency;
+  this->alleleTwoControlFrequency = alleleTwoControlFrequency;
+}
+
+void SNP::setAllAlleleFrequencies(double alleleOneAllFrequency, double alleleTwoAllFrequency) {
+  this->alleleOneAllFrequency = alleleOneAllFrequency;
+  this->alleleTwoAllFrequency = alleleTwoAllFrequency;
+}
+
+double SNP::getAlleleOneCaseFrequency() const {
+  if(!caseAlleleHasBeenSet){
+    std::ostringstream os;
+    os << "Can't get case allele one frequency since it has not been set for SNP " << id.getString() << std::endl;
+    const std::string& tmp = os.str();
+    throw std::invalid_argument(tmp.c_str());
+  }
+
+  return alleleOneCaseFrequency;
+}
+
+double SNP::getAlleleTwoCaseFrequency() const {
+  if(!caseAlleleHasBeenSet){
+    std::ostringstream os;
+    os << "Can't get case allele two frequency since it has not been set for SNP " << id.getString() << std::endl;
+    const std::string& tmp = os.str();
+    throw std::invalid_argument(tmp.c_str());
+  }
+
+  return alleleTwoCaseFrequency;
+}
+
+double SNP::getAlleleOneControlFrequency() const {
+  if(!controlAlleleHasBeenSet){
+    std::ostringstream os;
+    os << "Can't get control allele one frequency since it has not been set for SNP " << id.getString() << std::endl;
+    const std::string& tmp = os.str();
+    throw std::invalid_argument(tmp.c_str());
+  }
+
+  return alleleOneControlFrequency;
+}
+
+double SNP::getAlleleTwoControlFrequency() const {
+  if(!controlAlleleHasBeenSet){
+    std::ostringstream os;
+    os << "Can't get control allele two frequency since it has not been set for SNP " << id.getString() << std::endl;
+    const std::string& tmp = os.str();
+    throw std::invalid_argument(tmp.c_str());
+  }
+
+  return alleleTwoControlFrequency;
+}
+
+double SNP::getAlleleOneAllFrequency() const {
+  if(!allAlleleHasBeenSet){
+    std::ostringstream os;
+    os << "Can't get whole population allele one frequency since it has not been set for SNP " << id.getString()
+        << std::endl;
+    const std::string& tmp = os.str();
+    throw std::invalid_argument(tmp.c_str());
+  }
+
+  return alleleOneAllFrequency;
+}
+
+double SNP::getAlleleTwoAllFrequency() const {
+  if(!allAlleleHasBeenSet){
+    std::ostringstream os;
+    os << "Can't get whole population allele two frequency since it has not been set for SNP " << id.getString()
+        << std::endl;
+    const std::string& tmp = os.str();
+    throw std::invalid_argument(tmp.c_str());
+  }
+
+  return alleleTwoAllFrequency;
 }
 
 } /* namespace CuEira */

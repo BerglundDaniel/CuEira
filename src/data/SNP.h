@@ -34,6 +34,17 @@ public:
   void setRiskAllele(RiskAllele riskAllele);
   RiskAllele getRiskAllele() const;
 
+  void setCaseAlleleFrequencies(double alleleOneCaseFrequency, double alleleTwoCaseFrequency);
+  void setControlAlleleFrequencies(double alleleOneControlFrequency, double alleleTwoControlFrequency);
+  void setAllAlleleFrequencies(double alleleOneAllFrequency, double alleleTwoAllFrequency);
+
+  double getAlleleOneCaseFrequency() const;
+  double getAlleleTwoCaseFrequency() const;
+  double getAlleleOneControlFrequency() const;
+  double getAlleleTwoControlFrequency() const;
+  double getAlleleOneAllFrequency() const;
+  double getAlleleTwoAllFrequency() const;
+
 private:
   Id id;
   bool include;
@@ -46,6 +57,17 @@ private:
 
   RiskAllele riskAllele;
   bool riskAlleleHasBeenSet;
+
+  double alleleOneCaseFrequency;
+  double alleleTwoCaseFrequency;
+  double alleleOneControlFrequency;
+  double alleleTwoControlFrequency;
+  double alleleOneAllFrequency;
+  double alleleTwoAllFrequency;
+
+  bool caseAlleleHasBeenSet;
+  bool controlAlleleHasBeenSet;
+  bool allAlleleHasBeenSet;
 };
 
 } /* namespace CuEira */

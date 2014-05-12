@@ -7,6 +7,8 @@
 #include <vector>
 #include <math.h>
 #include <stdexcept>
+#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
@@ -27,6 +29,7 @@
 
 namespace CuEira {
 namespace FileIO {
+class BedReaderTest;
 
 /**
  * This is ...
@@ -34,6 +37,8 @@ namespace FileIO {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class BedReader {
+  friend BedReaderTest;
+  FRIEND_TEST(BedReaderTest, ConstructorCheckMode);
 public:
   explicit BedReader(const Configuration& configuration, const PersonHandler& personHandler, const int numberOfSNPs);
   virtual ~BedReader();
@@ -49,18 +54,19 @@ private:
    * Get the bit at position in the byte, position in range 0-7
    */
   bool getBit(unsigned char byte, int position) const;
-  void excludeSNP(SNP& snp) const;
   void closeBedFile(std::ifstream& bedFile) const;
   void openBedFile(std::ifstream& bedFile) const;
 
+  const Configuration& configuration;
+  const PersonHandler& personHandler;
+  Mode mode;
+  const GeneticModel geneticModel;
   const int readBufferSizeMaxSNPMAJOR = 100000; //10kb
   const int headerSize = 3;
   const int numberOfSNPs;
-  Mode mode;
-  const GeneticModel geneticModel;
+  const int numberOfIndividualsToInclude;
+  const int numberOfIndividualsTotal;
   const std::string bedFileStr;
-  const Configuration& configuration;
-  const PersonHandler& personHandler;
 };
 
 } /* namespace FileIO */

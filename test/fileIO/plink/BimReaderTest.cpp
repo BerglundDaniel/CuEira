@@ -54,7 +54,7 @@ TEST_F(BimReaderTest, ReadFile) {
 
   ASSERT_EQ(numberOfSNPs, bimReader.getNumberOfSNPs());
 
-  std::vector<SNP*> snpVector = bimReader.getSNPs();
+  std::vector<SNP*> snpVector = bimReader.getSNPInformation();
   std::vector<std::string> alleleOneVector(numberOfSNPs);
   std::vector<std::string> alleleTwoVector(numberOfSNPs);
 

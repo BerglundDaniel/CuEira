@@ -23,7 +23,7 @@ Configuration::Configuration(int argc, char* argv[]) {
       "Set the threshold for minor allele frequency(MAF) in range 0 to 1. Any SNPs with MAF below the threshold will be excluded from the analysis. Default 0.05.")(
       "p", options::value<bool>()->zero_tokens(),
       "Use alternative coding for the phenotype, 0 for unaffected and 1 for affected instead of 1 for unaffected and 2 for affected.")(
-      "e", options::value<bool>()->zero_tokens(), "Excluded SNPs with negative position from the analysis.")(
+      "exclude", options::value<bool>()->zero_tokens(), "Exclude SNPs with negative position from the analysis.")(
       "version,v", "Print the version number.");
 
   options::store(options::parse_command_line(argc, argv, description), optionsMap);
@@ -111,7 +111,7 @@ std::string Configuration::getFamFilePath() const {
 }
 
 std::string Configuration::getEnvironmentFilePath() const {
-  return optionsMap["enviroment_file"].as<std::string>();
+  return optionsMap["environment_file"].as<std::string>();
 }
 
 std::string Configuration::getCovariateFilePath() const {
@@ -139,8 +139,8 @@ PhenotypeCoding Configuration::getPhenotypeCoding() const {
 }
 
 bool Configuration::excludeSNPsWithNegativePosition() const {
-  if(optionsMap.count("e")){
-    if(optionsMap["e"].as<bool>()){
+  if(optionsMap.count("exclude")){
+    if(optionsMap["exclude"].as<bool>()){
       return true;
     }else{
       return false;

@@ -3,14 +3,42 @@
 namespace CuEira {
 namespace Container {
 
-PinnedHostVector::PinnedHostVector() {
+PinnedHostVector::PinnedHostVector(unsigned int numberOfRows) :
+    HostVector(numberOfRows, false, ?) {
+
+}
+
+PinnedHostVector::PinnedHostVector(unsigned int numberOfRows, PRECISION* hostVector, bool subview) :
+    HostVector(numberOfRows, subview, hostVector) {
 
 }
 
 PinnedHostVector::~PinnedHostVector() {
   if(!subview){
-
+    //TODO
   }
+}
+
+PRECISION& PinnedHostVector::operator()(unsigned int index) {
+  if(index >= numberOfRows){
+    std::ostringstream os;
+    os << "Index" << index << " is larger than the number of rows " << numberOfRows << std::endl;
+    const std::string& tmp = os.str();
+    throw DimensionMismatch(tmp.c_str());
+  }
+
+  return *(hostVector + index);
+}
+
+const PRECISION& PinnedHostVector::operator()(unsigned int index) const {
+  if(index >= numberOfRows){
+    std::ostringstream os;
+    os << "Index" << index << " is larger than the number of rows " << numberOfRows << std::endl;
+    const std::string& tmp = os.str();
+    throw DimensionMismatch(tmp.c_str());
+  }
+
+  return *(hostVector + index);
 }
 
 } /* namespace Container */

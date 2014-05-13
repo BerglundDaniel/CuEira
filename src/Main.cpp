@@ -1,7 +1,26 @@
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 #include <Configuration.h>
+#include <PlinkReaderFactory.h>
+#include <PlinkReader.h>
+#include <DataFilesReaderFactory.h>
+#include <DataFilesReader.h>
+#include <SNPVector.h>
+#include <HostMatrix.h>
+#include <HostVector.h>
+#include <PersonHandler.h>
+#include <LogisticRegression.h>
+#include <MultipleLogisticRegression.h>
+#include <EnvironmentFactor.h>
+
+#ifdef CPU
+#include <lapackpp/lavd.h>
+#include <LapackppHostVector.h>
+#else
+#include <PinnedHostVector.h>
+#endif
 
 /**
  * This is the main part
@@ -9,108 +28,124 @@
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 int main(int argc, char* argv[]) {
-  std::cerr << "argc " << argc << std::endl;
-  std::cerr << "argv " << *argv << std::endl;
+  using namespace CuEira;
 
-  CuEira::Configuration configuration(argc, argv);
+  Configuration configuration(argc, argv);
 
-  /*
-  PlinkReaderFactory plinkReaderFactory();
-  DataFilesReaderFactory dataFilesReaderFactory(plinkReaderFactory);
-  DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
-  std::vector<SNP*> snpInfo = dataFilesReader->getSNPInfo();
-  std::vector<EnvironmentFactor> environmentFactorInfo = dataFilesReader->getEnvironmentFactorInfo();
+  FileIO::PlinkReaderFactory plinkReaderFactory;
+  FileIO::DataFilesReaderFactory dataFilesReaderFactory(plinkReaderFactory);
+  FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
 
-  int numberOfIndividualsToInclude = dataFilesReader->getNumberOfIndividualsToInclude();
-  int numberOfPreds = 3; //1 for snp, 1 for env, 1 for interact
-  //HostMatrix covariatesMatrix = dataFilesReader->getCovariates(); TODO
+  const PersonHandler& personHandler = dataFilesReader->getPersonHandler();
+  std::vector<SNP*> snpInfo = dataFilesReader->getSNPInformation();
+  std::vector<EnvironmentFactor*> environmentFactorInformation = dataFilesReader->getEnvironmentFactorInformation();
+
+  const int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
+  const int numberOfPreds = 3; //1 for snp, 1 for env, 1 for interact
   LaVectorDouble * betaCoefficientsLapackpp = new LaVectorDouble(numberOfPreds + 1);
 
-  //TODO convert outcomes to lappackpphost
-  HostVector outcomes = dataFilesReader->getOutcomes();
-  LaVectorDouble& outcomesLapackpp = outcomes.getLapackpp();
+  //HostMatrix covariatesMatrix = dataFilesReader->getCovariates(); //Skip for now TODO
 
-  for(int environmentFactorNumber = 0; environmentFactorNumber < environmentFactorInfo.size();
-      ++environmentFactorNumber){
-    EnivironmentFactor enivironmentFactor = environmentFactorInfo[environmentFactorNumber];
-    HostVector environmentHostVector = DataFilesReader->getEnvironmentFactor(environmentFactor);
+  const Container::HostVector& outcomes = personHandler.getOutcomes();
+  const Container::LapackppHostVector& outcomesCast = dynamic_cast<const Container::LapackppHostVector&>(outcomes);
+  const LaVectorDouble& outcomesLapackpp = outcomesCast.getLapackpp();
 
-    for(int snpNumber = 0; snpNumber < snpInfo.size(); ++snpNumber){
-      SNP snp = snpInfo[snpNumber];
-      HostVector* snpVector = dataFilesReader->readSNP(snp);
-      LaGenMatDouble predictorsLapackpp(numberOfIndividualsToInclude, numberOfPreds);
+  EnvironmentFactor* environmentFactor = environmentFactorInformation[1]; //Just using one atm
+  const Container::HostVector& envHostVector = dataFilesReader->getEnvironmentFactor(*environmentFactor);
 
-      //fill predictorsLapackpp
-      for(int row = 0; row < numberOfIndividualsToInclude; ++row){
-        //SNP
-        predictorsLapackpp(row, 0) = snpVector(row);
+  //std::cout << "Snp intercept snp env interaction recode" << std::endl;
+  std::cout << "Snp alleone alleletwo riskallele allfreq1 allfreq2 casefreq1 casefreq2 controlfreq1 controlfreq2"
+      << std::endl;
 
-        //ENV
-        predictorsLapackpp(row, 1) = environmentHostVector(row);
+  for(int snpNumber = 0; snpNumber < snpInfo.size(); ++snpNumber){
+    SNP* snp = snpInfo[snpNumber];
+    if(!snp->getInclude()){
+      std::cerr << "Not including SNP " << snp->getId().getString() << std::endl;
+      continue;
+    }
 
-        //Interaction
-        predictorsLapackpp(row, 2) = snpVector(row) * environmentHostVector(row);
-      }
+    Container::SNPVector* snpVector = dataFilesReader->readSNP(*snp);
+    if(!snp->getInclude()){
+      std::cerr << "SNP " << snp->getId().getString() << " got exluded after reading." << std::endl;
+      continue;
+    }
 
-      //Reset beta
-      for(int i = 0; i < betaCoefficientsLapackpp.size(); ++i){
-        (*betaCoefficientsLapackpp)(i) = 0;
-      }
+    LaGenMatDouble predictorsLapackpp(numberOfIndividualsToInclude, numberOfPreds);
+    const Container::HostVector* snpVectorModData = snpVector->getRecodedData();
 
-      MultipleLogisticRegression logisticRegression(predictorsLapackpp, outcomesLapackpp, betaCoefficientsLapackpp);
-      logisticRegression.calculate();
+    //fill predictorsLapackpp
+    for(int row = 0; row < numberOfIndividualsToInclude; ++row){
+      //SNP
+      predictorsLapackpp(row, 0) = (*snpVectorModData)(row);
 
-      //Get stuff
-      //const LaGenMatDouble& getInformationMatrix();
-      //double getLogLikelihood();
-      //betaCoefficientsLapackpp
+      //ENV
+      predictorsLapackpp(row, 1) = envHostVector(row);
 
-      //Recode?
-      double snpBeta = (*betaCoefficientsLapackpp)(0);
-      double envBeta = (*betaCoefficientsLapackpp)(1);
-      double interactionBeta = (*betaCoefficientsLapackpp)(2);
-      int recode = 0;
+      //Interaction
+      predictorsLapackpp(row, 2) = (*snpVectorModData)(row) * envHostVector(row);
+    }
 
-      if(){
-        recode = 1;
-      }else if(){
-        recode = 2;
-      }else if(){
-        receode = 3;
-      }
+    //Reset beta
+    for(int i = 0; i < betaCoefficientsLapackpp->rows(); ++i){
+      (*betaCoefficientsLapackpp)(i) = 0;
+    }
 
-      double cA0B1 = coef.getEntry(MATRIX_INDEX_A0B1); //env
-      double cA1B0 = coef.getEntry(MATRIX_INDEX_A1B0); //snp
-      double cA1B1 = coef.getEntry(MATRIX_INDEX_A1B1); //interaction
+    LogisticRegression::MultipleLogisticRegression logisticRegression(predictorsLapackpp, outcomesLapackpp,
+        betaCoefficientsLapackpp);
+    logisticRegression.calculate();
 
-      // Recalculate the risk alleles if necessary. The recode values are
-      // described below.
-      if(cA1B0 < 0 && cA1B0 < cA0B1 && cA1B0 < cA1B1){
-        recode = 1;
-      }else if(cA0B1 < 0 && cA0B1 < cA1B0 && cA0B1 < cA1B1){
-        recode = 2;
-      }else if(cA1B1 < 0 && cA1B1 < cA1B0 && cA1B1 < cA0B1){
-        recode = 3;
-      }
+    //Get stuff
+    //const LaGenMatDouble& getInformationMatrix();
+    //double getLogLikelihood();
+    //betaCoefficientsLapackpp
 
-      //Change stuff based on recode
-      if(recode == 1 || recode == 3){
+    //Recode?
+    double intercept = (*betaCoefficientsLapackpp)(0);
+    double snpBeta = (*betaCoefficientsLapackpp)(1);
+    double envBeta = (*betaCoefficientsLapackpp)(2);
+    double interactionBeta = (*betaCoefficientsLapackpp)(3);
+    int recode = 0;
 
-      }
+    if(snpBeta < 0 && snpBeta < envBeta && snpBeta < interactionBeta){
+      recode = 1;
+    }else if(envBeta < 0 && envBeta < snpBeta && envBeta < interactionBeta){
+      recode = 2;
+    }else if(interactionBeta < 0 && interactionBeta < snpBeta && interactionBeta < envBeta){
+      recode = 3;
+    }
 
-      if(recode == 2 || recode == 3){
+    std::cerr << "recode " << recode << std::endl;
+    //std::cout << snpNumber << " " << intercept << " " << snpBeta << " " << envBeta << " " << interactionBeta << " " << recode
+    // << std::endl;
 
-      }
+    std::cout << snpNumber << " " << snp->getAlleleOneName() << " " << snp->getAlleleTwoName() << " "
+        << snp->getRiskAllele() << " " << snp->getAlleleOneAllFrequency() << " " << snp->getAlleleTwoAllFrequency()
+        << " " << snp->getAlleleOneCaseFrequency() << " " << snp->getAlleleTwoCaseFrequency() << " "
+        << snp->getAlleleOneControlFrequency() << " " << snp->getAlleleTwoControlFrequency() << std::endl;
 
-      //Recalculate if needed
-      if(recode>0){
+    //if(interactionBeta > (snpBeta + envBeta - 1)){
+    //std::cout << "interaction" << std::endl;
+    //}
 
-      }
+    /*
+     //Change stuff based on recode
+     if(recode == 1 || recode == 3){
 
-      //Do statistics
+     }
 
-      delete snpVector;
-    } //for snp
-  } // for env
-  */
+     if(recode == 2 || recode == 3){
+
+     }
+
+     //Recalculate if needed
+     if(recode > 0){
+
+     }
+
+     //Do statistics
+     */
+    delete snpVector;
+  } //for snp
+
+  delete dataFilesReader;
 }

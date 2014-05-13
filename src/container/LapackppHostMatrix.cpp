@@ -17,6 +17,10 @@ LaGenMatDouble& LapackppHostMatrix::getLapackpp() {
   return *lapackppContainer;
 }
 
+const LaGenMatDouble& LapackppHostMatrix::getLapackpp() const {
+  return *lapackppContainer;
+}
+
 HostVector* LapackppHostMatrix::operator()(unsigned int column) {
   LaVectorDouble* laVector = new LaVectorDouble(numberOfRows);
   laVector->ref(lapackppContainer->col(column));

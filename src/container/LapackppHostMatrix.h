@@ -24,6 +24,7 @@ public:
   virtual ~LapackppHostMatrix();
 
   LaGenMatDouble& getLapackpp();
+  const LaGenMatDouble& getLapackpp() const;
   virtual HostVector* operator()(unsigned int column);
   virtual const HostVector* operator()(unsigned int column) const;
   virtual double& operator()(unsigned int row, unsigned int column);

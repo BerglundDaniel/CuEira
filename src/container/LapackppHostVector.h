@@ -24,6 +24,7 @@ public:
   virtual ~LapackppHostVector();
 
   LaVectorDouble& getLapackpp();
+  const LaVectorDouble& getLapackpp() const;
   virtual double& operator()(unsigned int index);
   virtual const double& operator()(unsigned int index) const;
 

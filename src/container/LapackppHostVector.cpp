@@ -14,10 +14,14 @@ LapackppHostVector::LapackppHostVector(LaVectorDouble* lapackppContainer, bool s
 }
 
 LapackppHostVector::~LapackppHostVector() {
-   delete lapackppContainer;
+  delete lapackppContainer;
 }
 
 LaVectorDouble& LapackppHostVector::getLapackpp() {
+  return *lapackppContainer;
+}
+
+const LaVectorDouble& LapackppHostVector::getLapackpp() const {
   return *lapackppContainer;
 }
 

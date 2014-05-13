@@ -5,12 +5,20 @@ namespace FileIO {
 
 EnvironmentCSVReader::EnvironmentCSVReader(std::string filePath, std::string idColumnName, std::string delim,
     const PersonHandler& personHandler) :
-    CSVReader(filePath, idColumnName, delim, personHandler) {
+    CSVReader(filePath, idColumnName, delim, personHandler), environmentFactors(
+        new std::vector<EnvironmentFactor*>(numberOfColumns)) {
+
+  const std::vector<std::string>& headers = getDataColumnHeaders();
+
+  for(int i = 0; i < numberOfColumns; ++i){
+    Id id(headers[i]);
+    (*environmentFactors)[i] = new EnvironmentFactor(id);
+  }
 
 }
 
 EnvironmentCSVReader::~EnvironmentCSVReader() {
-
+  delete environmentFactors;
 }
 
 const Container::HostVector& EnvironmentCSVReader::getData(EnvironmentFactor& environmentFactor) const {
@@ -40,6 +48,10 @@ const Container::HostVector& EnvironmentCSVReader::getData(EnvironmentFactor& en
   os << "Can't find column name " << columnName << std::endl;
   const std::string& tmp = os.str();
   throw FileReaderException(tmp.c_str());
+}
+
+const std::vector<EnvironmentFactor*>& EnvironmentCSVReader::getEnvironmentFactorInformation() const {
+  return *environmentFactors;
 }
 
 } /* namespace FileIO */

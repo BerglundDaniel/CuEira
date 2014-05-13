@@ -25,6 +25,10 @@ public:
   virtual ~EnvironmentCSVReader();
 
   const Container::HostVector& getData(EnvironmentFactor& environmentFactor) const;
+  const std::vector<EnvironmentFactor*>& getEnvironmentFactorInformation() const;
+
+private:
+  std::vector<EnvironmentFactor*>* environmentFactors;
 };
 
 } /* namespace FileIO */

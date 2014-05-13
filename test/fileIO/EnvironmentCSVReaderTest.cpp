@@ -138,6 +138,17 @@ TEST_F(EnvironmentCSVReaderTest, GetDataException) {
   ASSERT_THROW(envCSVReader.getData(environmentFactor), FileReaderException);
 }
 
+TEST_F(EnvironmentCSVReaderTest, GetEnvironmentFactorsInfo) {
+  CuEira::FileIO::EnvironmentCSVReader envCSVReader(filePath, idColumnName, delimiter, personHandlerMock);
+
+  const std::vector<EnvironmentFactor*>& envInfo = envCSVReader.getEnvironmentFactorInformation();
+
+  ASSERT_EQ(numberOfColumns, envInfo.size());
+
+  EXPECT_EQ("env1", envInfo[0]->getId().getString());
+  EXPECT_EQ("env2", envInfo[1]->getId().getString());
+}
+
 }
 /* namespace FileIO */
 } /* namespace CuEira */

@@ -39,8 +39,12 @@ const PersonHandler& DataFilesReader::getPersonHandler() const {
   return plinkReader->getPersonHandler();
 }
 
-std::vector<SNP*> DataFilesReader::getSNPInformation() {
+std::vector<SNP*> DataFilesReader::getSNPInformation() const {
   return plinkReader->getSNPInformation();
+}
+
+const std::vector<EnvironmentFactor*>& DataFilesReader::getEnvironmentFactorInformation() const {
+  return environmentCSVReader->getEnvironmentFactorInformation();
 }
 
 } /* namespace FileIO */

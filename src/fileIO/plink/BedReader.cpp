@@ -207,12 +207,12 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
   const int numberOfAllelesInCase = numberOfAlleleOneCase + numberOfAlleleTwoCase;
   const int numberOfAllelesInControl = numberOfAlleleOneControl + numberOfAlleleTwoControl;
 
-  const double alleleOneCaseFrequency = (double)numberOfAlleleOneCase / numberOfAllelesInCase;
-  const double alleleTwoCaseFrequency = (double)numberOfAlleleTwoCase / numberOfAllelesInCase;
-  const double alleleOneControlFrequency = (double)numberOfAlleleOneControl / numberOfAllelesInControl;
-  const double alleleTwoControlFrequency = (double)numberOfAlleleTwoControl / numberOfAllelesInControl;
-  const double alleleOneAllFrequency = (double)numberOfAlleleOneAll / numberOfAllelesInPopulation;
-  const double alleleTwoAllFrequency = (double)numberOfAlleleTwoAll / numberOfAllelesInPopulation;
+  const double alleleOneCaseFrequency = (double) numberOfAlleleOneCase / numberOfAllelesInCase;
+  const double alleleTwoCaseFrequency = (double) numberOfAlleleTwoCase / numberOfAllelesInCase;
+  const double alleleOneControlFrequency = (double) numberOfAlleleOneControl / numberOfAllelesInControl;
+  const double alleleTwoControlFrequency = (double) numberOfAlleleTwoControl / numberOfAllelesInControl;
+  const double alleleOneAllFrequency = (double) numberOfAlleleOneAll / numberOfAllelesInPopulation;
+  const double alleleTwoAllFrequency = (double) numberOfAlleleTwoAll / numberOfAllelesInPopulation;
 
   snp.setCaseAlleleFrequencies(alleleOneCaseFrequency, alleleTwoCaseFrequency);
   snp.setControlAlleleFrequencies(alleleOneControlFrequency, alleleTwoControlFrequency);

@@ -27,14 +27,16 @@ namespace FileIO {
  */
 class DataFilesReader {
 public:
-  explicit DataFilesReader(PlinkReader* plinkReader, EnvironmentCSVReader* environmentCSVReader, CSVReader* covariateCSVReader);
+  explicit DataFilesReader(PlinkReader* plinkReader, EnvironmentCSVReader* environmentCSVReader,
+      CSVReader* covariateCSVReader);
   virtual ~DataFilesReader();
 
   Container::SNPVector* readSNP(SNP& snp) const;
   const Container::HostVector& getEnvironmentFactor(EnvironmentFactor& environmentFactor) const;
   const Container::HostMatrix& getCovariates() const;
   const PersonHandler& getPersonHandler() const;
-  std::vector<SNP*> getSNPInformation();
+  std::vector<SNP*> getSNPInformation() const;
+  const std::vector<EnvironmentFactor*>& getEnvironmentFactorInformation() const;
 
   int getNumberOfCovariates() const;
   int getNumberOfEnvironmentFactors() const;

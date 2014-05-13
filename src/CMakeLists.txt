@@ -4,6 +4,11 @@ add_subdirectory(container)
 add_subdirectory(programOptions)
 add_subdirectory(fileIO)
 
+#if(${CPU})
+	add_subdirectory(serial)
+#endif(${CPU})
+
+
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}
   ${CMAKE_CURRENT_SOURCE_DIR}

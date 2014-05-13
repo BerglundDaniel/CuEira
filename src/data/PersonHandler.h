@@ -11,6 +11,15 @@
 #include <Phenotype.h>
 #include <Configuration.h>
 #include <PersonHandlerException.h>
+#include <HostVector.h>
+#include <InvalidState.h>
+
+#ifdef CPU
+#include <lapackpp/lavd.h>
+#include <LapackppHostVector.h>
+#else
+#include <PinnedHostVector.h>
+#endif
 
 namespace CuEira {
 /**
@@ -31,6 +40,8 @@ public:
   virtual const Person& getPersonFromRowAll(int row) const;
   virtual const Person& getPersonFromRowInclude(int row) const;
   virtual int getRowIncludeFromPerson(const Person& person) const;
+  virtual const Container::HostVector& getOutcomes() const;
+  virtual void createOutcomes();
 
 private:
   bool shouldPersonBeIncluded(Id id, Sex sex, Phenotype phenotype) const;
@@ -41,6 +52,8 @@ private:
   std::map<int, Person> rowToPersonInclude;
   std::map<Id, Person> idToPerson;
   std::map<Person, int> personToRowInclude;
+  bool outcomesCreated;
+  Container::HostVector* outcomes;
 };
 
 } /* namespace CuEira */

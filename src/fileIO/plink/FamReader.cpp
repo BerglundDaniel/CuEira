@@ -46,6 +46,8 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler* personHa
   } /* while getline */
 
   famFile.close();
+
+  personHandler->createOutcomes();
 }
 
 FamReader::~FamReader() {

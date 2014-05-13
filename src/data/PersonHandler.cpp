@@ -3,12 +3,12 @@
 namespace CuEira {
 
 PersonHandler::PersonHandler() :
-    numberOfIndividualsTotal(0), numberOfIndividualsToInclude(0) {
+    numberOfIndividualsTotal(0), numberOfIndividualsToInclude(0), outcomesCreated(false), outcomes(nullptr) {
 
 }
 
 PersonHandler::~PersonHandler() {
-
+  delete outcomes;
 }
 
 const Person& PersonHandler::createPerson(Id id, Sex sex, Phenotype phenotype, int rowAll) {
@@ -36,6 +36,8 @@ const Person& PersonHandler::createPerson(Id id, Sex sex, Phenotype phenotype, i
     personToRowInclude.insert(std::pair<Person, int>(person, numberOfIndividualsToInclude));
 
     numberOfIndividualsToInclude++;
+  }else{
+    std::cerr << "Excluding person " << id.getString() << std::endl;
   }
   numberOfIndividualsTotal++;
 
@@ -96,6 +98,37 @@ bool PersonHandler::shouldPersonBeIncluded(Id id, Sex sex, Phenotype phenotype) 
   }else{
     return true;
   }
+}
+
+const Container::HostVector& PersonHandler::getOutcomes() const {
+  if(!outcomesCreated){
+    throw InvalidState("Outcomes have not yet been created for PersonHandler.");
+  }
+  return *outcomes;
+}
+
+void PersonHandler::createOutcomes() {
+  if(!outcomesCreated){
+    outcomesCreated = true;
+
+#ifdef CPU
+    outcomes=new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude));
+#else
+    new Container::PinnedHostVector(numberOfIndividualsToInclude);
+#endif
+
+    for(int i = 0; i < numberOfIndividualsToInclude; ++i){
+      Phenotype phenotype = getPersonFromRowInclude(i).getPhenotype();
+      if(phenotype == UNAFFECTED){
+        (*outcomes)(i) = 0;
+      }else if(phenotype == AFFECTED){
+        (*outcomes)(i) = 1;
+      }else{
+        throw InvalidState("Unknown phenotype in PersonHandler.");
+      }
+    }/* for numberOfIndividualsToInclude */
+
+  } /* if outcomesCreated */
 }
 
 } /* namespace CuEira */

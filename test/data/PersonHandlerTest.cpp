@@ -51,7 +51,8 @@ TEST_F(PersonHandlerTest, ExceptionSamePersonSameRow) {
   Person* person = constructorHelpers.constructPersonInclude(1);
 
   personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 0);
-  ASSERT_THROW(personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 0), PersonHandlerException);
+  ASSERT_THROW(personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 0),
+      PersonHandlerException);
 
   delete person;
 }
@@ -60,7 +61,8 @@ TEST_F(PersonHandlerTest, ExceptionSamePersonDifferentRow) {
   Person* person = constructorHelpers.constructPersonInclude(1);
 
   personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 0);
-  ASSERT_THROW(personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 1), PersonHandlerException);
+  ASSERT_THROW(personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 1),
+      PersonHandlerException);
 
   delete person;
 }
@@ -70,7 +72,8 @@ TEST_F(PersonHandlerTest, ExceptionDifferentPersonSameRow) {
   Person* person2 = constructorHelpers.constructPersonInclude(2);
 
   personHandler.createPerson(person1->getId(), person1->getSex(), person1->getPhenotype(), 0);
-  ASSERT_THROW(personHandler.createPerson(person2->getId(), person2->getSex(), person2->getPhenotype(), 0), PersonHandlerException);
+  ASSERT_THROW(personHandler.createPerson(person2->getId(), person2->getSex(), person2->getPhenotype(), 0),
+      PersonHandlerException);
 
   delete person1;
   delete person2;
@@ -186,6 +189,71 @@ TEST_F(PersonHandlerTest, GettersException) {
   for(int i = 0; i < numberOfIndividuals; ++i){
     Person* person = personVector[i];
     delete person;
+  }
+}
+
+TEST_F(PersonHandlerTest, GetOutcomesException) {
+  int numberOfIndividuals = 10;
+  int numberOfIndividualsNotInclude = 4;
+  int notInclude[4] = {1, 2, 5, 7};
+  int j = 0;
+  std::vector<Person*> personVector(numberOfIndividuals);
+
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    Person* person;
+    if(i == notInclude[j]){
+      ++j;
+      person = constructorHelpers.constructPersonNotInclude(i);
+    }else{
+      person = constructorHelpers.constructPersonInclude(i);
+    }
+    personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
+    personVector[i] = person;
+  }
+
+  ASSERT_THROW(personHandler.getOutcomes(), InvalidState);
+
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    delete personVector[i];
+  }
+}
+
+TEST_F(PersonHandlerTest, CreateAndGetOutcomes) {
+  int numberOfIndividuals = 10;
+  int numberOfIndividualsNotInclude = 4;
+  int notInclude[4] = {1, 2, 5, 7};
+  int j = 0;
+  std::vector<Person*> personVector(numberOfIndividuals);
+
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    Person* person;
+    if(i == notInclude[j]){
+      ++j;
+      person = constructorHelpers.constructPersonNotInclude(i);
+    }else{
+      if(i < 4 || i == 8){
+        person = constructorHelpers.constructPersonInclude(i, AFFECTED);
+      }else{
+        person = constructorHelpers.constructPersonInclude(i, UNAFFECTED);
+      }
+    }
+    personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
+    personVector[i] = person;
+  }
+
+  personHandler.createOutcomes();
+  const Container::HostVector& outcomes = personHandler.getOutcomes();
+
+  for(int i = 0; i < 6; ++i){
+    if(i == 0 || i == 1 || i == 4){
+      EXPECT_EQ(1, outcomes(i));
+    }else{
+      EXPECT_EQ(0, outcomes(i));
+    }
+  }
+
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    delete personVector[i];
   }
 }
 

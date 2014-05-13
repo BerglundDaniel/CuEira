@@ -47,6 +47,8 @@ FamReaderTest::FamReaderTest() :
         constructorHelpers.constructPersonInclude(0)) {
   EXPECT_CALL(configMock, getFamFilePath()).Times(1).WillRepeatedly(Return("../data/test.fam"));
   EXPECT_CALL(configMock, getPhenotypeCoding()).WillRepeatedly(Return(ONE_TWO_CODING));
+
+  EXPECT_CALL(*personHandlerMock, createOutcomes()).Times(1);
 }
 
 FamReaderTest::~FamReaderTest() {

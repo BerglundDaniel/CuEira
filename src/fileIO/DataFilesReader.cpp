@@ -3,14 +3,16 @@
 namespace CuEira {
 namespace FileIO {
 
-DataFilesReader::DataFilesReader(PlinkReader* plinkReader, const EnvironmentCSVReader& environmentCSVReader,
-    const CSVReader& covariateCSVReader) :
+DataFilesReader::DataFilesReader(PlinkReader* plinkReader, EnvironmentCSVReader* environmentCSVReader,
+    CSVReader* covariateCSVReader) :
     plinkReader(plinkReader), environmentCSVReader(environmentCSVReader), covariateCSVReader(covariateCSVReader) {
 
 }
 
 DataFilesReader::~DataFilesReader() {
   delete plinkReader;
+  delete environmentCSVReader;
+  delete covariateCSVReader;
 }
 
 Container::SNPVector* DataFilesReader::readSNP(SNP& snp) const {
@@ -18,19 +20,19 @@ Container::SNPVector* DataFilesReader::readSNP(SNP& snp) const {
 }
 
 const Container::HostVector& DataFilesReader::getEnvironmentFactor(EnvironmentFactor& environmentFactor) const {
- return environmentCSVReader.getData(environmentFactor);
+  return environmentCSVReader->getData(environmentFactor);
 }
 
 const Container::HostMatrix& DataFilesReader::getCovariates() const {
-  return covariateCSVReader.getData();
+  return covariateCSVReader->getData();
 }
 
 int DataFilesReader::getNumberOfCovariates() const {
-  return covariateCSVReader.getNumberOfColumns();
+  return covariateCSVReader->getNumberOfColumns();
 }
 
 int DataFilesReader::getNumberOfEnvironmentFactors() const {
-  return environmentCSVReader.getNumberOfColumns();
+  return environmentCSVReader->getNumberOfColumns();
 }
 
 const PersonHandler& DataFilesReader::getPersonHandler() const {

@@ -27,7 +27,7 @@ namespace FileIO {
  */
 class DataFilesReader {
 public:
-  explicit DataFilesReader(PlinkReader* plinkReader, const EnvironmentCSVReader& environmentCSVReader, const CSVReader& covariateCSVReader);
+  explicit DataFilesReader(PlinkReader* plinkReader, EnvironmentCSVReader* environmentCSVReader, CSVReader* covariateCSVReader);
   virtual ~DataFilesReader();
 
   Container::SNPVector* readSNP(SNP& snp) const;
@@ -41,8 +41,8 @@ public:
 
 private:
   PlinkReader* plinkReader;
-  const EnvironmentCSVReader& environmentCSVReader;
-  const CSVReader& covariateCSVReader;
+  EnvironmentCSVReader* environmentCSVReader;
+  CSVReader* covariateCSVReader;
 };
 
 } /* namespace FileIO */

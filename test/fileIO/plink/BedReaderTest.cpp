@@ -189,7 +189,7 @@ TEST_F(BedReaderTest, ReadSnp1) {
   CuEira::FileIO::BedReader bedReader(configMock, personHandlerMock, numberOfSNPs);
 
   Id id1("SNP1");
-  unsigned int pos1 = 1; //First SNP
+  unsigned int pos1 = 1; //Second SNP
   std::string alleOneString1("a1_1");
   std::string alleTwoString1("a1_2");
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);

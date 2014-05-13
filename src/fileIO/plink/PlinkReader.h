@@ -23,7 +23,7 @@ namespace FileIO {
  */
 class PlinkReader {
 public:
-  PlinkReader(BedReader& bedReader, BimReader& bimReader, FamReader& famReader);
+  PlinkReader(BedReader* bedReader, BimReader* bimReader, FamReader* famReader);
   virtual ~PlinkReader();
 
   Container::SNPVector* readSNP(SNP& snp) const;
@@ -31,9 +31,9 @@ public:
   std::vector<SNP*> getSNPInformation();
 
 private:
-  BedReader bedReader;
-  BimReader bimReader;
-  FamReader famReader;
+  BedReader* bedReader;
+  BimReader* bimReader;
+  FamReader* famReader;
 };
 
 } /* namespace FileIO */

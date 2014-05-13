@@ -27,6 +27,8 @@ public:
   Person* constructPersonInclude(int number);
   Person* constructPersonNotInclude(int number);
 
+  Person* constructPersonInclude(int number, Phenotype phenotype);
+
 private:
 
 };

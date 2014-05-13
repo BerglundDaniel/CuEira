@@ -48,5 +48,20 @@ Person* ConstructorHelpers::constructPersonNotInclude(int number) {
   return new Person(id, sex, MISSING, false);
 }
 
+Person* ConstructorHelpers::constructPersonInclude(int number, Phenotype phenotype){
+  std::ostringstream os;
+  os << "ind" << number;
+  Id id(os.str());
+  Sex sex;
+
+  if(rand() % 2 == 0){
+    sex = MALE;
+  }else{
+    sex = FEMALE;
+  }
+
+  return new Person(id, sex, phenotype, true);
+}
+
 } /* namespace CuEira_Test */
 } /* namespace CuEira */

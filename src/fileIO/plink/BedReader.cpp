@@ -76,9 +76,8 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
   if(mode == SNPMAJOR){
     const int numberOfBitsPerRow = numberOfIndividualsTotal * 2;
     //Each individuals genotype is stored as 2 bits, there are no incomplete bytes so we have to round the number up
-    const int numberOfBytesPerRow = std::ceil(numberOfBitsPerRow / 8);
+    const int numberOfBytesPerRow = std::ceil(((double) numberOfBitsPerRow) / 8);
     int readBufferSize; //Number of bytes to read per read
-    const int numberOfUninterestingBitsAtEnd = (8 * numberOfBytesPerRow) - numberOfBitsPerRow; //The number of bits at the start(due to the reversing of the bytes) of the last byte that we don't care about
 
     if(numberOfBytesPerRow < readBufferSizeMaxSNPMAJOR){
       readBufferSize = numberOfBytesPerRow;
@@ -86,7 +85,11 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
       readBufferSize = readBufferSizeMaxSNPMAJOR;
     }
 
-    const int numberOfReads = std::ceil(numberOfBytesPerRow / readBufferSize); //Number of reads we have to do to read all the info for the SNP
+    //Number of reads we have to do to read all the info for the SNP
+    const int numberOfReads = std::ceil(((double) numberOfBytesPerRow) / readBufferSize);
+
+    //The number of bits at the start(due to the reversing of the bytes) of the last byte that we don't care about
+    const int numberOfUninterestingBitsAtEnd = (8 * numberOfBytesPerRow) - numberOfBitsPerRow;
 
     //Read the file until we read all the info for this SNP
     for(int readNumber = 1; readNumber <= numberOfReads; ++readNumber){
@@ -97,7 +100,9 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
       }
 
       char buffer[readBufferSize];
-      bedFile.seekg(headerSize + numberOfBytesPerRow * readNumber);   //FIXME which snp number are we actually at?
+      long int seekPos = headerSize + numberOfBytesPerRow * snpPos + readBufferSize * (readNumber - 1);
+
+      bedFile.seekg(seekPos);
       bedFile.read(buffer, readBufferSize);
       if(!bedFile){
         std::ostringstream os;
@@ -118,13 +123,15 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
         }
 
         //Go through all the pairs of bit in the byte
-        for(int bitPairNumber = 1; bitPairNumber <= numberOfBitPairsPerByte; ++bitPairNumber){
+        for(int bitPairNumber = 0; bitPairNumber < numberOfBitPairsPerByte; ++bitPairNumber){
           //It's in reverse due to plinks format that has the bits in each byte in reverse
-          int posInByte = 8 - 2 * bitPairNumber;
-          bool firstBit = getBit(currentByte, posInByte + 1);
-          bool secondBit = getBit(currentByte, posInByte);
-          //The position in the vector where we are going to store the geneotype for this individual
-          int personRowFileNumber = (readNumber - 1) * readBufferSize + byteNumber * 4 + bitPairNumber - 1;
+          int posInByte = 2 * bitPairNumber;
+          bool firstBit = getBit(currentByte, posInByte);
+          bool secondBit = getBit(currentByte, posInByte + 1);
+
+          //Which person does this information belong to?
+          int personRowFileNumber = (readNumber - 1) * readBufferSize + byteNumber * 4 + bitPairNumber;
+
           const Person& person = personHandler.getPersonFromRowAll(personRowFileNumber);
 
           if(person.getInclude()){ //If the person shouldn't be included we will skip it
@@ -199,12 +206,13 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
   const int numberOfAllelesInPopulation = (numberOfIndividualsToInclude * 2);
   const int numberOfAllelesInCase = numberOfAlleleOneCase + numberOfAlleleTwoCase;
   const int numberOfAllelesInControl = numberOfAlleleOneControl + numberOfAlleleTwoControl;
-  const double alleleOneCaseFrequency = numberOfAlleleOneCase / numberOfAllelesInPopulation;
-  const double alleleTwoCaseFrequency = numberOfAlleleTwoCase / numberOfAllelesInPopulation;
-  const double alleleOneControlFrequency = numberOfAlleleOneControl / numberOfAllelesInPopulation;
-  const double alleleTwoControlFrequency = numberOfAlleleTwoControl / numberOfAllelesInPopulation;
-  const double alleleOneAllFrequency = numberOfAlleleOneAll / numberOfAllelesInPopulation;
-  const double alleleTwoAllFrequency = numberOfAlleleTwoAll / numberOfAllelesInPopulation;
+
+  const double alleleOneCaseFrequency = (double)numberOfAlleleOneCase / numberOfAllelesInCase;
+  const double alleleTwoCaseFrequency = (double)numberOfAlleleTwoCase / numberOfAllelesInCase;
+  const double alleleOneControlFrequency = (double)numberOfAlleleOneControl / numberOfAllelesInControl;
+  const double alleleTwoControlFrequency = (double)numberOfAlleleTwoControl / numberOfAllelesInControl;
+  const double alleleOneAllFrequency = (double)numberOfAlleleOneAll / numberOfAllelesInPopulation;
+  const double alleleTwoAllFrequency = (double)numberOfAlleleTwoAll / numberOfAllelesInPopulation;
 
   snp.setCaseAlleleFrequencies(alleleOneCaseFrequency, alleleTwoCaseFrequency);
   snp.setControlAlleleFrequencies(alleleOneControlFrequency, alleleTwoControlFrequency);
@@ -222,21 +230,16 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
   }
 
   //Calculate MAF
-  double minorAlleleFrequencyThreshold = configuration.getMinorAlleleFrequencyThreshold();
   double minorAlleleFrequency;
 
   if(alleleOneAllFrequency == alleleTwoAllFrequency){
     minorAlleleFrequency = alleleOneAllFrequency;
   }else if(alleleOneAllFrequency > alleleTwoAllFrequency){
-    minorAlleleFrequency = alleleOneAllFrequency;
-  }else{
     minorAlleleFrequency = alleleTwoAllFrequency;
+  }else{
+    minorAlleleFrequency = alleleOneAllFrequency;
   }
   snp.setMinorAlleleFrequency(minorAlleleFrequency);
-  if(minorAlleleFrequencyThreshold > minorAlleleFrequency){
-    snp.setInclude(false);
-    return nullptr;
-  }
 
   return new Container::SNPVector(snpDataOriginal, snp, geneticModel);
 } /* readSNP */

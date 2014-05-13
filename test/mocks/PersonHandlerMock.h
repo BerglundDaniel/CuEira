@@ -26,6 +26,9 @@ public:
   MOCK_CONST_METHOD0(getNumberOfIndividualsTotal, int());
   MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());
 
+  MOCK_METHOD0(createOutcomes, void());
+  MOCK_CONST_METHOD0(getOutcomes, const Container::HostVector&());
+
   MOCK_CONST_METHOD1(getPersonFromId, const Person&(Id));
   MOCK_CONST_METHOD1(getPersonFromRowAll, const Person&(int));
   MOCK_CONST_METHOD1(getPersonFromRowInclude, const Person&(int));

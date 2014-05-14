@@ -140,6 +140,9 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
 
             //If we are missing the genotype for one individual(that should be included) or more we excluded the SNP
             if(firstBit && !secondBit){
+#ifdef DEBUG
+              std::cerr << "Excluding SNP " << snp.getId().getString() << std::endl;
+#endif
               snp.setInclude(false);
               closeBedFile(bedFile);
               return nullptr; //Since we are going to exclude this SNP there is no point in reading more data.
@@ -220,13 +223,30 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
 
   //Check which allele is most frequent in cases
   if(alleleOneCaseFrequency == alleleTwoCaseFrequency){
-    snp.setRiskAllele(ALLELE_ONE);
-    std::cerr << "WARNING: SNP " << snp.getId().getString()
-        << " has equal case allele frequency. Setting allele one as risk allele." << std::endl;
+#ifdef DEBUG
+    std::cerr << "SNP " << snp.getId().getString() << " has equal case allele frequency." << std::endl;
+#endif
+    if(alleleOneControlFrequency == alleleTwoControlFrequency){
+      std::cerr << "SNP " << snp.getId().getString()
+          << " has equal control and case allele frequency, setting allele one as risk." << std::endl;
+      snp.setRiskAllele(ALLELE_ONE);
+    }else if(alleleOneControlFrequency < alleleTwoControlFrequency){
+      snp.setRiskAllele(ALLELE_ONE);
+    }else{
+      snp.setRiskAllele(ALLELE_TWO);
+    }
   }else if(alleleOneCaseFrequency > alleleTwoCaseFrequency){
-    snp.setRiskAllele(ALLELE_ONE);
+    if(alleleOneCaseFrequency >= alleleOneControlFrequency){
+      snp.setRiskAllele(ALLELE_ONE);
+    }else{
+      snp.setRiskAllele(ALLELE_TWO);
+    }
   }else{
-    snp.setRiskAllele(ALLELE_TWO);
+    if(alleleTwoCaseFrequency >= alleleTwoControlFrequency){
+      snp.setRiskAllele(ALLELE_TWO);
+    }else{
+      snp.setRiskAllele(ALLELE_ONE);
+    }
   }
 
   //Calculate MAF

@@ -53,11 +53,14 @@ int main(int argc, char* argv[]) {
   EnvironmentFactor* environmentFactor = environmentFactorInformation[1]; //Just using one atm
   const Container::HostVector& envHostVector = dataFilesReader->getEnvironmentFactor(*environmentFactor);
 
-  //std::cout << "Snp intercept snp env interaction recode" << std::endl;
-  std::cout << "Snp alleone alleletwo riskallele allfreq1 allfreq2 casefreq1 casefreq2 controlfreq1 controlfreq2"
-      << std::endl;
+  std::cout << "Snpnum intercept snp env interaction recode" << std::endl;
+  /*
+   std::cout << "Snp alleone alleletwo riskallele allfreq1 allfreq2 casefreq1 casefreq2 controlfreq1 controlfreq2"
+   << std::endl;
+   */
 
   for(int snpNumber = 0; snpNumber < snpInfo.size(); ++snpNumber){
+    //for(int snpNumber = 0; snpNumber < 2; ++snpNumber){
     SNP* snp = snpInfo[snpNumber];
     if(!snp->getInclude()){
       std::cerr << "Not including SNP " << snp->getId().getString() << std::endl;
@@ -100,10 +103,10 @@ int main(int argc, char* argv[]) {
     //betaCoefficientsLapackpp
 
     //Recode?
-    double intercept = (*betaCoefficientsLapackpp)(0);
-    double snpBeta = (*betaCoefficientsLapackpp)(1);
-    double envBeta = (*betaCoefficientsLapackpp)(2);
-    double interactionBeta = (*betaCoefficientsLapackpp)(3);
+    double intercept = (*betaCoefficientsLapackpp)(0); //env intercept
+    double snpBeta = (*betaCoefficientsLapackpp)(1); //interact interact
+    double envBeta = (*betaCoefficientsLapackpp)(2); //snp env
+    double interactionBeta = (*betaCoefficientsLapackpp)(3); //intercept snp
     int recode = 0;
 
     if(snpBeta < 0 && snpBeta < envBeta && snpBeta < interactionBeta){
@@ -115,18 +118,17 @@ int main(int argc, char* argv[]) {
     }
 
     std::cerr << "recode " << recode << std::endl;
-    //std::cout << snpNumber << " " << intercept << " " << snpBeta << " " << envBeta << " " << interactionBeta << " " << recode
-    // << std::endl;
+    std::cout << snpNumber << " " << intercept << " " << snpBeta << " " << envBeta << " " << interactionBeta << " "
+        << recode << std::endl;
 
-    std::cout << snpNumber << " " << snp->getAlleleOneName() << " " << snp->getAlleleTwoName() << " "
-        << snp->getRiskAllele() << " " << snp->getAlleleOneAllFrequency() << " " << snp->getAlleleTwoAllFrequency()
-        << " " << snp->getAlleleOneCaseFrequency() << " " << snp->getAlleleTwoCaseFrequency() << " "
-        << snp->getAlleleOneControlFrequency() << " " << snp->getAlleleTwoControlFrequency() << std::endl;
+    /*std::cout << snpNumber << " " << snp->getAlleleOneName() << " " << snp->getAlleleTwoName() << " "
+     << snp->getRiskAllele() << " " << snp->getAlleleOneAllFrequency() << " " << snp->getAlleleTwoAllFrequency()
+     << " " << snp->getAlleleOneCaseFrequency() << " " << snp->getAlleleTwoCaseFrequency() << " "
+     << snp->getAlleleOneControlFrequency() << " " << snp->getAlleleTwoControlFrequency() << std::endl;*/
 
     //if(interactionBeta > (snpBeta + envBeta - 1)){
     //std::cout << "interaction" << std::endl;
     //}
-
     /*
      //Change stuff based on recode
      if(recode == 1 || recode == 3){

@@ -37,8 +37,14 @@ const Container::HostVector& EnvironmentCSVReader::getData(EnvironmentFactor& en
 
       if(binary){
         environmentFactor.setVariableType(BINARY);
+#ifdef DEBUG
+        std::cerr << "Environmentfactor " << environmentFactor.getId().getString() << " is binary." << std::endl;
+#endif
       }else{
         environmentFactor.setVariableType(OTHER);
+#ifdef DEBUG
+        std::cerr << "Environmentfactor " << environmentFactor.getId().getString() << " is other." << std::endl;
+#endif
       }
 
       return vector;

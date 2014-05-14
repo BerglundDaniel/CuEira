@@ -19,10 +19,10 @@ set(Boost_USE_MULTITHREADED OFF)
 set(CUEIRA_LIB CuEira_Core)
 
 #Options
-option(VERBOSE "Set CMake and compilation to verbose" on) #Change to off later
+option(VERBOSE "Set CMake and compilation to verbose" on) #FIXME Change to off later
 set(PRECISION single) #single or double
 set(TARGET_ARCHITECTURE fermi) #fermi or kepler
-set(CPU on) #Change to of later
+set(CPU on) #FIXME Change to of later
 
 #Set things based on options
 if(${VERBOSE})
@@ -41,10 +41,11 @@ MESSAGE( STATUS "Building CuEira:" )
 add_definitions(-DCuEira_VERSION_MAJOR=${CuEira_VERSION_MAJOR})
 add_definitions(-DCuEira_VERSION_MINOR=${CuEira_VERSION_MINOR})
 
-IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+#FIXME later
+#IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
   MESSAGE( STATUS "Debug build." )
   add_definitions(-DDEBUG=1)
-endif (CMAKE_BUILD_TYPE MATCHES DEBUG)
+#endif (CMAKE_BUILD_TYPE MATCHES DEBUG)
 
 if(${PRECISION} MATCHES single)
   add_definitions(-DPRECISION=float)

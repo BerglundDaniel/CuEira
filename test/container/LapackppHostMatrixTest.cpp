@@ -4,7 +4,7 @@
 #include <sstream>
 #include <lapackpp/lavd.h>
 #include <lapackpp/gmd.h>
-
+#include <lapackpp/blas2pp.h> //matrix - vector operations
 #include <LapackppHostVector.h>
 #include <LapackppHostMatrix.h>
 #include <HostVector.h>

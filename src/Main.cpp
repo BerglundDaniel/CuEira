@@ -11,13 +11,13 @@
 #include <HostMatrix.h>
 #include <HostVector.h>
 #include <PersonHandler.h>
-#include <LogisticRegression.h>
-#include <MultipleLogisticRegression.h>
 #include <EnvironmentFactor.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
 #include <LapackppHostVector.h>
+#include <LogisticRegression.h>
+#include <MultipleLogisticRegression.h>
 #else
 #include <PinnedHostVector.h>
 #endif
@@ -36,6 +36,7 @@ int main(int argc, char* argv[]) {
   FileIO::DataFilesReaderFactory dataFilesReaderFactory(plinkReaderFactory);
   FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
 
+#ifdef CPU
   const PersonHandler& personHandler = dataFilesReader->getPersonHandler();
   std::vector<SNP*> snpInfo = dataFilesReader->getSNPInformation();
   std::vector<EnvironmentFactor*> environmentFactorInformation = dataFilesReader->getEnvironmentFactorInformation();
@@ -50,17 +51,20 @@ int main(int argc, char* argv[]) {
   const Container::LapackppHostVector& outcomesCast = dynamic_cast<const Container::LapackppHostVector&>(outcomes);
   const LaVectorDouble& outcomesLapackpp = outcomesCast.getLapackpp();
 
-  EnvironmentFactor* environmentFactor = environmentFactorInformation[1]; //Just using one atm
+  EnvironmentFactor* environmentFactor = environmentFactorInformation[1];//Just using one atm
   const Container::HostVector& envHostVector = dataFilesReader->getEnvironmentFactor(*environmentFactor);
 
-  std::cout << "Snpnum intercept snp env interaction recode" << std::endl;
+  //std::cout << "ID intercept snp env interaction" << std::endl;
   /*
    std::cout << "Snp alleone alleletwo riskallele allfreq1 allfreq2 casefreq1 casefreq2 controlfreq1 controlfreq2"
    << std::endl;
    */
 
-  for(int snpNumber = 0; snpNumber < snpInfo.size(); ++snpNumber){
-    //for(int snpNumber = 0; snpNumber < 2; ++snpNumber){
+  std::cout << "outcome snp env interaction" << std::endl;
+  std::cerr << "invidiauls: " << numberOfIndividualsToInclude << std::endl;
+
+  //for(int snpNumber = 0; snpNumber < snpInfo.size(); ++snpNumber){
+  for(int snpNumber = 0; snpNumber < 1; ++snpNumber){
     SNP* snp = snpInfo[snpNumber];
     if(!snp->getInclude()){
       std::cerr << "Not including SNP " << snp->getId().getString() << std::endl;
@@ -86,6 +90,9 @@ int main(int argc, char* argv[]) {
 
       //Interaction
       predictorsLapackpp(row, 2) = (*snpVectorModData)(row) * envHostVector(row);
+
+      std::cout << outcomesLapackpp(row) << " " << (*snpVectorModData)(row) << " " << envHostVector(row) << " "
+      << (*snpVectorModData)(row) * envHostVector(row) << std::endl;
     }
 
     //Reset beta
@@ -97,30 +104,34 @@ int main(int argc, char* argv[]) {
         betaCoefficientsLapackpp);
     logisticRegression.calculate();
 
-    //Get stuff
-    //const LaGenMatDouble& getInformationMatrix();
-    //double getLogLikelihood();
-    //betaCoefficientsLapackpp
+    const LaVectorDouble& beta = logisticRegression.getBeta();
+
+    double intercept = beta(0);
+    double snpBeta = beta(1);
+    double envBeta = beta(2);
+    double interactionBeta = beta(3);
 
     //Recode?
-    double intercept = (*betaCoefficientsLapackpp)(0); //env intercept
-    double snpBeta = (*betaCoefficientsLapackpp)(1); //interact interact
-    double envBeta = (*betaCoefficientsLapackpp)(2); //snp env
-    double interactionBeta = (*betaCoefficientsLapackpp)(3); //intercept snp
-    int recode = 0;
+    /*
+     double intercept = (*betaCoefficientsLapackpp)(0); //env
+     double snpBeta = (*betaCoefficientsLapackpp)(1); //interact
+     double envBeta = (*betaCoefficientsLapackpp)(2); //snp
+     double interactionBeta = (*betaCoefficientsLapackpp)(3); //intercept
+     */
 
-    if(snpBeta < 0 && snpBeta < envBeta && snpBeta < interactionBeta){
-      recode = 1;
-    }else if(envBeta < 0 && envBeta < snpBeta && envBeta < interactionBeta){
-      recode = 2;
-    }else if(interactionBeta < 0 && interactionBeta < snpBeta && interactionBeta < envBeta){
-      recode = 3;
-    }
+    /*int recode = 0;
 
-    std::cerr << "recode " << recode << std::endl;
-    std::cout << snpNumber << " " << intercept << " " << snpBeta << " " << envBeta << " " << interactionBeta << " "
-        << recode << std::endl;
+     if(snpBeta < 0 && snpBeta < envBeta && snpBeta < interactionBeta){
+     recode = 1;
+     }else if(envBeta < 0 && envBeta < snpBeta && envBeta < interactionBeta){
+     recode = 2;
+     }else if(interactionBeta < 0 && interactionBeta < snpBeta && interactionBeta < envBeta){
+     recode = 3;
+     }
 
+     std::cerr << "recode " << recode << std::endl;*/
+    //std::cout << snpNumber << " " << intercept << " " << snpBeta << " " << envBeta << " " << interactionBeta
+    //<< std::endl;
     /*std::cout << snpNumber << " " << snp->getAlleleOneName() << " " << snp->getAlleleTwoName() << " "
      << snp->getRiskAllele() << " " << snp->getAlleleOneAllFrequency() << " " << snp->getAlleleTwoAllFrequency()
      << " " << snp->getAlleleOneCaseFrequency() << " " << snp->getAlleleTwoCaseFrequency() << " "
@@ -148,6 +159,7 @@ int main(int argc, char* argv[]) {
      */
     delete snpVector;
   } //for snp
+#endif
 
   delete dataFilesReader;
 }

@@ -7,6 +7,7 @@
 #include <HostVector.h>
 #include <PinnedHostVector.h>
 #include <DimensionMismatch.h>
+#include <CudaAdapter.h>
 
 namespace CuEira {
 namespace Container {

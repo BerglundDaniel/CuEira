@@ -16,7 +16,7 @@ class LogisticRegression {
 
 public:
   LogisticRegression(LaVectorDouble* betaCoefficients, const int MAXIT, const double CONVERGENCETHRESHOLD);
-  ~LogisticRegression();
+  virtual ~LogisticRegression();
 
   virtual void calculate()=0;
 

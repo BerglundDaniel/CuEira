@@ -107,10 +107,16 @@ It can also be defined as the divergence from additive effects on a logarithmic 
 \begin{equation}
 OR_{both\:factors\:present}>OR_{first\:factor\:present}+OR_{second\:factor\:present}-1
 \end{equation}
-It's called biological interaction by Rothman\cite{rothman1998modern}, sometimes \emph{additive} interaction\cite{geira} or \emph{causual interdependence}\cite{greenland1988invariants} is used. In this work we will use the term \emph{causal} interaction as in \cite{causal_bounds_arvid}. More about odds ratios(OR) in the section about logistic regression.\\
+It is called additive interaction.
+%TODO fix this
+
+X developed a interaction more related to 
+
+
+It is called biological interaction by Rothman\cite{rothman1998modern}, sometimes \emph{additive} interaction\cite{geira} or \emph{causual interdependence}\cite{greenland1988invariants} is used. In this work we will use the term \emph{causal} interaction as in \cite{causal_bounds_arvid}. More about odds ratios(OR) in the section about logistic regression.\\
 
 \section{GEIRA and JEIRA}
-\emph{GEIRA}is a tool for analysing gene-gene and gene-environment interaction. It uses logistic regression and causal interaction\cite{geira}. \emph{JEIRA} is a parallelized implementation of the environmental interaction analysis in GEIRA. However it can only be run on one node.
+\emph{GEIRA} is a tool for analysing gene-gene and gene-environment interaction. It uses logistic regression and causal interaction\cite{geira}. \emph{JEIRA} is a parallelized implementation of the environmental interaction analysis in GEIRA. However it can only be run on one node.
 
 \clearpage
 \chapter{Background}
@@ -168,7 +174,7 @@ A contingency table is a matrix used to describe categorical data. Each cell con
 \end{table}
 
 \subsection{Logisitic Regression}
-One way to model the contigency tables is by using logistic regression. Logistic regression is a type of linear regression model for classification that models a latent probability for the outcomes. The outcomes are commonly considred binary however it can be extended to multiple outcomes. In this work we will only consider them as binary. Logistic regression transforms the probability by using the \emph{logit} transformation. The logit transformation with probability \emph{p} is 
+One way to model the contigency tables is by using logistic regression. Logistic regression is a type of linear regression model for classification that models a latent probability for the outcomes. The outcomes are commonly considred binary, however it can be extended to multiple outcomes. In this work we will only consider them as binary. Logistic regression transforms the probability by using the \emph{logit} transformation. The logit transformation with probability \emph{p} is 
 
 \begin{equation}
 log(\frac{p}{1-p})
@@ -302,7 +308,7 @@ it gets worse with categorical and continues variables
 
 however we have one snp and one environmental variable that can possible interact. so we can use the fact that the SNP is binary. Reduces the cases.
 
-about the odds and signficant areas
+additive vs multiplicative coding
 
 \clearpage
 \subsection{Performance Measures}

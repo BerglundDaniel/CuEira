@@ -25,7 +25,7 @@ class MultipleLogisticRegression: public LogisticRegression {
 public:
   MultipleLogisticRegression(const LaGenMatDouble& predictors, const LaVectorDouble& binaryOutcomes,
       LaVectorDouble* betaCoefficients, const int MAXIT = 500, const double CONVERGENCETRESHOLD = 1e-3);
-  ~MultipleLogisticRegression();
+  virtual ~MultipleLogisticRegression();
 
   void calculate();
 private:

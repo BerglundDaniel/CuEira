@@ -4,8 +4,8 @@ namespace CuEira {
 namespace Container {
 
 PinnedHostVector::PinnedHostVector(unsigned int numberOfRows) :
-    HostVector(numberOfRows, false, ?) {
-
+    HostVector(numberOfRows, false, new PRECISION()) {
+  CuEira::CUDA::allocateHostPinnedMemory((void**) &hostVector, numberOfRows);
 }
 
 PinnedHostVector::PinnedHostVector(unsigned int numberOfRows, PRECISION* hostVector, bool subview) :
@@ -15,7 +15,7 @@ PinnedHostVector::PinnedHostVector(unsigned int numberOfRows, PRECISION* hostVec
 
 PinnedHostVector::~PinnedHostVector() {
   if(!subview){
-    //TODO
+    CuEira::CUDA::freePinnedMemory((void*) hostVector);
   }
 }
 

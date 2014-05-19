@@ -115,9 +115,9 @@ void PersonHandler::createOutcomes() {
     outcomesCreated = true;
 
 #ifdef CPU
-    outcomes=new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude));
+    outcomes = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude));
 #else
-    new Container::PinnedHostVector(numberOfIndividualsToInclude);
+    outcomes = new Container::PinnedHostVector(numberOfIndividualsToInclude);
 #endif
 
     for(int i = 0; i < numberOfIndividualsToInclude; ++i){

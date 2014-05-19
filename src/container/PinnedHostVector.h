@@ -5,6 +5,7 @@
 
 #include <HostVector.h>
 #include <DimensionMismatch.h>
+#include <CudaAdapter.h>
 
 namespace CuEira {
 namespace Container {
@@ -25,7 +26,7 @@ public:
   virtual const PRECISION& operator()(unsigned int index) const;
 
 protected:
-  PinnedHostVector(unsigned int numberOfRows, PRECISION* hostVector , bool subview);
+  PinnedHostVector(unsigned int numberOfRows, PRECISION* hostVector, bool subview);
 };
 
 } /* namespace Container */

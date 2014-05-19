@@ -62,7 +62,7 @@ protected:
 #ifdef CPU
   Container::LapackppHostMatrix* dataMatrix;
 #else
-  Container::PinnedHostMatrix dataMatrix;
+  Container::PinnedHostMatrix* dataMatrix;
 #endif
 };
 

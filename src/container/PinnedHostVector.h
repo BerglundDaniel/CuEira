@@ -5,7 +5,7 @@
 
 #include <HostVector.h>
 #include <DimensionMismatch.h>
-#include <CudaAdapter.h>
+#include <CudaAdapter.cu>
 
 namespace CuEira {
 namespace Container {

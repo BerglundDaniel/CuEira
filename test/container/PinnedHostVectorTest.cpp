@@ -9,8 +9,6 @@
 namespace CuEira {
 namespace Container {
 
-using namespace CuEira::Container;
-
 /**
  * Test for testing ....
  *

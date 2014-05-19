@@ -9,11 +9,19 @@ if(${CPU})
     ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostVectorTest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostMatrixTest.cpp
   )
+else()
+  set(GPU_LOCAL_SOURCE
+    ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostVectorTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostMatrixTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/DeviceVectorTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/DeviceMatrixTest.cpp
+  )
 endif(${CPU})
 
 set(TEST_SOURCE
   ${TEST_SOURCE}
   ${CPU_SOURCE}
+  ${GPU_LOCAL_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/SNPVectorTest.cpp
   PARENT_SCOPE
 )

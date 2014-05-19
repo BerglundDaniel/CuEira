@@ -16,10 +16,10 @@ else()
     ${GPU_SOURCE}
     ${CMAKE_CURRENT_SOURCE_DIR}/HostVector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/HostMatrix.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostVector.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostMatrix.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/DeviceVector.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/DeviceMatrix.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostVector.cu
+    ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostMatrix.cu
+    ${CMAKE_CURRENT_SOURCE_DIR}/DeviceVector.cu
+    ${CMAKE_CURRENT_SOURCE_DIR}/DeviceMatrix.cu
     PARENT_SCOPE
   )
 endif(${CPU})

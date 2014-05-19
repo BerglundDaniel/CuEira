@@ -39,7 +39,6 @@ MESSAGE( STATUS "Building CuEira:" )
 #Set preproccessor variables
 add_definitions(-DCuEira_VERSION_MAJOR=${CuEira_VERSION_MAJOR})
 add_definitions(-DCuEira_VERSION_MINOR=${CuEira_VERSION_MINOR})
-add_definitions(-DCUDA_CALLABLE_FUNCTION="__device__ __host__")
 
 #FIXME later
 #IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
@@ -125,7 +124,4 @@ add_executable(CuEira_Test ${TEST_SOURCE})
 target_link_libraries(CuEira_Test ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
 #cuda_add_cublas_to_target(CuEira_Test)
 add_test(CuEira_Test ${CMAKE_CURRENT_BINARY_DIR}/CuEira_Test)
-
-#Check if bumblbee is used
-#if(tests are enabled)
 

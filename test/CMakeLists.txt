@@ -2,6 +2,7 @@ add_subdirectory(mocks)
 add_subdirectory(data)
 add_subdirectory(container)
 add_subdirectory(fileIO)
+add_subdirectory(cuda)
 
 set(TEST_INCLUDE_DIRECTORIES
   ${TEST_INCLUDE_DIRECTORIES}

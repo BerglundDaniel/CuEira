@@ -73,6 +73,7 @@ TEST_F(TransferTest, TransferVector) {
 
   Container::DeviceVector* deviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
   Container::HostVector* hostVectorTo = deviceToHostStream1.transferVector(deviceVector);
+  cudaStreamSynchronize(stream1);
 
   ASSERT_EQ(numberOfRows, hostVectorTo->getNumberOfRows());
 
@@ -99,6 +100,7 @@ TEST_F(TransferTest, TransferMatrix) {
 
   Container::DeviceMatrix* deviceMatrix = hostToDeviceStream1.transferMatrix(hostMatrixFrom);
   Container::HostMatrix* hostMatrixTo = deviceToHostStream1.transferMatrix(deviceMatrix);
+  cudaStreamSynchronize(stream1);
 
   ASSERT_EQ(numberOfRows, hostMatrixTo->getNumberOfRows());
   ASSERT_EQ(numberOfColumns, hostMatrixTo->getNumberOfColumns());

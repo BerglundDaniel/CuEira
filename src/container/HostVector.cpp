@@ -24,5 +24,9 @@ PRECISION* HostVector::getMemoryPointer() {
   return hostVector;
 }
 
+const PRECISION* HostVector::getMemoryPointer() const {
+  return hostVector;
+}
+
 } /* namespace Container */
 } /* namespace CuEira */

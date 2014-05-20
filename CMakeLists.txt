@@ -117,11 +117,11 @@ include_directories(${TEST_INCLUDE_DIRECTORIES})
 #Add executable and link
 add_executable(CuEira ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp)
 TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
-#cuda_add_cublas_to_target(CuEira)
+cuda_add_cublas_to_target(CuEira)
 
 #Tests
 add_executable(CuEira_Test ${TEST_SOURCE})
 target_link_libraries(CuEira_Test ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
-#cuda_add_cublas_to_target(CuEira_Test)
+cuda_add_cublas_to_target(CuEira_Test)
 add_test(CuEira_Test ${CMAKE_CURRENT_BINARY_DIR}/CuEira_Test)
 

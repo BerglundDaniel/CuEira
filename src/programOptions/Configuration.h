@@ -106,7 +106,7 @@ public:
   virtual std::string getCovariateDelimiter() const;
 
 protected:
-  Configuration();
+  Configuration(); //Used for the mock of this class
 
 private:
   options::variables_map optionsMap;

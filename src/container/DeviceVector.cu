@@ -39,5 +39,9 @@ __device__ __host__ PRECISION* DeviceVector::getMemoryPointer() {
   return vectorDevice;
 }
 
+__device__ __host__ const PRECISION* DeviceVector::getMemoryPointer() const {
+  return vectorDevice;
+}
+
 } /* namespace Container */
 } /* namespace CuEira */

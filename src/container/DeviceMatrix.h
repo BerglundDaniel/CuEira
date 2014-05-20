@@ -8,6 +8,10 @@
 #include <DeviceVector.h>
 
 namespace CuEira {
+namespace CUDA {
+class DeviceToHost;
+class HostToDevice;
+}
 namespace Container {
 class DeviceMatrixTest;
 
@@ -18,6 +22,8 @@ class DeviceMatrixTest;
  */
 class DeviceMatrix {
   friend DeviceMatrixTest;
+  friend CUDA::DeviceToHost;
+  friend CUDA::HostToDevice;
   FRIEND_TEST(DeviceMatrixTest, AccessOperator);
 public:
   DeviceMatrix(int numberOfRows, int numberOfColumns);
@@ -33,9 +39,12 @@ public:
   __device__ __host__ const PRECISION* operator()(unsigned int row, unsigned int column) const;
 
 protected:
+  DeviceMatrix(int numberOfRows, int numberOfColumns, PRECISION* matrixDevice);
   __device__ __host__ PRECISION* getMemoryPointer();
+  __device__ __host__ const PRECISION* getMemoryPointer() const;
 
 private:
+  const bool subview;
   const int numberOfRows;
   const int numberOfColumns;
   PRECISION* matrixDevice;

@@ -1,3 +1,5 @@
+add_subdirectory(transfer)
+
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}
   ${CMAKE_CURRENT_SOURCE_DIR}

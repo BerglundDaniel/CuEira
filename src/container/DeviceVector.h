@@ -7,6 +7,10 @@
 #include <CudaAdapter.cu>
 
 namespace CuEira {
+namespace CUDA {
+class DeviceToHost;
+class HostToDevice;
+}
 namespace Container {
 class DeviceMatrix;
 class DeviceVectorTest;
@@ -19,6 +23,8 @@ class DeviceVectorTest;
 class DeviceVector {
   friend DeviceMatrix;
   friend DeviceVectorTest;
+  friend CUDA::DeviceToHost;
+  friend CUDA::HostToDevice;
   FRIEND_TEST(DeviceVectorTest, AccessOperator);
 public:
   DeviceVector(int numberOfRows);
@@ -33,6 +39,7 @@ public:
 protected:
   DeviceVector(int numberOfRows, PRECISION* vectorDevice);
   __device__ __host__ PRECISION* getMemoryPointer();
+  __device__ __host__ const PRECISION* getMemoryPointer() const;
 
 private:
   const int numberOfRows;

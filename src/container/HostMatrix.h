@@ -4,7 +4,12 @@
 #include <HostVector.h>
 
 namespace CuEira {
+namespace CUDA {
+class DeviceToHost;
+class HostToDevice;
+}
 namespace Container {
+
 
 /**
  * This is ...
@@ -12,6 +17,8 @@ namespace Container {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class HostMatrix {
+  friend CUDA::DeviceToHost;
+  friend CUDA::HostToDevice;
 public:
   HostMatrix(unsigned int numberOfRows, unsigned int numberOfColums, PRECISION* hostMatrix);
   virtual ~HostMatrix();
@@ -25,6 +32,7 @@ public:
 
 protected:
   PRECISION* getMemoryPointer();
+  const PRECISION* getMemoryPointer() const;
 
   PRECISION* hostMatrix;
   const unsigned int numberOfRows;

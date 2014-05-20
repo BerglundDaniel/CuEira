@@ -4,12 +4,19 @@ namespace CuEira {
 namespace Container {
 
 DeviceMatrix::DeviceMatrix(int numberOfRows, int numberOfColumns) :
-    numberOfRows(numberOfRows), numberOfColumns(numberOfColumns), matrixDevice(new PRECISION()) {
+    numberOfRows(numberOfRows), numberOfColumns(numberOfColumns), matrixDevice(new PRECISION()), subview(false) {
   CuEira::CUDA::allocateDeviceMemory((void**) &matrixDevice, numberOfRows * numberOfColumns);
 }
 
+DeviceMatrix::DeviceMatrix(int numberOfRows, int numberOfColumns, PRECISION* matrixDevice) :
+    numberOfRows(numberOfRows), numberOfColumns(numberOfColumns), matrixDevice(matrixDevice), subview(true) {
+
+}
+
 DeviceMatrix::~DeviceMatrix() {
+  if(!subview){
   CuEira::CUDA::freeDeviceMemory(matrixDevice);
+  }
 }
 
 __device__ __host__ int DeviceMatrix::getNumberOfRows() const {
@@ -37,6 +44,10 @@ __device__ __host__ const PRECISION* DeviceMatrix::operator()(unsigned int row, 
 }
 
 __device__ __host__ PRECISION* DeviceMatrix::getMemoryPointer() {
+  return matrixDevice;
+}
+
+__device__ __host__ const PRECISION* DeviceMatrix::getMemoryPointer() const {
   return matrixDevice;
 }
 

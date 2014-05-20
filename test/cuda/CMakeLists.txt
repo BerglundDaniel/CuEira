@@ -9,6 +9,7 @@ if(${CPU})
 else()
   set(GPU_LOCAL_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/CudaAdapterTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/TransferTest.cpp
   )
 endif(${CPU})
 

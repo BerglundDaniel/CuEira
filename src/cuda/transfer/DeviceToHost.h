@@ -27,7 +27,7 @@ public:
   /**
    * Constructor for the class. Takes the handle to the Cublas context and the CudaStream the transfers should be on.
    */
-  DeviceToHost(cublasHandle_t cublasHandle, cudaStream_t cudaStream);
+  DeviceToHost(cublasHandle_t& cublasHandle);
   virtual ~DeviceToHost();
 
   /**
@@ -41,8 +41,7 @@ public:
   HostVector* transferVector(const DeviceVector* vectorDevice) const;
 
 private:
-  cublasHandle_t cublasHandle;
-  cudaStream_t cudaStream;
+  cublasHandle_t& cublasHandle;
 };
 
 } /* namespace CUDA */

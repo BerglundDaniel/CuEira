@@ -20,8 +20,8 @@ set(CUEIRA_GPU_LIB CuEira_GPU)
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" on) #FIXME Change to off later
 set(PRECISION single) #single or double
-set(TARGET_ARCHITECTURE fermi) #fermi or kepler
-set(CPU off) #FIXME Change to of later
+#set(TARGET_ARCHITECTURE fermi) #fermi or kepler
+set(CPU off)
 
 #Set things based on options
 if(${VERBOSE})
@@ -62,7 +62,7 @@ include_directories( ${Boost_INCLUDE_DIR} )
 
 if(${CPU})
   set(LAPACKPP_INCLUDE_DIR /usr/local/include/lapackpp/)
-  set(BLAS_LIBRARIES "-lgfortran -llapackpp -I /usr/local/include/lapackpp/")
+  set(BLAS_LIBRARIES "-lgfortran -llapackpp")
   add_definitions(-llapackpp)
   add_definitions(-lgfortran)
   include_directories( ${LAPACKPP_INCLUDE_DIR} )
@@ -82,7 +82,7 @@ else()
 
   #Set somethings for CUDA compilation
   set(CUDA_PROPAGATE_HOST_FLAGS off) #Some c++ flags that gets passed to NVCC -Xcompiler will cause errors, for instance c++11 flag 
-  #set()
+  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
 endif(${CPU})
 
 #Print some info
@@ -116,12 +116,22 @@ include_directories(${TEST_INCLUDE_DIRECTORIES})
 
 #Add executable and link
 add_executable(CuEira ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp)
-TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
-cuda_add_cublas_to_target(CuEira)
+if(${CPU})
+  TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
+else()
+  TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
+  cuda_add_cublas_to_target(CuEira)
+endif(${CPU})
 
 #Tests
 add_executable(CuEira_Test ${TEST_SOURCE})
-target_link_libraries(CuEira_Test ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
-cuda_add_cublas_to_target(CuEira_Test)
+
+if(${CPU})
+  target_link_libraries(CuEira_Test ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
+else()
+  target_link_libraries(CuEira_Test ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
+  cuda_add_cublas_to_target(CuEira_Test)
+endif(${CPU})
+
 add_test(CuEira_Test ${CMAKE_CURRENT_BINARY_DIR}/CuEira_Test)
 

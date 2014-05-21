@@ -28,4 +28,6 @@ set(GPU_SOURCE
 include_directories(${INCLUDE_DIRECTORIES})
 
 add_library(${CUEIRA_LIB} SHARED ${SOURCE})
-cuda_add_library(${CUEIRA_GPU_LIB} SHARED ${GPU_SOURCE})
+if(NOT ${CPU})
+  cuda_add_library(${CUEIRA_GPU_LIB} SHARED ${GPU_SOURCE})
+endif(NOT ${CPU})

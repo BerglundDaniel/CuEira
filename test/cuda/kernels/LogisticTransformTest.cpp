@@ -27,10 +27,10 @@ namespace CUDA {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class LogitTransformTest: public ::testing::Test {
+class LogisticTransformTest: public ::testing::Test {
 protected:
-  LogitTransformTest();
-  virtual ~LogitTransformTest();
+  LogisticTransformTest();
+  virtual ~LogisticTransformTest();
   virtual void SetUp();
   virtual void TearDown();
 
@@ -42,7 +42,7 @@ protected:
   KernelWrapper kernelWrapper;
 };
 
-LogitTransformTest::LogitTransformTest() :
+LogisticTransformTest::LogisticTransformTest() :
     cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(HostToDevice(stream1)), deviceToHostStream1(
         DeviceToHost(stream1)), kernelWrapper(stream1) {
 
@@ -52,20 +52,20 @@ LogitTransformTest::LogitTransformTest() :
 
 }
 
-LogitTransformTest::~LogitTransformTest() {
+LogisticTransformTest::~LogisticTransformTest() {
   handleCublasStatus(cublasDestroy(cublasHandle), "Failed to destroy cublas handle:");
   handleCudaStatus(cudaStreamDestroy(stream1), "Failed to destroy cuda stream 1:");
 }
 
-void LogitTransformTest::SetUp() {
+void LogisticTransformTest::SetUp() {
 
 }
 
-void LogitTransformTest::TearDown() {
+void LogisticTransformTest::TearDown() {
 
 }
 
-TEST_F(LogitTransformTest, KernelSmallVector) {
+TEST_F(LogisticTransformTest, KernelSmallVector) {
   const int numberOfRows = 5;
 
   Container::PinnedHostVector* hostVectorFrom = new Container::PinnedHostVector(numberOfRows);
@@ -80,6 +80,7 @@ TEST_F(LogitTransformTest, KernelSmallVector) {
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
   cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(),"Error in LogisticTransform test: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
 

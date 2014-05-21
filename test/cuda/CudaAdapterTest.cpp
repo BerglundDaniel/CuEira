@@ -70,6 +70,6 @@ TEST_F(CudaAdapterTest, HandleCublasStatus) {
 }
 
 }
-/* namespace Container */
-} /* namespace CUDA */
+/* namespace CUDA */
+} /* namespace CuEira */
 

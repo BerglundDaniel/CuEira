@@ -10,6 +10,7 @@ namespace CuEira {
 namespace CUDA {
 class DeviceToHost;
 class HostToDevice;
+class KernelWrapper;
 }
 namespace Container {
 class DeviceMatrix;
@@ -25,6 +26,7 @@ class DeviceVector {
   friend DeviceVectorTest;
   friend CUDA::DeviceToHost;
   friend CUDA::HostToDevice;
+  friend CUDA::KernelWrapper;
   FRIEND_TEST(DeviceVectorTest, AccessOperator);
 public:
   DeviceVector(int numberOfRows);

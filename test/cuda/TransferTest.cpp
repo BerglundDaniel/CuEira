@@ -42,8 +42,8 @@ protected:
 };
 
 TransferTest::TransferTest() :
-    cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(HostToDevice(cublasHandle)), deviceToHostStream1(
-        DeviceToHost(cublasHandle)) {
+    cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(HostToDevice(stream1)), deviceToHostStream1(
+        DeviceToHost(stream1)) {
 
   handleCublasStatus(cublasStatus, "Failed to create cublas handle:");
   handleCudaStatus(cudaStreamCreate(&stream1), "Failed to create cuda stream 1:");

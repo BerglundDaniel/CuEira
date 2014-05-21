@@ -1,6 +1,3 @@
-add_subdirectory(transfer)
-add_subdirectory(kernels)
-
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -14,7 +11,6 @@ set(SOURCE
 
 set(GPU_SOURCE
   ${GPU_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/CudaAdapter.cu
-  ${CMAKE_CURRENT_SOURCE_DIR}/KernelWrapper.cu
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticTransform.cuh
   PARENT_SCOPE
 )

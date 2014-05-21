@@ -2,7 +2,12 @@ add_subdirectory(mocks)
 add_subdirectory(data)
 add_subdirectory(container)
 add_subdirectory(fileIO)
-add_subdirectory(cuda)
+
+if(${CPU})
+
+else()
+  add_subdirectory(cuda)
+endif(${CPU})
 
 set(TEST_INCLUDE_DIRECTORIES
   ${TEST_INCLUDE_DIRECTORIES}

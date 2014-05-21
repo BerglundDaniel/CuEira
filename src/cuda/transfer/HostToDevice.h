@@ -23,9 +23,9 @@ using namespace CuEira::Container;
 class HostToDevice {
 public:
   /**
-   * Constructor for the class. Takes the handle to the Cublas context and the CudaStream the transfers should be on.
+   * Constructor for the class. Takes the stream the transfers should be executed on. A cublas handle as to be initiated before any calls to the functions.
    */
-  HostToDevice(cublasHandle_t& cublasHandle);
+  HostToDevice(const cudaStream_t& cudaStream);
   virtual ~HostToDevice();
 
   /**
@@ -41,7 +41,7 @@ public:
   DeviceVector* transferVector(const HostVector* vectorHost) const;
 
 private:
-  cublasHandle_t& cublasHandle;
+  const cudaStream_t& cudaStream;
 };
 
 } /* namespace CUDA */

@@ -40,6 +40,18 @@ public:
    */
   DeviceVector* transferVector(const HostVector* vectorHost) const;
 
+  /**
+   * Transfers the matrix to the area in device memory given by deviceMemoryPosition. It has to point to an area with already allocated memory and with
+   * enough space to fit the matrix after the point specified.
+   */
+  void transferMatrix(const HostMatrix* matrixHost, PRECISION* deviceMemoryPosition) const;
+
+  /**
+   * Transfers the vector to the area in device memory given by deviceMemoryPosition. It has to point to an area with already allocated memory and with
+   * enough space to fit the vector after the point specified.
+   */
+  void transferVector(const HostVector* vectorHost, PRECISION* deviceMemoryPosition) const;
+
 private:
   const cudaStream_t& cudaStream;
 };

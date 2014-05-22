@@ -16,7 +16,7 @@ namespace CUDA {
 using namespace CuEira::Container;
 
 /**
- * This is ...
+ * This is a class that wraps the kernels in the kernels namespace. Each function assumes that symbols for the size have been set on the device.
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */

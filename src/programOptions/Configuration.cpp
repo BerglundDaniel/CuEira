@@ -155,11 +155,19 @@ double Configuration::getMinorAlleleFrequencyThreshold() const {
 }
 
 std::string Configuration::getEnvironmentDelimiter() const {
-  return "\t ";
+  return "\t "; //FIXME set as option
 }
 
 std::string Configuration::getCovariateDelimiter() const {
-  return "\t ";
+  return "\t "; //FIXME set as option
+}
+
+int Configuration::getNumberOfMaxLRIterations() const {
+  return 500; //FIXME set as option
+}
+
+double Configuration::getLRConvergenceThreshold() const {
+  return 1e-5; //FIXME set as option
 }
 
 } /* namespace CuEira */

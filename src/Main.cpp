@@ -24,7 +24,6 @@
 #endif
 
 /**
- * This is the main part
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
@@ -37,18 +36,28 @@ int main(int argc, char* argv[]) {
   FileIO::DataFilesReaderFactory dataFilesReaderFactory(plinkReaderFactory);
   FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
 
-#ifdef CPU
   const PersonHandler& personHandler = dataFilesReader->getPersonHandler();
-  std::vector<SNP*> snpInfo = dataFilesReader->getSNPInformation();
-  std::vector<EnvironmentFactor*> environmentFactorInformation = dataFilesReader->getEnvironmentFactorInformation();
+  std::vector<SNP*> snpInfo = dataFilesReader->getSNPInformation(); //FIXME remember to delete
+  std::vector<EnvironmentFactor*> environmentFactorInformation = dataFilesReader->getEnvironmentFactorInformation(); //FIXME remember to delete
 
+  const Container::HostVector& outcomes = personHandler.getOutcomes();
   const int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
-  const int numberOfPreds = 3; //1 for snp, 1 for env, 1 for interact
-  LaVectorDouble * betaCoefficientsLapackpp = new LaVectorDouble(numberOfPreds + 1);
+  //LaVectorDouble * betaCoefficientsLapackpp = new LaVectorDouble(numberOfPreds + 1); FIXME
+
+  int numberOfPredictors = 4; //1 for intercept, 1 for snp, 1 for env, 1 for interact
+  if(configuration.covariateFileSpecified()){
+    const Container::HostMatrix& covariatesMatrix = dataFilesReader->getCovariates();
+    numberOfPredictors = +covariatesMatrix.getNumberOfColumns();
+
+    //TODO do something here
+  }
+
+#ifdef CPU
+  numberOfPredictors--;
+  LaVectorDouble * betaCoefficientsLapackpp = new LaVectorDouble(numberOfPredictors + 1);
 
   //HostMatrix covariatesMatrix = dataFilesReader->getCovariates(); //Skip for now TODO
 
-  const Container::HostVector& outcomes = personHandler.getOutcomes();
   const Container::LapackppHostVector& outcomesCast = dynamic_cast<const Container::LapackppHostVector&>(outcomes);
   const LaVectorDouble& outcomesLapackpp = outcomesCast.getLapackpp();
 

@@ -105,6 +105,16 @@ public:
    */
   virtual std::string getCovariateDelimiter() const;
 
+  /**
+   * Returns the max number of iterations for the logistic regression
+   */
+  virtual int getNumberOfMaxLRIterations() const;
+
+  /**
+   * Returns the convergence threshold for the logistic regression
+   */
+  virtual double getLRConvergenceThreshold() const;
+
 protected:
   Configuration(); //Used for the mock of this class
 

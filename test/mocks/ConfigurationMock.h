@@ -11,13 +11,14 @@
 
 namespace CuEira {
 
-class ConfigurationMock : public Configuration{
+class ConfigurationMock: public Configuration {
 public:
-  ConfigurationMock():Configuration(){
+  ConfigurationMock() :
+      Configuration() {
 
   }
 
-  virtual ~ConfigurationMock(){
+  virtual ~ConfigurationMock() {
 
   }
 
@@ -37,6 +38,8 @@ public:
   MOCK_CONST_METHOD0(getMinorAlleleFrequencyThreshold, double());
   MOCK_CONST_METHOD0(getEnvironmentDelimiter, std::string());
   MOCK_CONST_METHOD0(getCovariateDelimiter, std::string());
+  MOCK_CONST_METHOD0(getNumberOfMaxLRIterations, int());
+  MOCK_CONST_METHOD0(getLRConvergenceThreshold, double());
 };
 
 } /* namespace CuEira */

@@ -6,6 +6,9 @@ set(TEST_INCLUDE_DIRECTORIES
 
 set(TEST_SOURCE
   ${TEST_SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/AbsoluteDifferenceTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ElementWiseDivisionTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogLikelihoodPartsTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticTransformTest.cpp
   PARENT_SCOPE
 )

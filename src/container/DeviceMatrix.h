@@ -1,20 +1,11 @@
 #ifndef DEVICEMATRIX_H_
 #define DEVICEMATRIX_H_
 
-#include <gtest/gtest.h>
-#include <gtest/gtest_prod.h>
-
 #include <CudaAdapter.cu>
 #include <DeviceVector.h>
 
 namespace CuEira {
-namespace CUDA {
-class DeviceToHost;
-class HostToDevice;
-class KernelWrapper;
-}
 namespace Container {
-class DeviceMatrixTest;
 
 /**
  * This is ...
@@ -22,13 +13,10 @@ class DeviceMatrixTest;
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class DeviceMatrix {
-  friend DeviceMatrixTest;
-  friend CUDA::DeviceToHost;
-  friend CUDA::HostToDevice;
-  friend CUDA::KernelWrapper;
-  FRIEND_TEST(DeviceMatrixTest, AccessOperator);
+
 public:
   DeviceMatrix(int numberOfRows, int numberOfColumns);
+  DeviceMatrix(int numberOfRows, int numberOfColumns, PRECISION* matrixDevice);
   virtual ~DeviceMatrix();
 
   __device__ __host__ int getNumberOfRows() const;
@@ -40,8 +28,6 @@ public:
   __device__ __host__ PRECISION* operator()(unsigned int row, unsigned int column);
   __device__ __host__ const PRECISION* operator()(unsigned int row, unsigned int column) const;
 
-protected:
-  DeviceMatrix(int numberOfRows, int numberOfColumns, PRECISION* matrixDevice);
   __device__ __host__ PRECISION* getMemoryPointer();
   __device__ __host__ const PRECISION* getMemoryPointer() const;
 

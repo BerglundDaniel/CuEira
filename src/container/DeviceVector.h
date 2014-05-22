@@ -1,20 +1,10 @@
 #ifndef DEVICEVECTOR_H_
 #define DEVICEVECTOR_H_
 
-#include <gtest/gtest.h>
-#include <gtest/gtest_prod.h>
-
 #include <CudaAdapter.cu>
 
 namespace CuEira {
-namespace CUDA {
-class DeviceToHost;
-class HostToDevice;
-class KernelWrapper;
-}
 namespace Container {
-class DeviceMatrix;
-class DeviceVectorTest;
 
 /**
  * This is ...
@@ -22,14 +12,9 @@ class DeviceVectorTest;
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class DeviceVector {
-  friend DeviceMatrix;
-  friend DeviceVectorTest;
-  friend CUDA::DeviceToHost;
-  friend CUDA::HostToDevice;
-  friend CUDA::KernelWrapper;
-  FRIEND_TEST(DeviceVectorTest, AccessOperator);
 public:
   DeviceVector(int numberOfRows);
+  DeviceVector(int numberOfRows, PRECISION* vectorDevice);
   virtual ~DeviceVector();
 
   __device__ __host__ int getNumberOfRows() const;
@@ -38,8 +23,6 @@ public:
   __device__ __host__ PRECISION* operator()(unsigned int row);
   __device__ __host__ const PRECISION* operator()(unsigned int row)const;
 
-protected:
-  DeviceVector(int numberOfRows, PRECISION* vectorDevice);
   __device__ __host__ PRECISION* getMemoryPointer();
   __device__ __host__ const PRECISION* getMemoryPointer() const;
 

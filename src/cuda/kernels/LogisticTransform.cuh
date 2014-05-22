@@ -10,9 +10,13 @@ namespace CuEira {
 namespace CUDA {
 namespace Kernel {
 
-__constant__ int numberOfRows;
-__constant__ int numberOfPredictors;
+//extern __constant__ int numberOfRows;
 
+/**
+ * This is ...
+ *
+ * @author Daniel Berglund daniel.k.berglund@gmail.com
+ */
 __global__ void LogisticTransform(const PRECISION* logitProb, PRECISION* probabilites) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 

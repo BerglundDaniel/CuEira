@@ -82,8 +82,7 @@ inline void allocateDeviceMemory(void** pointerDevice, int number) {
  * Allocate pinned memory for the PRECISION pointer with size number * sizeof(PRECISION), throws CudaException if there is an error
  */
 inline void allocateHostPinnedMemory(void** pointerDevice, int number) {
-  handleCudaStatus(cudaHostAlloc(pointerDevice, number * sizeof(PRECISION), cudaHostAllocPortable),
-      "Host pinned memory allocation failed: ");
+  handleCudaStatus(cudaHostAlloc(pointerDevice, number * sizeof(PRECISION), cudaHostAllocPortable),"Pinned device memory allocation failed: ");
 }
 
 /**

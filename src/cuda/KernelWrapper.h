@@ -3,10 +3,12 @@
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
+#include <math.h>
 
 #include <CudaAdapter.cu>
 #include <DeviceVector.h>
 #include <DeviceMatrix.h>
+#include <CudaException.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -27,10 +29,31 @@ public:
   KernelWrapper(const cudaStream_t& cudaStream);
   virtual ~KernelWrapper();
 
+  /**
+   * Performs the logistic transform, exp(x)/(1+exp(x)), on each element in logitVector and stores the results in probabilities. Assumes both have a length of numberOfRows.
+   */
   void logisticTransform(const DeviceVector& logitVector, DeviceVector& probabilites) const;
+
+  /**
+   * Divideds each element in numeratorVector with its corresponding element in denomitorVector. Assumes both have length numberOfPredictors.
+   */
+  void elementWiseDivision(const DeviceVector& numeratorVector, const DeviceVector& denomitorVector,
+      DeviceVector& result) const;
+
+  /**
+   * Calculates all the parts of a loglikelihood. The sum of the elements in result is the loglikelihood. Assumes both have a length of numberOfRows.
+   */
+  void logLikelihoodParts(const DeviceVector& outcomesVector, const DeviceVector& probabilites,
+      DeviceVector& result) const;
+
+  /**
+   * Calculates the absolute difference for each element. Assumes both have length numberOfPredictors.
+   */
+  void absoluteDifference(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
 
 private:
   const cudaStream_t& cudaStream;
+  static const int numberOfThreadsPerBlock = 256;
 };
 
 } /* namespace CUDA */

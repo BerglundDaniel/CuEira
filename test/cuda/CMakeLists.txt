@@ -1,4 +1,5 @@
 add_subdirectory(kernels)
+add_subdirectory(logisticRegression)
 
 set(TEST_INCLUDE_DIRECTORIES
   ${TEST_INCLUDE_DIRECTORIES}

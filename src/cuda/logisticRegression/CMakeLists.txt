@@ -6,12 +6,12 @@ set(INCLUDE_DIRECTORIES
 
 set(SOURCE
   ${SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionConfiguration.cpp
   PARENT_SCOPE
 )
 
 set(GPU_SOURCE
   ${GPU_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionConfiguration.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegression.h
+  #${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegression.cu
   PARENT_SCOPE
 )

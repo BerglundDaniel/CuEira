@@ -4,8 +4,13 @@ namespace CuEira {
 namespace CUDA {
 
 HostToDevice::HostToDevice(const cudaStream_t& cudaStream) :
-    cudaStream(cudaStream) {
+    cudaStream(&cudaStream) {
 
+}
+
+HostToDevice::HostToDevice() :
+    cudaStream(new cudaStream_t()) {
+  delete cudaStream; //To prevent memory leaks. This constructor is just for mocking
 }
 
 HostToDevice::~HostToDevice() {
@@ -22,7 +27,7 @@ DeviceMatrix* HostToDevice::transferMatrix(const HostMatrix* matrixHost) const {
 
   handleCublasStatus(
       cublasSetMatrixAsync(numberOfRows, numberOfColumns, sizeof(PRECISION), hostMatrixPointer, numberOfRows,
-          deviceMatrixPointer, numberOfRows, cudaStream), "Error when transferring matrix from host to device: ");
+          deviceMatrixPointer, numberOfRows, *cudaStream), "Error when transferring matrix from host to device: ");
 
   return deviceMatrix;
 }
@@ -35,7 +40,7 @@ DeviceVector* HostToDevice::transferVector(const HostVector* vectorHost) const {
   const PRECISION* hostVectorPointer = vectorHost->getMemoryPointer();
 
   handleCublasStatus(
-      cublasSetVectorAsync(numberOfRows, sizeof(PRECISION), hostVectorPointer, 1, deviceVectorPointer, 1, cudaStream),
+      cublasSetVectorAsync(numberOfRows, sizeof(PRECISION), hostVectorPointer, 1, deviceVectorPointer, 1, *cudaStream),
       "Error when transferring vector from host to device: ");
 
   return deviceVector;
@@ -48,7 +53,7 @@ void HostToDevice::transferMatrix(const HostMatrix* matrixHost, PRECISION* devic
 
   handleCublasStatus(
       cublasSetMatrixAsync(numberOfRows, numberOfColumns, sizeof(PRECISION), hostMatrixPointer, numberOfRows,
-          deviceMemoryPosition, numberOfRows, cudaStream), "Error when transferring matrix from host to device: ");
+          deviceMemoryPosition, numberOfRows, *cudaStream), "Error when transferring matrix from host to device: ");
 }
 
 void HostToDevice::transferVector(const HostVector* vectorHost, PRECISION* deviceMemoryPosition) const {
@@ -56,7 +61,7 @@ void HostToDevice::transferVector(const HostVector* vectorHost, PRECISION* devic
   const PRECISION* hostVectorPointer = vectorHost->getMemoryPointer();
 
   handleCublasStatus(
-      cublasSetVectorAsync(numberOfRows, sizeof(PRECISION), hostVectorPointer, 1, deviceMemoryPosition, 1, cudaStream),
+      cublasSetVectorAsync(numberOfRows, sizeof(PRECISION), hostVectorPointer, 1, deviceMemoryPosition, 1, *cudaStream),
       "Error when transferring vector from host to device: ");
 }
 

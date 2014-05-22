@@ -12,6 +12,7 @@
 #include <CublasException.h>
 #include <DimensionMismatch.h>
 #include <HostToDevice.h>
+#include <PinnedHostVector.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -46,6 +47,7 @@ public:
 
   void setEnvironmentFactor(const HostVector& environmentData);
   void setSNP(const HostVector& snpData);
+  void setInteraction(const HostVector& interactionVector);
 
   int getNumberOfRows() const;
   int getNumberOfPredictors() const;
@@ -55,15 +57,18 @@ public:
   const DeviceVector& getOutcomes() const;
 
 private:
+  void transferIntercept();
+
   const Configuration& configuration;
   const HostToDevice& hostToDevice;
   const int numberOfRows;
   const int numberOfPredictors;
+  DeviceMatrix* devicePredictors;
+  DeviceVector* deviceOutcomes;
   int maxIterations;
   double convergenceThreshold;
   bool usingCovariates;
-  DeviceMatrix* devicePredictors;
-  DeviceMatrix* deviceOutcomes;
+  PRECISION* devicePredictorsMemoryPointer;
 };
 
 } /* namespace LogisticRegression */

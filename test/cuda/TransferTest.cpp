@@ -164,6 +164,6 @@ TEST_F(TransferTest, TransferMatrixCustomPoint) {
 }
 
 }
-/* namespace Container */
-} /* namespace CUDA */
+/* namespace CUDA */
+} /* namespace CuEira*/
 

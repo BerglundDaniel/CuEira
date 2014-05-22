@@ -15,7 +15,7 @@ LogisticRegression::LogisticRegression(const KernelWrapper& kernelWrapper,
   //score
   //work areas? old beta
 
-  for(iterationNumber = 0; iterationNumber < maxIterations; +++iterationNumber){
+  for(iterationNumber = 0; iterationNumber < maxIterations; ++iterationNumber){
 
     PRECISION diffSum;
     if(diffSum < convergenceThreshold){

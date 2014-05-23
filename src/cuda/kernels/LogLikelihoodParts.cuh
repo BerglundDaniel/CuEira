@@ -21,7 +21,7 @@ __global__ void LogLikelihoodParts(const PRECISION* outcomes, const PRECISION* p
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
   if(threadId < 5){
-#if PRECISION == double
+#ifdef DOUBLEPRECISION
     result[threadId]=outcomes[threadId]*log(probabilites[threadId])+(1-outcomes[threadId])*log(1-probabilites[threadId]);
 #else
     result[threadId]=outcomes[threadId]*logf(probabilites[threadId])+(1-outcomes[threadId])*logf(1-probabilites[threadId]);

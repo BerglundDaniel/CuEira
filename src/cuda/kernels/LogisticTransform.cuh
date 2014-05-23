@@ -21,7 +21,7 @@ __global__ void LogisticTransform(const PRECISION* logitProb, PRECISION* probabi
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
   if(threadId < 5){
-#if PRECISION == double
+#ifdef DOUBLEPRECISION
     PRECISION expLogitProb = exp(logitProb[threadId]);
 #else
     PRECISION expLogitProb = expf(logitProb[threadId]);

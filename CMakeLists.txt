@@ -48,9 +48,11 @@ add_definitions(-DCuEira_VERSION_MINOR=${CuEira_VERSION_MINOR})
 
 if(${PRECISION} MATCHES single)
   add_definitions(-DPRECISION=float)
+  add_definitions(-DSINGLEPRECISION=1)
 endif(${PRECISION} MATCHES single)
 if(${PRECISION} MATCHES double)
   add_definitions(-DPRECISION=double)
+  add_definitions(-DDOUBLEPRECISION=1)
 endif(${PRECISION} MATCHES double)
 
 #Find required libraries

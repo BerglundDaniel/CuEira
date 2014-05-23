@@ -34,6 +34,15 @@ LogisticRegressionConfiguration::~LogisticRegressionConfiguration() {
 
 }
 
+void LogisticRegressionConfiguration::transferIntercept() {
+  PinnedHostVector interceptHostVector(numberOfRows);
+  for(int i = 0; i < numberOfRows; ++i){
+    interceptHostVector(i) = 1;
+  }
+
+  hostToDevice.transferVector(&interceptHostVector, devicePredictorsMemoryPointer); //Putting the intercept as first column
+}
+
 void LogisticRegressionConfiguration::setEnvironmentFactor(const HostVector& environmentData) {
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 2; //Putting the environment as the third column
   hostToDevice.transferVector(&environmentData, pos);
@@ -47,15 +56,6 @@ void LogisticRegressionConfiguration::setSNP(const HostVector& snpData) {
 void LogisticRegressionConfiguration::setInteraction(const HostVector& interactionVector) {
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 3; //Putting the interaction column as the fourth column
   hostToDevice.transferVector(&interactionVector, pos);
-}
-
-void LogisticRegressionConfiguration::transferIntercept() {
-  PinnedHostVector interceptHostVector(numberOfRows);
-  for(int i = 0; i < numberOfRows; ++i){
-    interceptHostVector(i) = 1;
-  }
-
-  hostToDevice.transferVector(&interceptHostVector, devicePredictorsMemoryPointer); //Putting the intercept as first column
 }
 
 int LogisticRegressionConfiguration::getNumberOfRows() const {

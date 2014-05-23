@@ -27,18 +27,18 @@ using namespace CuEira::CUDA;
  */
 class LogisticRegression {
 public:
-  LogisticRegression(const KernelWrapper& kernelWrapper, const LogisticRegressionConfiguration& lrConfiguration);
+  LogisticRegression(const LogisticRegressionConfiguration& lrConfiguration);
   virtual ~LogisticRegression();
 
   /**
    * Get the vector containing the beta coefficients.
    */
-  const DeviceVector* getBeta() const;
+  const DeviceVector& getBeta() const;
 
   /**
    * Get the information matrix.
    */
-  const DeviceMatrix* getInformationMatrix() const;
+  const DeviceMatrix& getInformationMatrix() const;
 
   /**
    * Get the number of iterations it took for the model to converge.
@@ -48,16 +48,19 @@ public:
   /**
    * Get the loglikelihood score.
    */
-  PRECISION* getLogLikelihood() const;
+  PRECISION getLogLikelihood() const;
 
 private:
-  const KernelWrapper& kernelWrapper;
   const LogisticRegressionConfiguration& lrConfiguration;
   const int numberOfRows;
   const int numberOfPredictors;
   const int maxIterations;
   const double convergenceThreshold;
+  const KernelWrapper& kernelWrapper;
   int iterationNumber;
+  PRECISION* logLikelihood;
+  const Container::DeviceMatrix& informationMatrixDevice;
+  const Container::DeviceVector& betaCoefficentsDevice;
 };
 
 } /* namespace LogisticRegression */

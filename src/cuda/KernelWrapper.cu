@@ -8,8 +8,8 @@ namespace CuEira {
 namespace CUDA {
 //__device__ int ASDF;
 
-KernelWrapper::KernelWrapper(const cudaStream_t& cudaStream) :
-    cudaStream(cudaStream) {
+KernelWrapper::KernelWrapper(const cudaStream_t& cudaStream, const cublasHandle_t& cublasHandle) :
+    cudaStream(cudaStream), cublasHandle(cublasHandle) {
   /*int numberOfRows = 10000;
    handleCudaStatus(cudaGetLastError(), "Asdf: ");
    cudaMemcpyToSymbol(ASDF, &numberOfRows, sizeof(int));
@@ -19,8 +19,6 @@ KernelWrapper::KernelWrapper(const cudaStream_t& cudaStream) :
 KernelWrapper::~KernelWrapper() {
 
 }
-
-//TODO fix error checks for the length
 
 void KernelWrapper::logisticTransform(const DeviceVector& logitVector, DeviceVector& probabilites) const {
 #ifdef DEBUG
@@ -69,6 +67,16 @@ void KernelWrapper::absoluteDifference(const DeviceVector& vector1, const Device
 
   const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::AbsoluteDifference<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
+}
+
+void KernelWrapper::copyVector(const DeviceVector& vectorFrom, DeviceVector& vectorTo) const {
+#ifdef DOUBLEPRECISION
+  cublasDcopy(cublasHandle, vectorFrom.getNumberOfRows(), vectorFrom.getMemoryPointer(), 1, vectorTo.getMemoryPointer(),
+      1);
+#else
+  cublasScopy(cublasHandle, vectorFrom.getNumberOfRows(), vectorFrom.getMemoryPointer(), 1, vectorTo.getMemoryPointer(),
+      1);
+#endif
 }
 
 } /* namespace CUDA */

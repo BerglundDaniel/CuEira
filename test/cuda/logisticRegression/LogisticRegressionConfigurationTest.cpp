@@ -17,6 +17,7 @@
 #include <LogisticRegressionConfiguration.h>
 #include <Configuration.h>
 #include <ConfigurationMock.h>
+#include <KernelWrapper.h>
 
 using testing::Return;
 using testing::_;
@@ -55,6 +56,7 @@ protected:
   HostToDevice hostToDeviceStream1;
   DeviceToHost deviceToHostStream1;
   HostToDeviceMock hostToDeviceMock;
+  KernelWrapper kernelWrapper;
 
   PinnedHostVector outcomes;
   PinnedHostMatrix covariates;
@@ -68,7 +70,7 @@ LogisticRegressionConfigurationTest::LogisticRegressionConfigurationTest() :
         4), numberOfPredictorsWithCov(numberOfPredictorsNoCov + numberOfCov), outcomes(numberOfRows), covariates(
         numberOfRows, numberOfCov), cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(
         HostToDevice(stream1)), deviceToHostStream1(DeviceToHost(stream1)), snpData(numberOfRows), environmentData(
-        numberOfRows), interactionVector(numberOfRows) {
+        numberOfRows), interactionVector(numberOfRows), kernelWrapper(stream1, cublasHandle) {
 
   EXPECT_CALL(configMock, getLRConvergenceThreshold()).Times(AtLeast(0)).WillRepeatedly(Return(convergenceThreshold));
   EXPECT_CALL(configMock, getNumberOfMaxLRIterations()).Times(AtLeast(0)).WillRepeatedly(
@@ -107,7 +109,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorWithMock) {
 
   EXPECT_CALL(hostToDeviceMock, transferVector(_,_)).Times(1);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceMock, outcomes);
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceMock, outcomes, kernelWrapper);
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
   EXPECT_EQ(convergenceThreshold, lrConfig.getConvergenceThreshold());
@@ -126,7 +128,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorCovWithMock) {
   EXPECT_CALL(hostToDeviceMock, transferVector(_,_)).Times(1);
   EXPECT_CALL(hostToDeviceMock, transferMatrix(_,_)).Times(1);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceMock, outcomes, covariates);
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceMock, outcomes, kernelWrapper, covariates);
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
   EXPECT_EQ(convergenceThreshold, lrConfig.getConvergenceThreshold());
@@ -139,7 +141,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorCovWithMock) {
 }
 
 TEST_F(LogisticRegressionConfigurationTest, ConstructorNoMock) {
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes);
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes, kernelWrapper);
   cudaStreamSynchronize(stream1);
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
@@ -169,7 +171,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorNoMock) {
 }
 
 TEST_F(LogisticRegressionConfigurationTest, ConstructorCovNoMock) {
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes, covariates);
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes, kernelWrapper, covariates);
   cudaStreamSynchronize(stream1);
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
@@ -206,7 +208,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorCovNoMock) {
 }
 
 TEST_F(LogisticRegressionConfigurationTest, GetSNPEnvInteract) {
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes);
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes, kernelWrapper);
   cudaStreamSynchronize(stream1);
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
@@ -261,7 +263,7 @@ TEST_F(LogisticRegressionConfigurationTest, GetSNPEnvInteract) {
 }
 
 TEST_F(LogisticRegressionConfigurationTest, CovGetSNPEnvInteract) {
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes, covariates);
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes, kernelWrapper, covariates);
   cudaStreamSynchronize(stream1);
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
@@ -320,7 +322,10 @@ TEST_F(LogisticRegressionConfigurationTest, CovGetSNPEnvInteract) {
       EXPECT_EQ((j * numberOfRows + i), (*predictorsHostMatrix)(i, j + 4));
     }
   }
+
 }
+
+//TODO test getters
 
 } /* namespace LogisticRegression */
 } /* namespace CUDA */

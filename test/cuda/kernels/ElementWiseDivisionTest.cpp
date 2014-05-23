@@ -44,7 +44,7 @@ protected:
 
 ElemtWiseDivisionTest::ElemtWiseDivisionTest() :
     cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(HostToDevice(stream1)), deviceToHostStream1(
-        DeviceToHost(stream1)), kernelWrapper(stream1) {
+        DeviceToHost(stream1)), kernelWrapper(stream1, cublasHandle) {
 
   handleCublasStatus(cublasStatus, "Failed to create cublas handle:");
   handleCudaStatus(cudaStreamCreate(&stream1), "Failed to create cuda stream 1:");

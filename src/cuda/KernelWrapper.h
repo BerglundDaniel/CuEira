@@ -26,7 +26,7 @@ public:
    * Constructor for the class. Takes the stream the transfers should be executed on. Some functions requires that a cublas context has been created.
    * All of them assumes a cuda context exists for the stream.
    */
-  KernelWrapper(const cudaStream_t& cudaStream);
+  KernelWrapper(const cudaStream_t& cudaStream, const cublasHandle_t& cublasHandle);
   virtual ~KernelWrapper();
 
   /**
@@ -51,7 +51,17 @@ public:
    */
   void absoluteDifference(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
 
+  /**
+   * Copies from vectorFrom to vectorTo element wise
+   */
+  void copyVector(const DeviceVector& vectorFrom, DeviceVector& vectorTo) const;
+
+  inline void syncStream() const {
+    cudaStreamSynchronize(cudaStream);
+  }
+
 private:
+  const cublasHandle_t& cublasHandle;
   const cudaStream_t& cudaStream;
   static const int numberOfThreadsPerBlock = 256;
 };

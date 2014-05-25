@@ -7,7 +7,7 @@ set(INCLUDE_DIRECTORIES
 set(SOURCE
   ${SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionConfiguration.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegression.cpp
+  #${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegression.cpp
   PARENT_SCOPE
 )
 

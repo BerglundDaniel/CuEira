@@ -57,9 +57,17 @@ endif(${PRECISION} MATCHES double)
 
 #Find required libraries
 MESSAGE( STATUS "Checking packages:" )
-find_package( Boost 1.55 COMPONENTS program_options REQUIRED )
-include_directories( ${Boost_INCLUDE_DIR} )
 
+#Don't look for boost if paths are already given
+set(BOOST_INC "${Boost_INCLUDE_DIR}")
+set(BOOST_LIB "${Boost_LIBRARIES}")
+if(BOOST_INC AND BOOST_LIB)
+ MESSAGE( STATUS "not boost:" )
+else()
+ MESSAGE( STATUS "boost:" )
+ find_package( Boost 1.55 COMPONENTS program_options REQUIRED )
+endif()
+include_directories( ${Boost_INCLUDE_DIR} )
 
 
 if(${CPU})
@@ -90,10 +98,11 @@ endif(${CPU})
 #Print some info
 MESSAGE( STATUS "change a configuration variable with: cmake -D<Variable>=<Value>" )
 MESSAGE( STATUS "PRECISION = ${PRECISION}" )
-MESSAGE( STATUS "TARGET_ARCHITECTURE = ${TARGET_ARCHITECTURE}" )
+#MESSAGE( STATUS "TARGET_ARCHITECTURE = ${TARGET_ARCHITECTURE}" )
 MESSAGE( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
 MESSAGE( STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}" )
-MESSAGE( STATUS "BOOST_PATH = ${Boost_INCLUDE_DIR}" )
+MESSAGE( STATUS "Boost_INCLUDE_DIR = ${Boost_INCLUDE_DIR}" )
+MESSAGE( STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}" )
 if(${CPU})
   MESSAGE( STATUS "LAPACKPP_INCLUDE_DIR = ${LAPACKPP_INCLUDE_DIR}" )
   MESSAGE( STATUS "BLAS_LIBRARIES = ${BLAS_LIBRARIES}" )

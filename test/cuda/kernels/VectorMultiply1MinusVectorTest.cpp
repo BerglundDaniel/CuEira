@@ -75,7 +75,7 @@ TEST_F(VectorMultiply1MinusVectorTest, KernelSmallVector) {
   Container::DeviceVector* deviceVector1 = hostToDeviceStream1.transferVector(hostVector1);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfRows);
+  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
   kernelWrapper.probabilitesMultiplyProbabilites(*deviceVector1, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);

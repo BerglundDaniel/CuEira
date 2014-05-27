@@ -1,5 +1,5 @@
-#ifndef ELEMENTWISEDIVISION_H_
-#define ELEMENTWISEDIVISION_H_
+#ifndef VECTORMULTIPLIY1MINUSVECTOR_H_
+#define VECTORMULTIPLIY1MINUSVECTOR_H_
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
@@ -14,12 +14,11 @@ namespace Kernel {
  * This is ...
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
- */
-__global__ void ElementWiseDivision(const PRECISION* numeratorVector, const PRECISION* denomitorVector, PRECISION* result) {
+ */__global__ void VectorMultiply1MinusVector(const PRECISION* vector, PRECISION* result) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if(threadId < numberOfPredictorsDeviceConstant){
-    result[threadId]=numeratorVector[threadId]/denomitorVector[threadId];
+  if(threadId < numberOfRowsDeviceConstant){
+    result[threadId] = vector[threadId] * (1 - vector[threadId]);
   } /* if threadId < numberOfPredictors */
 }
 
@@ -27,4 +26,4 @@ __global__ void ElementWiseDivision(const PRECISION* numeratorVector, const PREC
 } /* namespace CUDA */
 } /* namespace CuEira */
 
-#endif /* ELEMENTWISEDIVISION_H_ */
+#endif /* VECTORMULTIPLIY1MINUSVECTOR_H_ */

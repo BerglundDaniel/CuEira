@@ -6,9 +6,13 @@ set(TEST_INCLUDE_DIRECTORIES
 
 set(TEST_SOURCE
   ${TEST_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/AbsoluteDifferenceTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ElementWiseAbsoluteDifferenceTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ElementWiseDifferenceTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ElementWiseDivisionTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ElementWiseAdditionTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ElementWiseMultiplicationTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/LogLikelihoodPartsTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticTransformTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/VectorMultiply1MinusVectorTest.cpp
   PARENT_SCOPE
 )

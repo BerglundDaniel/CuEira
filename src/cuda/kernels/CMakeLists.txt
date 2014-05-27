@@ -11,9 +11,5 @@ set(SOURCE
 
 set(GPU_SOURCE
   ${GPU_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticTransform.cuh
-  ${CMAKE_CURRENT_SOURCE_DIR}/AbsoluteDifference.cuh
-  ${CMAKE_CURRENT_SOURCE_DIR}/ElementWiseDivision.cuh
-  ${CMAKE_CURRENT_SOURCE_DIR}/LogLikelihoodParts.cuh
   PARENT_SCOPE
 )

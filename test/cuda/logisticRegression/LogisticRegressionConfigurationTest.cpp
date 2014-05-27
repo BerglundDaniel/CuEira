@@ -325,8 +325,6 @@ TEST_F(LogisticRegressionConfigurationTest, CovGetSNPEnvInteract) {
 
 }
 
-//TODO test getters
-
 } /* namespace LogisticRegression */
 } /* namespace CUDA */
 } /* namespace CUDA */

@@ -12,11 +12,13 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
         configuration.getNumberOfMaxLRIterations()), convergenceThreshold(configuration.getLRConvergenceThreshold()), devicePredictorsMemoryPointer(
         devicePredictors->getMemoryPointer()), betaCoefficentsDevice(new DeviceVector(numberOfPredictors)), betaCoefficentsOldDevice(
         new DeviceVector(numberOfPredictors)), probabilitesDevice(new DeviceVector(numberOfRows)), scoresDevice(
-        new DeviceVector(numberOfRows)), informationMatrixDevice(
+        new DeviceVector(numberOfPredictors)), informationMatrixDevice(
         new DeviceMatrix(numberOfPredictors, numberOfPredictors)), workMatrixNxMDevice(
         new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), workVectorMx1Device(
         new DeviceVector(numberOfPredictors)), uSVD(new DeviceMatrix(numberOfPredictors, numberOfPredictors)), vtSVD(
-        new DeviceMatrix(numberOfPredictors, numberOfPredictors)), sigmaSVD(new DeviceVector(numberOfPredictors)) {
+        new DeviceMatrix(numberOfPredictors, numberOfPredictors)), sigmaSVD(new DeviceVector(numberOfPredictors)), workMatrixMxMDevice(
+        new DeviceMatrix(numberOfPredictors, numberOfPredictors)), inverseMatrixDevice(
+        new DeviceMatrix(numberOfPredictors, numberOfPredictors)) {
 
   transferIntercept();
 }
@@ -34,7 +36,9 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
         new DeviceMatrix(numberOfPredictors, numberOfPredictors)), workMatrixNxMDevice(
         new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), workVectorMx1Device(
         new DeviceVector(numberOfPredictors)), uSVD(new DeviceMatrix(numberOfPredictors, numberOfPredictors)), vtSVD(
-        new DeviceMatrix(numberOfPredictors, numberOfPredictors)), sigmaSVD(new DeviceVector(numberOfPredictors)) {
+        new DeviceMatrix(numberOfPredictors, numberOfPredictors)), sigmaSVD(new DeviceVector(numberOfPredictors)), workMatrixMxMDevice(
+        new DeviceMatrix(numberOfPredictors, numberOfPredictors)), inverseMatrixDevice(
+        new DeviceMatrix(numberOfPredictors, numberOfPredictors)) {
 
   transferIntercept();
 
@@ -54,9 +58,11 @@ LogisticRegressionConfiguration::~LogisticRegressionConfiguration() {
   delete workMatrixNxMDevice;
   delete workVectorNx1Device;
   delete workVectorMx1Device;
+  delete workMatrixMxMDevice;
   delete uSVD;
   delete vtSVD;
   delete sigmaSVD;
+  delete inverseMatrixDevice;
 }
 
 void LogisticRegressionConfiguration::transferIntercept() {
@@ -115,48 +121,56 @@ const DeviceVector& LogisticRegressionConfiguration::getOutcomes() const {
   return *deviceOutcomes;
 }
 
-const DeviceVector& LogisticRegressionConfiguration::getProbabilites() const {
+DeviceVector& LogisticRegressionConfiguration::getProbabilites() {
   return *probabilitesDevice;
 }
 
-const DeviceVector& LogisticRegressionConfiguration::getScores() const {
+DeviceVector& LogisticRegressionConfiguration::getScores() {
   return *scoresDevice;
 }
 
-const DeviceMatrix& LogisticRegressionConfiguration::getInformationMatrix() const {
+DeviceMatrix& LogisticRegressionConfiguration::getInformationMatrix() {
   return *informationMatrixDevice;
 }
 
-const DeviceVector& LogisticRegressionConfiguration::getBetaCoefficents() const {
+DeviceVector& LogisticRegressionConfiguration::getBetaCoefficents() {
   return *betaCoefficentsDevice;
 }
 
-const DeviceVector& LogisticRegressionConfiguration::getBetaCoefficentsOld() const {
+DeviceVector& LogisticRegressionConfiguration::getBetaCoefficentsOld() {
   return *betaCoefficentsOldDevice;
 }
 
-const DeviceMatrix& LogisticRegressionConfiguration::getWorkMatrixNxM() const {
+DeviceMatrix& LogisticRegressionConfiguration::getWorkMatrixNxM() {
   return *workMatrixNxMDevice;
 }
 
-const DeviceVector& LogisticRegressionConfiguration::getWorkVectorNx1() const {
+DeviceMatrix& LogisticRegressionConfiguration::getWorkMatrixMxM() {
+  return *workMatrixMxMDevice;
+}
+
+DeviceVector& LogisticRegressionConfiguration::getWorkVectorNx1() {
   return *workVectorNx1Device;
 }
 
-const DeviceVector& LogisticRegressionConfiguration::getWorkVectorMx1() const {
+DeviceVector& LogisticRegressionConfiguration::getWorkVectorMx1() {
   return *workVectorMx1Device;
 }
 
-const DeviceMatrix& LogisticRegressionConfiguration::getUSVD() const {
+DeviceMatrix& LogisticRegressionConfiguration::getUSVD() {
   return *uSVD;
 }
 
-const DeviceMatrix& LogisticRegressionConfiguration::getVtSVD() const {
+DeviceMatrix& LogisticRegressionConfiguration::getVtSVD() {
   return *vtSVD;
 }
 
-const DeviceVector& LogisticRegressionConfiguration::getSigmaSVD() const {
+DeviceVector& LogisticRegressionConfiguration::getSigmaSVD() {
   return *sigmaSVD;
+}
+
+DeviceMatrix& LogisticRegressionConfiguration::getInverseMatrix() {
+  return *inverseMatrixDevice;
 }
 
 } /* namespace LogisticRegression */

@@ -6,6 +6,8 @@
 #include <math.h>
 #include <sstream>
 #include <string>
+#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
 
 #include <CudaAdapter.cu>
 #include <DeviceVector.h>
@@ -14,6 +16,14 @@
 
 namespace CuEira {
 namespace CUDA {
+class ElementWiseAbsoluteDifferenceTest;
+class ElementWiseDifferenceTest;
+class ElementWiseDivisionTest;
+class ElementWiseAdditionTest;
+class ElementWiseMultiplicationTest;
+class LogisticTransformTest;
+class LogLikelihoodPartsTest;
+class VectorMultiply1MinusVectorTest;
 
 using namespace CuEira::Container;
 
@@ -23,6 +33,24 @@ using namespace CuEira::Container;
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class KernelWrapper {
+  friend ElementWiseAbsoluteDifferenceTest;
+  friend ElementWiseDifferenceTest;
+  friend ElementWiseDivisionTest;
+  friend ElementWiseAdditionTest;
+  friend ElementWiseMultiplicationTest;
+  friend LogisticTransformTest;
+  friend LogLikelihoodPartsTest;
+  friend VectorMultiply1MinusVectorTest;
+  FRIEND_TEST(ElementWiseAbsoluteDifferenceTest, KernelSmallVector);
+  FRIEND_TEST(ElementWiseDifferenceTest, KernelSmallVector);
+  FRIEND_TEST(ElementWiseDivisionTest, KernelSmallVector);
+  FRIEND_TEST(ElementWiseAdditionTest, KernelSmallVector);
+  FRIEND_TEST(ElementWiseMultiplicationTest, KernelSmallVector);
+  FRIEND_TEST(LogisticTransformTest, KernelSmallVector);
+  FRIEND_TEST(LogisticTransformTest, KernelLargeVector);
+  FRIEND_TEST(LogisticTransformTest, KernelHugeVector);
+  FRIEND_TEST(LogLikelihoodPartsTest, KernelSmallVector);
+  FRIEND_TEST(VectorMultiply1MinusVectorTest, KernelSmallVector);
 public:
   /**
    * Constructor for the class. Takes the stream the transfers should be executed on. Some functions requires that a cublas context has been created.
@@ -51,7 +79,18 @@ public:
   /**
    * Calculates the absolute difference for each element. Assumes both have length numberOfPredictors.
    */
-  void absoluteDifference(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
+  void elementWiseAbsoluteDifference(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
+
+  /**
+   * Performs singular value decomposition on the matrix
+   */
+  void svd(const DeviceMatrix& matrix, DeviceMatrix& uSVD, DeviceVector& sigmaSVD, DeviceMatrix& vtSVD) const;
+
+  /**
+   * Asdf
+   */
+  void matrixTransRowByRowInverseSigma(const DeviceMatrix& matrix, const DeviceVector& sigma,
+      DeviceMatrix& result) const;
 
   /**
    * Copies from vectorFrom to vectorTo element wise
@@ -86,18 +125,18 @@ public:
   /**
    * Asdf
    */
-  void columnByColumnMatrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
+  void columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
       DeviceMatrix& result) const;
-
-  /**
-   * Performs singular value decomposition on the matrix
-   */
-  void svd(const DeviceMatrix& matrix, DeviceMatrix& uSVD, DeviceVector& sigmaSVD, DeviceMatrix& vtSVD) const;
 
   /**
    * Asdf
    */
   void elementWiseAddition(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
+
+  /**
+   * Asdf
+   */
+  void elementWiseMultiplication(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
 
   /**
    * Sums the vectors elements and puts the result in the given pointer
@@ -110,6 +149,10 @@ public:
   inline void syncStream() const {
     cudaStreamSynchronize(cudaStream);
   }
+
+protected:
+  void setSymbolNumberOfRows(int numberOfRows) const;
+  void setSymbolNumberOfPredictors(int numberOfPredictors) const;
 
 private:
   const cublasHandle_t& cublasHandle;

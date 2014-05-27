@@ -27,10 +27,10 @@ namespace CUDA {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class AbsoluteDifferenceTest: public ::testing::Test {
+class ElementWiseAdditionTest: public ::testing::Test {
 protected:
-  AbsoluteDifferenceTest();
-  virtual ~AbsoluteDifferenceTest();
+  ElementWiseAdditionTest();
+  virtual ~ElementWiseAdditionTest();
   virtual void SetUp();
   virtual void TearDown();
 
@@ -42,7 +42,7 @@ protected:
   KernelWrapper kernelWrapper;
 };
 
-AbsoluteDifferenceTest::AbsoluteDifferenceTest() :
+ElementWiseAdditionTest::ElementWiseAdditionTest() :
     cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(HostToDevice(stream1)), deviceToHostStream1(
         DeviceToHost(stream1)), kernelWrapper(stream1, cublasHandle) {
 
@@ -51,20 +51,20 @@ AbsoluteDifferenceTest::AbsoluteDifferenceTest() :
   handleCublasStatus(cublasSetStream(cublasHandle, stream1), "Failed to set cuda stream:");
 }
 
-AbsoluteDifferenceTest::~AbsoluteDifferenceTest() {
+ElementWiseAdditionTest::~ElementWiseAdditionTest() {
   handleCublasStatus(cublasDestroy(cublasHandle), "Failed to destroy cublas handle:");
   handleCudaStatus(cudaStreamDestroy(stream1), "Failed to destroy cuda stream 1:");
 }
 
-void AbsoluteDifferenceTest::SetUp() {
+void ElementWiseAdditionTest::SetUp() {
 
 }
 
-void AbsoluteDifferenceTest::TearDown() {
+void ElementWiseAdditionTest::TearDown() {
 
 }
 
-TEST_F(AbsoluteDifferenceTest, KernelSmallVector) {
+TEST_F(ElementWiseAdditionTest, KernelSmallVector) {
   const int numberOfRows = 5;
 
   Container::PinnedHostVector* hostVector1 = new Container::PinnedHostVector(numberOfRows);
@@ -81,16 +81,17 @@ TEST_F(AbsoluteDifferenceTest, KernelSmallVector) {
   Container::DeviceVector* deviceVector2 = hostToDeviceStream1.transferVector(hostVector2);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector);
+  kernelWrapper.setSymbolNumberOfPredictors(numberOfRows);
+  kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
   cudaStreamSynchronize(stream1);
-  handleCudaStatus(cudaGetLastError(), "Error in ElemtWiseDivisionTest: ");
+  handleCudaStatus(cudaGetLastError(), "Error in ElementWiseAdditionTest: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
 
   for(int i = 0; i < numberOfRows; ++i){
-    PRECISION x = std::abs((*hostVector1)(i) - (*hostVector2)(i));
+    PRECISION x = (*hostVector1)(i) + (*hostVector2)(i);
     EXPECT_EQ(x, (*resultHostVector)(i));
   }
 
@@ -102,14 +103,15 @@ TEST_F(AbsoluteDifferenceTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
-TEST_F(AbsoluteDifferenceTest, KernelException) {
+TEST_F(ElementWiseAdditionTest, KernelException) {
   const int numberOfRows = 5;
 
   Container::DeviceVector* deviceVector1 = new Container::DeviceVector(numberOfRows + 1);
   Container::DeviceVector* deviceVector2 = new Container::DeviceVector(numberOfRows);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
+      CudaException);
 
   delete deviceVector1;
   delete deviceVector2;
@@ -119,7 +121,8 @@ TEST_F(AbsoluteDifferenceTest, KernelException) {
   deviceVector2 = new Container::DeviceVector(numberOfRows + 1);
   resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
+      CudaException);
 
   delete deviceVector1;
   delete deviceVector2;
@@ -129,7 +132,8 @@ TEST_F(AbsoluteDifferenceTest, KernelException) {
   deviceVector2 = new Container::DeviceVector(numberOfRows);
   resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
 
-  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
+      CudaException);
 
   delete deviceVector1;
   delete deviceVector2;
@@ -139,7 +143,8 @@ TEST_F(AbsoluteDifferenceTest, KernelException) {
   deviceVector2 = new Container::DeviceVector(numberOfRows + 1);
   resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
 
-  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
+      CudaException);
 
   delete deviceVector1;
   delete deviceVector2;
@@ -149,7 +154,8 @@ TEST_F(AbsoluteDifferenceTest, KernelException) {
   deviceVector2 = new Container::DeviceVector(numberOfRows);
   resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
 
-  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
+      CudaException);
 
   delete deviceVector1;
   delete deviceVector2;
@@ -159,7 +165,8 @@ TEST_F(AbsoluteDifferenceTest, KernelException) {
   deviceVector2 = new Container::DeviceVector(numberOfRows - 1);
   resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
+      CudaException);
 
   delete deviceVector1;
   delete deviceVector2;

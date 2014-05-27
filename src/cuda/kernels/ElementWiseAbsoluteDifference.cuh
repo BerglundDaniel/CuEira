@@ -1,5 +1,5 @@
-#ifndef ABSOLUTEDIFFERENCE_H_
-#define ABSOLUTEDIFFERENCE_H_
+#ifndef ELEMENTWISEABSOLUTEDIFFERENCE_H_
+#define ELEMENTWISEABSOLUTEDIFFERENCE_H_
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
@@ -10,16 +10,14 @@ namespace CuEira {
 namespace CUDA {
 namespace Kernel {
 
-//extern __constant__ int numberOfPredictors;
-
 /**
  * This is ...
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
- */__global__ void AbsoluteDifference(const PRECISION* vector1, const PRECISION* vector2, PRECISION* result) {
+ */__global__ void ElementWiseAbsoluteDifference(const PRECISION* vector1, const PRECISION* vector2, PRECISION* result) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if(threadId < 5){
+  if(threadId < numberOfPredictorsDeviceConstant){
 #if PRECISION == double
     result[threadId] = fabs(vector1[threadId] - vector2[threadId]);
 #else
@@ -32,4 +30,4 @@ namespace Kernel {
 } /* namespace CUDA */
 } /* namespace CuEira */
 
-#endif /* ABSOLUTEDIFFERENCE_H_ */
+#endif /* ELEMENTWISEABSOLUTEDIFFERENCE_H_ */

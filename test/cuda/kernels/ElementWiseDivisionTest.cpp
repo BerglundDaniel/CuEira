@@ -27,10 +27,10 @@ namespace CUDA {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class ElemtWiseDivisionTest: public ::testing::Test {
+class ElementWiseDivisionTest: public ::testing::Test {
 protected:
-  ElemtWiseDivisionTest();
-  virtual ~ElemtWiseDivisionTest();
+  ElementWiseDivisionTest();
+  virtual ~ElementWiseDivisionTest();
   virtual void SetUp();
   virtual void TearDown();
 
@@ -42,7 +42,7 @@ protected:
   KernelWrapper kernelWrapper;
 };
 
-ElemtWiseDivisionTest::ElemtWiseDivisionTest() :
+ElementWiseDivisionTest::ElementWiseDivisionTest() :
     cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(HostToDevice(stream1)), deviceToHostStream1(
         DeviceToHost(stream1)), kernelWrapper(stream1, cublasHandle) {
 
@@ -51,20 +51,20 @@ ElemtWiseDivisionTest::ElemtWiseDivisionTest() :
   handleCublasStatus(cublasSetStream(cublasHandle, stream1), "Failed to set cuda stream:");
 }
 
-ElemtWiseDivisionTest::~ElemtWiseDivisionTest() {
+ElementWiseDivisionTest::~ElementWiseDivisionTest() {
   handleCublasStatus(cublasDestroy(cublasHandle), "Failed to destroy cublas handle:");
   handleCudaStatus(cudaStreamDestroy(stream1), "Failed to destroy cuda stream 1:");
 }
 
-void ElemtWiseDivisionTest::SetUp() {
+void ElementWiseDivisionTest::SetUp() {
 
 }
 
-void ElemtWiseDivisionTest::TearDown() {
+void ElementWiseDivisionTest::TearDown() {
 
 }
 
-TEST_F(ElemtWiseDivisionTest, KernelSmallVector) {
+TEST_F(ElementWiseDivisionTest, KernelSmallVector) {
   const int numberOfRows = 5;
 
   Container::PinnedHostVector* hostVectorNumerator = new Container::PinnedHostVector(numberOfRows);
@@ -81,6 +81,7 @@ TEST_F(ElemtWiseDivisionTest, KernelSmallVector) {
   Container::DeviceVector* denomitorDeviceVector = hostToDeviceStream1.transferVector(hostVectorDenomitor);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
+  kernelWrapper.setSymbolNumberOfPredictors(numberOfRows);
   kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
@@ -102,12 +103,12 @@ TEST_F(ElemtWiseDivisionTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
-TEST_F(ElemtWiseDivisionTest, KernelException) {
+TEST_F(ElementWiseDivisionTest, KernelException) {
   const int numberOfRows = 5;
 
   Container::DeviceVector* numeratorDeviceVector = new Container::DeviceVector(numberOfRows);
-  Container::DeviceVector* denomitorDeviceVector = new Container::DeviceVector(numberOfRows);
-  Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
+  Container::DeviceVector* denomitorDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows - 1);
 
   EXPECT_THROW(kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector),
       CudaException);

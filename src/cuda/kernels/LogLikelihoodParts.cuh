@@ -10,8 +10,6 @@ namespace CuEira {
 namespace CUDA {
 namespace Kernel {
 
-//extern __constant__ int numberOfRows;
-
 /**
  * This is ...
  *
@@ -20,7 +18,7 @@ namespace Kernel {
 __global__ void LogLikelihoodParts(const PRECISION* outcomes, const PRECISION* probabilites, PRECISION* result) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if(threadId < 5){
+  if(threadId < numberOfRowsDeviceConstant){
 #ifdef DOUBLEPRECISION
     result[threadId]=outcomes[threadId]*log(probabilites[threadId])+(1-outcomes[threadId])*log(1-probabilites[threadId]);
 #else

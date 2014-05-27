@@ -57,20 +57,22 @@ public:
   double getConvergenceThreshold() const;
   const KernelWrapper& getKernelWrapper() const;
 
-  const DeviceMatrix& getPredictors() const;
-  const DeviceVector& getOutcomes() const;
-  const DeviceVector& getProbabilites() const;
-  const DeviceVector& getScores() const;
-  const DeviceMatrix& getInformationMatrix() const;
-  const DeviceVector& getBetaCoefficents() const;
-  const DeviceVector& getBetaCoefficentsOld() const;
+  const DeviceMatrix& getPredictors()const;
+  const DeviceVector& getOutcomes()const;
+  DeviceVector& getProbabilites();
+  DeviceVector& getScores();
+  DeviceMatrix& getInformationMatrix();
+  DeviceVector& getBetaCoefficents();
+  DeviceVector& getBetaCoefficentsOld();
 
-  const DeviceMatrix& getWorkMatrixNxM() const;
-  const DeviceVector& getWorkVectorNx1() const;
-  const DeviceVector& getWorkVectorMx1() const;
-  const DeviceMatrix& getUSVD() const;
-  const DeviceMatrix& getVtSVD() const;
-  const DeviceVector& getSigmaSVD() const;
+  DeviceMatrix& getWorkMatrixNxM();
+  DeviceMatrix& getWorkMatrixMxM();
+  DeviceVector& getWorkVectorNx1();
+  DeviceVector& getWorkVectorMx1();
+  DeviceMatrix& getUSVD();
+  DeviceMatrix& getVtSVD();
+  DeviceVector& getSigmaSVD();
+  DeviceMatrix& getInverseMatrix();
 
 private:
   void transferIntercept();
@@ -93,11 +95,13 @@ private:
   DeviceVector* scoresDevice;
   DeviceMatrix* informationMatrixDevice;
   DeviceMatrix* workMatrixNxMDevice;
+  DeviceMatrix* workMatrixMxMDevice;
   DeviceVector* workVectorNx1Device;
   DeviceVector* workVectorMx1Device;
   DeviceMatrix* uSVD;
   DeviceMatrix* vtSVD;
   DeviceVector* sigmaSVD;
+  DeviceMatrix* inverseMatrixDevice;
 };
 
 } /* namespace LogisticRegression */

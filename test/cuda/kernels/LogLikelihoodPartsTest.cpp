@@ -69,18 +69,30 @@ TEST_F(LogLikelihoodPartsTest, KernelSmallVector) {
 
   Container::PinnedHostVector* hostVectorOutcomes = new Container::PinnedHostVector(numberOfRows);
   for(int i = 0; i < numberOfRows; ++i){
-    (*hostVectorOutcomes)(i) = i + 1;
+    if(i < 4){
+      (*hostVectorOutcomes)(i) = 0.9;
+    }else{
+      (*hostVectorOutcomes)(i) = 0.1;
+    }
+
   }
 
   Container::PinnedHostVector* hostVectorProbabilites = new Container::PinnedHostVector(numberOfRows);
   for(int i = 0; i < numberOfRows; ++i){
-    (*hostVectorProbabilites)(i) = (i + 3) * 3.2;
+    if(i < 2){
+      (*hostVectorProbabilites)(i) = 0.3;
+    }else if(i < 6){
+      (*hostVectorProbabilites)(i) = 0.7;
+    }else{
+      (*hostVectorProbabilites)(i) = 0.4;
+    }
   }
 
   Container::DeviceVector* outcomesDeviceVector = hostToDeviceStream1.transferVector(hostVectorOutcomes);
   Container::DeviceVector* probabilitesDeviceVector = hostToDeviceStream1.transferVector(hostVectorProbabilites);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
+  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
   kernelWrapper.logLikelihoodParts(*outcomesDeviceVector, *probabilitesDeviceVector, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);

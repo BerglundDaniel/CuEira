@@ -10,8 +10,6 @@ namespace CuEira {
 namespace CUDA {
 namespace Kernel {
 
-//extern __constant__ int numberOfRows;
-
 /**
  * This is ...
  *
@@ -20,7 +18,7 @@ namespace Kernel {
 __global__ void LogisticTransform(const PRECISION* logitProb, PRECISION* probabilites) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if(threadId < 5){
+  if(threadId < numberOfRowsDeviceConstant){
 #ifdef DOUBLEPRECISION
     PRECISION expLogitProb = exp(logitProb[threadId]);
 #else

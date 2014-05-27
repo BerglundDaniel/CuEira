@@ -45,7 +45,7 @@ protected:
 FamReaderTest::FamReaderTest() :
     personHandlerMock(new PersonHandlerMock), numberOfIndividuals(10), person(
         constructorHelpers.constructPersonInclude(0)) {
-  EXPECT_CALL(configMock, getFamFilePath()).Times(1).WillRepeatedly(Return("../data/test.fam"));
+  EXPECT_CALL(configMock, getFamFilePath()).Times(1).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test.fam")));
   EXPECT_CALL(configMock, getPhenotypeCoding()).WillRepeatedly(Return(ONE_TWO_CODING));
 
   EXPECT_CALL(*personHandlerMock, createOutcomes()).Times(1);

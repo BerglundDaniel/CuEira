@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
       continue;
     }
 
-    LaGenMatDouble predictorsLapackpp(numberOfIndividualsToInclude, numberOfPreds);
+    LaGenMatDouble predictorsLapackpp(numberOfIndividualsToInclude, numberOfPredictors);
     const Container::HostVector* snpVectorModData = snpVector->getRecodedData();
 
     //fill predictorsLapackpp

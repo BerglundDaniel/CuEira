@@ -64,11 +64,11 @@ FileIOIntegrationTest::~FileIOIntegrationTest() {
 void FileIOIntegrationTest::SetUp() {
   //Expect Configuration
   EXPECT_CALL(configMock, getMinorAlleleFrequencyThreshold()).Times(AtLeast(0)).WillRepeatedly(Return(0.05));
-  EXPECT_CALL(configMock, getBedFilePath()).Times(AtLeast(1)).WillRepeatedly(Return("../data/test.bed"));
-  EXPECT_CALL(configMock, getBimFilePath()).Times(AtLeast(1)).WillRepeatedly(Return("../data/test.bim"));
-  EXPECT_CALL(configMock, getFamFilePath()).Times(AtLeast(1)).WillRepeatedly(Return("../data/test.fam"));
-  EXPECT_CALL(configMock, getEnvironmentFilePath()).Times(AtLeast(1)).WillRepeatedly(Return("../data/test_env.txt"));
-  EXPECT_CALL(configMock, getCovariateFilePath()).Times(AtLeast(1)).WillRepeatedly(Return("../data/test_cov.txt"));
+  EXPECT_CALL(configMock, getBedFilePath()).Times(AtLeast(1)).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test.bed")));
+  EXPECT_CALL(configMock, getBimFilePath()).Times(AtLeast(1)).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test.bim")));
+  EXPECT_CALL(configMock, getFamFilePath()).Times(AtLeast(1)).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test.fam")));
+  EXPECT_CALL(configMock, getEnvironmentFilePath()).Times(AtLeast(1)).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test_env.txt")));
+  EXPECT_CALL(configMock, getCovariateFilePath()).Times(AtLeast(1)).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test_cov.txt")));
 
   EXPECT_CALL(configMock, getEnvironmentIndividualIdColumnName()).Times(AtLeast(1)).WillRepeatedly(Return("indid"));
   EXPECT_CALL(configMock, getCovariateIndividualIdColumnName()).Times(AtLeast(1)).WillRepeatedly(Return("indid"));

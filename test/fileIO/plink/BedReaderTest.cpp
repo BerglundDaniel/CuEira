@@ -57,7 +57,7 @@ protected:
 };
 
 BedReaderTest::BedReaderTest() :
-    filePath("../data/test.bed"), numberOfIndividualsTotal(numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(
+    filePath(std::string(CuEira_BUILD_DIR)+std::string("/test.bed")), numberOfIndividualsTotal(numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(
         numberOfIndividualsToIncludeStatic) {
 
 }

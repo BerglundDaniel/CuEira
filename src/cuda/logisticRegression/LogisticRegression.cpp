@@ -48,6 +48,7 @@ LogisticRegression::LogisticRegression(const LogisticRegressionConfiguration& lr
 
     //Inverse information matrix and calculate new beta
     //NOTE Using betaCoefficentsDevice as an work area here since it's values are in betaCoefficentsOldDevice anyway
+    //FIXME need to save the inverse
     kernelWrapper.svd(informationMatrixDevice, uSVD, sigmaSVD, vtSVD);
     kernelWrapper.matrixTransVectorMultiply(uSVD, scoresDevice, workVectorMx1Device);
     kernelWrapper.elementWiseDivision(workVectorMx1Device, sigmaSVD, betaCoefficentsDevice); //Overwriting beta

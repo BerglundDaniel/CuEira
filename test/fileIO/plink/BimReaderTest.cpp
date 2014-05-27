@@ -47,7 +47,7 @@ TEST_F(BimReaderTest, ReadFile) {
   int numberOfSNPs = 10;
   ConfigurationMock configMock;
 
-  EXPECT_CALL(configMock, getBimFilePath()).Times(1).WillRepeatedly(Return("../data/test.bim"));
+  EXPECT_CALL(configMock, getBimFilePath()).Times(1).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test.bim")));
   EXPECT_CALL(configMock, excludeSNPsWithNegativePosition()).Times(numberOfSNPs).WillRepeatedly(Return(true));
 
   CuEira::FileIO::BimReader bimReader(configMock);

@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(INCLUDE_DIRECTORIES
   ${PROJECT_BINARY_DIR}
 )
+set(TEST_DATA_DIR ${PROJECT_BINARY_DIR}/data)
 set(Boost_USE_STATIC_LIBS OFF) 
 set(Boost_USE_MULTITHREADED OFF)
 set(CUEIRA_LIB CuEira_Core)
@@ -39,6 +40,7 @@ MESSAGE( STATUS "Building CuEira:" )
 #Set preproccessor variables
 add_definitions(-DCuEira_VERSION_MAJOR=${CuEira_VERSION_MAJOR})
 add_definitions(-DCuEira_VERSION_MINOR=${CuEira_VERSION_MINOR})
+add_definitions(-DCuEira_BUILD_DIR="${TEST_DATA_DIR}")
 
 #FIXME later
 #IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
@@ -145,4 +147,10 @@ else()
 endif(${CPU})
 
 add_test(CuEira_Test ${CMAKE_CURRENT_BINARY_DIR}/CuEira_Test)
+
+#Copy the dir with the data for the tests to the build directory
+file(MAKE_DIRECTORY ${TEST_DATA_DIR})
+add_custom_command(TARGET CuEira_Test PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/data ${TEST_DATA_DIR})
 

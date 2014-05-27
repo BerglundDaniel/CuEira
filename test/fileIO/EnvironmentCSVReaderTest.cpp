@@ -57,7 +57,7 @@ protected:
 };
 
 EnvironmentCSVReaderTest::EnvironmentCSVReaderTest() :
-    filePath("../data/test_env.txt"), delimiter("\t "), idColumnName("indid"), numberOfIndividualsTotal(
+    filePath(std::string(CuEira_BUILD_DIR)+std::string("/test_env.txt")), delimiter("\t "), idColumnName("indid"), numberOfIndividualsTotal(
         numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(numberOfIndividualsToIncludeStatic) {
 
 }

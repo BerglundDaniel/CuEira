@@ -55,7 +55,7 @@ protected:
 };
 
 CSVReaderTest::CSVReaderTest() :
-    filePath("../data/test_csv.txt"), delimiter("\t "), idColumnName("indid"), numberOfIndividualsTotal(
+    filePath(std::string(CuEira_BUILD_DIR)+std::string("/test_csv.txt")), delimiter("\t "), idColumnName("indid"), numberOfIndividualsTotal(
         numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(numberOfIndividualsToIncludeStatic) {
 
 }

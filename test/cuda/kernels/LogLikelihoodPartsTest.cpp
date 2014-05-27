@@ -69,12 +69,12 @@ TEST_F(LogLikelihoodPartsTest, KernelSmallVector) {
 
   Container::PinnedHostVector* hostVectorOutcomes = new Container::PinnedHostVector(numberOfRows);
   for(int i = 0; i < numberOfRows; ++i){
-    (*hostVectorOutcomes)(i) = i;
+    (*hostVectorOutcomes)(i) = i + 1;
   }
 
   Container::PinnedHostVector* hostVectorProbabilites = new Container::PinnedHostVector(numberOfRows);
   for(int i = 0; i < numberOfRows; ++i){
-    (*hostVectorProbabilites)(i) = i / 10;
+    (*hostVectorProbabilites)(i) = (i + 3) * 3.2;
   }
 
   Container::DeviceVector* outcomesDeviceVector = hostToDeviceStream1.transferVector(hostVectorOutcomes);
@@ -103,9 +103,61 @@ TEST_F(LogLikelihoodPartsTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
-//TODO test exception
+TEST_F(LogLikelihoodPartsTest, KernelException) {
+  const int numberOfRows = 5;
 
+  Container::DeviceVector* outcomesDeviceVector = new Container::DeviceVector(numberOfRows);
+  Container::DeviceVector* probabilitesDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
+
+  EXPECT_THROW(kernelWrapper.logLikelihoodParts(*outcomesDeviceVector, *probabilitesDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete outcomesDeviceVector;
+  delete probabilitesDeviceVector;
+  delete resultDeviceVector;
+
+  outcomesDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  probabilitesDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows);
+  EXPECT_THROW(kernelWrapper.logLikelihoodParts(*outcomesDeviceVector, *probabilitesDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete outcomesDeviceVector;
+  delete probabilitesDeviceVector;
+  delete resultDeviceVector;
+
+  outcomesDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  probabilitesDeviceVector = new Container::DeviceVector(numberOfRows);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  EXPECT_THROW(kernelWrapper.logLikelihoodParts(*outcomesDeviceVector, *probabilitesDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete outcomesDeviceVector;
+  delete probabilitesDeviceVector;
+  delete resultDeviceVector;
+
+  outcomesDeviceVector = new Container::DeviceVector(numberOfRows);
+  probabilitesDeviceVector = new Container::DeviceVector(numberOfRows - 1);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  EXPECT_THROW(kernelWrapper.logLikelihoodParts(*outcomesDeviceVector, *probabilitesDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete outcomesDeviceVector;
+  delete probabilitesDeviceVector;
+  delete resultDeviceVector;
+
+  outcomesDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  probabilitesDeviceVector = new Container::DeviceVector(numberOfRows);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows - 1);
+  EXPECT_THROW(kernelWrapper.logLikelihoodParts(*outcomesDeviceVector, *probabilitesDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete outcomesDeviceVector;
+  delete probabilitesDeviceVector;
+  delete resultDeviceVector;
 }
-/* namespace CUDA */
+
+} /* namespace CUDA */
 } /* namespace CuEira */
 

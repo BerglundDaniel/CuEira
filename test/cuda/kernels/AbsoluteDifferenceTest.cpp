@@ -44,7 +44,7 @@ protected:
 
 AbsoluteDifferenceTest::AbsoluteDifferenceTest() :
     cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(HostToDevice(stream1)), deviceToHostStream1(
-        DeviceToHost(stream1)), kernelWrapper(stream1,cublasHandle) {
+        DeviceToHost(stream1)), kernelWrapper(stream1, cublasHandle) {
 
   handleCublasStatus(cublasStatus, "Failed to create cublas handle:");
   handleCudaStatus(cudaStreamCreate(&stream1), "Failed to create cuda stream 1:");
@@ -102,7 +102,69 @@ TEST_F(AbsoluteDifferenceTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
-//TODO test exception
+TEST_F(AbsoluteDifferenceTest, KernelException) {
+  const int numberOfRows = 5;
+
+  Container::DeviceVector* deviceVector1 = new Container::DeviceVector(numberOfRows + 1);
+  Container::DeviceVector* deviceVector2 = new Container::DeviceVector(numberOfRows);
+  Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
+
+  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+
+  delete deviceVector1;
+  delete deviceVector2;
+  delete resultDeviceVector;
+
+  deviceVector1 = new Container::DeviceVector(numberOfRows + 1);
+  deviceVector2 = new Container::DeviceVector(numberOfRows + 1);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows);
+
+  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+
+  delete deviceVector1;
+  delete deviceVector2;
+  delete resultDeviceVector;
+
+  deviceVector1 = new Container::DeviceVector(numberOfRows + 1);
+  deviceVector2 = new Container::DeviceVector(numberOfRows);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+
+  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+
+  delete deviceVector1;
+  delete deviceVector2;
+  delete resultDeviceVector;
+
+  deviceVector1 = new Container::DeviceVector(numberOfRows);
+  deviceVector2 = new Container::DeviceVector(numberOfRows + 1);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+
+  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+
+  delete deviceVector1;
+  delete deviceVector2;
+  delete resultDeviceVector;
+
+  deviceVector1 = new Container::DeviceVector(numberOfRows);
+  deviceVector2 = new Container::DeviceVector(numberOfRows);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+
+  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+
+  delete deviceVector1;
+  delete deviceVector2;
+  delete resultDeviceVector;
+
+  deviceVector1 = new Container::DeviceVector(numberOfRows - 1);
+  deviceVector2 = new Container::DeviceVector(numberOfRows - 1);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows);
+
+  EXPECT_THROW(kernelWrapper.absoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
+
+  delete deviceVector1;
+  delete deviceVector2;
+  delete resultDeviceVector;
+}
 
 }
 /* namespace CUDA */

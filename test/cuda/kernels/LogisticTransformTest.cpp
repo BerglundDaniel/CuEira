@@ -93,69 +93,97 @@ TEST_F(LogisticTransformTest, KernelSmallVector) {
   delete probDeviceVector;
   delete resultHostVector;
 }
-/*
-TEST_F(LogisticTransformTest, KernelLargeVector) {
-  const int numberOfRows = 10000;
 
-  Container::PinnedHostVector* hostVectorFrom = new Container::PinnedHostVector(numberOfRows);
-  for(int i = 0; i < numberOfRows; ++i){
-    (*hostVectorFrom)(i) = i / 10;
-  }
+TEST_F(LogisticTransformTest, KernelException) {
+  const int numberOfRows = 5;
 
-  Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
+  Container::DeviceVector* logitDeviceVector = new Container::DeviceVector(numberOfRows + 1);
   Container::DeviceVector* probDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
+  EXPECT_THROW(kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector), CudaException);
 
-  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
-  cudaStreamSynchronize(stream1);
-  handleCudaStatus(cudaGetLastError(), "Error in LogisticTransform test: ");
-
-  ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
-
-  for(int i = 0; i < numberOfRows; ++i){
-    PRECISION x = i / 10;
-    ASSERT_EQ(exp(x) / (1 + exp(x)), (*resultHostVector)(i));
-  }
-
-  delete hostVectorFrom;
   delete logitDeviceVector;
   delete probDeviceVector;
-  delete resultHostVector;
-}*/
+
+  logitDeviceVector = new Container::DeviceVector(numberOfRows);
+  probDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+
+  EXPECT_THROW(kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector), CudaException);
+
+  delete logitDeviceVector;
+  delete probDeviceVector;
+
+  logitDeviceVector = new Container::DeviceVector(numberOfRows);
+  probDeviceVector = new Container::DeviceVector(numberOfRows - 1);
+
+  EXPECT_THROW(kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector), CudaException);
+
+  delete logitDeviceVector;
+  delete probDeviceVector;
+}
+
 /*
-TEST_F(LogisticTransformTest, KernelHugeVector) {
-  const int numberOfRows = 100000;
+ TEST_F(LogisticTransformTest, KernelLargeVector) {
+ const int numberOfRows = 10000;
 
-  Container::PinnedHostVector* hostVectorFrom = new Container::PinnedHostVector(numberOfRows);
-  for(int i = 0; i < numberOfRows; ++i){
-    (*hostVectorFrom)(i) = i / 10;
-  }
+ Container::PinnedHostVector* hostVectorFrom = new Container::PinnedHostVector(numberOfRows);
+ for(int i = 0; i < numberOfRows; ++i){
+ (*hostVectorFrom)(i) = i / 10;
+ }
 
-  Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
-  Container::DeviceVector* probDeviceVector = new Container::DeviceVector(numberOfRows);
+ Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
+ Container::DeviceVector* probDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
+ kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
 
-  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
-  cudaStreamSynchronize(stream1);
-  handleCudaStatus(cudaGetLastError(), "Error in LogisticTransform test: ");
+ Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
+ cudaStreamSynchronize(stream1);
+ handleCudaStatus(cudaGetLastError(), "Error in LogisticTransform test: ");
 
-  ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
+ ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
 
-  for(int i = 0; i < numberOfRows; ++i){
-    PRECISION x = i / 10;
-    ASSERT_EQ(exp(x) / (1 + exp(x)), (*resultHostVector)(i));
-  }
+ for(int i = 0; i < numberOfRows; ++i){
+ PRECISION x = i / 10;
+ ASSERT_EQ(exp(x) / (1 + exp(x)), (*resultHostVector)(i));
+ }
 
-  delete hostVectorFrom;
-  delete logitDeviceVector;
-  delete probDeviceVector;
-  delete resultHostVector;
-}*/
+ delete hostVectorFrom;
+ delete logitDeviceVector;
+ delete probDeviceVector;
+ delete resultHostVector;
+ }*/
+/*
+ TEST_F(LogisticTransformTest, KernelHugeVector) {
+ const int numberOfRows = 100000;
+
+ Container::PinnedHostVector* hostVectorFrom = new Container::PinnedHostVector(numberOfRows);
+ for(int i = 0; i < numberOfRows; ++i){
+ (*hostVectorFrom)(i) = i / 10;
+ }
+
+ Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
+ Container::DeviceVector* probDeviceVector = new Container::DeviceVector(numberOfRows);
+
+ kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
+
+ Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
+ cudaStreamSynchronize(stream1);
+ handleCudaStatus(cudaGetLastError(), "Error in LogisticTransform test: ");
+
+ ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
+
+ for(int i = 0; i < numberOfRows; ++i){
+ PRECISION x = i / 10;
+ ASSERT_EQ(exp(x) / (1 + exp(x)), (*resultHostVector)(i));
+ }
+
+ delete hostVectorFrom;
+ delete logitDeviceVector;
+ delete probDeviceVector;
+ delete resultHostVector;
+ }*/
 
 //TODO test exception
-
 }
 /* namespace CUDA */
 } /* namespace CuEira */

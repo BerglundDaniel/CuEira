@@ -102,7 +102,86 @@ TEST_F(ElemtWiseDivisionTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
-//TODO test exception
+TEST_F(ElemtWiseDivisionTest, KernelException) {
+  const int numberOfRows = 5;
+
+  Container::DeviceVector* numeratorDeviceVector = new Container::DeviceVector(numberOfRows);
+  Container::DeviceVector* denomitorDeviceVector = new Container::DeviceVector(numberOfRows);
+  Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
+
+  EXPECT_THROW(kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete numeratorDeviceVector;
+  delete denomitorDeviceVector;
+  delete resultDeviceVector;
+
+  numeratorDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  denomitorDeviceVector = new Container::DeviceVector(numberOfRows);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows);
+
+  EXPECT_THROW(kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete numeratorDeviceVector;
+  delete denomitorDeviceVector;
+  delete resultDeviceVector;
+
+  numeratorDeviceVector = new Container::DeviceVector(numberOfRows);
+  denomitorDeviceVector = new Container::DeviceVector(numberOfRows);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+
+  EXPECT_THROW(kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete numeratorDeviceVector;
+  delete denomitorDeviceVector;
+  delete resultDeviceVector;
+
+  numeratorDeviceVector = new Container::DeviceVector(numberOfRows);
+  denomitorDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows);
+
+  EXPECT_THROW(kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete numeratorDeviceVector;
+  delete denomitorDeviceVector;
+  delete resultDeviceVector;
+
+  numeratorDeviceVector = new Container::DeviceVector(numberOfRows - 1);
+  denomitorDeviceVector = new Container::DeviceVector(numberOfRows - 1);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows);
+
+  EXPECT_THROW(kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete numeratorDeviceVector;
+  delete denomitorDeviceVector;
+  delete resultDeviceVector;
+
+  numeratorDeviceVector = new Container::DeviceVector(numberOfRows - 1);
+  denomitorDeviceVector = new Container::DeviceVector(numberOfRows);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+
+  EXPECT_THROW(kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete numeratorDeviceVector;
+  delete denomitorDeviceVector;
+  delete resultDeviceVector;
+
+  numeratorDeviceVector = new Container::DeviceVector(numberOfRows);
+  denomitorDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+  resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
+
+  EXPECT_THROW(kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector),
+      CudaException);
+
+  delete numeratorDeviceVector;
+  delete denomitorDeviceVector;
+  delete resultDeviceVector;
+}
 
 }
 /* namespace CUDA */

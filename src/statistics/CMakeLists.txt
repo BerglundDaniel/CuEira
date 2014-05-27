@@ -7,7 +7,7 @@ set(INCLUDE_DIRECTORIES
 set(SOURCE
   ${SOURCE}
   ${CPU_SOURCE}
-  #${CMAKE_CURRENT_SOURCE_DIR}/Statistics.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Statistics.cpp
   PARENT_SCOPE
 )
 

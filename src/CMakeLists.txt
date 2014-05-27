@@ -3,6 +3,7 @@ add_subdirectory(data)
 add_subdirectory(container)
 add_subdirectory(programOptions)
 add_subdirectory(fileIO)
+add_subdirectory(statistics)
 
 if(${CPU})
   add_subdirectory(serial)

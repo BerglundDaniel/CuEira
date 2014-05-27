@@ -4,6 +4,8 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <math.h>
+#include <sstream>
+#include <string>
 
 #include <CudaAdapter.cu>
 #include <DeviceVector.h>
@@ -56,6 +58,55 @@ public:
    */
   void copyVector(const DeviceVector& vectorFrom, DeviceVector& vectorTo) const;
 
+  /**
+   * Calculates x*(1-x) for each element
+   */
+  void probabilitesMultiplyProbabilites(const DeviceVector& probabilitesDevice, DeviceVector& result) const;
+
+  /**
+   * Calculates vector1-vector2
+   */
+  void elementWiseDifference(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
+
+  /**
+   * Asdf
+   */
+  void matrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector, DeviceVector& result) const;
+
+  /**
+   * Asdf
+   */
+  void matrixTransVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector, DeviceVector& result) const;
+
+  /**
+   * Asdf
+   */
+  void matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const DeviceMatrix& matrix2, DeviceMatrix& result) const;
+
+  /**
+   * Asdf
+   */
+  void columnByColumnMatrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
+      DeviceMatrix& result) const;
+
+  /**
+   * Performs singular value decomposition on the matrix
+   */
+  void svd(const DeviceMatrix& matrix, DeviceMatrix& uSVD, DeviceVector& sigmaSVD, DeviceMatrix& vtSVD) const;
+
+  /**
+   * Asdf
+   */
+  void elementWiseAddition(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
+
+  /**
+   * Sums the vectors elements and puts the result in the given pointer
+   */
+  void sumResultToHost(const DeviceVector& vector, PRECISION* sumHost) const;
+
+  /**
+   * Syncs the associated stream
+   */
   inline void syncStream() const {
     cudaStreamSynchronize(cudaStream);
   }

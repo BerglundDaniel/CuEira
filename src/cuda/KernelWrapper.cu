@@ -23,7 +23,11 @@ KernelWrapper::~KernelWrapper() {
 void KernelWrapper::logisticTransform(const DeviceVector& logitVector, DeviceVector& probabilites) const {
 #ifdef DEBUG
   if(logitVector.getNumberOfRows() != probabilites.getNumberOfRows()){
-    throw CudaException("Number of rows doesn't match in logistic transform function.");
+    std::ostringstream os;
+    os << "Number of rows doesn't match in logistic transform function, they are " << logitVector.getNumberOfRows()
+    << " and " << probabilites.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
   }
 #endif
 
@@ -34,8 +38,12 @@ void KernelWrapper::logisticTransform(const DeviceVector& logitVector, DeviceVec
 void KernelWrapper::elementWiseDivision(const DeviceVector& numeratorVector, const DeviceVector& denomitorVector,
     DeviceVector& result) const {
 #ifdef DEBUG
-  if(numeratorVector.getNumberOfRows() != denomitorVector.getNumberOfRows() != result.getNumberOfRows()){
-    throw CudaException("Number of rows doesn't match in logistic transform function.");
+  if((numeratorVector.getNumberOfRows() != denomitorVector.getNumberOfRows()) || ( numeratorVector.getNumberOfRows() != result.getNumberOfRows())){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in elementWiseDivision function, they are " << numeratorVector.getNumberOfRows()
+    << " , " << denomitorVector.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
   }
 #endif
 
@@ -47,8 +55,12 @@ void KernelWrapper::elementWiseDivision(const DeviceVector& numeratorVector, con
 void KernelWrapper::logLikelihoodParts(const DeviceVector& outcomesVector, const DeviceVector& probabilites,
     DeviceVector& result) const {
 #ifdef DEBUG
-  if(outcomesVector.getNumberOfRows() != probabilites.getNumberOfRows() != result.getNumberOfRows()){
-    throw CudaException("Number of rows doesn't match in logistic transform function.");
+  if((outcomesVector.getNumberOfRows() != probabilites.getNumberOfRows()) || (outcomesVector.getNumberOfRows() != result.getNumberOfRows())){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in logLikelihoodParts function, they are " << outcomesVector.getNumberOfRows()
+    << " , " << probabilites.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
   }
 #endif
 
@@ -60,8 +72,12 @@ void KernelWrapper::logLikelihoodParts(const DeviceVector& outcomesVector, const
 void KernelWrapper::absoluteDifference(const DeviceVector& vector1, const DeviceVector& vector2,
     DeviceVector& result) const {
 #ifdef DEBUG
-  if(vector1.getNumberOfRows() != vector2.getNumberOfRows() != result.getNumberOfRows()){
-    throw CudaException("Number of rows doesn't match in logistic transform function.");
+  if((vector1.getNumberOfRows() != vector2.getNumberOfRows()) || (vector1.getNumberOfRows() != result.getNumberOfRows())){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in absoluteDifference function, they are " << vector1.getNumberOfRows()
+    << " , " << vector2.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
   }
 #endif
 
@@ -70,6 +86,16 @@ void KernelWrapper::absoluteDifference(const DeviceVector& vector1, const Device
 }
 
 void KernelWrapper::copyVector(const DeviceVector& vectorFrom, DeviceVector& vectorTo) const {
+#ifdef DEBUG
+  if(vectorFrom.getNumberOfRows() != vectorTo.getNumberOfRows()){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in copyVector function, they are " << vectorFrom.getNumberOfRows()
+    << " and " << vectorTo.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
+  }
+#endif
+
 #ifdef DOUBLEPRECISION
   cublasDcopy(cublasHandle, vectorFrom.getNumberOfRows(), vectorFrom.getMemoryPointer(), 1, vectorTo.getMemoryPointer(),
       1);
@@ -77,6 +103,50 @@ void KernelWrapper::copyVector(const DeviceVector& vectorFrom, DeviceVector& vec
   cublasScopy(cublasHandle, vectorFrom.getNumberOfRows(), vectorFrom.getMemoryPointer(), 1, vectorTo.getMemoryPointer(),
       1);
 #endif
+}
+
+void KernelWrapper::probabilitesMultiplyProbabilites(const DeviceVector& probabilitesDevice,
+    DeviceVector& result) const {
+
+}
+
+void KernelWrapper::elementWiseDifference(const DeviceVector& vector1, const DeviceVector& vector2,
+    DeviceVector& result) const {
+
+}
+
+void KernelWrapper::matrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
+    DeviceVector& result) const {
+
+}
+
+void KernelWrapper::matrixTransVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
+    DeviceVector& result) const {
+
+}
+
+void KernelWrapper::matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const DeviceMatrix& matrix2,
+    DeviceMatrix& result) const {
+
+}
+
+void KernelWrapper::columnByColumnMatrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
+    DeviceMatrix& result) const {
+
+}
+
+void KernelWrapper::svd(const DeviceMatrix& matrix, DeviceMatrix& uSVD, DeviceVector& sigmaSVD,
+    DeviceMatrix& vtSVD) const {
+
+}
+
+void KernelWrapper::elementWiseAddition(const DeviceVector& vector1, const DeviceVector& vector2,
+    DeviceVector& result) const {
+
+}
+
+void KernelWrapper::sumResultToHost(const DeviceVector& vector, PRECISION* sumHost) const {
+
 }
 
 } /* namespace CUDA */

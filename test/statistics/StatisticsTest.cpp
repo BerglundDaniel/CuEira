@@ -73,11 +73,11 @@ StatisticsTest::~StatisticsTest() {
 
 void StatisticsTest::SetUp() {
   for(int i = 0; i < numberOfPredictors; ++i){
-    beta(i) = (i + 7) / 10;
+    beta(i) = (i + 7) / 10.3;
   }
 
   for(int i = 0; i < numberOfPredictors; ++i){
-    standardError(i) = (i + 3) / 3;
+    standardError(i) = (i + 3) / 3.1;
   }
 
   for(int i = 0; i < numberOfPredictors - 1; ++i){
@@ -95,17 +95,26 @@ void StatisticsTest::TearDown() {
 
 TEST_F(StatisticsTest, Reri) {
   Statistics statistics(beta, standardError);
+  double e = 10e-5;
 
   double reri = oddsRatios(2) - oddsRatios(1) - oddsRatios(0) + 1;
-  ASSERT_EQ(reri, statistics.getReri());
+  double l = reri - e;
+  double h = reri + e;
+
+  EXPECT_THAT(statistics.getReri(), AllOf(Ge(l), Le(h)));
 }
 
 TEST_F(StatisticsTest, Ap) {
   Statistics statistics(beta, standardError);
+  double e = 10e-5;
 
   double reri = statistics.getReri();
-  double or11 = 1;
-  ASSERT_EQ(reri / or11, statistics.getAp());
+  double or11 = beta(3);
+
+  double l = reri / or11 - e;
+  double h = reri / or11 + e;
+
+  EXPECT_THAT(statistics.getAp(), AllOf(Ge(l), Le(h)));
 }
 
 TEST_F(StatisticsTest, OddsRatios) {
@@ -113,8 +122,8 @@ TEST_F(StatisticsTest, OddsRatios) {
 
   std::vector<double> oddsRatiosStat = statistics.getOddsRatios();
 
+  double e = 10e-5;
   for(int i = 0; i < numberOfPredictors - 1; ++i){
-    double e = 10e-5;
     double l = oddsRatios(i) - e;
     double h = oddsRatios(i) + e;
 
@@ -128,11 +137,18 @@ TEST_F(StatisticsTest, OddsRatiosLowAndHigh) {
   std::vector<double> oddsRatiosLowStat = statistics.getOddsRatiosLow();
   std::vector<double> oddsRatiosHighStat = statistics.getOddsRatiosHigh();
 
+  double e = 10e-5;
   for(int i = 0; i < numberOfPredictors - 1; ++i){
     EXPECT_THAT(oddsRatiosLowStat[i], Le(oddsRatiosHighStat[i]));
 
-    EXPECT_EQ(oddsRatiosLow(i), oddsRatiosLowStat[i]);
-    EXPECT_EQ(oddsRatiosHigh(i), oddsRatiosHighStat[i]);
+    double l_low = oddsRatiosLow(i) - e;
+    double h_low = oddsRatiosLow(i) + e;
+
+    double l_high = oddsRatiosHigh(i) - e;
+    double h_high = oddsRatiosHigh(i) + e;
+
+    EXPECT_THAT(oddsRatiosLowStat[i], AllOf(Ge(l_low), Le(h_low)));
+    EXPECT_THAT(oddsRatiosHighStat[i], AllOf(Ge(l_high), Le(h_high)));
   }
 }
 

@@ -10,10 +10,6 @@
 #include <CudaAdapter.cu>
 
 namespace CuEira {
-namespace CUDA {
-class DeviceToHost;
-class HostToDevice;
-}
 namespace Container {
 
 
@@ -23,8 +19,6 @@ namespace Container {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class PinnedHostMatrix: public HostMatrix {
-  friend CUDA::DeviceToHost;
-  friend CUDA::HostToDevice;
 public:
   PinnedHostMatrix(unsigned int numberOfRows, unsigned int numberOfColumns);
   virtual ~PinnedHostMatrix();

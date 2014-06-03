@@ -2,10 +2,6 @@
 #define HOSTVECTOR_H_
 
 namespace CuEira {
-namespace CUDA {
-class DeviceToHost;
-class HostToDevice;
-}
 namespace Container {
 
 
@@ -15,8 +11,6 @@ namespace Container {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class HostVector {
-  friend CUDA::DeviceToHost;
-  friend CUDA::HostToDevice;
 public:
   HostVector(unsigned int numberOfRows, bool subview, PRECISION* hostVector);
   virtual ~HostVector();
@@ -26,10 +20,10 @@ public:
   virtual PRECISION& operator()(unsigned int index)=0;
   virtual const PRECISION& operator()(unsigned int index) const=0;
 
-protected:
   PRECISION* getMemoryPointer();
   const PRECISION* getMemoryPointer() const;
 
+protected:
   PRECISION* hostVector;
   const unsigned int numberOfRows;
   const unsigned int numberOfColumns;

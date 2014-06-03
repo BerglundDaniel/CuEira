@@ -40,6 +40,18 @@ public:
    */
   HostVector* transferVector(const DeviceVector* vectorDevice) const;
 
+  /**
+   * Copies the data from the device matrix to the specified point in host memory without releasing the device memory, the call is made on the stream that
+   * was provided in the constructor. The host memory has to be previously allocated with as cuda pinned host memory.
+   */
+  void transferMatrix(const DeviceMatrix* matrixDevice, PRECISION* hostMemoryPosition) const;
+
+  /**
+   * Copies the data from the device vector to the specified point in host memory without releasing the device memory, the call is made on the stream that
+   * was provided in the constructor. The host memory has to be previously allocated with as cuda pinned host memory.
+   */
+  void transferVector(const DeviceVector* vectorDevice, PRECISION* hostMemoryPosition) const;
+
 private:
   const cudaStream_t& cudaStream;
 };

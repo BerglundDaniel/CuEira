@@ -33,13 +33,13 @@ public:
    * This
    */
   LogisticRegressionConfiguration(const Configuration& configuration, const HostToDevice& hostToDevice,
-      const HostVector& outcomes, const KernelWrapper& kernelWrapper);
+      const DeviceVector& deviceOutcomes, const KernelWrapper& kernelWrapper);
 
   /**
    * This
    */
   LogisticRegressionConfiguration(const Configuration& configuration, const HostToDevice& hostToDevice,
-      const HostVector& outcomes, const KernelWrapper& kernelWrapper, const HostMatrix& covariates);
+      const DeviceVector& deviceOutcomes, const KernelWrapper& kernelWrapper, const HostMatrix& covariates);
 
   /**
    * This
@@ -83,7 +83,7 @@ private:
   const int numberOfPredictors;
   const KernelWrapper& kernelWrapper;
   DeviceMatrix* devicePredictors;
-  DeviceVector* deviceOutcomes;
+  const DeviceVector& deviceOutcomes;
   int maxIterations;
   double convergenceThreshold;
   bool usingCovariates;

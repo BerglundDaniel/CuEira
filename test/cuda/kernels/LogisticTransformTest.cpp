@@ -19,6 +19,10 @@
 #include <DeviceToHost.h>
 #include <HostToDevice.h>
 
+using ::testing::AllOf;
+using ::testing::Ge;
+using ::testing::Le;
+
 namespace CuEira {
 namespace CUDA {
 
@@ -66,6 +70,7 @@ void LogisticTransformTest::TearDown() {
 
 TEST_F(LogisticTransformTest, KernelSmallVector) {
   const int numberOfRows = 5;
+  double e = 10e-5;
 
   Container::PinnedHostVector* hostVectorFrom = new Container::PinnedHostVector(numberOfRows);
   for(int i = 0; i < numberOfRows; ++i){
@@ -86,7 +91,11 @@ TEST_F(LogisticTransformTest, KernelSmallVector) {
 
   for(int i = 0; i < numberOfRows; ++i){
     PRECISION x = i / 10;
-    EXPECT_EQ(exp(x) / (1 + exp(x)), (*resultHostVector)(i));
+    x = exp(x) / (1 + exp(x));
+    double l = x - e;
+    double h = x + e;
+
+    EXPECT_THAT((*resultHostVector)(i), AllOf(Ge(l), Le(h)));
   }
 
   delete hostVectorFrom;
@@ -125,10 +134,11 @@ TEST_F(LogisticTransformTest, KernelException) {
 
 TEST_F(LogisticTransformTest, KernelLargeVector) {
   const int numberOfRows = 10000;
+  double e = 10e-5;
 
   Container::PinnedHostVector* hostVectorFrom = new Container::PinnedHostVector(numberOfRows);
   for(int i = 0; i < numberOfRows; ++i){
-    (*hostVectorFrom)(i) = i / 10;
+    (*hostVectorFrom)(i) = (i % 10) / 10;
   }
 
   Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
@@ -144,8 +154,12 @@ TEST_F(LogisticTransformTest, KernelLargeVector) {
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
 
   for(int i = 0; i < numberOfRows; ++i){
-    PRECISION x = i / 10;
-    ASSERT_EQ(exp(x) / (1 + exp(x)), (*resultHostVector)(i));
+    PRECISION x = (*hostVectorFrom)(i);
+    x = exp(x) / (1 + exp(x));
+    double l = x - e;
+    double h = x + e;
+
+    EXPECT_THAT((*resultHostVector)(i), AllOf(Ge(l), Le(h)));
   }
 
   delete hostVectorFrom;
@@ -156,10 +170,11 @@ TEST_F(LogisticTransformTest, KernelLargeVector) {
 
 TEST_F(LogisticTransformTest, KernelHugeVector) {
   const int numberOfRows = 100000;
+  double e = 10e-5;
 
   Container::PinnedHostVector* hostVectorFrom = new Container::PinnedHostVector(numberOfRows);
   for(int i = 0; i < numberOfRows; ++i){
-    (*hostVectorFrom)(i) = i / 10;
+    (*hostVectorFrom)(i) = (i % 10) / 10;
   }
 
   Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
@@ -175,8 +190,12 @@ TEST_F(LogisticTransformTest, KernelHugeVector) {
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
 
   for(int i = 0; i < numberOfRows; ++i){
-    PRECISION x = i / 10;
-    ASSERT_EQ(exp(x) / (1 + exp(x)), (*resultHostVector)(i));
+    PRECISION x = (*hostVectorFrom)(i);
+    x = exp(x) / (1 + exp(x));
+    double l = x - e;
+    double h = x + e;
+
+    EXPECT_THAT((*resultHostVector)(i), AllOf(Ge(l), Le(h)));
   }
 
   delete hostVectorFrom;

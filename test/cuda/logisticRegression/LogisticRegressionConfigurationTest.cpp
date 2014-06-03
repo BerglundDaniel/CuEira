@@ -105,11 +105,12 @@ void LogisticRegressionConfigurationTest::TearDown() {
 
 TEST_F(LogisticRegressionConfigurationTest, ConstructorWithMock) {
   DeviceVector* outcomeDeviceVector = new DeviceVector(numberOfRows);
-  EXPECT_CALL(hostToDeviceMock, transferVector(_)).Times(1).WillRepeatedly(Return(outcomeDeviceVector));
 
   EXPECT_CALL(hostToDeviceMock, transferVector(_,_)).Times(1);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceMock, outcomes, kernelWrapper);
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceMock, *outcomeDeviceVector, kernelWrapper);
+  cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
   EXPECT_EQ(convergenceThreshold, lrConfig.getConvergenceThreshold());
@@ -119,16 +120,20 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorWithMock) {
   const DeviceVector& outcomeDeviceLR = lrConfig.getOutcomes();
   ASSERT_EQ(numberOfRows, outcomeDeviceLR.getNumberOfRows());
   ASSERT_EQ(outcomeDeviceVector->getMemoryPointer(), outcomeDeviceLR.getMemoryPointer());
+
+  delete outcomeDeviceVector;
 }
 
 TEST_F(LogisticRegressionConfigurationTest, ConstructorCovWithMock) {
   DeviceVector* outcomeDeviceVector = new DeviceVector(numberOfRows);
-  EXPECT_CALL(hostToDeviceMock, transferVector(_)).Times(1).WillRepeatedly(Return(outcomeDeviceVector));
 
   EXPECT_CALL(hostToDeviceMock, transferVector(_,_)).Times(1);
   EXPECT_CALL(hostToDeviceMock, transferMatrix(_,_)).Times(1);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceMock, outcomes, kernelWrapper, covariates);
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceMock, *outcomeDeviceVector, kernelWrapper,
+      covariates);
+  cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
   EXPECT_EQ(convergenceThreshold, lrConfig.getConvergenceThreshold());
@@ -138,19 +143,25 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorCovWithMock) {
   const DeviceVector& outcomeDeviceLR = lrConfig.getOutcomes();
   ASSERT_EQ(numberOfRows, outcomeDeviceLR.getNumberOfRows());
   ASSERT_EQ(outcomeDeviceVector->getMemoryPointer(), outcomeDeviceLR.getMemoryPointer());
+
+  delete outcomeDeviceVector;
 }
 
 TEST_F(LogisticRegressionConfigurationTest, ConstructorNoMock) {
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes, kernelWrapper);
+  DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(outcomes);
   cudaStreamSynchronize(stream1);
+
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper);
+  cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
   EXPECT_EQ(convergenceThreshold, lrConfig.getConvergenceThreshold());
   EXPECT_EQ(numberOfRows, lrConfig.getNumberOfRows());
   EXPECT_EQ(numberOfPredictorsNoCov, lrConfig.getNumberOfPredictors());
 
-  const DeviceVector& outcomeDeviceVector = lrConfig.getOutcomes();
-  HostVector* outcomeHostVector = deviceToHostStream1.transferVector(&outcomeDeviceVector);
+  const DeviceVector& outcomeDeviceVectorOut = lrConfig.getOutcomes();
+  HostVector* outcomeHostVector = deviceToHostStream1.transferVector(&outcomeDeviceVectorOut);
   cudaStreamSynchronize(stream1);
 
   ASSERT_EQ(numberOfRows, outcomeHostVector->getNumberOfRows());
@@ -168,19 +179,26 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorNoMock) {
   for(int i = 0; i < numberOfRows; ++i){
     EXPECT_EQ(1, (*predictorsHostMatrix)(i, 0));
   }
+
+  delete outcomeDeviceVector;
 }
 
 TEST_F(LogisticRegressionConfigurationTest, ConstructorCovNoMock) {
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes, kernelWrapper, covariates);
+  DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(outcomes);
   cudaStreamSynchronize(stream1);
+
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper,
+      covariates);
+  cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
   EXPECT_EQ(convergenceThreshold, lrConfig.getConvergenceThreshold());
   EXPECT_EQ(numberOfRows, lrConfig.getNumberOfRows());
   EXPECT_EQ(numberOfPredictorsWithCov, lrConfig.getNumberOfPredictors());
 
-  const DeviceVector& outcomeDeviceVector = lrConfig.getOutcomes();
-  HostVector* outcomeHostVector = deviceToHostStream1.transferVector(&outcomeDeviceVector);
+  const DeviceVector& outcomeDeviceVectorOut = lrConfig.getOutcomes();
+  HostVector* outcomeHostVector = deviceToHostStream1.transferVector(&outcomeDeviceVectorOut);
   cudaStreamSynchronize(stream1);
 
   ASSERT_EQ(numberOfRows, outcomeHostVector->getNumberOfRows());
@@ -205,11 +223,17 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorCovNoMock) {
       EXPECT_EQ((j * numberOfRows + i), (*predictorsHostMatrix)(i, j + 4));
     }
   }
+
+  delete outcomeDeviceVector;
 }
 
 TEST_F(LogisticRegressionConfigurationTest, GetSNPEnvInteract) {
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes, kernelWrapper);
+  DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(outcomes);
   cudaStreamSynchronize(stream1);
+
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper);
+  cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
   EXPECT_EQ(convergenceThreshold, lrConfig.getConvergenceThreshold());
@@ -226,8 +250,8 @@ TEST_F(LogisticRegressionConfigurationTest, GetSNPEnvInteract) {
   lrConfig.setInteraction(interactionVector);
   cudaStreamSynchronize(stream1);
 
-  const DeviceVector& outcomeDeviceVector = lrConfig.getOutcomes();
-  HostVector* outcomeHostVector = deviceToHostStream1.transferVector(&outcomeDeviceVector);
+  const DeviceVector& outcomeDeviceVectorOut = lrConfig.getOutcomes();
+  HostVector* outcomeHostVector = deviceToHostStream1.transferVector(&outcomeDeviceVectorOut);
   cudaStreamSynchronize(stream1);
 
   ASSERT_EQ(numberOfRows, outcomeHostVector->getNumberOfRows());
@@ -260,11 +284,18 @@ TEST_F(LogisticRegressionConfigurationTest, GetSNPEnvInteract) {
   for(int i = 0; i < numberOfRows; ++i){
     EXPECT_EQ(i * 1000, (*predictorsHostMatrix)(i, 3));
   }
+
+  delete outcomeDeviceVector;
 }
 
 TEST_F(LogisticRegressionConfigurationTest, CovGetSNPEnvInteract) {
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, outcomes, kernelWrapper, covariates);
+  DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(outcomes);
   cudaStreamSynchronize(stream1);
+
+  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper,
+      covariates);
+  cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
   EXPECT_EQ(convergenceThreshold, lrConfig.getConvergenceThreshold());
@@ -281,8 +312,8 @@ TEST_F(LogisticRegressionConfigurationTest, CovGetSNPEnvInteract) {
   lrConfig.setInteraction(interactionVector);
   cudaStreamSynchronize(stream1);
 
-  const DeviceVector& outcomeDeviceVector = lrConfig.getOutcomes();
-  HostVector* outcomeHostVector = deviceToHostStream1.transferVector(&outcomeDeviceVector);
+  const DeviceVector& outcomeDeviceVectorOut = lrConfig.getOutcomes();
+  HostVector* outcomeHostVector = deviceToHostStream1.transferVector(&outcomeDeviceVectorOut);
   cudaStreamSynchronize(stream1);
 
   ASSERT_EQ(numberOfRows, outcomeHostVector->getNumberOfRows());
@@ -323,6 +354,7 @@ TEST_F(LogisticRegressionConfigurationTest, CovGetSNPEnvInteract) {
     }
   }
 
+  delete outcomeDeviceVector;
 }
 
 } /* namespace LogisticRegression */

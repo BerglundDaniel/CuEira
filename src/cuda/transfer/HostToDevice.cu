@@ -53,7 +53,7 @@ void HostToDevice::transferMatrix(const HostMatrix* matrixHost, PRECISION* devic
 
   handleCublasStatus(
       cublasSetMatrixAsync(numberOfRows, numberOfColumns, sizeof(PRECISION), hostMatrixPointer, numberOfRows,
-          deviceMemoryPosition, numberOfRows, *cudaStream), "Error when transferring matrix from host to device: ");
+          deviceMemoryPosition, numberOfRows, *cudaStream), "Error when transferring matrix from host to device point: ");
 }
 
 void HostToDevice::transferVector(const HostVector* vectorHost, PRECISION* deviceMemoryPosition) const {
@@ -62,7 +62,7 @@ void HostToDevice::transferVector(const HostVector* vectorHost, PRECISION* devic
 
   handleCublasStatus(
       cublasSetVectorAsync(numberOfRows, sizeof(PRECISION), hostVectorPointer, 1, deviceMemoryPosition, 1, *cudaStream),
-      "Error when transferring vector from host to device: ");
+      "Error when transferring vector from host to device point: ");
 }
 
 } /* namespace CUDA */

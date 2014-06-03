@@ -118,7 +118,7 @@ TEST_F(TransferTest, TransferMatrix) {
   delete hostMatrixTo;
 }
 
-TEST_F(TransferTest, TransferVectorCustomPoint) {
+TEST_F(TransferTest, TransferVectorCustomPointDevice) {
   const int numberOfRows = 5;
   const int numberOfRowsBigMatrix = 10;
   const int numberOfColumnsBigMatrix = 10;
@@ -160,7 +160,7 @@ TEST_F(TransferTest, TransferVectorCustomPoint) {
   delete deviceVector;
 }
 
-TEST_F(TransferTest, TransferMatrixCustomPoint) {
+TEST_F(TransferTest, TransferMatrixCustomPointDevice) {
   const int numberOfRows = 5;
   const int numberOfColumns = 4;
   const int numberOfRowsBigMatrix = 10;
@@ -205,6 +205,99 @@ TEST_F(TransferTest, TransferMatrixCustomPoint) {
   delete hostMatrixFrom;
   delete hostMatrixBig;
   delete hostMatrixTo;
+  delete deviceMatrix;
+}
+
+TEST_F(TransferTest, TransferVectorCustomPointHost) {
+  const int numberOfRows = 5;
+  const int numberOfRowsBigMatrix = 10;
+  const int numberOfColumnsBigMatrix = 10;
+
+  Container::PinnedHostMatrix* hostMatrixBig = new Container::PinnedHostMatrix(numberOfRowsBigMatrix,
+      numberOfColumnsBigMatrix);
+  for(int j = 0; j < numberOfColumnsBigMatrix; ++j){
+    for(int i = 0; i < numberOfRowsBigMatrix; ++i){
+      (*hostMatrixBig)(i, j) = 1;
+    }
+  }
+
+  Container::PinnedHostVector* hostVectorFrom = new Container::PinnedHostVector(numberOfRows);
+  for(int i = 0; i < numberOfRows; ++i){
+    (*hostVectorFrom)(i) = i + 10;
+  }
+
+  Container::DeviceVector* deviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
+  cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(), "Error when transferring to device in TransferTest: ");
+
+  int offset = 2;
+  PRECISION* vectorPos = hostMatrixBig->getMemoryPointer() + offset;
+  deviceToHostStream1.transferVector(deviceVector, vectorPos);
+  cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(), "Error when transferring from device in TransferTest: ");
+
+  for(int j = 0; j < numberOfColumnsBigMatrix; ++j){
+    for(int i = 0; i < numberOfRowsBigMatrix; ++i){
+      if(i >= offset && i < (offset + numberOfRows) && j == 0){
+        EXPECT_EQ((*hostVectorFrom)(i - offset), (*hostMatrixBig)(i, j));
+      }else{
+        EXPECT_EQ(1, (*hostMatrixBig)(i, j));
+      }
+    }
+  }
+
+  delete hostVectorFrom;
+  delete hostMatrixBig;
+  delete deviceVector;
+}
+
+TEST_F(TransferTest, TransferMatrixCustomPointHost) {
+  const int numberOfRows = 5;
+  const int numberOfColumns = 4;
+  const int numberOfRowsBigMatrix = 10;
+  const int numberOfColumnsBigMatrix = 10;
+
+  Container::PinnedHostMatrix* hostMatrixBig = new Container::PinnedHostMatrix(numberOfRowsBigMatrix,
+      numberOfColumnsBigMatrix);
+  for(int j = 0; j < numberOfColumnsBigMatrix; ++j){
+    for(int i = 0; i < numberOfRowsBigMatrix; ++i){
+      (*hostMatrixBig)(i, j) = 1;
+    }
+  }
+
+  Container::PinnedHostMatrix* hostMatrixFrom = new Container::PinnedHostMatrix(numberOfRows, numberOfColumns);
+  for(int j = 0; j < numberOfColumns; ++j){
+    for(int i = 0; i < numberOfRows; ++i){
+      (*hostMatrixFrom)(i, j) = i + (j * numberOfRows) + 1;
+    }
+  }
+
+  Container::DeviceMatrix* deviceMatrix = hostToDeviceStream1.transferMatrix(hostMatrixFrom);
+  cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(), "Error when transferring to device in TransferTest: ");
+
+  int offset = 3;
+  PRECISION* matrixPos = hostMatrixBig->getMemoryPointer() + offset;
+
+  deviceToHostStream1.transferMatrix(deviceMatrix, matrixPos);
+  cudaStreamSynchronize(stream1);
+  handleCudaStatus(cudaGetLastError(), "Error when transferring from device in TransferTest: ");
+
+  int totalSize = numberOfRowsBigMatrix * numberOfColumnsBigMatrix;
+  int matrixFromTotalSize = numberOfRows * numberOfColumns;
+  PRECISION* matrixFromPointer = hostMatrixFrom->getMemoryPointer();
+  PRECISION* matrixBigPointer = hostMatrixBig->getMemoryPointer();
+
+  for(int ij = 0; ij < totalSize; ++ij){
+    if(ij >= offset && ij < (offset + matrixFromTotalSize)){
+      EXPECT_EQ(*(matrixFromPointer + ij - offset), *(matrixBigPointer + ij));
+    }else{
+      EXPECT_EQ(1, *(matrixBigPointer + ij));
+    }
+  }
+
+  delete hostMatrixFrom;
+  delete hostMatrixBig;
   delete deviceMatrix;
 }
 

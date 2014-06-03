@@ -4,74 +4,62 @@ namespace CuEira {
 namespace Container {
 
 #ifdef CPU
-SNPVector::SNPVector(const std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel) :
+SNPVector::SNPVector(std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel) :
 snp(snp), numberOfIndividualsToInclude(originalSNPData->size()), originalSNPData(originalSNPData), modifiedSNPData(
-    new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude))), currentRecode(ALL_RISK), originalGeneticModel(
-    geneticModel), originalRiskAllele(snp.getRiskAllele()), currentRiskAllele(snp.getRiskAllele()), currentGeneticModel(
-    geneticModel){
+    new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude))), originalGeneticModel(geneticModel), originalRiskAllele(
+    snp.getRiskAllele()), currentRiskAllele(snp.getRiskAllele()), currentGeneticModel(geneticModel){
 #else
-SNPVector::SNPVector(const std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel) :
+SNPVector::SNPVector(std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel) :
     snp(snp), numberOfIndividualsToInclude(originalSNPData->size()), originalSNPData(originalSNPData), modifiedSNPData(
-        new PinnedHostVector(numberOfIndividualsToInclude)), currentRecode(ALL_RISK), originalGeneticModel(
-        geneticModel), originalRiskAllele(snp.getRiskAllele()), currentRiskAllele(snp.getRiskAllele()), currentGeneticModel(
-        geneticModel) {
+        new PinnedHostVector(numberOfIndividualsToInclude)), originalGeneticModel(geneticModel), originalRiskAllele(
+        snp.getRiskAllele()), currentRiskAllele(snp.getRiskAllele()), currentGeneticModel(geneticModel) {
 #endif
 
-  currentRecode = SNP_PROTECT; //Because of the if statement in recode
   recode(ALL_RISK);
 }
 
 SNPVector::~SNPVector() {
   delete modifiedSNPData;
+  delete originalSNPData;
 }
 
-const std::vector<int>* SNPVector::getOrginalData() const {
-  return originalSNPData;
+const std::vector<int>& SNPVector::getOrginalData() const {
+  return *originalSNPData;
 }
 
-const Container::HostVector* SNPVector::getRecodedData() const {
-  return modifiedSNPData;
+const Container::HostVector& SNPVector::getRecodedData() const {
+  return *modifiedSNPData;
 }
 
-SNP& SNPVector::getAssociatedSNP() const {
+int SNPVector::getNumberOfIndividualsToInclude() const {
+  return numberOfIndividualsToInclude;
+}
+
+const SNP & SNPVector::getAssociatedSNP() const {
   return snp;
 }
 
-Recode SNPVector::getRecode() const {
-  return currentRecode;
-}
-
 void SNPVector::recode(Recode recode) {
-  if(currentRecode == recode){
-    return;
-  }
-
   if(recode == ALL_RISK){
     recodeAllRisk();
   }else if(recode == SNP_PROTECT){
     recodeSNPProtective();
-  }else if(recode == ENVIRONMENT_PROTECT){
-    //Doesn't affect the snp data
-    currentRecode = ENVIRONMENT_PROTECT;
-    return;
   }else if(recode == INTERACTION_PROTECT){
     recodeInteractionProtective();
   }else{
-    throw InvalidState("Unknown recode for a SNPVector.");
+    return;
   }
 
   doRecode();
 }
 
 void SNPVector::recodeAllRisk() {
-  currentRecode = ALL_RISK;
   currentRiskAllele = originalRiskAllele;
   currentGeneticModel = originalGeneticModel;
   snp.setRiskAllele(currentRiskAllele);
 }
 
 void SNPVector::recodeSNPProtective() {
-  currentRecode = SNP_PROTECT;
   currentRiskAllele = invertRiskAllele(originalRiskAllele);
   currentGeneticModel = RECESSIVE;
   snp.setRiskAllele(currentRiskAllele);
@@ -79,7 +67,6 @@ void SNPVector::recodeSNPProtective() {
 
 void SNPVector::recodeInteractionProtective() {
   //FIXME is this correct?
-  currentRecode = INTERACTION_PROTECT;
   currentRiskAllele = invertRiskAllele(originalRiskAllele);
   currentGeneticModel = RECESSIVE;
   snp.setRiskAllele(currentRiskAllele);
@@ -96,9 +83,9 @@ RiskAllele SNPVector::invertRiskAllele(RiskAllele riskAllele) {
 }
 
 void SNPVector::doRecode() {
-  int* snpData0=new int(-1);
-  int* snpData1=new int(-1);
-  int* snpData2=new int(-1);
+  int* snpData0 = new int(-1);
+  int* snpData1 = new int(-1);
+  int* snpData2 = new int(-1);
 
   if(currentGeneticModel == DOMINANT){
     if(currentRiskAllele == ALLELE_ONE){
@@ -144,6 +131,17 @@ void SNPVector::doRecode() {
   delete snpData0;
   delete snpData1;
   delete snpData2;
+}
+
+void SNPVector::applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector) {
+  if(statisticModel == ADDITIVE){
+    for(int i = 0; i < numberOfIndividualsToInclude; ++i){
+      if(interactionVector(i) != 0){
+        (*modifiedSNPData)(i) = 0;
+      }
+    }
+  }
+  return;
 }
 
 } /* namespace Container */

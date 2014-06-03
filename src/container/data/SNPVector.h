@@ -9,9 +9,9 @@
 #include <SNP.h>
 #include <Recode.h>
 #include <HostVector.h>
-#include <InvalidState.h>
 #include <GeneticModel.h>
 #include <RiskAllele.h>
+#include <StatisticModel.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
@@ -37,14 +37,15 @@ class SNPVector {
   FRIEND_TEST(SNPVectorTest, DoRecodeRecessiveAlleleTwo);
   FRIEND_TEST(SNPVectorTest, InvertRiskAllele);
 public:
-  SNPVector(const std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel);
+  SNPVector(std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel);
   virtual ~SNPVector();
 
-  const std::vector<int>* getOrginalData() const;
-  const Container::HostVector* getRecodedData() const;
-  SNP& getAssociatedSNP() const;
-  Recode getRecode() const;
+  int getNumberOfIndividualsToInclude() const;
+  const std::vector<int>& getOrginalData() const;
+  const Container::HostVector& getRecodedData() const;
+  const SNP& getAssociatedSNP() const;
   void recode(Recode recode);
+  void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
 
 private:
   void recodeAllRisk();
@@ -55,12 +56,11 @@ private:
 
   const int numberOfIndividualsToInclude;
   SNP& snp;
-  Recode currentRecode;
   RiskAllele currentRiskAllele;
   GeneticModel currentGeneticModel;
   const RiskAllele originalRiskAllele;
   const GeneticModel originalGeneticModel;
-  const std::vector<int>* originalSNPData;
+  std::vector<int>* originalSNPData;
   Container::HostVector* modifiedSNPData;
 };
 

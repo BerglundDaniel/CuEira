@@ -64,11 +64,16 @@ FileIOIntegrationTest::~FileIOIntegrationTest() {
 void FileIOIntegrationTest::SetUp() {
   //Expect Configuration
   EXPECT_CALL(configMock, getMinorAlleleFrequencyThreshold()).Times(AtLeast(0)).WillRepeatedly(Return(0.05));
-  EXPECT_CALL(configMock, getBedFilePath()).Times(AtLeast(1)).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test.bed")));
-  EXPECT_CALL(configMock, getBimFilePath()).Times(AtLeast(1)).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test.bim")));
-  EXPECT_CALL(configMock, getFamFilePath()).Times(AtLeast(1)).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test.fam")));
-  EXPECT_CALL(configMock, getEnvironmentFilePath()).Times(AtLeast(1)).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test_env.txt")));
-  EXPECT_CALL(configMock, getCovariateFilePath()).Times(AtLeast(1)).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test_cov.txt")));
+  EXPECT_CALL(configMock, getBedFilePath()).Times(AtLeast(1)).WillRepeatedly(
+      Return(std::string(CuEira_BUILD_DIR) + std::string("/test.bed")));
+  EXPECT_CALL(configMock, getBimFilePath()).Times(AtLeast(1)).WillRepeatedly(
+      Return(std::string(CuEira_BUILD_DIR) + std::string("/test.bim")));
+  EXPECT_CALL(configMock, getFamFilePath()).Times(AtLeast(1)).WillRepeatedly(
+      Return(std::string(CuEira_BUILD_DIR) + std::string("/test.fam")));
+  EXPECT_CALL(configMock, getEnvironmentFilePath()).Times(AtLeast(1)).WillRepeatedly(
+      Return(std::string(CuEira_BUILD_DIR) + std::string("/test_env.txt")));
+  EXPECT_CALL(configMock, getCovariateFilePath()).Times(AtLeast(1)).WillRepeatedly(
+      Return(std::string(CuEira_BUILD_DIR) + std::string("/test_cov.txt")));
 
   EXPECT_CALL(configMock, getEnvironmentIndividualIdColumnName()).Times(AtLeast(1)).WillRepeatedly(Return("indid"));
   EXPECT_CALL(configMock, getCovariateIndividualIdColumnName()).Times(AtLeast(1)).WillRepeatedly(Return("indid"));
@@ -196,8 +201,8 @@ TEST_F(FileIOIntegrationTest, ReadSNP) {
   Container::SNPVector* snpVector = dataFilesReader->readSNP(snp);
 
   ASSERT_TRUE(snp.getInclude());
-  const std::vector<int>* snpData = snpVector->getOrginalData();
-  ASSERT_EQ(10, snpData->size());
+  const std::vector<int>& snpData = snpVector->getOrginalData();
+  ASSERT_EQ(10, snpData.size());
 
   //Check maf and all freqs
   EXPECT_EQ(ALLELE_ONE, snp.getRiskAllele());
@@ -211,16 +216,16 @@ TEST_F(FileIOIntegrationTest, ReadSNP) {
   EXPECT_EQ(0.5, snp.getAlleleTwoAllFrequency());
 
   //Check data
-  EXPECT_EQ(0, (*snpData)[0]);
-  EXPECT_EQ(1, (*snpData)[1]);
-  EXPECT_EQ(2, (*snpData)[2]);
-  EXPECT_EQ(1, (*snpData)[3]);
-  EXPECT_EQ(1, (*snpData)[4]);
-  EXPECT_EQ(0, (*snpData)[5]);
-  EXPECT_EQ(2, (*snpData)[6]);
-  EXPECT_EQ(0, (*snpData)[7]);
-  EXPECT_EQ(1, (*snpData)[8]);
-  EXPECT_EQ(2, (*snpData)[9]);
+  EXPECT_EQ(0, (snpData)[0]);
+  EXPECT_EQ(1, (snpData)[1]);
+  EXPECT_EQ(2, (snpData)[2]);
+  EXPECT_EQ(1, (snpData)[3]);
+  EXPECT_EQ(1, (snpData)[4]);
+  EXPECT_EQ(0, (snpData)[5]);
+  EXPECT_EQ(2, (snpData)[6]);
+  EXPECT_EQ(0, (snpData)[7]);
+  EXPECT_EQ(1, (snpData)[8]);
+  EXPECT_EQ(2, (snpData)[9]);
 
   delete dataFilesReader;
 }

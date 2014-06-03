@@ -14,6 +14,14 @@
 #include <InvalidState.h>
 #include <GeneticModel.h>
 #include <RiskAllele.h>
+#include <StatisticModel.h>
+
+#ifdef CPU
+#include <lapackpp/lavd.h>
+#include <LapackppHostVector.h>
+#else
+#include <PinnedHostVector.h>
+#endif
 
 namespace CuEira {
 namespace Container {
@@ -36,14 +44,7 @@ protected:
 };
 
 SNPVectorTest::SNPVectorTest() :
-    originalSNPData(new std::vector<int>(numberOfIndividuals)), recodedSNPData(
-        new std::vector<PRECISION>(numberOfIndividuals)) {
-  (*originalSNPData)[0] = 2;
-  (*originalSNPData)[1] = 1;
-  (*originalSNPData)[2] = 0;
-  (*originalSNPData)[3] = 2;
-  (*originalSNPData)[4] = 0;
-  (*originalSNPData)[5] = 1;
+    originalSNPData(nullptr), recodedSNPData(new std::vector<PRECISION>(numberOfIndividuals)) {
 
   //For dominant risk allele one
   (*recodedSNPData)[0] = 0;
@@ -55,12 +56,18 @@ SNPVectorTest::SNPVectorTest() :
 }
 
 SNPVectorTest::~SNPVectorTest() {
-  delete originalSNPData;
   delete recodedSNPData;
 }
 
 void SNPVectorTest::SetUp() {
+  originalSNPData = new std::vector<int>(numberOfIndividuals);
 
+  (*originalSNPData)[0] = 2;
+  (*originalSNPData)[1] = 1;
+  (*originalSNPData)[2] = 0;
+  (*originalSNPData)[3] = 2;
+  (*originalSNPData)[4] = 0;
+  (*originalSNPData)[5] = 1;
 }
 
 void SNPVectorTest::TearDown() {
@@ -77,15 +84,14 @@ TEST_F(SNPVectorTest, ConstructAndGetDominant) {
 
   SNPVector snpVector(originalSNPData, snp1, DOMINANT);
 
-  const std::vector<int>* orgData = snpVector.getOrginalData();
-  const HostVector* recodedData = snpVector.getRecodedData();
+  const std::vector<int>& orgData = snpVector.getOrginalData();
+  const HostVector& recodedData = snpVector.getRecodedData();
 
   ASSERT_EQ(snp1.getId(), snpVector.getAssociatedSNP().getId());
-  ASSERT_EQ(ALL_RISK, snpVector.getRecode());
 
   for(int i = 0; i < numberOfIndividuals; ++i){
-    ASSERT_EQ((*originalSNPData)[i], (*orgData)[i]);
-    ASSERT_EQ((*recodedSNPData)[i], (*recodedData)(i));
+    ASSERT_EQ((*originalSNPData)[i], (orgData)[i]);
+    ASSERT_EQ((*recodedSNPData)[i], (recodedData)(i));
   }
 }
 
@@ -99,16 +105,14 @@ TEST_F(SNPVectorTest, ConstructRecessive) {
 
   SNPVector snpVector(originalSNPData, snp1, RECESSIVE);
 
-  const HostVector* recodedData = snpVector.getRecodedData();
+  const HostVector& recodedData = snpVector.getRecodedData();
 
-  ASSERT_EQ(ALL_RISK, snpVector.getRecode());
-
-  ASSERT_EQ(0, (*recodedData)(0));
-  ASSERT_EQ(0, (*recodedData)(1));
-  ASSERT_EQ(1, (*recodedData)(2));
-  ASSERT_EQ(0, (*recodedData)(3));
-  ASSERT_EQ(1, (*recodedData)(4));
-  ASSERT_EQ(0, (*recodedData)(5));
+  ASSERT_EQ(0, (recodedData)(0));
+  ASSERT_EQ(0, (recodedData)(1));
+  ASSERT_EQ(1, (recodedData)(2));
+  ASSERT_EQ(0, (recodedData)(3));
+  ASSERT_EQ(1, (recodedData)(4));
+  ASSERT_EQ(0, (recodedData)(5));
 }
 
 TEST_F(SNPVectorTest, ReCodeSame) {
@@ -122,13 +126,12 @@ TEST_F(SNPVectorTest, ReCodeSame) {
   SNPVector snpVector(originalSNPData, snp1, DOMINANT);
   snpVector.recode(ALL_RISK);
 
-  const HostVector* recodedData = snpVector.getRecodedData();
+  const HostVector& recodedData = snpVector.getRecodedData();
 
-  ASSERT_EQ(ALL_RISK, snpVector.getRecode());
   ASSERT_EQ(ALLELE_ONE, snp1.getRiskAllele());
 
   for(int i = 0; i < numberOfIndividuals; ++i){
-    ASSERT_EQ((*recodedSNPData)[i], (*recodedData)(i));
+    ASSERT_EQ((*recodedSNPData)[i], (recodedData)(i));
   }
 }
 
@@ -143,17 +146,16 @@ TEST_F(SNPVectorTest, ReCodeSNP) {
   SNPVector snpVector(originalSNPData, snp1, DOMINANT);
   snpVector.recode(SNP_PROTECT);
 
-  const HostVector* recodedData = snpVector.getRecodedData();
+  const HostVector& recodedData = snpVector.getRecodedData();
 
-  ASSERT_EQ(SNP_PROTECT, snpVector.getRecode());
   ASSERT_EQ(ALLELE_TWO, snp1.getRiskAllele());
 
-  ASSERT_EQ(1, (*recodedData)(0));
-  ASSERT_EQ(0, (*recodedData)(1));
-  ASSERT_EQ(0, (*recodedData)(2));
-  ASSERT_EQ(1, (*recodedData)(3));
-  ASSERT_EQ(0, (*recodedData)(4));
-  ASSERT_EQ(0, (*recodedData)(5));
+  ASSERT_EQ(1, (recodedData)(0));
+  ASSERT_EQ(0, (recodedData)(1));
+  ASSERT_EQ(0, (recodedData)(2));
+  ASSERT_EQ(1, (recodedData)(3));
+  ASSERT_EQ(0, (recodedData)(4));
+  ASSERT_EQ(0, (recodedData)(5));
 }
 
 TEST_F(SNPVectorTest, ReCodeInteraction) {
@@ -167,17 +169,16 @@ TEST_F(SNPVectorTest, ReCodeInteraction) {
   SNPVector snpVector(originalSNPData, snp1, DOMINANT);
   snpVector.recode(INTERACTION_PROTECT);
 
-  const HostVector* recodedData = snpVector.getRecodedData();
+  const HostVector& recodedData = snpVector.getRecodedData();
 
-  ASSERT_EQ(INTERACTION_PROTECT, snpVector.getRecode());
   ASSERT_EQ(ALLELE_ONE, snp1.getRiskAllele());
 
-  ASSERT_EQ(0, (*recodedData)(0));
-  ASSERT_EQ(0, (*recodedData)(1));
-  ASSERT_EQ(1, (*recodedData)(2));
-  ASSERT_EQ(0, (*recodedData)(3));
-  ASSERT_EQ(1, (*recodedData)(4));
-  ASSERT_EQ(0, (*recodedData)(5));
+  ASSERT_EQ(0, (recodedData)(0));
+  ASSERT_EQ(0, (recodedData)(1));
+  ASSERT_EQ(1, (recodedData)(2));
+  ASSERT_EQ(0, (recodedData)(3));
+  ASSERT_EQ(1, (recodedData)(4));
+  ASSERT_EQ(0, (recodedData)(5));
 }
 
 TEST_F(SNPVectorTest, ReCodeEnvironment) {
@@ -191,13 +192,12 @@ TEST_F(SNPVectorTest, ReCodeEnvironment) {
   SNPVector snpVector(originalSNPData, snp1, DOMINANT);
   snpVector.recode(ENVIRONMENT_PROTECT);
 
-  const HostVector* recodedData = snpVector.getRecodedData();
+  const HostVector& recodedData = snpVector.getRecodedData();
 
-  ASSERT_EQ(ENVIRONMENT_PROTECT, snpVector.getRecode());
   ASSERT_EQ(ALLELE_ONE, snp1.getRiskAllele());
 
   for(int i = 0; i < numberOfIndividuals; ++i){
-    ASSERT_EQ((*recodedSNPData)[i], (*recodedData)(i));
+    ASSERT_EQ((*recodedSNPData)[i], (recodedData)(i));
   }
 }
 
@@ -210,16 +210,16 @@ TEST_F(SNPVectorTest, DoRecodeDominantAlleleOne) {
   snp1.setRiskAllele(ALLELE_ONE);
 
   SNPVector snpVector(originalSNPData, snp1, DOMINANT);
-  snpVector.currentRiskAllele=ALLELE_TWO;
+  snpVector.currentRiskAllele = ALLELE_TWO;
   snpVector.doRecode();
-  const HostVector* recodedData = snpVector.getRecodedData();
+  const HostVector& recodedData = snpVector.getRecodedData();
 
-  ASSERT_EQ(1, (*recodedData)(0));
-  ASSERT_EQ(1, (*recodedData)(1));
-  ASSERT_EQ(0, (*recodedData)(2));
-  ASSERT_EQ(1, (*recodedData)(3));
-  ASSERT_EQ(0, (*recodedData)(4));
-  ASSERT_EQ(1, (*recodedData)(5));
+  ASSERT_EQ(1, (recodedData)(0));
+  ASSERT_EQ(1, (recodedData)(1));
+  ASSERT_EQ(0, (recodedData)(2));
+  ASSERT_EQ(1, (recodedData)(3));
+  ASSERT_EQ(0, (recodedData)(4));
+  ASSERT_EQ(1, (recodedData)(5));
 }
 
 TEST_F(SNPVectorTest, DoRecodeDominantAlleleTwo) {
@@ -231,16 +231,16 @@ TEST_F(SNPVectorTest, DoRecodeDominantAlleleTwo) {
   snp.setRiskAllele(ALLELE_TWO);
 
   SNPVector snpVector(originalSNPData, snp, DOMINANT);
-  snpVector.currentRiskAllele=ALLELE_ONE;
+  snpVector.currentRiskAllele = ALLELE_ONE;
   snpVector.doRecode();
-  const HostVector* recodedData = snpVector.getRecodedData();
+  const HostVector& recodedData = snpVector.getRecodedData();
 
-  ASSERT_EQ(0, (*recodedData)(0));
-  ASSERT_EQ(1, (*recodedData)(1));
-  ASSERT_EQ(1, (*recodedData)(2));
-  ASSERT_EQ(0, (*recodedData)(3));
-  ASSERT_EQ(1, (*recodedData)(4));
-  ASSERT_EQ(1, (*recodedData)(5));
+  ASSERT_EQ(0, (recodedData)(0));
+  ASSERT_EQ(1, (recodedData)(1));
+  ASSERT_EQ(1, (recodedData)(2));
+  ASSERT_EQ(0, (recodedData)(3));
+  ASSERT_EQ(1, (recodedData)(4));
+  ASSERT_EQ(1, (recodedData)(5));
 }
 
 TEST_F(SNPVectorTest, DoRecodeRecessiveAlleleOne) {
@@ -252,16 +252,16 @@ TEST_F(SNPVectorTest, DoRecodeRecessiveAlleleOne) {
   snp1.setRiskAllele(ALLELE_ONE);
 
   SNPVector snpVector(originalSNPData, snp1, RECESSIVE);
-  snpVector.currentRiskAllele=ALLELE_TWO;
+  snpVector.currentRiskAllele = ALLELE_TWO;
   snpVector.doRecode();
-  const HostVector* recodedData = snpVector.getRecodedData();
+  const HostVector& recodedData = snpVector.getRecodedData();
 
-  ASSERT_EQ(1, (*recodedData)(0));
-  ASSERT_EQ(0, (*recodedData)(1));
-  ASSERT_EQ(0, (*recodedData)(2));
-  ASSERT_EQ(1, (*recodedData)(3));
-  ASSERT_EQ(0, (*recodedData)(4));
-  ASSERT_EQ(0, (*recodedData)(5));
+  ASSERT_EQ(1, (recodedData)(0));
+  ASSERT_EQ(0, (recodedData)(1));
+  ASSERT_EQ(0, (recodedData)(2));
+  ASSERT_EQ(1, (recodedData)(3));
+  ASSERT_EQ(0, (recodedData)(4));
+  ASSERT_EQ(0, (recodedData)(5));
 }
 
 TEST_F(SNPVectorTest, DoRecodeRecessiveAlleleTwo) {
@@ -273,16 +273,16 @@ TEST_F(SNPVectorTest, DoRecodeRecessiveAlleleTwo) {
   snp.setRiskAllele(ALLELE_TWO);
 
   SNPVector snpVector(originalSNPData, snp, RECESSIVE);
-  snpVector.currentRiskAllele=ALLELE_ONE;
+  snpVector.currentRiskAllele = ALLELE_ONE;
   snpVector.doRecode();
-  const HostVector* recodedData = snpVector.getRecodedData();
+  const HostVector& recodedData = snpVector.getRecodedData();
 
-  ASSERT_EQ(0, (*recodedData)(0));
-  ASSERT_EQ(0, (*recodedData)(1));
-  ASSERT_EQ(1, (*recodedData)(2));
-  ASSERT_EQ(0, (*recodedData)(3));
-  ASSERT_EQ(1, (*recodedData)(4));
-  ASSERT_EQ(0, (*recodedData)(5));
+  ASSERT_EQ(0, (recodedData)(0));
+  ASSERT_EQ(0, (recodedData)(1));
+  ASSERT_EQ(1, (recodedData)(2));
+  ASSERT_EQ(0, (recodedData)(3));
+  ASSERT_EQ(1, (recodedData)(4));
+  ASSERT_EQ(0, (recodedData)(5));
 }
 
 TEST_F(SNPVectorTest, InvertRiskAllele) {
@@ -297,6 +297,41 @@ TEST_F(SNPVectorTest, InvertRiskAllele) {
 
   ASSERT_EQ(ALLELE_TWO, snpVector.invertRiskAllele(ALLELE_ONE));
   ASSERT_EQ(ALLELE_ONE, snpVector.invertRiskAllele(ALLELE_TWO));
+}
+
+TEST_F(SNPVectorTest, StatisticModel) {
+#ifdef CPU
+  LapackppHostVector interactionVector(new LaVectorDouble(numberOfIndividuals));
+#else
+  PinnedHostVector interactionVector(numberOfIndividuals);
+#endif
+
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    if(i < 5){
+      interactionVector(i) = 1;
+    }else{
+      interactionVector(i) = 0;
+    }
+  }
+
+  Id id("SNP2");
+  unsigned int pos = 2;
+  std::string alleOneString("a2_1");
+  std::string alleTwoString("a2_2");
+  SNP snp(id, alleOneString, alleTwoString, pos);
+  snp.setRiskAllele(ALLELE_ONE);
+
+  SNPVector snpVector(originalSNPData, snp, DOMINANT);
+  snpVector.applyStatisticModel(ADDITIVE, interactionVector);
+
+  const Container::HostVector& snpData = snpVector.getRecodedData();
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    if(i < 5){
+      EXPECT_EQ(0, snpData(i));
+    }else{
+      EXPECT_EQ((*recodedSNPData)[i], snpData(i));
+    }
+  }
 }
 
 } /* namespace Container */

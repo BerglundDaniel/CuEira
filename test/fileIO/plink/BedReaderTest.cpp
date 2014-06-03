@@ -57,8 +57,8 @@ protected:
 };
 
 BedReaderTest::BedReaderTest() :
-    filePath(std::string(CuEira_BUILD_DIR)+std::string("/test.bed")), numberOfIndividualsTotal(numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(
-        numberOfIndividualsToIncludeStatic) {
+    filePath(std::string(CuEira_BUILD_DIR) + std::string("/test.bed")), numberOfIndividualsTotal(
+        numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(numberOfIndividualsToIncludeStatic) {
 
 }
 
@@ -131,8 +131,8 @@ TEST_F(BedReaderTest, ReadSnp0) {
 
   Container::SNPVector* snpVector = bedReader.readSNP(snp1);
   ASSERT_TRUE(snp1.getInclude());
-  const std::vector<int>* snpData = snpVector->getOrginalData();
-  ASSERT_EQ(6, snpData->size());
+  const std::vector<int>& snpData = snpVector->getOrginalData();
+  ASSERT_EQ(6, snpData.size());
 
   //Check maf and all freqs
   EXPECT_EQ(ALLELE_ONE, snp1.getRiskAllele());
@@ -146,12 +146,12 @@ TEST_F(BedReaderTest, ReadSnp0) {
   EXPECT_EQ(0.5, snp1.getAlleleTwoAllFrequency());
 
   //Check data
-  EXPECT_EQ(0, (*snpData)[0]);
-  EXPECT_EQ(2, (*snpData)[1]);
-  EXPECT_EQ(1, (*snpData)[2]);
-  EXPECT_EQ(1, (*snpData)[3]);
-  EXPECT_EQ(1, (*snpData)[4]);
-  EXPECT_EQ(1, (*snpData)[5]);
+  EXPECT_EQ(0, (snpData)[0]);
+  EXPECT_EQ(2, (snpData)[1]);
+  EXPECT_EQ(1, (snpData)[2]);
+  EXPECT_EQ(1, (snpData)[3]);
+  EXPECT_EQ(1, (snpData)[4]);
+  EXPECT_EQ(1, (snpData)[5]);
 
   delete snpVector;
 }
@@ -196,27 +196,27 @@ TEST_F(BedReaderTest, ReadSnp1) {
 
   Container::SNPVector* snpVector = bedReader.readSNP(snp1);
   ASSERT_TRUE(snp1.getInclude());
-  const std::vector<int>* snpData = snpVector->getOrginalData();
-  ASSERT_EQ(6, snpData->size());
+  const std::vector<int>& snpData = snpVector->getOrginalData();
+  ASSERT_EQ(6, snpData.size());
 
   //Check maf and all freqs
   EXPECT_EQ(ALLELE_TWO, snp1.getRiskAllele());
   EXPECT_EQ(snp1.getAlleleOneAllFrequency(), snp1.getMinorAlleleFrequency());
 
-  EXPECT_EQ(1.0/6.0, snp1.getAlleleOneCaseFrequency());
-  EXPECT_EQ(5.0/6.0, snp1.getAlleleTwoCaseFrequency());
-  EXPECT_EQ(2.0/6.0, snp1.getAlleleOneControlFrequency());
-  EXPECT_EQ(4.0/6.0, snp1.getAlleleTwoControlFrequency());
-  EXPECT_EQ(3.0/12.0, snp1.getAlleleOneAllFrequency());
-  EXPECT_EQ(9.0/12.0, snp1.getAlleleTwoAllFrequency());
+  EXPECT_EQ(1.0 / 6.0, snp1.getAlleleOneCaseFrequency());
+  EXPECT_EQ(5.0 / 6.0, snp1.getAlleleTwoCaseFrequency());
+  EXPECT_EQ(2.0 / 6.0, snp1.getAlleleOneControlFrequency());
+  EXPECT_EQ(4.0 / 6.0, snp1.getAlleleTwoControlFrequency());
+  EXPECT_EQ(3.0 / 12.0, snp1.getAlleleOneAllFrequency());
+  EXPECT_EQ(9.0 / 12.0, snp1.getAlleleTwoAllFrequency());
 
   //Check data
-  EXPECT_EQ(2, (*snpData)[0]);
-  EXPECT_EQ(2, (*snpData)[1]);
-  EXPECT_EQ(1, (*snpData)[2]);
-  EXPECT_EQ(2, (*snpData)[3]);
-  EXPECT_EQ(2, (*snpData)[4]);
-  EXPECT_EQ(0, (*snpData)[5]);
+  EXPECT_EQ(2, (snpData)[0]);
+  EXPECT_EQ(2, (snpData)[1]);
+  EXPECT_EQ(1, (snpData)[2]);
+  EXPECT_EQ(2, (snpData)[3]);
+  EXPECT_EQ(2, (snpData)[4]);
+  EXPECT_EQ(0, (snpData)[5]);
 
   delete snpVector;
 }

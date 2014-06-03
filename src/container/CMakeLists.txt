@@ -1,3 +1,5 @@
+add_subdirectory(data)
+
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -27,7 +29,6 @@ endif(${CPU})
 set(SOURCE
   ${SOURCE}
   ${CPU_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/SNPVector.cpp
   PARENT_SCOPE
 )
 

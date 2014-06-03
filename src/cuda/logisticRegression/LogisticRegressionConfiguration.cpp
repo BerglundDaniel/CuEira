@@ -10,15 +10,10 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
         deviceOutcomes.getNumberOfRows()), numberOfPredictors(4), devicePredictors(
         new DeviceMatrix(numberOfRows, numberOfPredictors)), deviceOutcomes(deviceOutcomes), maxIterations(
         configuration.getNumberOfMaxLRIterations()), convergenceThreshold(configuration.getLRConvergenceThreshold()), devicePredictorsMemoryPointer(
-        devicePredictors->getMemoryPointer()), betaCoefficentsDevice(new DeviceVector(numberOfPredictors)), betaCoefficentsOldDevice(
-        new DeviceVector(numberOfPredictors)), probabilitesDevice(new DeviceVector(numberOfRows)), scoresDevice(
-        new DeviceVector(numberOfPredictors)), informationMatrixDevice(
+        devicePredictors->getMemoryPointer()), betaCoefficentsDevice(new DeviceVector(numberOfPredictors)), probabilitesDevice(
+        new DeviceVector(numberOfRows)), scoresDevice(new DeviceVector(numberOfPredictors)), informationMatrixDevice(
         new DeviceMatrix(numberOfPredictors, numberOfPredictors)), workMatrixNxMDevice(
-        new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), workVectorMx1Device(
-        new DeviceVector(numberOfPredictors)), uSVD(new DeviceMatrix(numberOfPredictors, numberOfPredictors)), vtSVD(
-        new DeviceMatrix(numberOfPredictors, numberOfPredictors)), sigmaSVD(new DeviceVector(numberOfPredictors)), workMatrixMxMDevice(
-        new DeviceMatrix(numberOfPredictors, numberOfPredictors)), inverseMatrixDevice(
-        new DeviceMatrix(numberOfPredictors, numberOfPredictors)) {
+        new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)) {
 
   kernelWrapper.syncStream();
   transferIntercept();
@@ -31,15 +26,10 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
         deviceOutcomes.getNumberOfRows()), numberOfPredictors(4 + covariates.getNumberOfColumns()), devicePredictors(
         new DeviceMatrix(numberOfRows, numberOfPredictors)), deviceOutcomes(deviceOutcomes), maxIterations(
         configuration.getNumberOfMaxLRIterations()), convergenceThreshold(configuration.getLRConvergenceThreshold()), devicePredictorsMemoryPointer(
-        devicePredictors->getMemoryPointer()), betaCoefficentsDevice(new DeviceVector(numberOfPredictors)), betaCoefficentsOldDevice(
-        new DeviceVector(numberOfPredictors)), probabilitesDevice(new DeviceVector(numberOfRows)), scoresDevice(
-        new DeviceVector(numberOfRows)), informationMatrixDevice(
+        devicePredictors->getMemoryPointer()), betaCoefficentsDevice(new DeviceVector(numberOfPredictors)), probabilitesDevice(
+        new DeviceVector(numberOfRows)), scoresDevice(new DeviceVector(numberOfRows)), informationMatrixDevice(
         new DeviceMatrix(numberOfPredictors, numberOfPredictors)), workMatrixNxMDevice(
-        new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), workVectorMx1Device(
-        new DeviceVector(numberOfPredictors)), uSVD(new DeviceMatrix(numberOfPredictors, numberOfPredictors)), vtSVD(
-        new DeviceMatrix(numberOfPredictors, numberOfPredictors)), sigmaSVD(new DeviceVector(numberOfPredictors)), workMatrixMxMDevice(
-        new DeviceMatrix(numberOfPredictors, numberOfPredictors)), inverseMatrixDevice(
-        new DeviceMatrix(numberOfPredictors, numberOfPredictors)) {
+        new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)) {
 
   kernelWrapper.syncStream();
   transferIntercept();
@@ -52,18 +42,11 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
 LogisticRegressionConfiguration::~LogisticRegressionConfiguration() {
   delete devicePredictors;
   delete betaCoefficentsDevice;
-  delete betaCoefficentsOldDevice;
   delete probabilitesDevice;
   delete scoresDevice;
   delete informationMatrixDevice;
   delete workMatrixNxMDevice;
   delete workVectorNx1Device;
-  delete workVectorMx1Device;
-  delete workMatrixMxMDevice;
-  delete uSVD;
-  delete vtSVD;
-  delete sigmaSVD;
-  delete inverseMatrixDevice;
 }
 
 void LogisticRegressionConfiguration::transferIntercept() {
@@ -91,8 +74,7 @@ void LogisticRegressionConfiguration::setInteraction(const HostVector& interacti
 }
 
 void LogisticRegressionConfiguration::setBetaCoefficents(const HostVector& betaCoefficents) {
-  delete betaCoefficentsDevice;
-  betaCoefficentsDevice = hostToDevice.transferVector(&betaCoefficents);
+  hostToDevice.transferVector(&betaCoefficents, betaCoefficentsDevice->getMemoryPointer());
 }
 
 int LogisticRegressionConfiguration::getNumberOfRows() const {
@@ -139,40 +121,12 @@ DeviceVector& LogisticRegressionConfiguration::getBetaCoefficents() {
   return *betaCoefficentsDevice;
 }
 
-DeviceVector& LogisticRegressionConfiguration::getBetaCoefficentsOld() {
-  return *betaCoefficentsOldDevice;
-}
-
 DeviceMatrix& LogisticRegressionConfiguration::getWorkMatrixNxM() {
   return *workMatrixNxMDevice;
 }
 
-DeviceMatrix& LogisticRegressionConfiguration::getWorkMatrixMxM() {
-  return *workMatrixMxMDevice;
-}
-
 DeviceVector& LogisticRegressionConfiguration::getWorkVectorNx1() {
   return *workVectorNx1Device;
-}
-
-DeviceVector& LogisticRegressionConfiguration::getWorkVectorMx1() {
-  return *workVectorMx1Device;
-}
-
-DeviceMatrix& LogisticRegressionConfiguration::getUSVD() {
-  return *uSVD;
-}
-
-DeviceMatrix& LogisticRegressionConfiguration::getVtSVD() {
-  return *vtSVD;
-}
-
-DeviceVector& LogisticRegressionConfiguration::getSigmaSVD() {
-  return *sigmaSVD;
-}
-
-DeviceMatrix& LogisticRegressionConfiguration::getInverseMatrix() {
-  return *inverseMatrixDevice;
 }
 
 } /* namespace LogisticRegression */

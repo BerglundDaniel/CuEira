@@ -12,6 +12,8 @@
 #include <CublasException.h>
 #include <DimensionMismatch.h>
 #include <LogisticRegressionConfiguration.h>
+#include <HostToDevice.h>
+#include <DeviceToHost.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -27,23 +29,23 @@ using namespace CuEira::CUDA;
  */
 class LogisticRegression {
 public:
-  LogisticRegression(LogisticRegressionConfiguration& lrConfiguration);
+  LogisticRegression(LogisticRegressionConfiguration& lrConfiguration, const HostToDevice& hostToDevice, const DeviceToHost& deviceToHost);
   virtual ~LogisticRegression();
 
   /**
    * Get the vector containing the beta coefficients.
    */
-  const DeviceVector& getBeta() const;
+  const HostVector& getBeta() const;
 
   /**
    * Get the matrix containing the covariances
    */
-  const DeviceVector& getCovarianceMatrix() const;
+  const HostVector& getCovarianceMatrix() const;
 
   /**
    * Get the information matrix.
    */
-  const DeviceMatrix& getInformationMatrix() const;
+  const HostMatrix& getInformationMatrix() const;
 
   /**
    * Get the number of iterations it took for the model to converge.
@@ -56,6 +58,8 @@ public:
   PRECISION getLogLikelihood() const;
 
 private:
+  const HostToDevice& hostToDevice;
+  const DeviceToHost& deviceToHost;
   LogisticRegressionConfiguration& lrConfiguration;
   const int numberOfRows;
   const int numberOfPredictors;
@@ -66,7 +70,10 @@ private:
   PRECISION* logLikelihood;
   Container::DeviceMatrix& informationMatrixDevice;
   Container::DeviceVector& betaCoefficentsDevice;
-  Container::DeviceMatrix& inverseInformationMatrixDevice;
+
+  Container::HostMatrix* informationMatrixHost;
+  Container::HostVector* scoresHost;
+  Container::HostVector* betaCoefficentsHost;
 };
 
 } /* namespace LogisticRegression */

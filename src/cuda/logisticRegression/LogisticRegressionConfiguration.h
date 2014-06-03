@@ -63,16 +63,9 @@ public:
   DeviceVector& getScores();
   DeviceMatrix& getInformationMatrix();
   DeviceVector& getBetaCoefficents();
-  DeviceVector& getBetaCoefficentsOld();
 
   DeviceMatrix& getWorkMatrixNxM();
-  DeviceMatrix& getWorkMatrixMxM();
   DeviceVector& getWorkVectorNx1();
-  DeviceVector& getWorkVectorMx1();
-  DeviceMatrix& getUSVD();
-  DeviceMatrix& getVtSVD();
-  DeviceVector& getSigmaSVD();
-  DeviceMatrix& getInverseMatrix();
 
 private:
   void transferIntercept();
@@ -90,18 +83,11 @@ private:
   PRECISION* devicePredictorsMemoryPointer;
 
   DeviceVector* betaCoefficentsDevice;
-  DeviceVector* betaCoefficentsOldDevice;
   DeviceVector* probabilitesDevice;
   DeviceVector* scoresDevice;
   DeviceMatrix* informationMatrixDevice;
   DeviceMatrix* workMatrixNxMDevice;
-  DeviceMatrix* workMatrixMxMDevice;
   DeviceVector* workVectorNx1Device;
-  DeviceVector* workVectorMx1Device;
-  DeviceMatrix* uSVD;
-  DeviceMatrix* vtSVD;
-  DeviceVector* sigmaSVD;
-  DeviceMatrix* inverseMatrixDevice;
 };
 
 } /* namespace LogisticRegression */

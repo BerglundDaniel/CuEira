@@ -2,6 +2,7 @@
 #define MODELHANDLER_H_
 
 namespace CuEira {
+namespace Model {
 
 /**
  * This is
@@ -14,6 +15,7 @@ public:
   virtual ~ModelHandler();
 };
 
+} /* namespace Model */
 } /* namespace CuEira */
 
 #endif /* MODELHANDLER_H_ */

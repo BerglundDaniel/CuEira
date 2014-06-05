@@ -5,11 +5,9 @@ add_subdirectory(programOptions)
 add_subdirectory(fileIO)
 add_subdirectory(statistics)
 
-if(${CPU})
-  add_subdirectory(serial)
-else()
+if(NOT ${CPU})
   add_subdirectory(cuda)
-endif(${CPU})
+endif(NOT ${CPU})
 
 
 set(INCLUDE_DIRECTORIES

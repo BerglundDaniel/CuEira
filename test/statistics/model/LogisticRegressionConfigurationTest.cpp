@@ -24,10 +24,11 @@ using testing::_;
 using testing::AtLeast;
 
 namespace CuEira {
-namespace CUDA {
+namespace Model {
 namespace LogisticRegression {
 
 using namespace CuEira::Container;
+using namespace CuEira::Cuda;
 
 /**
  * Test for testing transfers between host and device in both directions.
@@ -361,6 +362,6 @@ TEST_F(LogisticRegressionConfigurationTest, CovGetSNPEnvInteract) {
 }
 
 } /* namespace LogisticRegression */
-} /* namespace CUDA */
-} /* namespace CUDA */
+} /* namespace Model */
+} /* namespace CuEira */
 

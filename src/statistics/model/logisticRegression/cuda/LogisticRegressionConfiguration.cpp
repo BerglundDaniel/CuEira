@@ -1,7 +1,7 @@
 #include "LogisticRegressionConfiguration.h"
 
 namespace CuEira {
-namespace CUDA {
+namespace Model {
 namespace LogisticRegression {
 
 LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configuration& configuration,
@@ -130,5 +130,5 @@ DeviceVector& LogisticRegressionConfiguration::getWorkVectorNx1() {
 }
 
 } /* namespace LogisticRegression */
-} /* namespace CUDA */
+} /* namespace Model */
 } /* namespace CuEira */

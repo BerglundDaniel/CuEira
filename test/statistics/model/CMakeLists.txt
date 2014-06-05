@@ -4,8 +4,14 @@ set(TEST_INCLUDE_DIRECTORIES
   PARENT_SCOPE
 )
 
+if(NOT ${CPU})
+  set(GPU_TEST_SOURCE
+    ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionConfigurationTest.cpp
+  )
+endif(NOT ${CPU})
+
 set(TEST_SOURCE
   ${TEST_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionConfigurationTest.cpp
+  ${GPU_TEST_SOURCE}
   PARENT_SCOPE
 )

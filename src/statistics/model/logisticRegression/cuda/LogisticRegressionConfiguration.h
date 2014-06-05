@@ -16,7 +16,7 @@
 #include <KernelWrapper.h>
 
 namespace CuEira {
-namespace CUDA {
+namespace Model {
 namespace LogisticRegression {
 
 using namespace CuEira::Container;
@@ -91,7 +91,7 @@ private:
 };
 
 } /* namespace LogisticRegression */
-} /* namespace CUDA */
+} /* namespace Model */
 } /* namespace CuEira */
 
 #endif /* LOGISTICREGRESSIONCONFIGURATION_H_ */

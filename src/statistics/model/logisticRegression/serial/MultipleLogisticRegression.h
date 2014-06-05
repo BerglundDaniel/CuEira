@@ -1,10 +1,6 @@
 #ifndef MULTIPLELOGISTICREGRESSION_H
 #define MULTIPLELOGISTICREGRESSION_H
 
-/*
- Multiple logistic regression
- */
-
 #include <iostream>
 #include <math.h>
 #include <algorithm>
@@ -18,8 +14,16 @@
 #include <lapackpp/lasvd.h> //singular value decomp
 #include "LogisticRegression.h"
 
+namespace CuEira {
+namespace Model {
 namespace LogisticRegression {
+namespace Serial {
 
+/**
+ * Multiple logistic regression
+ *
+ * @author Daniel Berglund daniel.k.berglund@gmail.com
+ */
 class MultipleLogisticRegression: public LogisticRegression {
 
 public:
@@ -43,6 +47,10 @@ private:
   const LaGenMatDouble* predictors;
   const LaVectorDouble& binaryOutcomes;
 };
-}
+
+} /* namespace Serial */
+} /* namespace LogisticRegression */
+} /* namespace Model */
+} /* namespace CuEira */
 
 #endif // MULTIPLELOGISTICREGRESSION_H

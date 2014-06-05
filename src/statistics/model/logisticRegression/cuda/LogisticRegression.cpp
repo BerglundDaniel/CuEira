@@ -1,7 +1,7 @@
 #include "LogisticRegression.h"
 
 namespace CuEira {
-namespace CUDA {
+namespace Model {
 namespace LogisticRegression {
 
 LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfiguration,
@@ -48,7 +48,6 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
     //NOTE This part is done on CPU
 
     //Transfer needed data to host
-    //TODO implemenent move to speicifc mem location as in hostToDevice
     deviceToHost.transferMatrix(&informationMatrixDevice, informationMatrixHost->getMemoryPointer());
     deviceToHost.transferVector(&scoresDevice, scoresHost->getMemoryPointer());
     kernelWrapper.syncStream();
@@ -120,5 +119,5 @@ PRECISION LogisticRegression::getLogLikelihood() const {
 }
 
 } /* namespace LogisticRegression */
-} /* namespace CUDA */
+} /* namespace Model */
 } /* namespace CuEira */

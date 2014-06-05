@@ -1,17 +1,22 @@
 #ifndef LOGISTICREGRESSION_H
 #define LOGISTICREGRESSION_H
 
-/*
- Abstract class for logistic regression
- */
-
 #include <iostream>
 #include <math.h>
 #include <lapackpp/gmd.h> //matrix double
 #include <lapackpp/lavd.h> //vector double
 #include <lapackpp/laexcp.h> //exceptions
-namespace LogisticRegression {
 
+namespace CuEira {
+namespace Model {
+namespace LogisticRegression {
+namespace Serial {
+
+/**
+ * This is an abstract class for logistic regression
+ *
+ * @author Daniel Berglund daniel.k.berglund@gmail.com
+ */
 class LogisticRegression {
 
 public:
@@ -36,6 +41,10 @@ protected:
   LaVectorDouble* betaCoefficients;
   LaGenMatDouble informationMatrix;
 };
-}
+
+} /* namespace Serial */
+} /* namespace LogisticRegression */
+} /* namespace Model */
+} /* namespace CuEira */
 
 #endif // LOGISTICREGRESSION_H

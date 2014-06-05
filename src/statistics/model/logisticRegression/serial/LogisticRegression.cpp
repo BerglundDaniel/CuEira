@@ -1,8 +1,9 @@
 #include "LogisticRegression.h"
 
-using namespace LogisticRegression;
-
+namespace CuEira {
+namespace Model {
 namespace LogisticRegression {
+namespace Serial {
 
 LogisticRegression::LogisticRegression(LaVectorDouble* betaCoefficients, const int MAXIT,
     const double CONVERGENCETHRESHOLD) :
@@ -53,4 +54,7 @@ double LogisticRegression::getConvergenceThreshold() {
   return CONVERGENCETHRESHOLD;
 }
 
-}
+} /* namespace Serial */
+} /* namespace LogisticRegression */
+} /* namespace Model */
+} /* namespace CuEira */

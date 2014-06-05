@@ -1,8 +1,9 @@
 #include "MultipleLogisticRegression.h"
 
-using namespace LogisticRegression;
-
+namespace CuEira {
+namespace Model {
 namespace LogisticRegression {
+namespace Serial {
 
 MultipleLogisticRegression::MultipleLogisticRegression(const LaGenMatDouble& predictorsRef,
     const LaVectorDouble& binaryOutcomes, LaVectorDouble* betaCoefficients, const int MAXIT,
@@ -143,4 +144,7 @@ void MultipleLogisticRegression::calculateNewBeta(LaVectorDouble* betaCoefficien
   }
 }
 
-}
+} /* namespace Serial */
+} /* namespace LogisticRegression */
+} /* namespace Model */
+} /* namespace CuEira */

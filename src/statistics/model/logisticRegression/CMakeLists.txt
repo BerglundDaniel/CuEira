@@ -1,4 +1,8 @@
-add_subdirectory(model)
+if(${CPU})
+  add_subdirectory(serial)
+else()
+  add_subdirectory(cuda)
+endif(${CPU})
 
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}
@@ -11,11 +15,8 @@ set(GPU_SOURCE
   PARENT_SCOPE
 )
 
-
 set(SOURCE
   ${SOURCE}
-  ${CPU_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Statistics.cpp
   PARENT_SCOPE
 )
 

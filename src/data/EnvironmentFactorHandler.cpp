@@ -7,6 +7,15 @@ EnvironmentFactorHandler::EnvironmentFactorHandler(Container::HostMatrix* dataMa
     dataMatrix(dataMatrix), environmentFactors(environmentFactors), numberOfColumns(environmentFactors->size()), numberOfIndividualsToInclude(
         dataMatrix->getNumberOfRows()) {
 
+  if(dataMatrix->getNumberOfColumns() != environmentFactors->size()){
+    std::ostringstream os;
+    os
+        << "Number of columns in dataMatrix and number of environmental factors doens't match in EnvironmentFactorHandler."
+        << std::endl;
+    const std::string& tmp = os.str();
+    throw EnvironmentFactorHandlerException(tmp.c_str());
+  }
+
   //Check the variable type for each factor
   for(int i = 0; i < numberOfColumns; ++i){
     bool binary = true;

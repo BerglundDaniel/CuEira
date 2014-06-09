@@ -1,8 +1,7 @@
 #ifndef LOGISTICREGRESSION_H_
 #define LOGISTICREGRESSION_H_
 
-#include <cuda_runtime.h>
-#include <cublas_v2.h>
+#include <mkl.h>
 
 #include <CudaAdapter.cu>
 #include <KernelWrapper.h>

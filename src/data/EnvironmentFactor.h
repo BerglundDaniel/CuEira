@@ -21,6 +21,9 @@ public:
   void setVariableType(VariableType variableType);
   VariableType getVariableType() const;
 
+  bool operator<(const EnvironmentFactor& otherEnvironmentFactor) const;
+  bool operator==(const EnvironmentFactor& otherEnvironmentFactor) const;
+
 private:
   bool shouldEnvironmentFactorBeIncluded() const;
 

@@ -12,11 +12,11 @@
 #include <GeneticModel.h>
 #include <RiskAllele.h>
 #include <SNP.h>
-#include <DataFilesReader.h>
+#include <BedReader.h>
 #include <EnvironmentFactor.h>
+#include <EnvironmentFactorHandler.h>
 
 namespace CuEira {
-namespace Container {
 
 /**
  * This is
@@ -25,14 +25,13 @@ namespace Container {
  */
 class DataHandler {
 public:
-  DataHandler(StatisticModel statisticModel, const FileIO::DataFilesReader& dataFilesReader);
+  DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader, const EnvironmentFactorHandler& environmentFactorHandler);
   virtual ~DataHandler();
 
   int getNumberOfIndividualsToInclude() const;
   const SNP& getAssociatedSNP() const;
 
-  bool hasNext() const;
-  void next();
+  bool next();
 
   Recode getRecode() const;
   void recode(Recode recode);
@@ -40,19 +39,19 @@ public:
   const Container::HostVector& getSNP() const;
   const Container::HostVector& getInteraction() const;
   const Container::HostVector& getEnvironment() const;
+  const Container::HostMatrix& getCovariates() const; //TODO
 
 private:
   StatisticModel statisticModel;
-  const FileIO::DataFilesReader& dataFilesReader;
-  const Container::HostVector& outcomes;
+  const FileIO::BedReader& bedReader;
+  const EnvironmentFactorHandler& environmentFactorHandler;
   int numberOfIndividualsToInclude;
-  Container::InteractionVector* interactionVector;
   Container::EnvironmentVector* environmentVector;
   Container::SNPVector* snpVector;
+  Container::InteractionVector* interactionVector;
   Recode currentRecode;
 };
 
-} /* namespace Container */
 } /* namespace CuEira */
 
 #endif /* DATAHANDLER_H_ */

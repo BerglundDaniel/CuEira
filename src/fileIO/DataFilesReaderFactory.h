@@ -6,8 +6,8 @@
 
 #include <DataFilesReader.h>
 #include <Configuration.h>
-#include <PlinkReaderFactory.h>
-#include <PlinkReader.h>
+#include <BimReader.h>
+#include <FamReader.h>
 #include <DimensionMismatch.h>
 #include <CSVReader.h>
 #include <EnvironmentCSVReader.h>
@@ -22,13 +22,13 @@ namespace FileIO {
  */
 class DataFilesReaderFactory {
 public:
-  explicit DataFilesReaderFactory(PlinkReaderFactory& plinkReaderFactory);
+  explicit DataFilesReaderFactory();
   virtual ~DataFilesReaderFactory();
 
   DataFilesReader* constructDataFilesReader(Configuration& configuration);
 
 private:
-  PlinkReaderFactory& plinkReaderFactory;
+
 };
 
 } /* namespace FileIO */

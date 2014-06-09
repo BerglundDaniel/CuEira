@@ -3,61 +3,32 @@
 namespace CuEira {
 namespace FileIO {
 
-EnvironmentCSVReader::EnvironmentCSVReader(std::string filePath, std::string idColumnName, std::string delim,
-    const PersonHandler& personHandler) :
-    CSVReader(filePath, idColumnName, delim, personHandler), environmentFactors(
-        new std::vector<EnvironmentFactor*>(numberOfColumns)) {
-
-  const std::vector<std::string>& headers = getDataColumnHeaders();
-
-  for(int i = 0; i < numberOfColumns; ++i){
-    Id id(headers[i]);
-    (*environmentFactors)[i] = new EnvironmentFactor(id);
-  }
+EnvironmentCSVReader::EnvironmentCSVReader(std::string filePath, std::string idColumnName, std::string delim) :
+    CSVReader(filePath, idColumnName, delim) {
 
 }
 
 EnvironmentCSVReader::~EnvironmentCSVReader() {
-  delete environmentFactors;
+
 }
 
-const Container::HostVector& EnvironmentCSVReader::getData(EnvironmentFactor& environmentFactor) const {
-  std::string columnName = environmentFactor.getId().getString();
+EnvironmentFactorHandler* EnvironmentCSVReader::readEnvironmentFactorInformation(
+    const PersonHandler& personHandler) const {
+  std::pair<Container::HostMatrix*, std::vector<std::string>*>* csvData = readData(personHandler);
+
+  Container::HostMatrix* dataMatrix = csvData->first;
+  std::vector<std::string>* headers = csvData->second;
+  delete csvData;
+
+  const int numberOfColumns = headers->size();
+  std::vector<EnvironmentFactor*>* environmentFactors = new std::vector<EnvironmentFactor*>(numberOfColumns);
+
   for(int i = 0; i < numberOfColumns; ++i){
-    if(strcmp(dataColumnNames[i].c_str(), columnName.c_str()) == 0){
-      const Container::HostVector& vector = *((*dataMatrix)(i));
-
-      //What is the variable type?
-      bool binary = true;
-      for(int j = 0; j < numberOfIndividualsToInclude; ++j){
-        if(vector(j) != 0 && vector(j) != 1){
-          binary = false;
-        }
-      }
-
-      if(binary){
-        environmentFactor.setVariableType(BINARY);
-#ifdef DEBUG
-        std::cerr << "Environmentfactor " << environmentFactor.getId().getString() << " is binary." << std::endl;
-#endif
-      }else{
-        environmentFactor.setVariableType(OTHER);
-#ifdef DEBUG
-        std::cerr << "Environmentfactor " << environmentFactor.getId().getString() << " is other." << std::endl;
-#endif
-      }
-
-      return vector;
-    }
+    Id id((*headers)[i]);
+    (*environmentFactors)[i] = new EnvironmentFactor(id);
   }
-  std::ostringstream os;
-  os << "Can't find column name " << columnName << std::endl;
-  const std::string& tmp = os.str();
-  throw FileReaderException(tmp.c_str());
-}
 
-const std::vector<EnvironmentFactor*>& EnvironmentCSVReader::getEnvironmentFactorInformation() const {
-  return *environmentFactors;
+  return new EnvironmentFactorHandler(dataMatrix, environmentFactors);
 }
 
 } /* namespace FileIO */

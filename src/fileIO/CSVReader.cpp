@@ -3,15 +3,27 @@
 namespace CuEira {
 namespace FileIO {
 
-CSVReader::CSVReader(std::string filePath, std::string idColumnName, std::string delim,
-    const PersonHandler& personHandler) :
-    filePath(filePath), idColumnName(idColumnName), delim(delim), personHandler(personHandler), numberOfRows(0), numberOfColumns(
-        0), numberOfIndividualsTotal(personHandler.getNumberOfIndividualsTotal()), numberOfIndividualsToInclude(
-        personHandler.getNumberOfIndividualsToInclude()) {
+CSVReader::CSVReader(std::string filePath, std::string idColumnName, std::string delim) :
+    filePath(filePath), idColumnName(idColumnName), delim(delim) {
 
+}
+
+CSVReader::~CSVReader() {
+
+}
+
+std::pair<Container::HostMatrix*, std::vector<std::string>*>* CSVReader::readData(
+    const PersonHandler& personHandler) const {
+  const int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
+  const int numberOfIndividualsTotal = personHandler.getNumberOfIndividualsTotal();
+
+  Container::HostMatrix* dataMatrix;
   std::string line;
   std::ifstream csvFile;
   bool header = true;
+  int numberOfRows=0; //Not including header
+  std::vector<std::string>* dataColumnNames;
+  int idColumnNumber;
 
   csvFile.open(filePath, std::ifstream::in);
   if(!csvFile){
@@ -28,15 +40,15 @@ CSVReader::CSVReader(std::string filePath, std::string idColumnName, std::string
 
     if(header){
       header = false;
-      numberOfColumns = lineSplitSize - 1;
-      dataColumnNames = std::vector<std::string>(numberOfColumns);
+      int numberOfColumns = lineSplitSize - 1;
+      dataColumnNames = new std::vector<std::string>(numberOfColumns);
 
       //Read column names
       for(int i = 0; i < lineSplitSize; ++i){
         if(strcmp(lineSplit[i].c_str(), idColumnName.c_str()) == 0){
           idColumnNumber = i;
         }else{
-          dataColumnNames[i] = lineSplit[i];
+          (*dataColumnNames)[i] = lineSplit[i];
         }
       }
 
@@ -49,7 +61,12 @@ CSVReader::CSVReader(std::string filePath, std::string idColumnName, std::string
 #endif
 
     }else{ /* if header */
-      storeData(lineSplit);
+      Id id(lineSplit[idColumnNumber]);
+      const Person& person = personHandler.getPersonFromId(id);
+      if(person.getInclude()){
+        const unsigned int personRowNumber = personHandler.getRowIncludeFromPerson(person);
+        storeData(lineSplit, idColumnNumber, dataMatrix, personRowNumber);
+      }
       numberOfRows++;
     } /* if header */
   } /* while getline */
@@ -60,63 +77,41 @@ CSVReader::CSVReader(std::string filePath, std::string idColumnName, std::string
     std::ostringstream os;
     os << "Not the same number of individuals in the CSV file as the Plink Files " << filePath << std::endl;
     const std::string& tmp = os.str();
+    delete dataMatrix;
+    delete dataColumnNames;
     throw FileReaderException(tmp.c_str());
   }
 
+  return new std::pair<Container::HostMatrix*, std::vector<std::string>*>(dataMatrix, dataColumnNames);
 }
 
-CSVReader::~CSVReader() {
+void CSVReader::storeData(std::vector<std::string> line, int idColumnNumber, Container::HostMatrix* dataMatrix,
+    unsigned int dataRowNumber) const {
+  const int numberOfColumns = dataMatrix->getNumberOfColumns();
+
+  int index = 0;
+  for(int i = 0; i < numberOfColumns + 1; ++i){
+    if(i != idColumnNumber){
+      char * temp; //Used for error checking of string conversion
 #ifdef CPU
-  delete dataMatrix;
+      double dataNumber = strtod(line[i].c_str(), &temp);
 #else
-
-#endif
-}
-
-int CSVReader::getNumberOfColumns() const {
-  return numberOfColumns;
-}
-
-int CSVReader::getNumberOfRows() const {
-  return numberOfRows;
-}
-
-const std::vector<std::string>& CSVReader::getDataColumnHeaders() const {
-  return dataColumnNames;
-}
-const Container::HostMatrix& CSVReader::getData() const {
-  return *dataMatrix;
-}
-
-void CSVReader::storeData(std::vector<std::string> lineSplit) {
-  Id id(lineSplit[idColumnNumber]);
-  const Person& person = personHandler.getPersonFromId(id);
-  if(person.getInclude()){
-    const unsigned int personRowNumber = personHandler.getRowIncludeFromPerson(person);
-    int index = 0;
-    for(int i = 0; i < numberOfColumns + 1; ++i){
-
-      if(i != idColumnNumber){
-
-        char * temp; //Used for error checking of string conversion
-#ifdef CPU
-        double dataNumber = strtod(lineSplit[i].c_str(), &temp);
-#else
-        float dataNumber = strtof(lineSplit[i].c_str(), &temp);
+      float dataNumber = strtof(line[i].c_str(), &temp);
 #endif
 
-        if(*temp != '\0'){ //Check if there was an error with conversion
-          std::ostringstream os;
-          os << "Problem with string to PRECISION conversion of data in csv file " << filePath << std::endl;
-          const std::string& tmp = os.str();
-          throw FileReaderException(tmp.c_str());
-        }
+      if(*temp != '\0'){ //Check if there was an error with conversion
+        std::ostringstream os;
+        os << "Problem with string to PRECISION conversion of data in csv file " << filePath << std::endl;
+        const std::string& tmp = os.str();
+        delete dataMatrix;
+        throw FileReaderException(tmp.c_str());
+      }
 
-        (*dataMatrix)(personRowNumber, index) = dataNumber;
-        ++index;
-      } /* if i!=idColumnNumber */
-    }/* for numberOfColums */
-  } /* if include */
+      (*dataMatrix)(dataRowNumber, index) = dataNumber;
+      ++index;
+    } /* if i!=idColumnNumber */
+  }/* for numberOfColums */
+
 }
 
 } /* namespace FileIO */

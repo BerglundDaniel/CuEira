@@ -23,6 +23,7 @@ option(VERBOSE "Set CMake and compilation to verbose" on) #FIXME Change to off l
 set(PRECISION single) #single or double
 #set(TARGET_ARCHITECTURE fermi) #fermi or kepler
 set(CPU off)
+set(CLUSTER off)
 
 #Set things based on options
 if(${VERBOSE})
@@ -34,6 +35,10 @@ if(${CPU})
   set (PRECISION double)
   add_definitions(-DCPU=1)
 endif(${CPU})
+
+if(${CLUSTER})
+  add_definitions(-DCLUSTER=1)
+endif(${CLUSTER})
 
 MESSAGE( STATUS "Building CuEira:" )
 
@@ -96,6 +101,12 @@ else()
   set(CUDA_PROPAGATE_HOST_FLAGS off) #Some c++ flags that gets passed to NVCC -Xcompiler will cause errors, for instance c++11 flag 
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
 endif(${CPU})
+
+if(${CLUSTER})
+#FIND MPI TODO
+endif(${CLUSTER})
+
+#find_package(MKL REQUIRED) TODO
 
 #Print some info
 MESSAGE( STATUS "change a configuration variable with: cmake -D<Variable>=<Value>" )

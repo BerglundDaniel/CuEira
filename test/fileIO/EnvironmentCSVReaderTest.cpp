@@ -17,6 +17,8 @@
 #include <HostVector.h>
 #include <ConstructorHelpers.h>
 #include <VariableType.h>
+#include <EnvironmentFactorHandler.h>
+#include <EnvironmentFactorHandlerException.h>
 
 using testing::Return;
 using testing::_;
@@ -57,7 +59,7 @@ protected:
 };
 
 EnvironmentCSVReaderTest::EnvironmentCSVReaderTest() :
-    filePath(std::string(CuEira_BUILD_DIR)+std::string("/test_env.txt")), delimiter("\t "), idColumnName("indid"), numberOfIndividualsTotal(
+    filePath(std::string(CuEira_BUILD_DIR) + std::string("/test_env.txt")), delimiter("\t "), idColumnName("indid"), numberOfIndividualsTotal(
         numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(numberOfIndividualsToIncludeStatic) {
 
 }
@@ -105,48 +107,57 @@ void EnvironmentCSVReaderTest::TearDown() {
 }
 
 TEST_F(EnvironmentCSVReaderTest, ReadAndGetData) {
-  CuEira::FileIO::EnvironmentCSVReader envCSVReader(filePath, idColumnName, delimiter, personHandlerMock);
+  CuEira::FileIO::EnvironmentCSVReader envCSVReader(filePath, idColumnName, delimiter);
   PRECISION column1[numberOfIndividualsToIncludeStatic] = {1, 0, 1, 0, 1, 0};
   PRECISION column2[numberOfIndividualsToIncludeStatic] = {3, 1, 1, 3, 0, 3};
-  Id id1("env1");
-  Id id2("env2");
-  EnvironmentFactor environmentFactor1(id1);
-  EnvironmentFactor environmentFactor2(id2);
 
-  const Container::HostVector& dataVector1 = envCSVReader.getData(environmentFactor1);
+  EnvironmentFactorHandler* envFactorHandler = envCSVReader.readEnvironmentFactorInformation(personHandlerMock);
+  const std::vector<EnvironmentFactor*>& envInfo = envFactorHandler->getHeaders();
+
+  const Container::HostVector& dataVector1 = envFactorHandler->getData(*envInfo[0]);
+
   ASSERT_EQ(numberOfIndividualsToInclude, dataVector1.getNumberOfRows());
-  ASSERT_EQ(BINARY, environmentFactor1.getVariableType());
+  ASSERT_EQ(BINARY, envInfo[0]->getVariableType());
 
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
     ASSERT_EQ(column1[i], dataVector1(i));
   }
 
-  const Container::HostVector& dataVector2 = envCSVReader.getData(environmentFactor2);
+  const Container::HostVector& dataVector2 = envFactorHandler->getData(*envInfo[1]);
+
   ASSERT_EQ(numberOfIndividualsToInclude, dataVector2.getNumberOfRows());
-  ASSERT_EQ(OTHER, environmentFactor2.getVariableType());
+  ASSERT_EQ(OTHER, envInfo[1]->getVariableType());
 
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
     ASSERT_EQ(column2[i], dataVector2(i));
   }
+
+  delete envFactorHandler;
 }
 
 TEST_F(EnvironmentCSVReaderTest, GetDataException) {
-  CuEira::FileIO::EnvironmentCSVReader envCSVReader(filePath, idColumnName, delimiter, personHandlerMock);
+  CuEira::FileIO::EnvironmentCSVReader envCSVReader(filePath, idColumnName, delimiter);
   Id id("NotAColumn");
   EnvironmentFactor environmentFactor(id);
 
-  ASSERT_THROW(envCSVReader.getData(environmentFactor), FileReaderException);
+  EnvironmentFactorHandler* envFactorHandler = envCSVReader.readEnvironmentFactorInformation(personHandlerMock);
+
+  ASSERT_THROW(envFactorHandler->getData(environmentFactor), EnvironmentFactorHandlerException);
+  delete envFactorHandler;
 }
 
 TEST_F(EnvironmentCSVReaderTest, GetEnvironmentFactorsInfo) {
-  CuEira::FileIO::EnvironmentCSVReader envCSVReader(filePath, idColumnName, delimiter, personHandlerMock);
+  CuEira::FileIO::EnvironmentCSVReader envCSVReader(filePath, idColumnName, delimiter);
 
-  const std::vector<EnvironmentFactor*>& envInfo = envCSVReader.getEnvironmentFactorInformation();
+  EnvironmentFactorHandler* envFactorHandler = envCSVReader.readEnvironmentFactorInformation(personHandlerMock);
+  const std::vector<EnvironmentFactor*>& envInfo = envFactorHandler->getHeaders();
 
   ASSERT_EQ(numberOfColumns, envInfo.size());
 
   EXPECT_EQ("env1", envInfo[0]->getId().getString());
   EXPECT_EQ("env2", envInfo[1]->getId().getString());
+
+  delete envFactorHandler;
 }
 
 }

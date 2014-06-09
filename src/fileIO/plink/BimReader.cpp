@@ -4,8 +4,7 @@ namespace CuEira {
 namespace FileIO {
 
 BimReader::BimReader(const Configuration& configuration) :
-    configuration(configuration), numberOfSNPs(0) {
-  std::string bimFileStr = configuration.getBimFilePath();
+    configuration(configuration), numberOfSNPs(0), bimFileStr(configuration.getBimFilePath()) {
   std::string line;
   std::ifstream bimFile;
 
@@ -33,7 +32,20 @@ BimReader::BimReader(const Configuration& configuration) :
   }
   bimFile.close();
 
-  SNPInformation = std::vector<SNP*>(numberOfSNPs);
+}
+
+BimReader::~BimReader() {
+
+}
+
+int BimReader::getNumberOfSNPs() const {
+  return numberOfSNPs;
+}
+
+std::vector<SNP*>* BimReader::readSNPInformation() {
+  std::ifstream bimFile;
+  std::string line;
+  std::vector<SNP*>* SNPInformation = new std::vector<SNP*>(numberOfSNPs);
   int pos = 0;
   SNP* snp = nullptr;
   long int baseSNP;
@@ -75,23 +87,12 @@ BimReader::BimReader(const Configuration& configuration) :
     }else{
       snp = new SNP(id, alleleOneName, alleleTwoName, pos, true);
     }
-    SNPInformation[pos] = snp;
+    (*SNPInformation)[pos] = snp;
 
     pos++;
   } /* while getline */
   bimFile.close();
 
-}
-
-BimReader::~BimReader() {
-
-}
-
-int BimReader::getNumberOfSNPs() const {
-  return numberOfSNPs;
-}
-
-std::vector<SNP*> BimReader::getSNPInformation() {
   return SNPInformation;
 }
 

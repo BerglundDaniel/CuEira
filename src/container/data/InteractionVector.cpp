@@ -32,7 +32,7 @@ void InteractionVector::recode() {
   const HostVector& snpData = snpVector.getRecodedData();
 
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    interactionVector(i) = envData(i) * snpData(i);
+    (*interactionVector)(i) = envData(i) * snpData(i);
   }
 }
 

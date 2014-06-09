@@ -3,9 +3,16 @@
 namespace CuEira {
 namespace FileIO {
 
-FamReader::FamReader(const Configuration& configuration, PersonHandler* personHandler) :
-    configuration(configuration), personHandler(personHandler), famFileStr(configuration.getFamFilePath()) {
+FamReader::FamReader(const Configuration& configuration) :
+    configuration(configuration), famFileStr(configuration.getFamFilePath()) {
 
+}
+
+FamReader::~FamReader() {
+
+}
+
+PersonHandler* FamReader::readPersonInformation() const {
   /*
    * Columns in the file
    * Family ID
@@ -20,6 +27,7 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler* personHa
   std::string line;
   std::ifstream famFile;
   int individualNumber = 0;
+  PersonHandler* personHandler = new PersonHandler();
 
   famFile.open(famFileStr, std::ifstream::in);
   if(!famFile){
@@ -48,14 +56,8 @@ FamReader::FamReader(const Configuration& configuration, PersonHandler* personHa
   famFile.close();
 
   personHandler->createOutcomes();
-}
 
-FamReader::~FamReader() {
-  delete personHandler;
-}
-
-const PersonHandler& FamReader::getPersonHandler() const {
-  return *personHandler;
+  return personHandler;
 }
 
 Phenotype FamReader::stringToPhenotype(std::string phenotypeString) const {

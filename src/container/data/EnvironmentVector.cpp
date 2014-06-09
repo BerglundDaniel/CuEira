@@ -3,8 +3,10 @@
 namespace CuEira {
 namespace Container {
 
-EnvironmentVector::EnvironmentVector() :
-    numberOfIndividualsToInclude(),
+EnvironmentVector::EnvironmentVector(const EnvironmentFactorHandler& environmentHandler,
+    EnvironmentFactor& environmentFactor) :
+    numberOfIndividualsToInclude(), currentRecode(ALL_RISK), environmentHandler(environmentHandler), originalData(
+        environmentHandler.getData(environmentFactor)),
 #ifdef CPU
         recodedData(new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude)))
 #else
@@ -27,19 +29,23 @@ const Container::HostVector& EnvironmentVector::getRecodedData() const {
 }
 
 void EnvironmentVector::recode(Recode recode) {
+  if(currentRecode == recode){
+    return;
+  }
+
+  currentRecode = recode;
   if(recode == ALL_RISK){
     for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-      (*recodedData)(i) = 0; //FIXME =orgdata
+      (*recodedData)(i) = originalData(i);
     }
   }else if(recode == ENVIRONMENT_PROTECT){
     for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-      (*recodedData)(i) = 0; //FIXME =inverse av orgdata, correct?
+      (*recodedData)(i) = invertEnvironmentFactor(originalData(i));
     }
   }
 }
 
 void EnvironmentVector::applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector) {
-
   if(statisticModel == ADDITIVE){
     for(int i = 0; i < numberOfIndividualsToInclude; ++i){
       if(interactionVector(i) != 0){
@@ -48,6 +54,12 @@ void EnvironmentVector::applyStatisticModel(StatisticModel statisticModel, const
     }
   }
   return;
+}
+
+PRECISION EnvironmentVector::invertEnvironmentFactor(PRECISION envData) const {
+  //FIXME is this correct?
+
+  return envData * -1;
 }
 
 } /* namespace Container */

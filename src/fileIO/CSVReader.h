@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <utility>
 #include <boost/algorithm/string.hpp>
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
@@ -36,34 +37,17 @@ class CSVReader {
   friend CSVReaderTest;
   FRIEND_TEST(CSVReaderTest, StoreDataException);
 public:
-  explicit CSVReader(std::string filePath, std::string idColumnName, std::string delim,
-      const PersonHandler& personHandler);
+  explicit CSVReader(std::string filePath, std::string idColumnName, std::string delim);
   virtual ~CSVReader();
 
-  int getNumberOfColumns() const; //Not including id
-  int getNumberOfRows() const; //Not including header
-  const std::vector<std::string>& getDataColumnHeaders() const; //Not including id
-  const Container::HostMatrix& getData() const;
+  std::pair<Container::HostMatrix*, std::vector<std::string>*>* readData(const PersonHandler& personHandler) const;
 
 protected:
-  void storeData(std::vector<std::string> lineSplit);
+  void storeData(std::vector<std::string> lineSplit, int idColumnNumber, Container::HostMatrix* dataMatrix, unsigned int dataRowNumber) const;
 
-  const PersonHandler& personHandler;
   const std::string idColumnName;
-  const int numberOfIndividualsToInclude;
-  const int numberOfIndividualsTotal;
   const std::string delim;
   const std::string filePath;
-  int numberOfColumns; //Not including id
-  int numberOfRows; //Not including header
-  int idColumnNumber;
-  std::vector<std::string> dataColumnNames;
-
-#ifdef CPU
-  Container::LapackppHostMatrix* dataMatrix;
-#else
-  Container::PinnedHostMatrix* dataMatrix;
-#endif
 };
 
 } /* namespace FileIO */

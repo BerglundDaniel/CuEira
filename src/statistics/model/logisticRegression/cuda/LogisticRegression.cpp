@@ -42,7 +42,11 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
     kernelWrapper.matrixTransMatrixMultiply(predictorsDevice, workMatrixNxMDevice, informationMatrixDevice);
 
     //Copy beta to old beta
-    //TODO copy on host beta to old beta
+#ifdef DOUBLEPRECISION
+    dcopy(numberOfPredictors, betaCoefficentsHost->getMemoryPointer(), 1, betaCoefficentsOldHost->getMemoryPointer(), 1);
+#else
+    scopy(numberOfPredictors, betaCoefficentsHost->getMemoryPointer(), 1, betaCoefficentsOldHost->getMemoryPointer(), 1);
+#endif
 
     //Inverse information matrix
     //NOTE This part is done on CPU
@@ -88,6 +92,8 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
   } /* for iterationNumber */
 
   delete diffSumHost;
+  delete betaCoefficentsOldHost;
+
   kernelWrapper.syncStream();
 }
 

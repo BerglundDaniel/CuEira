@@ -62,6 +62,7 @@ private:
   const GeneticModel originalGeneticModel;
   std::vector<int>* originalSNPData;
   Container::HostVector* modifiedSNPData;
+  Recode currentRecode;
 };
 
 } /* namespace Container */

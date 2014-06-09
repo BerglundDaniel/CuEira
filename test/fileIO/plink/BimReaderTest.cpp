@@ -47,14 +47,15 @@ TEST_F(BimReaderTest, ReadFile) {
   int numberOfSNPs = 10;
   ConfigurationMock configMock;
 
-  EXPECT_CALL(configMock, getBimFilePath()).Times(1).WillRepeatedly(Return(std::string(CuEira_BUILD_DIR)+std::string("/test.bim")));
+  EXPECT_CALL(configMock, getBimFilePath()).Times(1).WillRepeatedly(
+      Return(std::string(CuEira_BUILD_DIR) + std::string("/test.bim")));
   EXPECT_CALL(configMock, excludeSNPsWithNegativePosition()).Times(numberOfSNPs).WillRepeatedly(Return(true));
 
   CuEira::FileIO::BimReader bimReader(configMock);
 
   ASSERT_EQ(numberOfSNPs, bimReader.getNumberOfSNPs());
 
-  std::vector<SNP*> snpVector = bimReader.getSNPInformation();
+  std::vector<SNP*>* snpVector = bimReader.readSNPInformation();
   std::vector<std::string> alleleOneVector(numberOfSNPs);
   std::vector<std::string> alleleTwoVector(numberOfSNPs);
 
@@ -81,29 +82,34 @@ TEST_F(BimReaderTest, ReadFile) {
   alleleTwoVector[9] = "A";
 
   for(int i = 0; i < numberOfSNPs; ++i){
-    SNP snp = *snpVector[i];
+    SNP* snp = (*snpVector)[i];
 
     //Check id
     std::ostringstream os;
     os << "rs" << i;
     const std::string& tmp = os.str();
     Id id(tmp.c_str());
-    ASSERT_EQ(id, snp.getId());
+    ASSERT_EQ(id, snp->getId());
 
     //Check include
     if(i == 3 || i == 9){
-      ASSERT_FALSE(snp.getInclude());
+      ASSERT_FALSE(snp->getInclude());
     }else{
-      ASSERT_TRUE(snp.getInclude());
+      ASSERT_TRUE(snp->getInclude());
     }
 
-    ASSERT_EQ(i, snp.getPosition());
+    ASSERT_EQ(i, snp->getPosition());
 
     //Check alleles
-    ASSERT_TRUE(alleleOneVector[i] == snp.getAlleleOneName());
-    ASSERT_TRUE(alleleTwoVector[i] == snp.getAlleleTwoName());
+    ASSERT_TRUE(alleleOneVector[i] == snp->getAlleleOneName());
+    ASSERT_TRUE(alleleTwoVector[i] == snp->getAlleleTwoName());
 
   } //end for i
+
+  for(int i = 0; i < numberOfSNPs; ++i){
+    delete (*snpVector)[i];
+  }
+  delete snpVector;
 }
 
 }

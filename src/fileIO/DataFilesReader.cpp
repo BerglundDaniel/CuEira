@@ -3,48 +3,35 @@
 namespace CuEira {
 namespace FileIO {
 
-DataFilesReader::DataFilesReader(PlinkReader* plinkReader, EnvironmentCSVReader* environmentCSVReader,
+DataFilesReader::DataFilesReader(BimReader* bimReader, FamReader* famReader, EnvironmentCSVReader* environmentCSVReader,
     CSVReader* covariateCSVReader) :
-    plinkReader(plinkReader), environmentCSVReader(environmentCSVReader), covariateCSVReader(covariateCSVReader) {
+    famReader(famReader), bimReader(bimReader), environmentCSVReader(environmentCSVReader), covariateCSVReader(
+        covariateCSVReader) {
 
 }
 
 DataFilesReader::~DataFilesReader() {
-  delete plinkReader;
+  delete bimReader;
+  delete famReader;
   delete environmentCSVReader;
   delete covariateCSVReader;
 }
 
-Container::SNPVector* DataFilesReader::readSNP(SNP& snp) const {
-  return plinkReader->readSNP(snp);
+std::pair<Container::HostMatrix*, std::vector<std::string>*>* DataFilesReader::readCovariates(
+    const PersonHandler& personHandler) const {
+  return covariateCSVReader->readData(personHandler);
 }
 
-const Container::HostVector& DataFilesReader::getEnvironmentFactor(EnvironmentFactor& environmentFactor) const {
-  return environmentCSVReader->getData(environmentFactor);
+PersonHandler* DataFilesReader::readPersonInformation() const {
+  return famReader->readPersonInformation();
 }
 
-const Container::HostMatrix& DataFilesReader::getCovariates() const {
-  return covariateCSVReader->getData();
+std::vector<SNP*>* DataFilesReader::readSNPInformation() const {
+  return bimReader->readSNPInformation();
 }
 
-int DataFilesReader::getNumberOfCovariates() const {
-  return covariateCSVReader->getNumberOfColumns();
-}
-
-int DataFilesReader::getNumberOfEnvironmentFactors() const {
-  return environmentCSVReader->getNumberOfColumns();
-}
-
-const PersonHandler& DataFilesReader::getPersonHandler() const {
-  return plinkReader->getPersonHandler();
-}
-
-std::vector<SNP*> DataFilesReader::getSNPInformation() const {
-  return plinkReader->getSNPInformation();
-}
-
-const std::vector<EnvironmentFactor*>& DataFilesReader::getEnvironmentFactorInformation() const {
-  return environmentCSVReader->getEnvironmentFactorInformation();
+EnvironmentFactorHandler* DataFilesReader::readEnvironmentFactorInformation(const PersonHandler& personHandler) const {
+  return environmentCSVReader->readEnvironmentFactorInformation(personHandler);
 }
 
 } /* namespace FileIO */

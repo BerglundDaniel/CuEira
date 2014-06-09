@@ -2,6 +2,8 @@
 #define ENVIRONMENTCSVREADER_H_
 
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <CSVReader.h>
 #include <EnvironmentFactor.h>
@@ -9,6 +11,7 @@
 #include <VariableType.h>
 #include <Id.h>
 #include <PersonHandler.h>
+#include <EnvironmentFactorHandler.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -20,15 +23,10 @@ namespace FileIO {
  */
 class EnvironmentCSVReader: public CSVReader {
 public:
-  EnvironmentCSVReader(std::string filePath, std::string idColumnName, std::string delim,
-      const PersonHandler& personHandler);
+  EnvironmentCSVReader(std::string filePath, std::string idColumnName, std::string delim);
   virtual ~EnvironmentCSVReader();
 
-  const Container::HostVector& getData(EnvironmentFactor& environmentFactor) const;
-  const std::vector<EnvironmentFactor*>& getEnvironmentFactorInformation() const;
-
-private:
-  std::vector<EnvironmentFactor*>* environmentFactors;
+  EnvironmentFactorHandler* readEnvironmentFactorInformation(const PersonHandler& personHandler) const;
 };
 
 } /* namespace FileIO */

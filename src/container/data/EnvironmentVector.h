@@ -4,6 +4,8 @@
 #include <HostVector.h>
 #include <Recode.h>
 #include <StatisticModel.h>
+#include <EnvironmentFactor.h>
+#include <EnvironmentFactorHandler.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
@@ -22,7 +24,7 @@ namespace Container {
  */
 class EnvironmentVector {
 public:
-  EnvironmentVector();
+  EnvironmentVector(const EnvironmentFactorHandler& environmentHandler, EnvironmentFactor& environmentFactor);
   virtual ~EnvironmentVector();
 
   int getNumberOfIndividualsToInclude() const;
@@ -31,9 +33,13 @@ public:
   void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
 
 private:
+  PRECISION invertEnvironmentFactor(PRECISION envData) const;
+
+  const EnvironmentFactorHandler& environmentHandler;
   int numberOfIndividualsToInclude;
-  const std::vector<int>* originalData;
+  const HostVector& originalData;
   HostVector* recodedData;
+  Recode currentRecode;
 };
 
 } /* namespace Container */

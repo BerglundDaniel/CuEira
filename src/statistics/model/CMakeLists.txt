@@ -14,6 +14,6 @@ set(GPU_SOURCE
 set(SOURCE
   ${SOURCE}
   ${CPU_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelHandler.cpp
+  #${CMAKE_CURRENT_SOURCE_DIR}/ModelHandler.cpp
   PARENT_SCOPE
 )

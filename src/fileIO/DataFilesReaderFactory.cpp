@@ -3,8 +3,7 @@
 namespace CuEira {
 namespace FileIO {
 
-DataFilesReaderFactory::DataFilesReaderFactory(PlinkReaderFactory& plinkReaderFactory) :
-    plinkReaderFactory(plinkReaderFactory) {
+DataFilesReaderFactory::DataFilesReaderFactory() {
 
 }
 
@@ -13,15 +12,15 @@ DataFilesReaderFactory::~DataFilesReaderFactory() {
 }
 
 DataFilesReader* DataFilesReaderFactory::constructDataFilesReader(Configuration& configuration) {
-  PlinkReader* plinkReader = plinkReaderFactory.constructPlinkReader(configuration);
-  const PersonHandler& personHandler = plinkReader->getPersonHandler();
+  BimReader* bimReader = new BimReader(configuration);
+  FamReader* famReader = new FamReader(configuration);
 
-  EnvironmentCSVReader* environmentCSVReader= new EnvironmentCSVReader(configuration.getEnvironmentFilePath(),
-      configuration.getEnvironmentIndividualIdColumnName(), configuration.getEnvironmentDelimiter(), personHandler);
-  CSVReader* covariateCSVReader= new CSVReader(configuration.getCovariateFilePath(), configuration.getCovariateIndividualIdColumnName(),
-      configuration.getCovariateDelimiter(), personHandler);
+  EnvironmentCSVReader* environmentCSVReader = new EnvironmentCSVReader(configuration.getEnvironmentFilePath(),
+      configuration.getEnvironmentIndividualIdColumnName(), configuration.getEnvironmentDelimiter());
+  CSVReader* covariateCSVReader = new CSVReader(configuration.getCovariateFilePath(),
+      configuration.getCovariateIndividualIdColumnName(), configuration.getCovariateDelimiter());
 
-  return new DataFilesReader(plinkReader, environmentCSVReader, covariateCSVReader);
+  return new DataFilesReader(bimReader, famReader, environmentCSVReader, covariateCSVReader);
 }
 
 } /* namespace FileIO */

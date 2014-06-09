@@ -5,17 +5,20 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 #include <CSVReader.h>
 #include <EnvironmentCSVReader.h>
+#include <BimReader.h>
+#include <FamReader.h>
 #include <Configuration.h>
 #include <HostVector.h>
 #include <SNPVector.h>
 #include <HostMatrix.h>
 #include <SNP.h>
 #include <EnvironmentFactor.h>
-#include <PlinkReader.h>
 #include <PersonHandler.h>
+#include <EnvironmentFactorHandler.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -27,22 +30,18 @@ namespace FileIO {
  */
 class DataFilesReader {
 public:
-  explicit DataFilesReader(PlinkReader* plinkReader, EnvironmentCSVReader* environmentCSVReader,
+  explicit DataFilesReader(BimReader* bimReader, FamReader* famReader, EnvironmentCSVReader* environmentCSVReader,
       CSVReader* covariateCSVReader);
   virtual ~DataFilesReader();
 
-  Container::SNPVector* readSNP(SNP& snp) const;
-  const Container::HostVector& getEnvironmentFactor(EnvironmentFactor& environmentFactor) const;
-  const Container::HostMatrix& getCovariates() const;
-  const PersonHandler& getPersonHandler() const;
-  std::vector<SNP*> getSNPInformation() const;
-  const std::vector<EnvironmentFactor*>& getEnvironmentFactorInformation() const;
-
-  int getNumberOfCovariates() const;
-  int getNumberOfEnvironmentFactors() const;
+  std::pair<Container::HostMatrix*, std::vector<std::string>* >* readCovariates(const PersonHandler& personHandler) const;
+  PersonHandler* readPersonInformation() const;
+  std::vector<SNP*>* readSNPInformation() const;
+  EnvironmentFactorHandler* readEnvironmentFactorInformation(const PersonHandler& personHandler) const;
 
 private:
-  PlinkReader* plinkReader;
+  BimReader* bimReader;
+  FamReader* famReader;
   EnvironmentCSVReader* environmentCSVReader;
   CSVReader* covariateCSVReader;
 };

@@ -3,18 +3,18 @@
 namespace CuEira {
 namespace Container {
 
+SNPVector::SNPVector(std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel) :
+    snp(snp), numberOfIndividualsToInclude(originalSNPData->size()), originalSNPData(originalSNPData), originalGeneticModel(
+        geneticModel), originalRiskAllele(snp.getRiskAllele()), currentRiskAllele(snp.getRiskAllele()), currentGeneticModel(
+        geneticModel), currentRecode(ALL_RISK),
 #ifdef CPU
-SNPVector::SNPVector(std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel) :
-snp(snp), numberOfIndividualsToInclude(originalSNPData->size()), originalSNPData(originalSNPData), modifiedSNPData(
-    new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude))), originalGeneticModel(geneticModel), originalRiskAllele(
-    snp.getRiskAllele()), currentRiskAllele(snp.getRiskAllele()), currentGeneticModel(geneticModel){
+        modifiedSNPData(
+            new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude)))
 #else
-SNPVector::SNPVector(std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel) :
-    snp(snp), numberOfIndividualsToInclude(originalSNPData->size()), originalSNPData(originalSNPData), modifiedSNPData(
-        new PinnedHostVector(numberOfIndividualsToInclude)), originalGeneticModel(geneticModel), originalRiskAllele(
-        snp.getRiskAllele()), currentRiskAllele(snp.getRiskAllele()), currentGeneticModel(geneticModel) {
+        modifiedSNPData(new PinnedHostVector(numberOfIndividualsToInclude))
 #endif
-
+{
+  currentRecode = ENVIRONMENT_PROTECT;
   recode(ALL_RISK);
 }
 
@@ -40,6 +40,11 @@ const SNP & SNPVector::getAssociatedSNP() const {
 }
 
 void SNPVector::recode(Recode recode) {
+  if(currentRecode == recode){
+    return;
+  }
+
+  currentRecode = recode;
   if(recode == ALL_RISK){
     recodeAllRisk();
   }else if(recode == SNP_PROTECT){

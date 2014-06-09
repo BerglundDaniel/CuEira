@@ -1,11 +1,11 @@
 #include "DataHandler.h"
 
 namespace CuEira {
-namespace Container {
 
-DataHandler::DataHandler(StatisticModel statisticModel, const FileIO::DataFilesReader& dataFilesReader) :
-    currentRecode(ALL_RISK), numberOfIndividualsToInclude(), statisticModel(statisticModel), dataFilesReader(
-        dataFilesReader) {
+DataHandler::DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader,
+    const EnvironmentFactorHandler& environmentFactorHandler) :
+    currentRecode(ALL_RISK), numberOfIndividualsToInclude(), statisticModel(statisticModel), bedReader(bedReader), interactionVector(
+        nullptr), snpVector(nullptr), environmentVector(nullptr), environmentFactorHandler(environmentFactorHandler) {
 
 }
 
@@ -23,11 +23,11 @@ const SNP& DataHandler::getAssociatedSNP() const {
   return snpVector->getAssociatedSNP();
 }
 
-bool DataHandler::hasNext() const {
-  //TODO
-}
+bool DataHandler::next() {
+  if(){
+    return false;
+  }
 
-void DataHandler::next() {
   currentRecode = ALL_RISK;
   delete interactionVector;
 
@@ -35,17 +35,23 @@ void DataHandler::next() {
     delete snpVector;
 
     SNP snp; //FIXME
-    snpVector = dataFilesReader.readSNP(snp);
+    snpVector = bedReader.readSNP(snp);
+  }else{
+    snpVector->recode(currentRecode);
   }
 
   if(){ //TODO if next env
     delete environmentVector;
 
     EnvironmentFactor environmentFactor; //FIXME
-    environmentVector = dataFilesReader.getEnvironmentFactor(environmentFactor);
+    environmentVector(environmentFactorHandler, environmentFactor);
+  }else{
+    environmentVector->recode(currentRecode);
   }
 
   interactionVector = new InteracionVector(*environmentVector, *snpVector);
+
+  return true;
 }
 
 Recode DataHandler::getRecode() const {
@@ -85,5 +91,4 @@ const Container::HostVector& DataHandler::getEnvironment() const {
   return environmentVector->getRecodedData();
 }
 
-} /* namespace Container */
 } /* namespace CuEira */

@@ -31,4 +31,12 @@ VariableType EnvironmentFactor::getVariableType() const {
   return variableType;
 }
 
+bool EnvironmentFactor::operator<(const EnvironmentFactor& otherEnvironmentFactor) const {
+  return id < otherEnvironmentFactor.getId();
+}
+
+bool EnvironmentFactor::operator==(const EnvironmentFactor& otherEnvironmentFactor) const {
+  return id == otherEnvironmentFactor.getId();
+}
+
 } /* namespace CuEira */

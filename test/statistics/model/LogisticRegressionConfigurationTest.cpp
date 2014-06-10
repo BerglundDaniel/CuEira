@@ -28,7 +28,7 @@ namespace Model {
 namespace LogisticRegression {
 
 using namespace CuEira::Container;
-using namespace CuEira::Cuda;
+using namespace CuEira::CUDA;
 
 /**
  * Test for testing transfers between host and device in both directions.
@@ -95,8 +95,8 @@ LogisticRegressionConfigurationTest::LogisticRegressionConfigurationTest() :
 }
 
 LogisticRegressionConfigurationTest::~LogisticRegressionConfigurationTest() {
-  handleCublasStatus(cublasDestroy(cublasHandle), "Failed to destroy cublas handle:");
   handleCudaStatus(cudaStreamDestroy(stream1), "Failed to destroy cuda stream 1:");
+  handleCublasStatus(cublasDestroy(cublasHandle), "Failed to destroy cublas handle:");
 }
 
 void LogisticRegressionConfigurationTest::SetUp() {

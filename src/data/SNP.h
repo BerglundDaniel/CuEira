@@ -45,6 +45,9 @@ public:
   double getAlleleOneAllFrequency() const;
   double getAlleleTwoAllFrequency() const;
 
+  bool operator<(const SNP& otherSNP) const;
+  bool operator==(const SNP& otherSNP) const;
+
 private:
   Id id;
   bool include;

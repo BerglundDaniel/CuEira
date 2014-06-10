@@ -155,4 +155,22 @@ double SNP::getAlleleTwoAllFrequency() const {
   return alleleTwoAllFrequency;
 }
 
+bool SNP::operator<(const SNP& otherSNP) const {
+  return id < otherSNP.getId();
+#ifdef DEBUG
+  if(this == &otherSNP){
+    std::cerr << "Something is very wrong with the SNPs." << std::endl;
+  }
+#endif
+}
+
+bool SNP::operator==(const SNP& otherSNP) const {
+  return id == otherSNP.getId();
+#ifdef DEBUG
+  if(this == &otherSNP){
+    std::cerr << "Something is very wrong with the SNPs." << std::endl;
+  }
+#endif
+}
+
 } /* namespace CuEira */

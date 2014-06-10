@@ -173,6 +173,48 @@ TEST_F(SNPTest, AlleleFreqsException) {
   ASSERT_THROW(snp1.getAlleleTwoAllFrequency(), InvalidState);
 }
 
+TEST_F(SNPTest, Operators) {
+  unsigned int pos1 = 1;
+  std::string alleOneString1("a1_1");
+  std::string alleTwoString1("a1_2");
+
+  Id id1("env1");
+  SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
+
+  Id id2("env2");
+  SNP snp2(id2, alleOneString1, alleTwoString1, pos1);
+
+  Id id3("a_env");
+  SNP snp3(id3, alleOneString1, alleTwoString1, pos1);
+
+  SNP snp4(id1, alleOneString1, alleTwoString1, pos1);
+
+  EXPECT_EQ(snp4, snp1);
+  EXPECT_FALSE(snp1 == snp2);
+  EXPECT_FALSE(snp4 == snp2);
+  EXPECT_FALSE(snp1 == snp3);
+  EXPECT_FALSE(snp4 == snp3);
+  EXPECT_FALSE(snp3 == snp2);
+
+  if(id1 < id2){
+    EXPECT_TRUE(snp1 < snp2);
+  }else{
+    EXPECT_TRUE(snp2 < snp1);
+  }
+
+  if(id1 < id3){
+    EXPECT_TRUE(snp1 < snp3);
+  }else{
+    EXPECT_TRUE(snp3 < snp1);
+  }
+
+  if(id2 < id3){
+    EXPECT_TRUE(snp2 < snp3);
+  }else{
+    EXPECT_TRUE(snp3 < snp2);
+  }
+}
+
 }
 /* namespace CuEira_Test */
 } /* namespace CuEira */

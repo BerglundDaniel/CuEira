@@ -14,8 +14,8 @@ SNPVector::SNPVector(std::vector<int>* originalSNPData, SNP& snp, GeneticModel g
         modifiedSNPData(new PinnedHostVector(numberOfIndividualsToInclude))
 #endif
 {
-  currentRecode = ENVIRONMENT_PROTECT;
-  recode(ALL_RISK);
+  recodeAllRisk();
+  doRecode();
 }
 
 SNPVector::~SNPVector() {

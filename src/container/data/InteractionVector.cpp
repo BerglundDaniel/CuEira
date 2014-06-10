@@ -12,7 +12,7 @@ InteractionVector::InteractionVector(const EnvironmentVector& environmentVector,
         interactionVector(new PinnedHostVector(numberOfIndividualsToInclude))
 #endif
 {
-
+  recode();
 }
 
 InteractionVector::~InteractionVector() {

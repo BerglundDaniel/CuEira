@@ -6,6 +6,7 @@
 #include <StatisticModel.h>
 #include <EnvironmentFactor.h>
 #include <EnvironmentFactorHandler.h>
+#include <VariableType.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
@@ -27,19 +28,25 @@ public:
   EnvironmentVector(const EnvironmentFactorHandler& environmentHandler, EnvironmentFactor& environmentFactor);
   virtual ~EnvironmentVector();
 
+  void switchEnvironmentFactor(EnvironmentFactor& environmentFactor);
   int getNumberOfIndividualsToInclude() const;
   const Container::HostVector& getRecodedData() const;
   void recode(Recode recode);
   void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
+  const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
 private:
-  PRECISION invertEnvironmentFactor(PRECISION envData) const;
+  void recodeAllRisk();
+  void recodeEnvironmentProtective();
+  void recodeInteractionProtective();
+  void doRecode();
 
   const EnvironmentFactorHandler& environmentHandler;
+  const HostVector * originalData;
   int numberOfIndividualsToInclude;
-  const HostVector& originalData;
   HostVector* recodedData;
   Recode currentRecode;
+  EnvironmentFactor& environmentFactor;
 };
 
 } /* namespace Container */

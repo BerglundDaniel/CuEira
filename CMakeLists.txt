@@ -13,10 +13,12 @@ set(INCLUDE_DIRECTORIES
   ${PROJECT_BINARY_DIR}
 )
 set(TEST_DATA_DIR ${PROJECT_BINARY_DIR}/data)
-set(Boost_USE_STATIC_LIBS OFF) 
-set(Boost_USE_MULTITHREADED OFF)
+set(Boost_USE_STATIC_LIBS off) 
+set(Boost_USE_MULTITHREADED on)
+set(MKL_MULTI_THREADED on)
 set(CUEIRA_LIB CuEira_Core)
 set(CUEIRA_GPU_LIB CuEira_GPU)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" on) #FIXME Change to off later
@@ -65,15 +67,7 @@ endif(${PRECISION} MATCHES double)
 #Find required libraries
 MESSAGE( STATUS "Checking packages:" )
 
-#Don't look for boost if paths are already given
-set(BOOST_INC "${Boost_INCLUDE_DIR}")
-set(BOOST_LIB "${Boost_LIBRARIES}")
-if(BOOST_INC AND BOOST_LIB)
- MESSAGE( STATUS "not boost:" )
-else()
- MESSAGE( STATUS "boost:" )
- find_package( Boost 1.55 COMPONENTS program_options REQUIRED )
-endif()
+find_package( Boost 1.55 COMPONENTS program_options REQUIRED )
 include_directories( ${Boost_INCLUDE_DIR} )
 
 
@@ -100,13 +94,19 @@ else()
   #Set somethings for CUDA compilation
   set(CUDA_PROPAGATE_HOST_FLAGS off) #Some c++ flags that gets passed to NVCC -Xcompiler will cause errors, for instance c++11 flag 
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
+
+  #Possibly wrong place FIXME
+  find_package(MKL REQUIRED)
+  include_directories(${MKL_INCLUDE_DIR})
+
+  if(${MKL_FOUND})
+    MESSAGE( STATUS "MKL not found" )
+  endif(${MKL_FOUND})
 endif(${CPU})
 
 if(${CLUSTER})
 #FIND MPI TODO
 endif(${CLUSTER})
-
-#find_package(MKL REQUIRED) TODO
 
 #Print some info
 MESSAGE( STATUS "change a configuration variable with: cmake -D<Variable>=<Value>" )
@@ -123,6 +123,10 @@ else()
   MESSAGE( STATUS "CUDA_CUBLAS_LIBRARIES = ${CUDA_CUBLAS_LIBRARIES}" )
   MESSAGE( STATUS "CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS}" )
 endif(${CPU})
+MESSAGE( STATUS "MKL_INCLUDE_DIR = ${MKL_INCLUDE_DIR}" )
+MESSAGE( STATUS "MKL_LIBRARIES = ${MKL_LIBRARIES}" )
+
+#TODO message mpi
 
 #Add all sub dirs, the src sub dir will create librart ${CUEIRA_LIB} and set ${INCLUDE_DIRECTORIES}
 add_subdirectory(gmock-1.7.0)
@@ -141,9 +145,9 @@ include_directories(${TEST_INCLUDE_DIRECTORIES})
 #Add executable and link
 add_executable(CuEira ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp)
 if(${CPU})
-  TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
+  TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES} ${MKL_LIBRARIES})
 else()
-  TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
+  TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES} ${MKL_LIBRARIES})
   cuda_add_cublas_to_target(CuEira)
 endif(${CPU})
 
@@ -151,9 +155,9 @@ endif(${CPU})
 add_executable(CuEira_Test ${TEST_SOURCE})
 
 if(${CPU})
-  target_link_libraries(CuEira_Test ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
+  target_link_libraries(CuEira_Test ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES} ${MKL_LIBRARIES})
 else()
-  target_link_libraries(CuEira_Test ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
+  target_link_libraries(CuEira_Test ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES} ${MKL_LIBRARIES})
   cuda_add_cublas_to_target(CuEira_Test)
 endif(${CPU})
 

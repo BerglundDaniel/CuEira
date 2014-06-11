@@ -15,6 +15,8 @@ set(TEST_SOURCE
   ${GPU_LOCAL_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/PersonHandlerMock.h
   ${CMAKE_CURRENT_SOURCE_DIR}/ConfigurationMock.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/SNPVectorMock.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentVectorMock.h
   PARENT_SCOPE
 )
 

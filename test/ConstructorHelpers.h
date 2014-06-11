@@ -10,6 +10,18 @@
 #include <Sex.h>
 #include <Person.h>
 #include <Phenotype.h>
+#include <SNPVectorMock.h>
+#include <EnvironmentVectorMock.h>
+#include <EnvironmentFactor.h>
+#include <SNP.h>
+#include <GeneticModel.h>
+
+#ifdef CPU
+#include <lapackpp/gmd.h>
+#include <LapackppHostMatrix.h>
+#else
+#include <PinnedHostMatrix.h>
+#endif
 
 namespace CuEira {
 namespace CuEira_Test {
@@ -26,8 +38,10 @@ public:
 
   Person* constructPersonInclude(int number);
   Person* constructPersonNotInclude(int number);
-
   Person* constructPersonInclude(int number, Phenotype phenotype);
+
+  Container::EnvironmentVectorMock* constructEnvironmentVectorMock();
+  Container::SNPVectorMock* constructSNPVectorMock();
 
 private:
 

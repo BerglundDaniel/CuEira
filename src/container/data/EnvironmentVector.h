@@ -28,12 +28,12 @@ public:
   EnvironmentVector(const EnvironmentFactorHandler& environmentHandler, EnvironmentFactor& environmentFactor);
   virtual ~EnvironmentVector();
 
-  void switchEnvironmentFactor(EnvironmentFactor& environmentFactor);
-  int getNumberOfIndividualsToInclude() const;
-  const Container::HostVector& getRecodedData() const;
-  void recode(Recode recode);
-  void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
-  const EnvironmentFactor& getCurrentEnvironmentFactor() const;
+  virtual void switchEnvironmentFactor(EnvironmentFactor& environmentFactor);
+  virtual int getNumberOfIndividualsToInclude() const;
+  virtual const Container::HostVector& getRecodedData() const;
+  virtual void recode(Recode recode);
+  virtual void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
+  virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
 private:
   void recodeAllRisk();

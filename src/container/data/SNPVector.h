@@ -40,12 +40,12 @@ public:
   SNPVector(std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel);
   virtual ~SNPVector();
 
-  int getNumberOfIndividualsToInclude() const;
-  const std::vector<int>& getOrginalData() const;
-  const Container::HostVector& getRecodedData() const;
-  const SNP& getAssociatedSNP() const;
-  void recode(Recode recode);
-  void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
+  virtual int getNumberOfIndividualsToInclude() const;
+  virtual const std::vector<int>& getOrginalData() const;
+  virtual const Container::HostVector& getRecodedData() const;
+  virtual const SNP& getAssociatedSNP() const;
+  virtual void recode(Recode recode);
+  virtual void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
 
 private:
   void recodeAllRisk();

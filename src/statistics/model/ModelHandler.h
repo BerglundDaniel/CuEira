@@ -3,6 +3,11 @@
 
 #include <DataHandler.h>
 #include <Statistics.h>
+#include <Recode.h>
+#include <HostMatrix.h>
+#include <HostVector.h>
+#include <SNP.h>
+#include <EnvironmentFactor.h>
 
 namespace CuEira {
 namespace Model {
@@ -14,15 +19,19 @@ namespace Model {
  */
 class ModelHandler {
 public:
-  ModelHandler(Container::DataHandler& dataHandler);
+  ModelHandler(DataHandler& dataHandler);
   virtual ~ModelHandler();
 
   bool next();
-  void calculateModel();
-  Statistics getStatistics() const;
+  virtual Statistics* calculateModel()=0;
 
 protected:
-  Container::DataHandler& dataHandler;
+  DataHandler& dataHandler;
+  const Container::HostVector * environmentData;
+  const Container::HostVector * snpData;
+  const Container::HostVector * interactionData;
+  const SNP& currentSNP;
+  const EnivornmentFactor& currentEnvironmentFactor;
 };
 
 } /* namespace Model */

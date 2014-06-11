@@ -10,6 +10,7 @@
 
 #include <GeneticModel.h>
 #include <PhenotypeCoding.h>
+#include <StatisticModel.h>
 
 namespace CuEira {
 
@@ -114,6 +115,11 @@ public:
    * Returns the convergence threshold for the logistic regression
    */
   virtual double getLRConvergenceThreshold() const;
+
+  /**
+   * Returns the statistic model to use for the logisic regression
+   */
+  virtual StatisticModel getStatisticModel() const;
 
 protected:
   Configuration(); //Used for the mock of this class

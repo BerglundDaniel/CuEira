@@ -170,4 +170,8 @@ double Configuration::getLRConvergenceThreshold() const {
   return 1e-5; //FIXME set as option
 }
 
+virtual Configuration::StatisticModel getStatisticModel() const {
+  return ADDITIVE; //FIXME set as option
+}
+
 } /* namespace CuEira */

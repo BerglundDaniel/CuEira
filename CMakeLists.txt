@@ -14,7 +14,7 @@ set(INCLUDE_DIRECTORIES
 )
 set(TEST_DATA_DIR ${PROJECT_BINARY_DIR}/data)
 set(Boost_USE_STATIC_LIBS off) 
-set(Boost_USE_MULTITHREADED on)
+set(Boost_USE_MULTITHREADED off)
 set(MKL_MULTI_THREADED on)
 set(CUEIRA_LIB CuEira_Core)
 set(CUEIRA_GPU_LIB CuEira_GPU)
@@ -70,7 +70,6 @@ MESSAGE( STATUS "Checking packages:" )
 find_package( Boost 1.55 COMPONENTS program_options REQUIRED )
 include_directories( ${Boost_INCLUDE_DIR} )
 
-
 if(${CPU})
   set(LAPACKPP_INCLUDE_DIR /usr/local/include/lapackpp/)
   set(BLAS_LIBRARIES "-lgfortran -llapackpp")
@@ -96,12 +95,12 @@ else()
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
 
   #Possibly wrong place FIXME
-  find_package(MKL REQUIRED)
-  include_directories(${MKL_INCLUDE_DIR})
+  #find_package(MKL REQUIRED)
+  #include_directories(${MKL_INCLUDE_DIR})
 
-  if(${MKL_FOUND})
-    MESSAGE( STATUS "MKL not found" )
-  endif(${MKL_FOUND})
+  #if(NOT ${MKL_FOUND})
+  #  MESSAGE( STATUS "MKL not found" )
+  #endif(${MKL_FOUND})
 endif(${CPU})
 
 if(${CLUSTER})

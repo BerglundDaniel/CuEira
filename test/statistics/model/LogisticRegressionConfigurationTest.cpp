@@ -73,7 +73,10 @@ LogisticRegressionConfigurationTest::LogisticRegressionConfigurationTest() :
         HostToDevice(stream1)), deviceToHostStream1(DeviceToHost(stream1)), snpData(numberOfRows), environmentData(
         numberOfRows), interactionVector(numberOfRows), kernelWrapper(stream1, cublasHandle) {
 
+  handleCublasStatus(cublasStatus, "Failed to create cublas handle:");
   handleCudaStatus(cudaGetLastError(), "Error with LR config test setup: ");
+  handleCudaStatus(cudaStreamCreate(&stream1), "Failed to create cuda stream 1:");
+  handleCublasStatus(cublasSetStream(cublasHandle, stream1), "Failed to set cuda stream:");
 
   EXPECT_CALL(configMock, getLRConvergenceThreshold()).Times(AtLeast(0)).WillRepeatedly(Return(convergenceThreshold));
   EXPECT_CALL(configMock, getNumberOfMaxLRIterations()).Times(AtLeast(0)).WillRepeatedly(

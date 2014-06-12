@@ -104,5 +104,27 @@ Container::SNPVectorMock* ConstructorHelpers::constructSNPVectorMock() {
   return new Container::SNPVectorMock(SNPData, snp);
 }
 
+EnvironmentFactorHandlerMock* ConstructorHelpers::constructEnvironmentFactorHandlerMock(){
+  const int numberOfIndividuals = 3;
+  const int numberOfColumns = 2;
+
+#ifdef CPU
+  Container::HostMatrix* dataMatrix= new Container::LapackppHostMatrix(
+      new LaGenMatDouble(numberOfIndividuals, numberOfColumns));
+#else
+  Container::HostMatrix* dataMatrix = new Container::PinnedHostMatrix(numberOfIndividuals, numberOfColumns);
+#endif
+
+  std::vector<EnvironmentFactor*>* environmentFactors = new std::vector<EnvironmentFactor*>(numberOfColumns);
+  for(int i = 0; i < numberOfColumns; ++i){
+    std::ostringstream os;
+    os << "envfactor" << i;
+    Id id(os.str());
+    (*environmentFactors)[i] = new EnvironmentFactor(id);
+  }
+
+  return new EnvironmentFactorHandlerMock(dataMatrix, environmentFactors);
+}
+
 } /* namespace CuEira_Test */
 } /* namespace CuEira */

@@ -1,5 +1,5 @@
-#ifndef ENVIRONMENTMOCK_H_
-#define ENVIRONMENTMOCK_H_
+#ifndef ENVIRONMENTVECTORMOCK_H_
+#define ENVIRONMENTVECTORMOCK_H_
 
 #include <gmock/gmock.h>
 
@@ -36,4 +36,4 @@ public:
 } /* namespace Container */
 } /* namespace CuEira */
 
-#endif /* ENVIRONMENTMOCK_H_ */
+#endif /* ENVIRONMENTVECTORMOCK_H_ */

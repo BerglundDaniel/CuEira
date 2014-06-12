@@ -13,6 +13,8 @@
 #include <SNPVectorMock.h>
 #include <EnvironmentVectorMock.h>
 #include <EnvironmentFactor.h>
+#include <EnvironmentFactorHandler.h>
+#include <EnvironmentFactorHandlerMock.h>
 #include <SNP.h>
 #include <GeneticModel.h>
 
@@ -42,6 +44,7 @@ public:
 
   Container::EnvironmentVectorMock* constructEnvironmentVectorMock();
   Container::SNPVectorMock* constructSNPVectorMock();
+  EnvironmentFactorHandlerMock* constructEnvironmentFactorHandlerMock();
 
 private:
 

@@ -42,14 +42,13 @@ public:
       const DeviceVector& deviceOutcomes, const KernelWrapper& kernelWrapper, const HostMatrix& covariates);
 
   /**
-   * This
+   * Frees all related memory
    */
   virtual ~LogisticRegressionConfiguration();
 
   void setEnvironmentFactor(const HostVector& environmentData);
   void setSNP(const HostVector& snpData);
   void setInteraction(const HostVector& interactionVector);
-  void setBetaCoefficents(const HostVector& betaCoefficents);
 
   int getNumberOfRows() const;
   int getNumberOfPredictors() const;
@@ -69,6 +68,7 @@ public:
 
 private:
   void transferIntercept();
+  void setDefaultBeta();
 
   const Configuration& configuration;
   const HostToDevice& hostToDevice;
@@ -81,6 +81,8 @@ private:
   double convergenceThreshold;
   bool usingCovariates;
   PRECISION* devicePredictorsMemoryPointer;
+
+  HostVector* betaCoefficentsDefaultHost;
 
   DeviceVector* betaCoefficentsDevice;
   DeviceVector* probabilitesDevice;

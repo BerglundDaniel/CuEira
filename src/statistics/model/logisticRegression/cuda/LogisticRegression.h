@@ -39,7 +39,7 @@ public:
   /**
    * Get the matrix containing the covariances
    */
-  const HostVector& getCovarianceMatrix() const;
+  const HostMatrix& getCovarianceMatrix() const;
 
   /**
    * Get the information matrix.

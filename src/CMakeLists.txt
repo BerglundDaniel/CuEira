@@ -4,6 +4,7 @@ add_subdirectory(container)
 add_subdirectory(programOptions)
 add_subdirectory(fileIO)
 add_subdirectory(statistics)
+add_subdirectory(task)
 
 if(NOT ${CPU})
   add_subdirectory(cuda)

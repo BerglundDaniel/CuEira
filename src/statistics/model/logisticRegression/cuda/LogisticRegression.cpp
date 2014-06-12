@@ -108,7 +108,7 @@ const HostVector& LogisticRegression::getBeta() const {
   return *betaCoefficentsHost;
 }
 
-const HostVector& LogisticRegression::getCovarianceMatrix() const {
+const HostMatrix& LogisticRegression::getCovarianceMatrix() const {
   //return *inverseInformationMatrixHost;
 }
 

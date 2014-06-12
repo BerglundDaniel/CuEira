@@ -11,6 +11,14 @@
 #include <GeneticModel.h>
 #include <PhenotypeCoding.h>
 #include <StatisticModel.h>
+#include <HostVector.h>
+
+#ifdef CPU
+#include <lapackpp/lavd.h>
+#include <LapackppHostVector.h>
+#else
+#include <PinnedHostVector.h>
+#endif
 
 namespace CuEira {
 
@@ -82,7 +90,7 @@ public:
   virtual bool covariateFileSpecified() const;
 
   /**
-   * Returns the specified coding for the phenotypes in the fam file
+   * Get the specified coding for the phenotypes in the fam file
    */
   virtual PhenotypeCoding getPhenotypeCoding() const;
 
@@ -92,32 +100,32 @@ public:
   virtual bool excludeSNPsWithNegativePosition() const;
 
   /**
-   * Returns the threshold for minor allele frequency.
+   * Get the threshold for minor allele frequency.
    */
   virtual double getMinorAlleleFrequencyThreshold() const;
 
   /**
-   * Returns the delimiter for the environment csv file
+   * Get the delimiter for the environment csv file
    */
   virtual std::string getEnvironmentDelimiter() const;
 
   /**
-   * Returns the delimiter for the covariate csv file
+   * Get the delimiter for the covariate csv file
    */
   virtual std::string getCovariateDelimiter() const;
 
   /**
-   * Returns the max number of iterations for the logistic regression
+   * Get the max number of iterations for the logistic regression
    */
   virtual int getNumberOfMaxLRIterations() const;
 
   /**
-   * Returns the convergence threshold for the logistic regression
+   * Get the convergence threshold for the logistic regression
    */
   virtual double getLRConvergenceThreshold() const;
 
   /**
-   * Returns the statistic model to use for the logisic regression
+   * Get the statistic model to use for the logistic regression
    */
   virtual StatisticModel getStatisticModel() const;
 

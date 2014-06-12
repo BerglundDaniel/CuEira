@@ -75,11 +75,11 @@ Configuration::Configuration(int argc, char* argv[]) {
 
 }
 
-Configuration::~Configuration() {
+Configuration::Configuration() {
 
 }
 
-Configuration::Configuration() {
+Configuration::~Configuration() {
 
 }
 

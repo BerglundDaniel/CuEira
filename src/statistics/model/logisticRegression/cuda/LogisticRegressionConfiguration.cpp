@@ -13,10 +13,15 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
         devicePredictors->getMemoryPointer()), betaCoefficentsDevice(new DeviceVector(numberOfPredictors)), probabilitesDevice(
         new DeviceVector(numberOfRows)), scoresDevice(new DeviceVector(numberOfPredictors)), informationMatrixDevice(
         new DeviceMatrix(numberOfPredictors, numberOfPredictors)), workMatrixNxMDevice(
-        new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)) {
+        new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), betaCoefficentsDefaultHost(
+        new PinnedHostVector(numberOfPredictors)) {
 
   kernelWrapper.syncStream();
   transferIntercept();
+
+  setDefaultBeta();
+
+  kernelWrapper.syncStream();
 }
 
 LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configuration& configuration,
@@ -29,7 +34,8 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
         devicePredictors->getMemoryPointer()), betaCoefficentsDevice(new DeviceVector(numberOfPredictors)), probabilitesDevice(
         new DeviceVector(numberOfRows)), scoresDevice(new DeviceVector(numberOfRows)), informationMatrixDevice(
         new DeviceMatrix(numberOfPredictors, numberOfPredictors)), workMatrixNxMDevice(
-        new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)) {
+        new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), betaCoefficentsDefaultHost(
+        new PinnedHostVector(numberOfPredictors)) {
 
   kernelWrapper.syncStream();
   transferIntercept();
@@ -37,6 +43,10 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
   //Transfer covariates
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 4; //Putting the covariates in the columns after the intercept, snp, environment and interaction columns.
   hostToDevice.transferMatrix(&covariates, pos);
+
+  setDefaultBeta();
+
+  kernelWrapper.syncStream();
 }
 
 LogisticRegressionConfiguration::~LogisticRegressionConfiguration() {
@@ -47,6 +57,7 @@ LogisticRegressionConfiguration::~LogisticRegressionConfiguration() {
   delete informationMatrixDevice;
   delete workMatrixNxMDevice;
   delete workVectorNx1Device;
+  delete betaCoefficentsDefaultHost;
 }
 
 void LogisticRegressionConfiguration::transferIntercept() {
@@ -56,6 +67,12 @@ void LogisticRegressionConfiguration::transferIntercept() {
   }
 
   hostToDevice.transferVector(&interceptHostVector, devicePredictorsMemoryPointer); //Putting the intercept as first column
+}
+
+void LogisticRegressionConfiguration::setDefaultBeta() {
+  for(int i = 0; i < numberOfPredictors; ++i){
+    (*betaCoefficentsDefaultHost)(i) = 0;
+  }
 }
 
 void LogisticRegressionConfiguration::setEnvironmentFactor(const HostVector& environmentData) {
@@ -71,10 +88,6 @@ void LogisticRegressionConfiguration::setSNP(const HostVector& snpData) {
 void LogisticRegressionConfiguration::setInteraction(const HostVector& interactionVector) {
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 3; //Putting the interaction column as the fourth column
   hostToDevice.transferVector(&interactionVector, pos);
-}
-
-void LogisticRegressionConfiguration::setBetaCoefficents(const HostVector& betaCoefficents) {
-  hostToDevice.transferVector(&betaCoefficents, betaCoefficentsDevice->getMemoryPointer());
 }
 
 int LogisticRegressionConfiguration::getNumberOfRows() const {
@@ -118,6 +131,7 @@ DeviceMatrix& LogisticRegressionConfiguration::getInformationMatrix() {
 }
 
 DeviceVector& LogisticRegressionConfiguration::getBetaCoefficents() {
+  hostToDevice.transferVector(betaCoefficentsDefaultHost, betaCoefficentsDevice->getMemoryPointer());
   return *betaCoefficentsDevice;
 }
 

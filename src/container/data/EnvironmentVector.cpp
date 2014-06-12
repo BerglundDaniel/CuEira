@@ -26,6 +26,7 @@ void EnvironmentVector::switchEnvironmentFactor(EnvironmentFactor& environmentFa
 
   originalData = &environmentHandler.getData(environmentFactor);
 
+  currentRecode=ALL_RISK;
   recodeAllRisk();
 }
 

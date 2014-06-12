@@ -1,6 +1,9 @@
 #ifndef ENVIRONMENTVECTOR_H_
 #define ENVIRONMENTVECTOR_H_
 
+#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
+
 #include <HostVector.h>
 #include <Recode.h>
 #include <StatisticModel.h>
@@ -17,6 +20,7 @@
 
 namespace CuEira {
 namespace Container {
+class EnvironmentVectorTest;
 
 /**
  * This class ...
@@ -24,6 +28,10 @@ namespace Container {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class EnvironmentVector {
+  friend EnvironmentVectorTest;
+  FRIEND_TEST(EnvironmentVectorTest, ConstructAndGet);
+  FRIEND_TEST(EnvironmentVectorTest, RecodeNonBinary);
+  FRIEND_TEST(EnvironmentVectorTest, RecodeBinary);
 public:
   EnvironmentVector(const EnvironmentFactorHandler& environmentHandler, EnvironmentFactor& environmentFactor);
   virtual ~EnvironmentVector();

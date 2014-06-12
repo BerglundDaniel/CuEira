@@ -1,6 +1,8 @@
 #ifndef DATAHANDLER_H_
 #define DATAHANDLER_H_
 
+#include <utility>
+
 #include <SNPVector.h>
 #include <InteractionVector.h>
 #include <EnvironmentVector.h>
@@ -15,6 +17,7 @@
 #include <BedReader.h>
 #include <EnvironmentFactor.h>
 #include <EnvironmentFactorHandler.h>
+#include <DataQueue.h>
 
 namespace CuEira {
 
@@ -25,11 +28,13 @@ namespace CuEira {
  */
 class DataHandler {
 public:
-  DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader, const EnvironmentFactorHandler& environmentFactorHandler);
+  DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader,
+      const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue);
   virtual ~DataHandler();
 
   int getNumberOfIndividualsToInclude() const;
-  const SNP& getAssociatedSNP() const;
+  const SNP& getCurrentSNP() const;
+  const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
   bool next();
 
@@ -39,10 +44,12 @@ public:
   const Container::HostVector& getSNP() const;
   const Container::HostVector& getInteraction() const;
   const Container::HostVector& getEnvironment() const;
-  const Container::HostMatrix& getCovariates() const; //TODO
 
 private:
-  StatisticModel statisticModel;
+  void readSNP(SNP& nextSnp);
+
+  Task::DataQueue& dataQueue;
+  const StatisticModel statisticModel;
   const FileIO::BedReader& bedReader;
   const EnvironmentFactorHandler& environmentFactorHandler;
   int numberOfIndividualsToInclude;
@@ -50,6 +57,7 @@ private:
   Container::SNPVector* snpVector;
   Container::InteractionVector* interactionVector;
   Recode currentRecode;
+  bool firstNext;
 };
 
 } /* namespace CuEira */

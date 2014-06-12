@@ -4,7 +4,8 @@ namespace CuEira {
 namespace Model {
 
 ModelHandler::ModelHandler(DataHandler& dataHandler) :
-    dataHandler(dataHandler), snpData(nullptr), environmentData(nullptr), interactionData(nullptr) {
+    dataHandler(dataHandler), snpData(nullptr), environmentData(nullptr), interactionData(nullptr), currentSNP(nullptr), currentEnvironmentFactor(
+        nullptr), oldSNP(nullptr), oldEnvironmentFactor(nullptr), state(NOT_INITIALISED) {
 
 }
 
@@ -18,12 +19,21 @@ bool ModelHandler::next() {
     return false;
   }
 
+  if(state == NOT_INITIALISED){
+    state = INITIALISED_READY;
+  }else if(state == INITIALISED_READY){
+    state = INITIALISED_FULL;
+  }
+
   snpData = &dataHandler.getSNP();
   environmentData = &dataHandler.getEnvironment();
   interactionData = &dataHandler.getInteraction();
 
-  currentSNP = dataHandler.getCurrentSNP();
-  currentEnvironmentFactor = dataHandler.getCurrentEnvironmentFactor();
+  oldSNP = currentSNP;
+  oldEnvironmentFactor = currentEnvironmentFactor;
+
+  currentSNP = &dataHandler.getCurrentSNP();
+  currentEnvironmentFactor = &dataHandler.getCurrentEnvironmentFactor();
 
   return true;
 }

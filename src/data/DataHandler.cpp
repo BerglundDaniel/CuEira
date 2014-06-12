@@ -3,9 +3,10 @@
 namespace CuEira {
 
 DataHandler::DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader,
-    const EnvironmentFactorHandler& environmentFactorHandler) :
-    currentRecode(ALL_RISK), numberOfIndividualsToInclude(), statisticModel(statisticModel), bedReader(bedReader), interactionVector(
-        nullptr), snpVector(nullptr), environmentVector(nullptr), environmentFactorHandler(environmentFactorHandler) {
+    const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue) :
+    currentRecode(ALL_RISK), numberOfIndividualsToInclude(), dataQueue(dataQueue), statisticModel(statisticModel), bedReader(
+        bedReader), interactionVector(nullptr), snpVector(nullptr), environmentVector(nullptr), environmentFactorHandler(
+        environmentFactorHandler), firstNext(true) {
 
 }
 
@@ -19,39 +20,59 @@ int DataHandler::getNumberOfIndividualsToInclude() const {
   return numberOfIndividualsToInclude;
 }
 
-const SNP& DataHandler::getAssociatedSNP() const {
+const SNP& DataHandler::getCurrentSNP() const {
   return snpVector->getAssociatedSNP();
 }
 
+const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
+  return environmentVector->getCurrentEnvironmentFactor();
+}
+
 bool DataHandler::next() {
-  if(){
+  if(true){ //FIXME
     return false;
   }
 
-  currentRecode = ALL_RISK;
-  delete interactionVector;
+  SNP nextSnp(Id("asdf"), "asdf", "asdf", 1); //FIXME
+  EnvironmentFactor nextEnvironmentFactor(Id("asdf")); //FIXME
 
-  if(){ //TODO if next snp
-    delete snpVector;
-
-    SNP snp; //FIXME
-    snpVector = bedReader.readSNP(snp);
+  if(firstNext){
+    firstNext = false;
+    readSNP(nextSnp);
+    environmentVector = new Container::EnvironmentVector(environmentFactorHandler, nextEnvironmentFactor);
+    return true;
   }else{
-    snpVector->recode(currentRecode);
-  }
+    currentRecode = ALL_RISK;
+    delete interactionVector;
 
-  if(){ //TODO if next env
-    delete environmentVector;
+    if(!(getCurrentSNP() == nextSnp)){
+      readSNP(nextSnp);
+    }else{
+      snpVector->recode(currentRecode);
+    }
 
-    EnvironmentFactor environmentFactor; //FIXME
-    environmentVector(environmentFactorHandler, environmentFactor);
-  }else{
-    environmentVector->recode(currentRecode);
-  }
+    if(!(getCurrentEnvironmentFactor() == nextEnvironmentFactor)){
+      environmentVector->switchEnvironmentFactor(nextEnvironmentFactor);
+    }else{
+      environmentVector->recode(currentRecode);
+    }
+  } /* else firstNext */
 
-  interactionVector = new InteracionVector(*environmentVector, *snpVector);
+  interactionVector = new Container::InteractionVector(*environmentVector, *snpVector);
+
+  snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
+  environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 
   return true;
+}
+
+void DataHandler::readSNP(SNP& nextSnp) {
+  delete snpVector;
+
+  snpVector = bedReader.readSNP(nextSnp);
+  if(!nextSnp.getInclude()){ //SNP can changed based on the reading so we have to check that it still should be included
+    this->next(); //FIXME write result or something?
+  }
 }
 
 Recode DataHandler::getRecode() const {

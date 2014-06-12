@@ -26,12 +26,19 @@ public:
   virtual Statistics* calculateModel()=0;
 
 protected:
+  enum State{
+    NOT_INITIALISED, INITIALISED_READY, INITIALISED_FULL
+  };
+
   DataHandler& dataHandler;
   const Container::HostVector * environmentData;
   const Container::HostVector * snpData;
   const Container::HostVector * interactionData;
-  const SNP& currentSNP;
-  const EnivornmentFactor& currentEnvironmentFactor;
+  const SNP* currentSNP;
+  const EnvironmentFactor* currentEnvironmentFactor;
+  const SNP* oldSNP;
+  const EnvironmentFactor* oldEnvironmentFactor;
+  State state;
 };
 
 } /* namespace Model */

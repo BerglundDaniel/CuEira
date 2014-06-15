@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8 FATAL_ERROR)
 project (CuEira)
 enable_testing()
 
@@ -13,19 +13,20 @@ set(INCLUDE_DIRECTORIES
   ${PROJECT_BINARY_DIR}
 )
 set(TEST_DATA_DIR ${PROJECT_BINARY_DIR}/data)
-set(Boost_USE_STATIC_LIBS off) 
-set(Boost_USE_MULTITHREADED off)
-set(MKL_MULTI_THREADED on)
 set(CUEIRA_LIB CuEira_Core)
 set(CUEIRA_GPU_LIB CuEira_GPU)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+set(Boost_USE_STATIC_LIBS off) 
+set(Boost_USE_MULTITHREADED off)
+set(MKL_MULTI_THREADED on) #FIXME this is not used
 
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" on) #FIXME Change to off later
 set(PRECISION single) #single or double
 #set(TARGET_ARCHITECTURE fermi) #fermi or kepler
-set(CPU off)
-set(CLUSTER off)
+option(CPU off)
+option(CLUSTER off)
+option(ENABLE_MKL_FLAG "Enable MKL flag" ON)
 
 #Set things based on options
 if(${VERBOSE})
@@ -67,8 +68,10 @@ endif(${PRECISION} MATCHES double)
 #Find required libraries
 MESSAGE( STATUS "Checking packages:" )
 
-find_package( Boost 1.55 COMPONENTS program_options REQUIRED )
+find_package( Boost 1.54 COMPONENTS program_options REQUIRED )
 include_directories( ${Boost_INCLUDE_DIR} )
+
+#if boost 1.55 and intel, print warning TODO
 
 if(${CPU})
   set(LAPACKPP_INCLUDE_DIR /usr/local/include/lapackpp/)
@@ -95,12 +98,15 @@ else()
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
 
   #Possibly wrong place FIXME
-  #find_package(MKL REQUIRED)
-  #include_directories(${MKL_INCLUDE_DIR})
 
-  #if(NOT ${MKL_FOUND})
-  #  MESSAGE( STATUS "MKL not found" )
-  #endif(${MKL_FOUND})
+  if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
+    if(ENABLE_MKL_FLAG)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")
+    else()
+      message( FATAL_ERROR "Have to use MKL+intel" )
+    endif()
+  endif()
+
 endif(${CPU})
 
 if(${CLUSTER})
@@ -122,8 +128,6 @@ else()
   MESSAGE( STATUS "CUDA_CUBLAS_LIBRARIES = ${CUDA_CUBLAS_LIBRARIES}" )
   MESSAGE( STATUS "CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS}" )
 endif(${CPU})
-MESSAGE( STATUS "MKL_INCLUDE_DIR = ${MKL_INCLUDE_DIR}" )
-MESSAGE( STATUS "MKL_LIBRARIES = ${MKL_LIBRARIES}" )
 
 #TODO message mpi
 

@@ -14,6 +14,8 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
         new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), scoresHost(new PinnedHostVector(numberOfRows)) {
 
   double* diffSumHost = new double(0);
+  PRECISION sigma[numberOfPredictors], uSVD[numberOfPredictors * numberOfPredictors], vtSVD[numberOfPredictors
+      * numberOfPredictors];
 
   const Container::DeviceMatrix& predictorsDevice = lrConfiguration.getPredictors();
   const Container::DeviceVector& outcomesDevice = lrConfiguration.getOutcomes();
@@ -43,9 +45,11 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
 
     //Copy beta to old beta
 #ifdef DOUBLEPRECISION
-    dcopy(numberOfPredictors, betaCoefficentsHost->getMemoryPointer(), 1, betaCoefficentsOldHost->getMemoryPointer(), 1);
+    cblas_dcopy((MKL_INT)numberOfPredictors, betaCoefficentsHost->getMemoryPointer(), (MKL_INT)1,
+        betaCoefficentsOldHost->getMemoryPointer(), (MKL_INT)1);
 #else
-    scopy(numberOfPredictors, betaCoefficentsHost->getMemoryPointer(), 1, betaCoefficentsOldHost->getMemoryPointer(), 1);
+    cblas_scopy((MKL_INT) numberOfPredictors, betaCoefficentsHost->getMemoryPointer(), (MKL_INT) 1,
+        betaCoefficentsOldHost->getMemoryPointer(), (MKL_INT) 1);
 #endif
 
     //Inverse information matrix
@@ -57,6 +61,15 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
     kernelWrapper.syncStream();
 
     //Invert
+    MKL_INT status = sgesdd(LAPACK_COL_MAJOR, 'A', numberOfPredictors, numberOfPredictors,
+        informationMatrixHost->getMemoryPointer(), numberOfPredictors, sigma, uSVD, numberOfPredictors, vtSVD,
+        numberOfPredictors);
+
+    if(status < 0){
+      throw new InvalidState("Illegal values in informatio matrix.");
+    }else if(status > 0){
+      std::cerr << "Warning matrix svd didn't converge." << std::endl;
+    }
 
     //Calculate new beta
 
@@ -84,6 +97,9 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
       //Calculate loglikelihood
       kernelWrapper.logLikelihoodParts(outcomesDevice, probabilitesDevice, workVectorNx1Device);
       kernelWrapper.sumResultToHost(workVectorNx1Device, logLikelihood);
+
+      //Transfer the information matrix again since it was destroyed during the SVD.
+      deviceToHost.transferMatrix(&informationMatrixDevice, informationMatrixHost->getMemoryPointer());
 
       break;
     }else{

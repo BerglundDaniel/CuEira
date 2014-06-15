@@ -15,7 +15,6 @@
 #include <PinnedHostVector.h>
 #endif
 
-using ::testing::AllOf;
 using ::testing::Ge;
 using ::testing::Le;
 
@@ -101,7 +100,9 @@ TEST_F(StatisticsTest, Reri) {
   double l = reri - e;
   double h = reri + e;
 
-  EXPECT_THAT(statistics.getReri(), AllOf(Ge(l), Le(h)));
+  double statReri = statistics.getReri();
+  EXPECT_THAT(statReri, Ge(l));
+  EXPECT_THAT(statReri, Le(h));
 }
 
 TEST_F(StatisticsTest, Ap) {
@@ -114,7 +115,9 @@ TEST_F(StatisticsTest, Ap) {
   double l = reri / or11 - e;
   double h = reri / or11 + e;
 
-  EXPECT_THAT(statistics.getAp(), AllOf(Ge(l), Le(h)));
+  double statAp = statistics.getAp();
+  EXPECT_THAT(statAp, Ge(l));
+  EXPECT_THAT(statAp, Le(h));
 }
 
 TEST_F(StatisticsTest, OddsRatios) {
@@ -127,7 +130,8 @@ TEST_F(StatisticsTest, OddsRatios) {
     double l = oddsRatios(i) - e;
     double h = oddsRatios(i) + e;
 
-    EXPECT_THAT(oddsRatiosStat[i], AllOf(Ge(l), Le(h)));
+    EXPECT_THAT(oddsRatiosStat[i], Ge(l));
+    EXPECT_THAT(oddsRatiosStat[i], Le(h));
   }
 }
 
@@ -147,8 +151,11 @@ TEST_F(StatisticsTest, OddsRatiosLowAndHigh) {
     double l_high = oddsRatiosHigh(i) - e;
     double h_high = oddsRatiosHigh(i) + e;
 
-    EXPECT_THAT(oddsRatiosLowStat[i], AllOf(Ge(l_low), Le(h_low)));
-    EXPECT_THAT(oddsRatiosHighStat[i], AllOf(Ge(l_high), Le(h_high)));
+    EXPECT_THAT(oddsRatiosLowStat[i], Ge(l_low));
+    EXPECT_THAT(oddsRatiosLowStat[i], Le(h_low));
+
+    EXPECT_THAT(oddsRatiosHighStat[i], Ge(l_high));
+    EXPECT_THAT(oddsRatiosHighStat[i], Le(h_high));
   }
 }
 

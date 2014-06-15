@@ -21,10 +21,15 @@ public:
   DataQueue();
   virtual ~DataQueue();
 
-  //next();
+  bool hasNext();
+  std::pair<SNP*, EnvironmentFactor*>* next();
 
 private:
+  std::vector<SNP*>* snpQueue;
+  std::vector<EnvironmentFactor*>* environmentQueue;
 
+  SNP* currentSNP;
+  EnvironmentFactor* currentEnvironmentFactor;
 };
 
 } /* namespace Task */

@@ -32,6 +32,7 @@ class EnvironmentVector {
   FRIEND_TEST(EnvironmentVectorTest, ConstructAndGet);
   FRIEND_TEST(EnvironmentVectorTest, RecodeNonBinary);
   FRIEND_TEST(EnvironmentVectorTest, RecodeBinary);
+  FRIEND_TEST(EnvironmentVectorTest, RecodeDifferentOrder);
 public:
   EnvironmentVector(const EnvironmentFactorHandler& environmentHandler, EnvironmentFactor& environmentFactor);
   virtual ~EnvironmentVector();

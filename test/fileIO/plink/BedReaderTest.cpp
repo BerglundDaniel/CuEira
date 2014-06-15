@@ -48,8 +48,8 @@ protected:
   ConfigurationMock configMock;
   CuEira_Test::ConstructorHelpers constructorHelpers;
   std::string filePath;
-  const int notInclude[4] = {1, 2, 5, 7}; //Index 0 based
-  const int numberOfSNPs = 10;
+  std::vector<int> notInclude; //Index 0 based
+  static const int numberOfSNPs = 10;
 
   Id* ids[numberOfIndividualsTotalStatic];
   Person* persons[numberOfIndividualsTotalStatic];
@@ -58,8 +58,11 @@ protected:
 
 BedReaderTest::BedReaderTest() :
     filePath(std::string(CuEira_BUILD_DIR) + std::string("/test.bed")), numberOfIndividualsTotal(
-        numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(numberOfIndividualsToIncludeStatic) {
-
+        numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(numberOfIndividualsToIncludeStatic), notInclude(4) {
+  notInclude[0] = 1;
+  notInclude[1] = 2;
+  notInclude[2] = 5;
+  notInclude[3] = 7;
 }
 
 BedReaderTest::~BedReaderTest() {
@@ -67,11 +70,11 @@ BedReaderTest::~BedReaderTest() {
 }
 
 void BedReaderTest::SetUp() {
-  //Expect Configuration
+//Expect Configuration
   EXPECT_CALL(configMock, getMinorAlleleFrequencyThreshold()).WillRepeatedly(Return(0.05));
   EXPECT_CALL(configMock, getBedFilePath()).Times(1).WillRepeatedly(Return(filePath));
 
-  //Expect PersonHandler
+//Expect PersonHandler
   EXPECT_CALL(personHandlerMock, getNumberOfIndividualsTotal()).Times(1).WillRepeatedly(
       Return(numberOfIndividualsTotal));
   EXPECT_CALL(personHandlerMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
@@ -114,7 +117,7 @@ TEST_F(BedReaderTest, ReadSnp0) {
     ids[i] = new Id(person->getId().getString());
   }
 
-  //Expect PersonHandler
+//Expect PersonHandler
   for(int i = 0; i < numberOfIndividualsTotal; ++i){
     Person* person = persons[i];
     EXPECT_CALL(personHandlerMock, getPersonFromRowAll(i)).WillRepeatedly(ReturnRef(*person));
@@ -134,7 +137,7 @@ TEST_F(BedReaderTest, ReadSnp0) {
   const std::vector<int>& snpData = snpVector->getOrginalData();
   ASSERT_EQ(6, snpData.size());
 
-  //Check maf and all freqs
+//Check maf and all freqs
   EXPECT_EQ(ALLELE_ONE, snp1.getRiskAllele());
   EXPECT_EQ(snp1.getAlleleOneAllFrequency(), snp1.getMinorAlleleFrequency());
 
@@ -145,7 +148,7 @@ TEST_F(BedReaderTest, ReadSnp0) {
   EXPECT_EQ(0.5, snp1.getAlleleOneAllFrequency());
   EXPECT_EQ(0.5, snp1.getAlleleTwoAllFrequency());
 
-  //Check data
+//Check data
   EXPECT_EQ(0, (snpData)[0]);
   EXPECT_EQ(2, (snpData)[1]);
   EXPECT_EQ(1, (snpData)[2]);
@@ -179,7 +182,7 @@ TEST_F(BedReaderTest, ReadSnp1) {
     ids[i] = new Id(person->getId().getString());
   }
 
-  //Expect PersonHandler
+//Expect PersonHandler
   for(int i = 0; i < numberOfIndividualsTotal; ++i){
     Person* person = persons[i];
     EXPECT_CALL(personHandlerMock, getPersonFromRowAll(i)).WillRepeatedly(ReturnRef(*person));
@@ -199,7 +202,7 @@ TEST_F(BedReaderTest, ReadSnp1) {
   const std::vector<int>& snpData = snpVector->getOrginalData();
   ASSERT_EQ(6, snpData.size());
 
-  //Check maf and all freqs
+//Check maf and all freqs
   EXPECT_EQ(ALLELE_TWO, snp1.getRiskAllele());
   EXPECT_EQ(snp1.getAlleleOneAllFrequency(), snp1.getMinorAlleleFrequency());
 
@@ -210,7 +213,7 @@ TEST_F(BedReaderTest, ReadSnp1) {
   EXPECT_EQ(3.0 / 12.0, snp1.getAlleleOneAllFrequency());
   EXPECT_EQ(9.0 / 12.0, snp1.getAlleleTwoAllFrequency());
 
-  //Check data
+//Check data
   EXPECT_EQ(2, (snpData)[0]);
   EXPECT_EQ(2, (snpData)[1]);
   EXPECT_EQ(1, (snpData)[2]);

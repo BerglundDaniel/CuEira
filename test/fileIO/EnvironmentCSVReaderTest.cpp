@@ -42,6 +42,7 @@ protected:
 
   static const int numberOfIndividualsTotalStatic = 10;
   static const int numberOfIndividualsToIncludeStatic = 6;
+  const int numberOfColumns;
   const int numberOfIndividualsTotal;
   const int numberOfIndividualsToInclude;
   PersonHandlerMock personHandlerMock;
@@ -49,8 +50,7 @@ protected:
   std::string filePath;
   std::string delimiter;
   std::string idColumnName;
-  const int notInclude[4] = {1, 2, 5, 7}; //Index 0 based
-  const int numberOfColumns = 2;
+  std::vector<int> notInclude; //Index 0 based
 
   Id* ids[numberOfIndividualsTotalStatic];
   Person* persons[numberOfIndividualsTotalStatic];
@@ -59,9 +59,13 @@ protected:
 };
 
 EnvironmentCSVReaderTest::EnvironmentCSVReaderTest() :
-    filePath(std::string(CuEira_BUILD_DIR) + std::string("/test_env.txt")), delimiter("\t "), idColumnName("indid"), numberOfIndividualsTotal(
-        numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(numberOfIndividualsToIncludeStatic) {
-
+    numberOfColumns(2), filePath(std::string(CuEira_BUILD_DIR) + std::string("/test_env.txt")), delimiter("\t "), idColumnName(
+        "indid"), numberOfIndividualsTotal(numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(
+        numberOfIndividualsToIncludeStatic), notInclude(4) {
+  notInclude[0] = 1;
+  notInclude[1] = 2;
+  notInclude[2] = 5;
+  notInclude[3] = 7;
 }
 
 EnvironmentCSVReaderTest::~EnvironmentCSVReaderTest() {

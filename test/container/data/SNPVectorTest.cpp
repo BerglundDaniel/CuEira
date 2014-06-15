@@ -38,7 +38,7 @@ protected:
   virtual void SetUp();
   virtual void TearDown();
 
-  const int numberOfIndividuals = 6;
+  const static int numberOfIndividuals = 6;
   std::vector<int>* originalSNPData;
   std::vector<PRECISION>* recodedSNPData;
 };

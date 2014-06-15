@@ -19,6 +19,9 @@
 #include <DeviceToHost.h>
 #include <HostToDevice.h>
 
+using ::testing::Ge;
+using ::testing::Le;
+
 namespace CuEira {
 namespace CUDA {
 
@@ -65,6 +68,7 @@ void LogLikelihoodPartsTest::TearDown() {
 }
 
 TEST_F(LogLikelihoodPartsTest, KernelSmallVector) {
+  double e = 10e-5;
   const int numberOfRows = 5;
 
   Container::PinnedHostVector* hostVectorOutcomes = new Container::PinnedHostVector(numberOfRows);
@@ -102,9 +106,14 @@ TEST_F(LogLikelihoodPartsTest, KernelSmallVector) {
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
 
   for(int i = 0; i < numberOfRows; ++i){
-    PRECISION x = (*hostVectorOutcomes)(i) * std::log((*hostVectorProbabilites)(i))
-        + (1 - (*hostVectorOutcomes)(i)) * std::log(1 - (*hostVectorProbabilites)(i));
-    EXPECT_EQ(x, (*resultHostVector)(i));
+    PRECISION x = (*hostVectorOutcomes)(i) * log((*hostVectorProbabilites)(i))
+        + (1 - (*hostVectorOutcomes)(i)) * log(1 - (*hostVectorProbabilites)(i));
+
+    double l = x - e;
+    double h = x + e;
+
+    EXPECT_THAT((*resultHostVector)(i), Ge(l));
+    EXPECT_THAT((*resultHostVector)(i), Le(h));
   }
 
   delete hostVectorOutcomes;

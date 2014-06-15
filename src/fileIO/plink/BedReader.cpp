@@ -138,7 +138,7 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
             Phenotype phenotype = person.getPhenotype();
             int currentPersonRow = personHandler.getRowIncludeFromPerson(person);
 
-            //If we are missing the genotype for one individual(that should be included) or more we excluded the SNP
+            //If we are missing the genotype for at least one individual(that should be included) we excluded the SNP
             if(firstBit && !secondBit){
 #ifdef DEBUG
               std::cerr << "Excluding SNP " << snp.getId().getString() << std::endl;

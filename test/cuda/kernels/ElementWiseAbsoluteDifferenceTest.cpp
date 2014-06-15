@@ -91,7 +91,7 @@ TEST_F(ElementWiseAbsoluteDifferenceTest, KernelSmallVector) {
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
 
   for(int i = 0; i < numberOfRows; ++i){
-    PRECISION x = std::abs((*hostVector1)(i) - (*hostVector2)(i));
+    PRECISION x = abs((*hostVector1)(i) - (*hostVector2)(i));
     EXPECT_EQ(x, (*resultHostVector)(i));
   }
 

@@ -27,11 +27,11 @@ Statistics* GpuModelHandler::calculateModel() {
     logisticRegressionConfiguration->setEnvironmentFactor(*environmentData);
   }else{
 
-    if(*currentSNP != *oldSNP){
+    if(!(*currentSNP == *oldSNP)){
       logisticRegressionConfiguration->setSNP(*snpData);
     }
 
-    if(*currentEnvironmentFactor != *oldEnvironmentFactor){
+    if(!(*currentEnvironmentFactor == *oldEnvironmentFactor)){
       logisticRegressionConfiguration->setEnvironmentFactor(*environmentData);
     }
   }
@@ -45,9 +45,9 @@ Statistics* GpuModelHandler::calculateModel() {
 
   //Does any of the data need to be recoded?
   Recode recode;
-  double snpBeta = betaCoefficents(1);
-  double envBeta = betaCoefficents(2);
-  double interactionBeta = betaCoefficents(3);
+  double snpBeta = (*betaCoefficents)(1);
+  double envBeta = (*betaCoefficents)(2);
+  double interactionBeta = (*betaCoefficents)(3);
 
   if(snpBeta < 0 && snpBeta < envBeta && snpBeta < interactionBeta){
     recode = SNP_PROTECT;
@@ -66,7 +66,7 @@ Statistics* GpuModelHandler::calculateModel() {
     covarianceMatrix = logisticRegression.getCovarianceMatrix();
   }
 
-  const Container::HostVector* standardError = new PinnedHostVector(numberOfPredictors);
+  Container::HostVector* standardError = new PinnedHostVector(numberOfPredictors);
   for(int i = 0; i < numberOfPredictors; ++i){
     (*standardError)(i) = covarianceMatrix(i, i);
   }

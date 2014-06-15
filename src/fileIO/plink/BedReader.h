@@ -54,8 +54,8 @@ private:
   const PersonHandler& personHandler;
   Mode mode;
   const GeneticModel geneticModel;
-  const int readBufferSizeMaxSNPMAJOR = 100000; //10kb
-  const int headerSize = 3;
+  const static int readBufferSizeMaxSNPMAJOR = 100000; //10kb
+  const static int headerSize = 3;
   const int numberOfSNPs;
   const int numberOfIndividualsToInclude;
   const int numberOfIndividualsTotal;

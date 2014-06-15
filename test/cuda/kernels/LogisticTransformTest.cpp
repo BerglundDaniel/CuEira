@@ -19,7 +19,6 @@
 #include <DeviceToHost.h>
 #include <HostToDevice.h>
 
-using ::testing::AllOf;
 using ::testing::Ge;
 using ::testing::Le;
 
@@ -95,7 +94,8 @@ TEST_F(LogisticTransformTest, KernelSmallVector) {
     double l = x - e;
     double h = x + e;
 
-    EXPECT_THAT((*resultHostVector)(i), AllOf(Ge(l), Le(h)));
+    EXPECT_THAT((*resultHostVector)(i), Ge(l));
+    EXPECT_THAT((*resultHostVector)(i), Le(h));
   }
 
   delete hostVectorFrom;
@@ -159,7 +159,8 @@ TEST_F(LogisticTransformTest, KernelLargeVector) {
     double l = x - e;
     double h = x + e;
 
-    EXPECT_THAT((*resultHostVector)(i), AllOf(Ge(l), Le(h)));
+    EXPECT_THAT((*resultHostVector)(i), Ge(l));
+    EXPECT_THAT((*resultHostVector)(i), Le(h));
   }
 
   delete hostVectorFrom;
@@ -195,7 +196,8 @@ TEST_F(LogisticTransformTest, KernelHugeVector) {
     double l = x - e;
     double h = x + e;
 
-    EXPECT_THAT((*resultHostVector)(i), AllOf(Ge(l), Le(h)));
+    EXPECT_THAT((*resultHostVector)(i), Ge(l));
+    EXPECT_THAT((*resultHostVector)(i), Le(h));
   }
 
   delete hostVectorFrom;
@@ -204,7 +206,6 @@ TEST_F(LogisticTransformTest, KernelHugeVector) {
   delete resultHostVector;
 }
 
-//TODO test exception
 }
 /* namespace CUDA */
 } /* namespace CuEira */

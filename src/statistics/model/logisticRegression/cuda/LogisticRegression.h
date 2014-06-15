@@ -13,6 +13,7 @@
 #include <LogisticRegressionConfiguration.h>
 #include <HostToDevice.h>
 #include <DeviceToHost.h>
+#include <InvalidState.h>
 
 namespace CuEira {
 namespace Model {

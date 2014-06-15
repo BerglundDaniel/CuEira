@@ -29,30 +29,33 @@ const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
 }
 
 bool DataHandler::next() {
-  if(true){ //FIXME
+  if(!dataQueue.hasNext()){
     return false;
   }
 
-  SNP nextSnp(Id("asdf"), "asdf", "asdf", 1); //FIXME
-  EnvironmentFactor nextEnvironmentFactor(Id("asdf")); //FIXME
+  std::pair<SNP*, EnvironmentFactor*>* dataPair = dataQueue.next();
+  SNP* nextSnp = dataPair->first;
+  EnvironmentFactor* nextEnvironmentFactor = dataPair->second;
+
+  delete dataPair;
 
   if(firstNext){
     firstNext = false;
-    readSNP(nextSnp);
-    environmentVector = new Container::EnvironmentVector(environmentFactorHandler, nextEnvironmentFactor);
+    readSNP(*nextSnp);
+    environmentVector = new Container::EnvironmentVector(environmentFactorHandler, *nextEnvironmentFactor);
     return true;
   }else{
     currentRecode = ALL_RISK;
     delete interactionVector;
 
-    if(!(getCurrentSNP() == nextSnp)){
-      readSNP(nextSnp);
+    if(!(getCurrentSNP() == *nextSnp)){
+      readSNP(*nextSnp);
     }else{
       snpVector->recode(currentRecode);
     }
 
-    if(!(getCurrentEnvironmentFactor() == nextEnvironmentFactor)){
-      environmentVector->switchEnvironmentFactor(nextEnvironmentFactor);
+    if(!(getCurrentEnvironmentFactor() == *nextEnvironmentFactor)){
+      environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
     }else{
       environmentVector->recode(currentRecode);
     }

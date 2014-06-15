@@ -40,7 +40,7 @@ protected:
   virtual void SetUp();
   virtual void TearDown();
 
-  const int numberOfIndividuals = 6;
+  const int numberOfIndividuals;
   CuEira_Test::ConstructorHelpers constructorHelpers;
   EnvironmentVectorMock* environmentVectorMock;
   SNPVectorMock* snpVectorMock;
@@ -50,7 +50,7 @@ protected:
 };
 
 InteractionVectorTest::InteractionVectorTest() :
-    environmentVectorMock(constructorHelpers.constructEnvironmentVectorMock()), snpVectorMock(
+    numberOfIndividuals(6), environmentVectorMock(constructorHelpers.constructEnvironmentVectorMock()), snpVectorMock(
         constructorHelpers.constructSNPVectorMock()), interact(numberOfIndividuals),
 #ifdef CPU
         envData(new LapackppHostVector(new LaVectorDouble(numberOfIndividuals))),

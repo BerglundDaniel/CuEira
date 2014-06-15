@@ -41,7 +41,7 @@ protected:
   virtual void SetUp();
   virtual void TearDown();
 
-  const int numberOfIndividuals = 6;
+  const int numberOfIndividuals;
   CuEira_Test::ConstructorHelpers constructorHelpers;
   EnvironmentFactorHandlerMock* environmentFactorHandlerMock;
   EnvironmentFactor startFactor;
@@ -51,7 +51,7 @@ protected:
 };
 
 EnvironmentVectorTest::EnvironmentVectorTest() :
-    environmentFactorHandlerMock(constructorHelpers.constructEnvironmentFactorHandlerMock()), startFactor(
+    numberOfIndividuals(6), environmentFactorHandlerMock(constructorHelpers.constructEnvironmentFactorHandlerMock()), startFactor(
         Id("startFactor")), binaryFactor(Id("binaryFactor")),
 #ifdef CPU
         orgData(new LapackppHostVector(new LaVectorDouble(numberOfIndividuals))),
@@ -269,6 +269,28 @@ TEST_F(EnvironmentVectorTest, StatisticModel) {
   }
 
   delete interactionVector;
+}
+
+TEST_F(EnvironmentVectorTest, RecodeDifferentOrder) {
+  EnvironmentVector environmentVector(*environmentFactorHandlerMock, startFactor);
+
+  ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
+  ASSERT_EQ(startFactor, environmentVector.getCurrentEnvironmentFactor());
+
+  const Container::HostVector* recodedData = &environmentVector.getRecodedData();
+  ASSERT_EQ(numberOfIndividuals, recodedData->getNumberOfRows());
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    EXPECT_EQ((*orgData)(i), (*recodedData)(i));
+  }
+
+  environmentVector.recode(ENVIRONMENT_PROTECT);
+  ASSERT_EQ(ENVIRONMENT_PROTECT, environmentVector.currentRecode);
+
+  recodedData = &environmentVector.getRecodedData();
+  ASSERT_EQ(numberOfIndividuals, recodedData->getNumberOfRows());
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    EXPECT_EQ((*orgData)(i) * -1, (*recodedData)(i));
+  }
 }
 
 } /* namespace Container */

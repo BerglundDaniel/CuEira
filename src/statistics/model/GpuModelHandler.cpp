@@ -3,11 +3,13 @@
 namespace CuEira {
 namespace Model {
 
-GpuModelHandler::GpuModelHandler(DataHandler& dataHandler,
-    LogisticRegression::LogisticRegressionConfiguration* logisticRegressionConfiguration) :
+GpuModelHandler::GpuModelHandler(DataHandler* dataHandler,
+    LogisticRegression::LogisticRegressionConfiguration* logisticRegressionConfiguration,
+    const CUDA::HostToDevice& hostToDevice, const CUDA::DeviceToHost& deviceToHost) :
     ModelHandler(dataHandler), logisticRegressionConfiguration(logisticRegressionConfiguration), numberOfRows(
         logisticRegressionConfiguration->getNumberOfRows()), numberOfPredictors(
-        logisticRegressionConfiguration->getNumberOfPredictors()) {
+        logisticRegressionConfiguration->getNumberOfPredictors()), hostToDevice(hostToDevice), deviceToHost(
+        deviceToHost) {
 
 }
 
@@ -38,9 +40,10 @@ Statistics* GpuModelHandler::calculateModel() {
 
   logisticRegressionConfiguration->setInteraction(*interactionData);
 
-  LogisticRegression::LogisticRegression logisticRegression(logisticRegressionConfiguration);
+  LogisticRegression::LogisticRegression logisticRegression(logisticRegressionConfiguration, hostToDevice,
+      deviceToHost);
 
-  const Container::HostVector* betaCoefficents = &logisticRegression.getBeta(); //FIXME
+  Container::HostVector* betaCoefficents = &logisticRegression.stealBeta();
   const Container::HostMatrix& covarianceMatrix = logisticRegression.getCovarianceMatrix();
 
   //Does any of the data need to be recoded?
@@ -61,8 +64,8 @@ Statistics* GpuModelHandler::calculateModel() {
     dataHandler.recode(recode);
 
     //Calculate again
-    logisticRegression(logisticRegressionConfiguration);
-    betaCoefficents = &logisticRegression.getBeta(); //FIXME
+    logisticRegression(logisticRegressionConfiguration, hostToDevice, deviceToHost);
+    betaCoefficents = &logisticRegression.stealBeta();
     covarianceMatrix = logisticRegression.getCovarianceMatrix();
   }
 

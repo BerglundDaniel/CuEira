@@ -3,7 +3,7 @@
 namespace CuEira {
 namespace Model {
 
-CpuModelHandler::CpuModelHandler(DataHandler& dataHandler, Container::HostMatrix* covariates) :
+CpuModelHandler::CpuModelHandler(DataHandler* dataHandler, Container::HostMatrix* covariates) :
     ModelHandler(dataHandler), covariates(covariates) {
 
 }

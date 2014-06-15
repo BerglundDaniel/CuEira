@@ -19,7 +19,7 @@ namespace Model {
  */
 class ModelHandler {
 public:
-  ModelHandler(DataHandler& dataHandler);
+  ModelHandler(DataHandler* dataHandler);
   virtual ~ModelHandler();
 
   bool next();
@@ -30,7 +30,7 @@ protected:
     NOT_INITIALISED, INITIALISED_READY, INITIALISED_FULL
   };
 
-  DataHandler& dataHandler;
+  DataHandler* dataHandler;
   const Container::HostVector * environmentData;
   const Container::HostVector * snpData;
   const Container::HostVector * interactionData;

@@ -22,7 +22,7 @@ namespace Model {
  */
 class CpuModelHandler: public ModelHandler {
 public:
-  CpuModelHandler(DataHandler& dataHandler, Container::HostMatrix* covariates);
+  CpuModelHandler(DataHandler* dataHandler, Container::HostMatrix* covariates);
   virtual ~CpuModelHandler();
 
   virtual Statistics* calculateModel();

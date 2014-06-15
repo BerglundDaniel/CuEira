@@ -33,9 +33,9 @@ public:
   virtual ~LogisticRegression();
 
   /**
-   * Get the vector containing the beta coefficients.
+   * Get the vector containing the beta coefficients. Can only be used once
    */
-  const HostVector& getBeta() const;
+  HostVector* stealBeta();
 
   /**
    * Get the matrix containing the covariances
@@ -72,6 +72,7 @@ private:
   Container::DeviceVector& betaCoefficentsDevice;
 
   Container::HostMatrix* informationMatrixHost;
+  Container::HostMatrix* inverseInformationMatrixHost;
   Container::HostVector* scoresHost;
   Container::HostVector* betaCoefficentsHost;
 };

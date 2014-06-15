@@ -11,11 +11,15 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
         lrConfiguration.getConvergenceThreshold()), numberOfRows(lrConfiguration.getNumberOfRows()), numberOfPredictors(
         lrConfiguration.getNumberOfPredictors()), informationMatrixDevice(lrConfiguration.getInformationMatrix()), betaCoefficentsDevice(
         lrConfiguration.getBetaCoefficents()), informationMatrixHost(
-        new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), scoresHost(new PinnedHostVector(numberOfRows)) {
+        new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), scoresHost(new PinnedHostVector(numberOfRows)), inverseInformationMatrixHost(
+        new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors)) {
 
   double* diffSumHost = new double(0);
-  PRECISION sigma[numberOfPredictors], uSVD[numberOfPredictors * numberOfPredictors], vtSVD[numberOfPredictors
-      * numberOfPredictors];
+  PinnedHostVector sigma(numberOfPredictors);
+  PinnedHostMatrix uSVD(numberOfPredictors, numberOfPredictors);
+  PinnedHostMatrix vtSVD(numberOfPredictors, numberOfPredictors);
+  PinnedHostMatrix workMatrixMxMHost(numberOfPredictors, numberOfPredictors);
+  Container::HostVector* betaCoefficentsOldHost = new Container::PinnedHostVector(numberOfPredictors);
 
   const Container::DeviceMatrix& predictorsDevice = lrConfiguration.getPredictors();
   const Container::DeviceVector& outcomesDevice = lrConfiguration.getOutcomes();
@@ -24,9 +28,6 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
 
   Container::DeviceMatrix& workMatrixNxMDevice = lrConfiguration.getWorkMatrixNxM();
   Container::DeviceVector& workVectorNx1Device = lrConfiguration.getWorkVectorNx1();
-
-  //FIXME host stuff, old beta
-  Container::HostVector* betaCoefficentsOldHost = new Container::PinnedHostVector(numberOfPredictors);
 
   for(iterationNumber = 0; iterationNumber < maxIterations; ++iterationNumber){
     //Calculate probabilities
@@ -61,9 +62,9 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
     kernelWrapper.syncStream();
 
     //Invert
-    MKL_INT status = sgesdd(LAPACK_COL_MAJOR, 'A', numberOfPredictors, numberOfPredictors,
-        informationMatrixHost->getMemoryPointer(), numberOfPredictors, sigma, uSVD, numberOfPredictors, vtSVD,
-        numberOfPredictors);
+    MKL_INT status = LAPACKE_sgesdd(LAPACK_COL_MAJOR, 'A', numberOfPredictors, numberOfPredictors,
+        informationMatrixHost->getMemoryPointer(), numberOfPredictors, sigma.getMemoryPointer(),
+        uSVD.getMemoryPointer(), numberOfPredictors, vtSVD.getMemoryPointer(), numberOfPredictors);
 
     if(status < 0){
       throw new InvalidState("Illegal values in informatio matrix.");
@@ -71,26 +72,36 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
       std::cerr << "Warning matrix svd didn't converge." << std::endl;
     }
 
+    for(int i = 0; i < numberOfPredictors; ++i){
+      PRECISION inverseSigma;
+      if(sigma(i) < 1e-10){
+        inverseSigma = 1 / sigma(i);
+      }else{
+        inverseSigma = 0;
+      }
+
+      //col i ifrån uSVD*inverseSigma läggs i rad i i work
+      //cblas_ FIXME
+      for(int k = 0; k < numberOfPredictors; ++k){
+        workMatrixMxMHost(i, k) = inverseSigma * uSVD(i, k);
+      }
+    }
+
+    cblas_sgemm(CblasColMajor, CblasTrans, CblasNoTrans, numberOfPredictors, numberOfPredictors, numberOfPredictors, 1,
+        vtSVD.getMemoryPointer(), numberOfPredictors, workMatrixMxMHost.getMemoryPointer(), numberOfPredictors, 0,
+        inverseInformationMatrixHost->getMemoryPointer(), numberOfPredictors);
+
     //Calculate new beta
 
+    //beta_old=inv*scores+beta_old
+    cblas_sgemv(CblasColMajor, CblasNoTrans, numberOfPredictors, numberOfPredictors, 1,
+        inverseInformationMatrixHost->getMemoryPointer(), numberOfPredictors, scoresHost->getMemoryPointer(), 1, 1,
+        betaCoefficentsOldHost->getMemoryPointer(), 1);
+
     //Calculate difference
-
-    /*
-     kernelWrapper.svd(informationMatrixDevice, uSVD, sigmaSVD, vtSVD);
-
-     kernelWrapper.matrixTransRowByRowInverseSigma(vtSVD, sigmaSVD, workMatrixMxMDevice);
-     kernelWrapper.matrixTransMatrixMultiply(uSVD, workMatrixMxMDevice, inverseInformationMatrixDevice);
-
-     //Calculate new beta
-     kernelWrapper.matrixVectorMultiply(inverseInformationMatrixDevice, scoresDevice, workVectorMx1Device);
-     kernelWrapper.elementWiseAddition(betaCoefficentsOldDevice, workVectorMx1Device, betaCoefficentsDevice);
-
-     //Calculate difference
-     kernelWrapper.elementWiseAbsoluteDifference(betaCoefficentsDevice, betaCoefficentsOldDevice, workVectorNx1Device);
-     kernelWrapper.sumResultToHost(workVectorNx1Device, diffSumHost);
-
-     kernelWrapper.syncStream();
-     */
+    cblas_saxpy(numberOfPredictors, -1.0, betaCoefficentsHost->getMemoryPointer(), 1,
+        betaCoefficentsOldHost->getMemoryPointer(), 1);
+    *diffSumHost = cblas_sasum(numberOfPredictors, betaCoefficentsOldHost->getMemoryPointer(), 1);
 
     if(*diffSumHost < convergenceThreshold){
 
@@ -115,17 +126,19 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
 
 LogisticRegression::~LogisticRegression() {
   delete betaCoefficentsHost;
-  //delete inverseInformationMatrixHost;
+  delete inverseInformationMatrixHost;
   delete informationMatrixHost;
   delete scoresHost;
 }
 
-const HostVector& LogisticRegression::getBeta() const {
-  return *betaCoefficentsHost;
+HostVector* LogisticRegression::stealBeta() {
+  HostVector* tmp = betaCoefficentsHost;
+  betaCoefficentsHost = nullptr;
+  return tmp;
 }
 
 const HostMatrix& LogisticRegression::getCovarianceMatrix() const {
-  //return *inverseInformationMatrixHost;
+  return *inverseInformationMatrixHost;
 }
 
 const HostMatrix& LogisticRegression::getInformationMatrix() const {

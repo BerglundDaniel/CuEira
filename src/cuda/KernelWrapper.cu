@@ -224,9 +224,9 @@ void KernelWrapper::matrixTransVectorMultiply(const DeviceMatrix& matrix, const 
 void KernelWrapper::matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const DeviceMatrix& matrix2,
     DeviceMatrix& result) const {
 #ifdef DEBUG
-  if((matrix1.getNumberOfRows() != matrix2.getNumberOfRows()) || (matrix1.getNumberOfRows() != result.getNumberOfRows())){
+  if((matrix1.getNumberOfRows() != matrix2.getNumberOfRows()) || (matrix1.getNumberOfColumns() != result.getNumberOfRows())){
     std::ostringstream os;
-    os << "Number of rows doesn't match in matrixTransMatrixMultiply function, they are " << matrix1.getNumberOfRows()
+    os << "Number of rows(columns for first matrix) doesn't match in matrixTransMatrixMultiply function, they are " << matrix1.getNumberOfColumns()
     << " , " << matrix2.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
     const std::string& tmp = os.str();
     throw CudaException(tmp.c_str());
@@ -234,7 +234,7 @@ void KernelWrapper::matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const
 
   if((matrix1.getNumberOfColumns() != matrix2.getNumberOfColumns()) || (matrix2.getNumberOfColumns() != result.getNumberOfColumns())){
     std::ostringstream os;
-    os << "Number of columns doesn't match in matrixTransMatrixMultiply function, they are " << matrix1.getNumberOfColumns()
+    os << "Number of columns(rows for first matrix) doesn't match in matrixTransMatrixMultiply function, they are " << matrix1.getNumberOfRows()
     << " , " << matrix2.getNumberOfColumns() << " and " << result.getNumberOfColumns() << std::endl;
     const std::string& tmp = os.str();
     throw CudaException(tmp.c_str());

@@ -3,25 +3,29 @@
 namespace CuEira {
 namespace Task {
 
-DataQueue::DataQueue() {
+DataQueue::DataQueue(std::vector<SNP*>* snpQueue) :
+    snpQueue(snpQueue), currentSNP(nullptr) {
 
 }
 
 DataQueue::~DataQueue() {
-  //FIXME should contents be deleted? who resposnible
-
   delete snpQueue;
-  delete environmentQueue;
 }
 
 bool DataQueue::hasNext() {
-
+  return !snpQueue->empty();
 }
 
-std::pair<SNP*, EnvironmentFactor*>* DataQueue::next() {
+SNP* DataQueue::next() {
+#ifdef DEBUG
+  if(snpQueue->empty()){
+    throw new InvalidState("Vector of SNPs is empty in DataQueue.");
+  }
+#endif
+  currentSNP = snpQueue->back();
+  snpQueue->pop_back();
 
-
-  return new std::pair<SNP*, EnvironmentFactor*>(currentSNP, currentEnvironmentFactor);
+  return currentSNP;
 }
 
 } /* namespace Task */

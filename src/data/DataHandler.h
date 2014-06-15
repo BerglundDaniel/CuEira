@@ -52,12 +52,15 @@ private:
   const StatisticModel statisticModel;
   const FileIO::BedReader& bedReader;
   const EnvironmentFactorHandler& environmentFactorHandler;
+  const std::vector<EnvironmentFactor*>& environmentInformation;
   int numberOfIndividualsToInclude;
   Container::EnvironmentVector* environmentVector;
   Container::SNPVector* snpVector;
   Container::InteractionVector* interactionVector;
   Recode currentRecode;
   bool firstNext;
+  SNP* currentSNP;
+  int currentEnvironmentFactorPos;
 };
 
 } /* namespace CuEira */

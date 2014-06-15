@@ -6,7 +6,7 @@
 
 #include <Id.h>
 #include <SNP.h>
-#include <EnvironmentFactor.h>
+#include <InvalidState.h>
 
 namespace CuEira {
 namespace Task {
@@ -18,18 +18,16 @@ namespace Task {
  */
 class DataQueue {
 public:
-  DataQueue();
+  DataQueue(std::vector<SNP*>* snpQueue);
   virtual ~DataQueue();
 
   bool hasNext();
-  std::pair<SNP*, EnvironmentFactor*>* next();
+  SNP* next();
 
 private:
   std::vector<SNP*>* snpQueue;
-  std::vector<EnvironmentFactor*>* environmentQueue;
 
   SNP* currentSNP;
-  EnvironmentFactor* currentEnvironmentFactor;
 };
 
 } /* namespace Task */

@@ -6,7 +6,8 @@ DataHandler::DataHandler(StatisticModel statisticModel, const FileIO::BedReader&
     const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue) :
     currentRecode(ALL_RISK), numberOfIndividualsToInclude(), dataQueue(dataQueue), statisticModel(statisticModel), bedReader(
         bedReader), interactionVector(nullptr), snpVector(nullptr), environmentVector(nullptr), environmentFactorHandler(
-        environmentFactorHandler), firstNext(true) {
+        environmentFactorHandler), firstNext(true), environmentInformation(environmentFactorHandler.getHeaders()), currentSNP(
+        nullptr), currentEnvironmentFactorPos(0) {
 
 }
 
@@ -29,36 +30,37 @@ const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
 }
 
 bool DataHandler::next() {
-  if(!dataQueue.hasNext()){
-    return false;
-  }
-
-  std::pair<SNP*, EnvironmentFactor*>* dataPair = dataQueue.next();
-  SNP* nextSnp = dataPair->first;
-  EnvironmentFactor* nextEnvironmentFactor = dataPair->second;
-
-  delete dataPair;
-
   if(firstNext){
+    if(!dataQueue.hasNext()){
+      return false;
+    }
+    SNP* nextSNP = dataQueue.next();
+    EnvironmentFactor* nextEnvironmentFactor = environmentInformation[0];
+
     firstNext = false;
-    readSNP(*nextSnp);
+    readSNP(*nextSNP);
     environmentVector = new Container::EnvironmentVector(environmentFactorHandler, *nextEnvironmentFactor);
-    return true;
+
   }else{
     currentRecode = ALL_RISK;
     delete interactionVector;
 
-    if(!(getCurrentSNP() == *nextSnp)){
-      readSNP(*nextSnp);
+    SNP* nextSNP;
+    EnvironmentFactor* nextEnvironmentFactor;
+    if(currentEnvironmentFactorPos == environmentInformation.size() - 1){
+      if(!dataQueue.hasNext()){
+        return false;
+      }
+
+      nextSNP = dataQueue.next();
+      nextEnvironmentFactor = environmentInformation[0];
+      currentEnvironmentFactorPos = 0;
     }else{
-      snpVector->recode(currentRecode);
+      currentEnvironmentFactorPos++;
+      nextSNP = currentSNP;
+      nextEnvironmentFactor = environmentInformation[currentEnvironmentFactorPos];
     }
 
-    if(!(getCurrentEnvironmentFactor() == *nextEnvironmentFactor)){
-      environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
-    }else{
-      environmentVector->recode(currentRecode);
-    }
   } /* else firstNext */
 
   interactionVector = new Container::InteractionVector(*environmentVector, *snpVector);

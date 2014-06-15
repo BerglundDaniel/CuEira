@@ -56,6 +56,38 @@ void KernelWrapper::elementWiseDivision(const DeviceVector& numeratorVector, con
       result.getMemoryPointer());
 }
 
+void KernelWrapper::elementWiseAddition(const DeviceVector& vector1, const DeviceVector& vector2,
+    DeviceVector& result) const {
+#ifdef DEBUG
+  if((vector1.getNumberOfRows() != vector2.getNumberOfRows()) || (vector1.getNumberOfRows() != result.getNumberOfRows())){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in elementWiseAddition function, they are " << vector1.getNumberOfRows()
+    << " , " << vector2.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
+  }
+#endif
+
+  const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
+  Kernel::ElementWiseAddition<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
+}
+
+void KernelWrapper::elementWiseMultiplication(const DeviceVector& vector1, const DeviceVector& vector2,
+    DeviceVector& result) const {
+#ifdef DEBUG
+  if((vector1.getNumberOfRows() != vector2.getNumberOfRows()) || (vector1.getNumberOfRows() != result.getNumberOfRows())){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in elementWiseMultiplication function, they are " << vector1.getNumberOfRows()
+    << " , " << vector2.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
+  }
+#endif
+
+  const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
+  Kernel::ElementWiseMultiplication<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
+}
+
 void KernelWrapper::logLikelihoodParts(const DeviceVector& outcomesVector, const DeviceVector& probabilites,
     DeviceVector& result) const {
 #ifdef DEBUG
@@ -109,75 +141,6 @@ void KernelWrapper::copyVector(const DeviceVector& vectorFrom, DeviceVector& vec
 #endif
 }
 
-void KernelWrapper::svd(const DeviceMatrix& matrix, DeviceMatrix& uSVD, DeviceVector& sigmaSVD,
-    DeviceMatrix& vtSVD) const {
-#ifdef DEBUG
-  if((matrix.getNumberOfRows() != uSVD.getNumberOfRows()) || (sigmaSVD.getNumberOfRows() != vtSVD.getNumberOfRows())
-      || (matrix.getNumberOfRows() != sigmaSVD.getNumberOfRows())){
-    std::ostringstream os;
-    os << "Number of rows doesn't match in svd function, they are " << matrix.getNumberOfRows() << " , "
-    << uSVD.getNumberOfRows() << " , " << sigmaSVD.getNumberOfRows() << " and " << vtSVD.getNumberOfRows()
-    << std::endl;
-    const std::string& tmp = os.str();
-    throw CudaException(tmp.c_str());
-  }
-
-  if((matrix.getNumberOfColumns() != uSVD.getNumberOfColumns())
-      || (sigmaSVD.getNumberOfColumns() != vtSVD.getNumberOfColumns())
-      || (matrix.getNumberOfColumns() != sigmaSVD.getNumberOfColumns())){
-    std::ostringstream os;
-    os << "Number of columns doesn't match in svd function, they are " << matrix.getNumberOfColumns() << " , "
-    << uSVD.getNumberOfColumns() << " , " << sigmaSVD.getNumberOfColumns() << " and " << vtSVD.getNumberOfColumns()
-    << std::endl;
-    const std::string& tmp = os.str();
-    throw CudaException(tmp.c_str());
-  }
-#endif
-
-  //TODO do svd
-
-}
-
-void KernelWrapper::matrixTransRowByRowInverseSigma(const DeviceMatrix& matrix, const DeviceVector& sigma,
-    DeviceMatrix& result) const {
-  //FIXME check for square
-#ifdef DEBUG
-  if((matrix.getNumberOfRows() != sigma.getNumberOfRows()) || (matrix.getNumberOfRows() != result.getNumberOfRows())){
-    std::ostringstream os;
-    os << "Number of rows doesn't match in matrixTransRowByRowInverseSigma function, they are " << matrix.getNumberOfRows() << " , "
-    << sigma.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
-    const std::string& tmp = os.str();
-    throw CudaException(tmp.c_str());
-  }
-
-  if(matrix.getNumberOfColumns() != result.getNumberOfColumns()){
-    std::ostringstream os;
-    os << "Number of columns doesn't match in matrixTransRowByRowInverseSigma function, they are " << matrix.getNumberOfColumns() <<
-    " and " << result.getNumberOfColumns() << std::endl;
-    const std::string& tmp = os.str();
-    throw CudaException(tmp.c_str());
-  }
-#endif
-
-  //TODO do a kernel call here
-  //need a custom kernel
-
-  //for each sigma number I, sigma_inv=1/sigma if sigma!=0 else sigma_inv=0
-  //sigma_inv* each element k in col I from matrix
-  //put res in res(i,k)
-
-}
-
-void KernelWrapper::setSymbolNumberOfRows(int numberOfRows) const {
-  cudaMemcpyToSymbol(numberOfRowsDeviceConstant, &numberOfRows, sizeof(int));
-  handleCudaStatus(cudaGetLastError(), "Error in memcopy to symbol numberOfRows : ");
-}
-
-void KernelWrapper::setSymbolNumberOfPredictors(int numberOfPredictors) const {
-  cudaMemcpyToSymbol(numberOfPredictorsDeviceConstant, &numberOfPredictors, sizeof(int));
-  handleCudaStatus(cudaGetLastError(), "Error in memcopy to symbol numberOfPredictors : ");
-}
-
 void KernelWrapper::probabilitesMultiplyProbabilites(const DeviceVector& probabilitesDevice,
     DeviceVector& result) const {
 #ifdef DEBUG
@@ -213,10 +176,9 @@ void KernelWrapper::elementWiseDifference(const DeviceVector& vector1, const Dev
 void KernelWrapper::matrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
     DeviceVector& result) const {
 #ifdef DEBUG
-  if((matrix.getNumberOfRows() != vector.getNumberOfRows()) || (vector.getNumberOfRows() != result.getNumberOfRows())){
+  if((matrix.getNumberOfRows() != result.getNumberOfRows()) || (vector.getNumberOfRows() != matrix.getNumberOfColumns())){
     std::ostringstream os;
-    os << "Number of rows doesn't match in matrixVectorMultiply function, they are " << matrix.getNumberOfRows()
-    << " , " << vector.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
+    os << "Sizes doesn't match in matrixVectorMultiply function." << std::endl;
     const std::string& tmp = os.str();
     throw CudaException(tmp.c_str());
   }
@@ -232,15 +194,15 @@ void KernelWrapper::matrixVectorMultiply(const DeviceMatrix& matrix, const Devic
       matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, const1,
       result.getMemoryPointer(), 1);
 #endif
+  delete const1;
 }
 
 void KernelWrapper::matrixTransVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
     DeviceVector& result) const {
 #ifdef DEBUG
-  if((matrix.getNumberOfColumns() != vector.getNumberOfRows()) || (vector.getNumberOfRows() != result.getNumberOfRows())){
+  if((matrix.getNumberOfColumns() != result.getNumberOfRows()) || (vector.getNumberOfRows() != matrix.getNumberOfRows())){
     std::ostringstream os;
-    os << "Number of rows(columns for matrix) doesn't match in matrixTransVectorMultiply function, they are " << matrix.getNumberOfColumns()
-    << " , " << vector.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
+    os << "Number of rows(columns for matrix) doesn't match in matrixTransVectorMultiply function" << std::endl;
     const std::string& tmp = os.str();
     throw CudaException(tmp.c_str());
   }
@@ -256,22 +218,23 @@ void KernelWrapper::matrixTransVectorMultiply(const DeviceMatrix& matrix, const 
       matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, const1,
       result.getMemoryPointer(), 1);
 #endif
+  delete const1;
 }
 
 void KernelWrapper::matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const DeviceMatrix& matrix2,
     DeviceMatrix& result) const {
 #ifdef DEBUG
-  if((matrix1.getNumberOfColumns() != matrix2.getNumberOfRows()) || (matrix2.getNumberOfRows() != result.getNumberOfRows())){
+  if((matrix1.getNumberOfRows() != matrix2.getNumberOfRows()) || (matrix1.getNumberOfRows() != result.getNumberOfRows())){
     std::ostringstream os;
-    os << "Number of rows(columns for the first matrix) doesn't match in matrixTransMatrixMultiply function, they are " << matrix1.getNumberOfColumns()
+    os << "Number of rows doesn't match in matrixTransMatrixMultiply function, they are " << matrix1.getNumberOfRows()
     << " , " << matrix2.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
     const std::string& tmp = os.str();
     throw CudaException(tmp.c_str());
   }
 
-  if((matrix1.getNumberOfRows() != matrix2.getNumberOfColumns()) || (matrix1.getNumberOfColumns() != result.getNumberOfColumns())){
+  if((matrix1.getNumberOfColumns() != matrix2.getNumberOfColumns()) || (matrix2.getNumberOfColumns() != result.getNumberOfColumns())){
     std::ostringstream os;
-    os << "Number of columns(rows for first matrix) doesn't match in matrixTransMatrixMultiply function, they are " << matrix1.getNumberOfRows()
+    os << "Number of columns doesn't match in matrixTransMatrixMultiply function, they are " << matrix1.getNumberOfColumns()
     << " , " << matrix2.getNumberOfColumns() << " and " << result.getNumberOfColumns() << std::endl;
     const std::string& tmp = os.str();
     throw CudaException(tmp.c_str());
@@ -290,6 +253,7 @@ void KernelWrapper::matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const
       matrix2.getMemoryPointer(), matrix2.getNumberOfRows(), const1, result.getMemoryPointer(),
       result.getNumberOfRows());
 #endif
+  delete const1;
 }
 
 void KernelWrapper::columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix,
@@ -323,44 +287,22 @@ void KernelWrapper::columnByColumnMatrixVectorElementWiseMultiply(const DeviceMa
   }
 }
 
-void KernelWrapper::elementWiseAddition(const DeviceVector& vector1, const DeviceVector& vector2,
-    DeviceVector& result) const {
-#ifdef DEBUG
-  if((vector1.getNumberOfRows() != vector2.getNumberOfRows()) || (vector1.getNumberOfRows() != result.getNumberOfRows())){
-    std::ostringstream os;
-    os << "Number of rows doesn't match in elementWiseAddition function, they are " << vector1.getNumberOfRows()
-    << " , " << vector2.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
-    const std::string& tmp = os.str();
-    throw CudaException(tmp.c_str());
-  }
-#endif
-
-  const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
-  Kernel::ElementWiseAddition<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
-}
-
-void KernelWrapper::elementWiseMultiplication(const DeviceVector& vector1, const DeviceVector& vector2,
-    DeviceVector& result) const {
-#ifdef DEBUG
-  if((vector1.getNumberOfRows() != vector2.getNumberOfRows()) || (vector1.getNumberOfRows() != result.getNumberOfRows())){
-    std::ostringstream os;
-    os << "Number of rows doesn't match in elementWiseMultiplication function, they are " << vector1.getNumberOfRows()
-    << " , " << vector2.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
-    const std::string& tmp = os.str();
-    throw CudaException(tmp.c_str());
-  }
-#endif
-
-  const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
-  Kernel::ElementWiseMultiplication<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
-}
-
 void KernelWrapper::sumResultToHost(const DeviceVector& vector, PRECISION* sumHost) const {
 #ifdef DOUBLEPRECISION
   cublasDasum(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, sumHost);
 #else
   cublasSasum(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, sumHost);
 #endif
+}
+
+void KernelWrapper::setSymbolNumberOfRows(int numberOfRows) const {
+  cudaMemcpyToSymbol(numberOfRowsDeviceConstant, &numberOfRows, sizeof(int));
+  handleCudaStatus(cudaGetLastError(), "Error in memcopy to symbol numberOfRows : ");
+}
+
+void KernelWrapper::setSymbolNumberOfPredictors(int numberOfPredictors) const {
+  cudaMemcpyToSymbol(numberOfPredictorsDeviceConstant, &numberOfPredictors, sizeof(int));
+  handleCudaStatus(cudaGetLastError(), "Error in memcopy to symbol numberOfPredictors : ");
 }
 
 } /* namespace CUDA */

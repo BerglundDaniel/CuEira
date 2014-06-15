@@ -6,8 +6,6 @@
 #include <math.h>
 #include <sstream>
 #include <string>
-#include <gtest/gtest.h>
-#include <gtest/gtest_prod.h>
 
 #include <CudaAdapter.cu>
 #include <DeviceVector.h>
@@ -16,14 +14,6 @@
 
 namespace CuEira {
 namespace CUDA {
-class ElementWiseAbsoluteDifferenceTest;
-class ElementWiseDifferenceTest;
-class ElementWiseDivisionTest;
-class ElementWiseAdditionTest;
-class ElementWiseMultiplicationTest;
-class LogisticTransformTest;
-class LogLikelihoodPartsTest;
-class VectorMultiply1MinusVectorTest;
 
 using namespace CuEira::Container;
 
@@ -33,24 +23,6 @@ using namespace CuEira::Container;
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class KernelWrapper {
-  friend ElementWiseAbsoluteDifferenceTest;
-  friend ElementWiseDifferenceTest;
-  friend ElementWiseDivisionTest;
-  friend ElementWiseAdditionTest;
-  friend ElementWiseMultiplicationTest;
-  friend LogisticTransformTest;
-  friend LogLikelihoodPartsTest;
-  friend VectorMultiply1MinusVectorTest;
-  FRIEND_TEST(ElementWiseAbsoluteDifferenceTest, KernelSmallVector);
-  FRIEND_TEST(ElementWiseDifferenceTest, KernelSmallVector);
-  FRIEND_TEST(ElementWiseDivisionTest, KernelSmallVector);
-  FRIEND_TEST(ElementWiseAdditionTest, KernelSmallVector);
-  FRIEND_TEST(ElementWiseMultiplicationTest, KernelSmallVector);
-  FRIEND_TEST(LogisticTransformTest, KernelSmallVector);
-  FRIEND_TEST(LogisticTransformTest, KernelLargeVector);
-  FRIEND_TEST(LogisticTransformTest, KernelHugeVector);
-  FRIEND_TEST(LogLikelihoodPartsTest, KernelSmallVector);
-  FRIEND_TEST(VectorMultiply1MinusVectorTest, KernelSmallVector);
 public:
   /**
    * Constructor for the class. Takes the stream the transfers should be executed on. Some functions requires that a cublas context has been created.
@@ -71,6 +43,16 @@ public:
       DeviceVector& result) const;
 
   /**
+   * Adds each element result(i)=vector1(i) + vector2(i)
+   */
+  void elementWiseAddition(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
+
+  /**
+   * Multiplies each element result(i)=vector1(i) * vector2(i)
+   */
+  void elementWiseMultiplication(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
+
+  /**
    * Calculates all the parts of a loglikelihood. The sum of the elements in result is the loglikelihood. Assumes both have a length of numberOfRows.
    */
   void logLikelihoodParts(const DeviceVector& outcomesVector, const DeviceVector& probabilites,
@@ -79,18 +61,8 @@ public:
   /**
    * Calculates the absolute difference for each element. Assumes both have length numberOfPredictors.
    */
-  void elementWiseAbsoluteDifference(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
-
-  /**
-   * Performs singular value decomposition on the matrix
-   */
-  void svd(const DeviceMatrix& matrix, DeviceMatrix& uSVD, DeviceVector& sigmaSVD, DeviceMatrix& vtSVD) const;
-
-  /**
-   * Asdf
-   */
-  void matrixTransRowByRowInverseSigma(const DeviceMatrix& matrix, const DeviceVector& sigma,
-      DeviceMatrix& result) const;
+  void elementWiseAbsoluteDifference(const DeviceVector& vector1, const DeviceVector& vector2,
+      DeviceVector& result) const;
 
   /**
    * Copies from vectorFrom to vectorTo element wise
@@ -129,16 +101,6 @@ public:
       DeviceMatrix& result) const;
 
   /**
-   * Asdf
-   */
-  void elementWiseAddition(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
-
-  /**
-   * Asdf
-   */
-  void elementWiseMultiplication(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
-
-  /**
    * Sums the vectors elements and puts the result in the given pointer
    */
   void sumResultToHost(const DeviceVector& vector, PRECISION* sumHost) const;
@@ -150,8 +112,14 @@ public:
     cudaStreamSynchronize(cudaStream);
   }
 
-protected:
+  /**
+   * Set the device symbol
+   */
   void setSymbolNumberOfRows(int numberOfRows) const;
+
+  /**
+   * Set the device symbol
+   */
   void setSymbolNumberOfPredictors(int numberOfPredictors) const;
 
 private:

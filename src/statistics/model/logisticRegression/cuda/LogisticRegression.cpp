@@ -97,14 +97,14 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
     //Calculate new beta
 
     //beta=inv*scores+beta
-    cblas_sgemv(CblasColMajor, CblasNoTrans, numberOfPredictors, numberOfPredictors, 1,
-        inverseInformationMatrixHost->getMemoryPointer(), numberOfPredictors, scoresHost->getMemoryPointer(), 1, 1,
-        betaCoefficentsHost->getMemoryPointer(), 1);
+    mklWrapper.matrixVectorMultiply(*inverseInformationMatrixHost, *scoresHost, *betaCoefficentsHost, 1, 1);
+
     std::cerr << "s13" << std::endl;
+
     //Calculate difference
-    cblas_saxpy(numberOfPredictors, -1.0, betaCoefficentsHost->getMemoryPointer(), 1,
-        betaCoefficentsOldHost->getMemoryPointer(), 1);
-    *diffSumHost = cblas_sasum(numberOfPredictors, betaCoefficentsOldHost->getMemoryPointer(), 1);
+    mklWrapper.differenceElememtWise(*betaCoefficentsHost, *betaCoefficentsOldHost);
+    mklWrapper.absoluteSum(*betaCoefficentsOldHost, diffSumHost);
+
     std::cerr << "s14" << std::endl;
     std::cerr << (*betaCoefficentsHost)(0) << std::endl;
 

@@ -12,5 +12,6 @@ set(TEST_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/SNPTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentFactorTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentFactorHandlerTest.cpp
+  #${CMAKE_CURRENT_SOURCE_DIR}/DataHandlerTest.cpp
   PARENT_SCOPE
 )

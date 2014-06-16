@@ -6,8 +6,8 @@ DataHandler::DataHandler(StatisticModel statisticModel, const FileIO::BedReader&
     const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue) :
     currentRecode(ALL_RISK), numberOfIndividualsToInclude(), dataQueue(dataQueue), statisticModel(statisticModel), bedReader(
         bedReader), interactionVector(nullptr), snpVector(nullptr), environmentVector(nullptr), environmentFactorHandler(
-        environmentFactorHandler), firstNext(true), environmentInformation(environmentFactorHandler.getHeaders()), currentSNP(
-        nullptr), currentEnvironmentFactorPos(0) {
+        environmentFactorHandler), environmentInformation(environmentFactorHandler.getHeaders()), currentSNP(nullptr), currentEnvironmentFactorPos(
+        0), state(NOT_INITIALISED) {
 
 }
 
@@ -22,22 +22,28 @@ int DataHandler::getNumberOfIndividualsToInclude() const {
 }
 
 const SNP& DataHandler::getCurrentSNP() const {
+  if(state == NOT_INITIALISED){
+    throw new InvalidState("Before using the getter run next() at least once.");
+  }
   return snpVector->getAssociatedSNP();
 }
 
 const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
+  if(state == NOT_INITIALISED){
+    throw new InvalidState("Before using the getter run next() at least once.");
+  }
   return environmentVector->getCurrentEnvironmentFactor();
 }
 
 bool DataHandler::next() {
-  if(firstNext){
+  if(state == NOT_INITIALISED){
+    state = INITIALISED;
     if(!dataQueue.hasNext()){
       return false;
     }
     SNP* nextSNP = dataQueue.next();
     EnvironmentFactor* nextEnvironmentFactor = environmentInformation[0];
 
-    firstNext = false;
     readSNP(*nextSNP);
     environmentVector = new Container::EnvironmentVector(environmentFactorHandler, *nextEnvironmentFactor);
 
@@ -81,10 +87,16 @@ void DataHandler::readSNP(SNP& nextSnp) {
 }
 
 Recode DataHandler::getRecode() const {
+  if(state == NOT_INITIALISED){
+    throw new InvalidState("Before using the getter run next() at least once.");
+  }
   return currentRecode;
 }
 
 void DataHandler::recode(Recode recode) {
+  if(state == NOT_INITIALISED){
+    throw new InvalidState("Before using the getter run next() at least once.");
+  }
   if(recode == currentRecode){
     return;
   }else if(!(recode == SNP_PROTECT || recode == ENVIRONMENT_PROTECT || recode == INTERACTION_PROTECT)){
@@ -106,14 +118,23 @@ void DataHandler::recode(Recode recode) {
 }
 
 const Container::HostVector& DataHandler::getSNP() const {
+  if(state == NOT_INITIALISED){
+    throw new InvalidState("Before using the getter run next() at least once.");
+  }
   return snpVector->getRecodedData();
 }
 
 const Container::HostVector& DataHandler::getInteraction() const {
+  if(state == NOT_INITIALISED){
+    throw new InvalidState("Before using the getter run next() at least once.");
+  }
   return interactionVector->getRecodedData();
 }
 
 const Container::HostVector& DataHandler::getEnvironment() const {
+  if(state == NOT_INITIALISED){
+    throw new InvalidState("Before using the getter run next() at least once.");
+  }
   return environmentVector->getRecodedData();
 }
 

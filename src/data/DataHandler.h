@@ -46,8 +46,13 @@ public:
   const Container::HostVector& getEnvironment() const;
 
 private:
+  enum State{
+    NOT_INITIALISED, INITIALISED
+  };
+
   void readSNP(SNP& nextSnp);
 
+  State state;
   Task::DataQueue& dataQueue;
   const StatisticModel statisticModel;
   const FileIO::BedReader& bedReader;
@@ -58,7 +63,6 @@ private:
   Container::SNPVector* snpVector;
   Container::InteractionVector* interactionVector;
   Recode currentRecode;
-  bool firstNext;
   SNP* currentSNP;
   int currentEnvironmentFactorPos;
 };

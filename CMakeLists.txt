@@ -26,7 +26,7 @@ set(PRECISION single) #single or double
 #set(TARGET_ARCHITECTURE fermi) #fermi or kepler
 option(CPU off)
 option(CLUSTER off)
-option(ENABLE_MKL_FLAG "Enable MKL flag" ON)
+option(ENABLE_MKL "Enable MKL flag" ON)
 
 #Set things based on options
 if(${VERBOSE})
@@ -100,7 +100,7 @@ else()
   #Possibly wrong place FIXME
 
   if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
-    if(ENABLE_MKL_FLAG)
+    if(ENABLE_MKL)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")
     else()
       message( FATAL_ERROR "Have to use MKL+intel" )

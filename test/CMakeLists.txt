@@ -11,6 +11,10 @@ else()
   add_subdirectory(cuda)
 endif(${CPU})
 
+if(${ENABLE_MKL})
+  add_subdirectory(mkl)
+endif()
+
 set(TEST_INCLUDE_DIRECTORIES
   ${TEST_INCLUDE_DIRECTORIES}
   ${CMAKE_CURRENT_SOURCE_DIR}

@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <vector>
+#include <sstream>
 
 #include <Id.h>
 #include <SNP.h>

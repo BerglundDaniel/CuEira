@@ -40,11 +40,11 @@ Statistics* GpuModelHandler::calculateModel() {
 
   logisticRegressionConfiguration->setInteraction(*interactionData);
 
-  LogisticRegression::LogisticRegression logisticRegression(logisticRegressionConfiguration, hostToDevice,
-      deviceToHost);
+  LogisticRegression::LogisticRegression* logisticRegression = new LogisticRegression::LogisticRegression(
+      *logisticRegressionConfiguration, hostToDevice, deviceToHost);
 
-  Container::HostVector* betaCoefficents = &logisticRegression.stealBeta();
-  const Container::HostMatrix& covarianceMatrix = logisticRegression.getCovarianceMatrix();
+  Container::HostVector* betaCoefficents = logisticRegression->stealBeta();
+  const Container::HostMatrix* covarianceMatrix = &logisticRegression->getCovarianceMatrix();
 
   //Does any of the data need to be recoded?
   Recode recode;
@@ -61,19 +61,21 @@ Statistics* GpuModelHandler::calculateModel() {
   }
 
   if(recode != ALL_RISK){
-    dataHandler.recode(recode);
+    dataHandler->recode(recode);
 
     //Calculate again
-    logisticRegression(logisticRegressionConfiguration, hostToDevice, deviceToHost);
-    betaCoefficents = &logisticRegression.stealBeta();
-    covarianceMatrix = logisticRegression.getCovarianceMatrix();
+    logisticRegression = new LogisticRegression::LogisticRegression(*logisticRegressionConfiguration, hostToDevice,
+        deviceToHost);
+    betaCoefficents = logisticRegression->stealBeta();
+    covarianceMatrix = &logisticRegression->getCovarianceMatrix();
   }
 
-  Container::HostVector* standardError = new PinnedHostVector(numberOfPredictors);
+  Container::HostVector* standardError = new Container::PinnedHostVector(numberOfPredictors);
   for(int i = 0; i < numberOfPredictors; ++i){
-    (*standardError)(i) = covarianceMatrix(i, i);
+    (*standardError)(i) = (*covarianceMatrix)(i, i);
   }
 
+  delete logisticRegression;
   return new Statistics(betaCoefficents, standardError); //FIXME statistics owns beta and stanarderror?
 }
 

@@ -104,7 +104,7 @@ Container::SNPVectorMock* ConstructorHelpers::constructSNPVectorMock() {
   return new Container::SNPVectorMock(SNPData, snp);
 }
 
-EnvironmentFactorHandlerMock* ConstructorHelpers::constructEnvironmentFactorHandlerMock(){
+EnvironmentFactorHandlerMock* ConstructorHelpers::constructEnvironmentFactorHandlerMock() {
   const int numberOfIndividuals = 3;
   const int numberOfColumns = 2;
 
@@ -126,5 +126,10 @@ EnvironmentFactorHandlerMock* ConstructorHelpers::constructEnvironmentFactorHand
   return new EnvironmentFactorHandlerMock(dataMatrix, environmentFactors);
 }
 
-} /* namespace CuEira_Test */
+FileIO::BedReaderMock* ConstructorHelpers::constructBedReaderMock() {
+  return new FileIO::BedReaderMock(ConfigurationMock(), PersonHandlerMock());
+}
+
+}
+/* namespace CuEira_Test */
 } /* namespace CuEira */

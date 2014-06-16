@@ -53,6 +53,12 @@ BedReader::BedReader(const Configuration& configuration, const PersonHandler& pe
   closeBedFile(bedFile);
 }
 
+BedReader::BedReader(const Configuration& configuration, const PersonHandler& personHandler) :
+    geneticModel(DOMINANT), numberOfSNPs(0), numberOfIndividualsTotal(0), numberOfIndividualsToInclude(0), configuration(
+        configuration), personHandler(personHandler) {
+
+}
+
 BedReader::~BedReader() {
 
 }

@@ -36,7 +36,10 @@ public:
   explicit BedReader(const Configuration& configuration, const PersonHandler& personHandler, const int numberOfSNPs);
   virtual ~BedReader();
 
-  Container::SNPVector* readSNP(SNP& snp) const;
+  virtual Container::SNPVector* readSNP(SNP& snp) const;
+
+protected:
+  explicit BedReader(const Configuration& configuration, const PersonHandler& personHandler); //Used by the mock
 
 private:
   enum Mode {

@@ -17,6 +17,10 @@
 #include <EnvironmentFactorHandlerMock.h>
 #include <SNP.h>
 #include <GeneticModel.h>
+#include <BedReaderMock.h>
+#include <Configuration.h>
+#include <PersonHandlerMock.h>
+#include <ConfigurationMock.h>
 
 #ifdef CPU
 #include <lapackpp/gmd.h>
@@ -45,6 +49,7 @@ public:
   Container::EnvironmentVectorMock* constructEnvironmentVectorMock();
   Container::SNPVectorMock* constructSNPVectorMock();
   EnvironmentFactorHandlerMock* constructEnvironmentFactorHandlerMock();
+  FileIO::BedReaderMock* constructBedReaderMock();
 
 private:
 

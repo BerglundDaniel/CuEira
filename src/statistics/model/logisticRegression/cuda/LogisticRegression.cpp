@@ -12,7 +12,8 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
         lrConfiguration.getNumberOfPredictors()), informationMatrixDevice(lrConfiguration.getInformationMatrix()), betaCoefficentsDevice(
         lrConfiguration.getBetaCoefficents()), informationMatrixHost(
         new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), scoresHost(new PinnedHostVector(numberOfRows)), inverseInformationMatrixHost(
-        new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors)) {
+        new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), logLikelihood(new PRECISION(0)), betaCoefficentsHost(
+        deviceToHost.transferVector(&betaCoefficentsDevice)) {
 
   double* diffSumHost = new double(0);
   PinnedHostVector sigma(numberOfPredictors);
@@ -29,29 +30,34 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
   Container::DeviceMatrix& workMatrixNxMDevice = lrConfiguration.getWorkMatrixNxM();
   Container::DeviceVector& workVectorNx1Device = lrConfiguration.getWorkVectorNx1();
 
+  MKLWrapper mklWrapper;
+
+  std::cerr << "start" << std::endl;
+
   for(iterationNumber = 0; iterationNumber < maxIterations; ++iterationNumber){
     //Calculate probabilities
+    std::cerr << "iter" << std::endl;
     kernelWrapper.matrixVectorMultiply(predictorsDevice, betaCoefficentsDevice, workVectorNx1Device);
+    std::cerr << "s1" << std::endl;
     kernelWrapper.logisticTransform(workVectorNx1Device, probabilitesDevice);
-
+    std::cerr << "s2" << std::endl;
     //Calculate scores
     kernelWrapper.elementWiseDifference(outcomesDevice, probabilitesDevice, workVectorNx1Device);
-    kernelWrapper.matrixTransVectorMultiply(predictorsDevice, workVectorNx1Device, scoresDevice);
+    std::cerr << "s3" << std::endl;
+    kernelWrapper.matrixTransVectorMultiply(predictorsDevice, workVectorNx1Device, scoresDevice); //Hit
+    std::cerr << "s4" << std::endl;
 
     //Calculate information matrix
     kernelWrapper.probabilitesMultiplyProbabilites(probabilitesDevice, workVectorNx1Device);
+    std::cerr << "s5" << std::endl;
     kernelWrapper.columnByColumnMatrixVectorElementWiseMultiply(predictorsDevice, workVectorNx1Device,
         workMatrixNxMDevice);
+    std::cerr << "s6" << std::endl;
     kernelWrapper.matrixTransMatrixMultiply(predictorsDevice, workMatrixNxMDevice, informationMatrixDevice);
-
+    std::cerr << "s7" << std::endl;
     //Copy beta to old beta
-#ifdef DOUBLEPRECISION
-    cblas_dcopy((MKL_INT)numberOfPredictors, betaCoefficentsHost->getMemoryPointer(), (MKL_INT)1,
-        betaCoefficentsOldHost->getMemoryPointer(), (MKL_INT)1);
-#else
-    cblas_scopy((MKL_INT) numberOfPredictors, betaCoefficentsHost->getMemoryPointer(), (MKL_INT) 1,
-        betaCoefficentsOldHost->getMemoryPointer(), (MKL_INT) 1);
-#endif
+    mklWrapper.copyVector(*betaCoefficentsHost, *betaCoefficentsOldHost);
+    std::cerr << "s8" << std::endl;
 
     //Inverse information matrix
     //NOTE This part is done on CPU
@@ -60,18 +66,14 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
     deviceToHost.transferMatrix(&informationMatrixDevice, informationMatrixHost->getMemoryPointer());
     deviceToHost.transferVector(&scoresDevice, scoresHost->getMemoryPointer());
     kernelWrapper.syncStream();
+    std::cerr << "s9" << std::endl;
+    std::cerr << (*scoresHost)(0) << std::endl;
+    std::cerr << (*informationMatrixHost)(0, 0) << std::endl;
 
     //Invert
-    MKL_INT status = LAPACKE_sgesdd(LAPACK_COL_MAJOR, 'A', numberOfPredictors, numberOfPredictors,
-        informationMatrixHost->getMemoryPointer(), numberOfPredictors, sigma.getMemoryPointer(),
-        uSVD.getMemoryPointer(), numberOfPredictors, vtSVD.getMemoryPointer(), numberOfPredictors);
+    mklWrapper.svd(*informationMatrixHost, uSVD, sigma, vtSVD);
 
-    if(status < 0){
-      throw new InvalidState("Illegal values in informatio matrix.");
-    }else if(status > 0){
-      std::cerr << "Warning matrix svd didn't converge." << std::endl;
-    }
-
+    //FIXME
     for(int i = 0; i < numberOfPredictors; ++i){
       PRECISION inverseSigma;
       if(sigma(i) < 1e-10){
@@ -79,6 +81,7 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
       }else{
         inverseSigma = 0;
       }
+      std::cerr << inverseSigma << std::endl;
 
       //col i ifrån uSVD*inverseSigma läggs i rad i i work
       //cblas_ FIXME
@@ -86,29 +89,32 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
         workMatrixMxMHost(i, k) = inverseSigma * uSVD(i, k);
       }
     }
+    std::cerr << "s11" << std::endl;
 
-    cblas_sgemm(CblasColMajor, CblasTrans, CblasNoTrans, numberOfPredictors, numberOfPredictors, numberOfPredictors, 1,
-        vtSVD.getMemoryPointer(), numberOfPredictors, workMatrixMxMHost.getMemoryPointer(), numberOfPredictors, 0,
-        inverseInformationMatrixHost->getMemoryPointer(), numberOfPredictors);
+    mklWrapper.matrixTransMatrixMultiply(vtSVD, workMatrixMxMHost, *inverseInformationMatrixHost, 1, 0);
 
+    std::cerr << "s12" << std::endl;
     //Calculate new beta
 
-    //beta_old=inv*scores+beta_old
+    //beta=inv*scores+beta
     cblas_sgemv(CblasColMajor, CblasNoTrans, numberOfPredictors, numberOfPredictors, 1,
         inverseInformationMatrixHost->getMemoryPointer(), numberOfPredictors, scoresHost->getMemoryPointer(), 1, 1,
-        betaCoefficentsOldHost->getMemoryPointer(), 1);
-
+        betaCoefficentsHost->getMemoryPointer(), 1);
+    std::cerr << "s13" << std::endl;
     //Calculate difference
     cblas_saxpy(numberOfPredictors, -1.0, betaCoefficentsHost->getMemoryPointer(), 1,
         betaCoefficentsOldHost->getMemoryPointer(), 1);
     *diffSumHost = cblas_sasum(numberOfPredictors, betaCoefficentsOldHost->getMemoryPointer(), 1);
+    std::cerr << "s14" << std::endl;
+    std::cerr << (*betaCoefficentsHost)(0) << std::endl;
 
     if(*diffSumHost < convergenceThreshold){
-
+      std::cerr << "s15" << std::endl;
       //Calculate loglikelihood
       kernelWrapper.logLikelihoodParts(outcomesDevice, probabilitesDevice, workVectorNx1Device);
+      std::cerr << "s16" << std::endl;
       kernelWrapper.sumResultToHost(workVectorNx1Device, logLikelihood);
-
+      std::cerr << "s17" << std::endl;
       //Transfer the information matrix again since it was destroyed during the SVD.
       deviceToHost.transferMatrix(&informationMatrixDevice, informationMatrixHost->getMemoryPointer());
 
@@ -117,7 +123,7 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
       hostToDevice.transferVector(betaCoefficentsHost, betaCoefficentsDevice.getMemoryPointer());
     }
   } /* for iterationNumber */
-
+  std::cerr << "end" << std::endl;
   delete diffSumHost;
   delete betaCoefficentsOldHost;
 

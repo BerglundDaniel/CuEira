@@ -20,6 +20,7 @@
 #ifdef CPU
 #include <CpuModelHandler.h>
 #else
+#include <CudaAdapter.cu>
 #include <GpuModelHandler.h>
 #include <LogisticRegressionConfiguration.h>
 #endif
@@ -53,7 +54,7 @@ int main(int argc, char* argv[]) {
   }
 
   FileIO::BedReader bedReader(configuration, *personHandler, numberOfSNPs);
-  Task::DataQueue dataQueue = new Task::DataQueue(snpInformation);
+  Task::DataQueue* dataQueue = new Task::DataQueue(snpInformation);
   DataHandler* dataHandler = new DataHandler(configuration.getStatisticModel(), bedReader, *environmentFactorHandler,
       *dataQueue);
 
@@ -61,7 +62,10 @@ int main(int argc, char* argv[]) {
   Model::ModelHandler* modelHandler = new Model::CpuModelHandler();
 #else
   //GPU
-  //TODO make stream and handle
+  cudaStream_t cudaStream;
+  cublasHandle_t cublasHandle;
+  CUDA::handleCublasStatus(cublasCreate(&cublasHandle), "Failed to create cublas handle:");
+  CUDA::handleCudaStatus(cudaStreamCreate(&cudaStream), "Failed to create cudaStream:");
 
   CUDA::HostToDevice hostToDevice(cudaStream);
   CUDA::DeviceToHost deviceToHost(cudaStream);
@@ -69,22 +73,27 @@ int main(int argc, char* argv[]) {
 
   CUDA::KernelWrapper kernelWrapper(cudaStream, cublasHandle);
 
-  LogisticRegression::LogisticRegressionConfiguration* logisticRegressionConfiguration;
+  Model::LogisticRegression::LogisticRegressionConfiguration* logisticRegressionConfiguration;
 
   if(configuration.covariateFileSpecified()){
-    logisticRegressionConfiguration = new LogisticRegression::LogisticRegressionConfiguration(configuration,
-        hostToDevice, deviceOutcomes, kernelWrapper);
+    logisticRegressionConfiguration = new Model::LogisticRegression::LogisticRegressionConfiguration(configuration,
+        hostToDevice, *deviceOutcomes, kernelWrapper);
   }else{
-    logisticRegressionConfiguration = new LogisticRegression::LogisticRegressionConfiguration(configuration,
-        hostToDevice, deviceOutcomes, kernelWrapper, *covariates);
+    logisticRegressionConfiguration = new Model::LogisticRegression::LogisticRegressionConfiguration(configuration,
+        hostToDevice, *deviceOutcomes, kernelWrapper, *covariates);
   }
 
   Model::ModelHandler* modelHandler = new Model::GpuModelHandler(dataHandler, logisticRegressionConfiguration,
       hostToDevice, deviceToHost);
+
+  CUDA::handleCudaStatus(cudaGetLastError(), "Error with initialisation in main: ");
 #endif
 
   while(modelHandler->next()){
     Statistics* statistics = modelHandler->calculateModel();
+#ifndef CPU
+    CUDA::handleCudaStatus(cudaGetLastError(), "Error with logistic regression: ");
+#endif
 
     //TODO print stuff
 
@@ -103,7 +112,8 @@ int main(int argc, char* argv[]) {
 
 #else
   delete deviceOutcomes;
-  //TODO release handle etc
+  CUDA::handleCudaStatus(cudaStreamDestroy(cudaStream), "Failed to destroy cudaStream:");
+  CUDA::handleCublasStatus(cublasDestroy(cublasHandle), "Failed to destroy cublas handle:");
 #endif
 */
 }

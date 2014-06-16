@@ -8,8 +8,11 @@ add_subdirectory(task)
 
 if(NOT ${CPU})
   add_subdirectory(cuda)
-endif(NOT ${CPU})
+endif()
 
+if(${ENABLE_MKL})
+  add_subdirectory(mkl)
+endif()
 
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}

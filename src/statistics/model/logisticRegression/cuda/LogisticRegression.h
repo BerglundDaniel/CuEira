@@ -1,8 +1,6 @@
 #ifndef LOGISTICREGRESSION_H_
 #define LOGISTICREGRESSION_H_
 
-#include <mkl.h>
-
 #include <CudaAdapter.cu>
 #include <KernelWrapper.h>
 #include <DeviceVector.h>
@@ -13,7 +11,7 @@
 #include <LogisticRegressionConfiguration.h>
 #include <HostToDevice.h>
 #include <DeviceToHost.h>
-#include <InvalidState.h>
+#include <MKLWrapper.h>
 
 namespace CuEira {
 namespace Model {

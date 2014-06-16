@@ -18,7 +18,7 @@ namespace CuEira {
  */
 class Statistics {
 public:
-  Statistics(const Container::HostVector& betaCoefficents, const Container::HostVector& standardError);
+  Statistics(Container::HostVector* betaCoefficents, Container::HostVector* standardError);
   virtual ~Statistics();
 
   double getReri() const;
@@ -36,8 +36,8 @@ private:
   std::vector<double> calculateOddsRatiosHigh(const Container::HostVector& betaCoefficents,
       const Container::HostVector& standardError) const;
 
-  const Container::HostVector& betaCoefficents;
-  const Container::HostVector& standardError;
+  Container::HostVector* betaCoefficents;
+  Container::HostVector* standardError;
   std::vector<double> oddsRatios;
   std::vector<double> oddsRatiosLow;
   std::vector<double> oddsRatiosHigh;

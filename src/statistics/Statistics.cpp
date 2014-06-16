@@ -2,16 +2,17 @@
 
 namespace CuEira {
 
-Statistics::Statistics(const Container::HostVector& betaCoefficents, const Container::HostVector& standardError) :
-    betaCoefficents(betaCoefficents), standardError(standardError), ap(calculateAp(reri, betaCoefficents(3))), reri(
-        calculateReri(oddsRatios)), oddsRatios(calculateOddsRatios(betaCoefficents)), oddsRatiosLow(
-        calculateOddsRatiosLow(betaCoefficents, standardError)), oddsRatiosHigh(
-        calculateOddsRatiosHigh(betaCoefficents, standardError)) {
+Statistics::Statistics(Container::HostVector* betaCoefficents, Container::HostVector* standardError) :
+    betaCoefficents(betaCoefficents), standardError(standardError), ap(calculateAp(reri, (*betaCoefficents)(3))), reri(
+        calculateReri(oddsRatios)), oddsRatios(calculateOddsRatios(*betaCoefficents)), oddsRatiosLow(
+        calculateOddsRatiosLow(*betaCoefficents, *standardError)), oddsRatiosHigh(
+        calculateOddsRatiosHigh(*betaCoefficents, *standardError)) {
 
 }
 
 Statistics::~Statistics() {
-
+  delete betaCoefficents;
+  delete standardError;
 }
 
 double Statistics::getReri() const {
@@ -60,7 +61,7 @@ std::vector<double> Statistics::calculateOddsRatiosLow(const Container::HostVect
   std::vector<double> oddsRatiosLow(size);
 
   for(int i = 0; i < size; ++i){
-    oddsRatiosLow[i] = exp(-1.96 * standardError(i+1) + betaCoefficents(i + 1));
+    oddsRatiosLow[i] = exp(-1.96 * standardError(i + 1) + betaCoefficents(i + 1));
   }
 
   return oddsRatiosLow;
@@ -73,7 +74,7 @@ std::vector<double> Statistics::calculateOddsRatiosHigh(const Container::HostVec
   std::vector<double> oddsRatiosHigh(size);
 
   for(int i = 0; i < size; ++i){
-    oddsRatiosHigh[i] = exp(1.96 * standardError(i+1) + betaCoefficents(i + 1));
+    oddsRatiosHigh[i] = exp(1.96 * standardError(i + 1) + betaCoefficents(i + 1));
   }
 
   return oddsRatiosHigh;

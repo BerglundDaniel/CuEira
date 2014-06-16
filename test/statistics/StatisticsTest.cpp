@@ -34,16 +34,14 @@ protected:
   virtual void TearDown();
 
   const int numberOfPredictors;
+  Container::HostVector* beta;
+  Container::HostVector* standardError;
 
 #ifdef CPU
-  Container::LapackppHostVector beta;
-  Container::LapackppHostVector standardError;
   Container::LapackppHostVector oddsRatios;
   Container::LapackppHostVector oddsRatiosLow;
   Container::LapackppHostVector oddsRatiosHigh;
 #else
-  Container::PinnedHostVector beta;
-  Container::PinnedHostVector standardError;
   Container::PinnedHostVector oddsRatios;
   Container::PinnedHostVector oddsRatiosLow;
   Container::PinnedHostVector oddsRatiosHigh;
@@ -54,12 +52,13 @@ protected:
 StatisticsTest::StatisticsTest() :
     numberOfPredictors(4),
 #ifdef CPU
-        beta(new LaVectorDouble(numberOfPredictors)), oddsRatios(new LaVectorDouble(numberOfPredictors - 1)),
-        standardError(new LaVectorDouble(numberOfPredictors)),oddsRatiosLow(new LaVectorDouble(numberOfPredictors - 1)),
+        beta(new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors))), oddsRatios(new LaVectorDouble(numberOfPredictors - 1)),
+        standardError(new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors))),oddsRatiosLow(new LaVectorDouble(numberOfPredictors - 1)),
         oddsRatiosHigh(new LaVectorDouble(numberOfPredictors - 1))
 #else
-        beta(numberOfPredictors), oddsRatios(numberOfPredictors - 1), standardError(numberOfPredictors), oddsRatiosLow(
-            numberOfPredictors - 1), oddsRatiosHigh(numberOfPredictors - 1)
+        beta(new Container::PinnedHostVector(numberOfPredictors)), oddsRatios(numberOfPredictors - 1), standardError(
+            new Container::PinnedHostVector(numberOfPredictors)), oddsRatiosLow(numberOfPredictors - 1), oddsRatiosHigh(
+            numberOfPredictors - 1)
 #endif
 
 {
@@ -67,23 +66,31 @@ StatisticsTest::StatisticsTest() :
 }
 
 StatisticsTest::~StatisticsTest() {
-
+ //Don't need to delete beta and standardError since Statistics class will do that.
 }
 
 void StatisticsTest::SetUp() {
+#ifdef CPU
+  beta = new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors));
+  standardError = new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors));
+#else
+  beta = new Container::PinnedHostVector(numberOfPredictors);
+  standardError = new Container::PinnedHostVector(numberOfPredictors);
+#endif
+
   for(int i = 0; i < numberOfPredictors; ++i){
-    beta(i) = (i + 7) / 10.3;
+    (*beta)(i) = (i + 7) / 10.3;
   }
 
   for(int i = 0; i < numberOfPredictors; ++i){
-    standardError(i) = (i + 3) / 3.1;
+    (*standardError)(i) = (i + 3) / 3.1;
   }
 
   for(int i = 0; i < numberOfPredictors - 1; ++i){
-    oddsRatios(i) = exp(beta(i + 1));
+    oddsRatios(i) = exp((*beta)(i + 1));
 
-    oddsRatiosLow(i) = exp(-1.96 * standardError(i + 1) + beta(i + 1));
-    oddsRatiosHigh(i) = exp(1.96 * standardError(i + 1) + beta(i + 1));
+    oddsRatiosLow(i) = exp(-1.96 * (*standardError)(i + 1) + (*beta)(i + 1));
+    oddsRatiosHigh(i) = exp(1.96 * (*standardError)(i + 1) + (*beta)(i + 1));
   }
 
 }
@@ -110,7 +117,7 @@ TEST_F(StatisticsTest, Ap) {
   double e = 10e-5;
 
   double reri = statistics.getReri();
-  double or11 = beta(3);
+  double or11 = (*beta)(3);
 
   double l = reri / or11 - e;
   double h = reri / or11 + e;

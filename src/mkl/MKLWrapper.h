@@ -32,6 +32,9 @@ public:
   void matrixTransVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
       PRECISION alpha, PRECISION beta) const;
 
+  void matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
+      PRECISION alpha, PRECISION beta) const;
+
   void matrixTransMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
       PRECISION alpha, PRECISION beta) const;
 

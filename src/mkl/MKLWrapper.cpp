@@ -99,6 +99,30 @@ void MKLWrapper::matrixTransVectorMultiply(const HostMatrix& matrix, const HostV
 #endif
 }
 
+void MKLWrapper::matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
+    PRECISION alpha, PRECISION beta) const {
+#ifdef DEBUG
+  if((matrix1.getNumberOfColumns() != matrix2.getNumberOfRows()) || (matrix1.getNumberOfRows() != resultMatrix.getNumberOfRows())
+      || (matrix2.getNumberOfColumns() != resultMatrix.getNumberOfColumns())){
+    throw DimensionMismatch("Matrix sizes doesn't match in matrixTransMatrixMultiply");
+  }
+#endif
+
+  int numberOfRowsMatrix1 = matrix1.getNumberOfRows();
+  int numberOfColumnsMatrix2 = matrix2.getNumberOfColumns();
+  int numberOfRowsMatrix2 = matrix2.getNumberOfRows();
+
+#ifdef DOUBLEPRECISION
+  cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, numberOfRowsMatrix1, numberOfColumnsMatrix2,
+      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsMatrix2, matrix2.getMemoryPointer(),
+      numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfRowsMatrix1);
+#else
+  cblas_sgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, numberOfColumnsMatrix1, numberOfColumnsMatrix2,
+      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsMatrix2, matrix2.getMemoryPointer(),
+      numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfRowsMatrix1);
+#endif
+}
+
 void MKLWrapper::matrixTransMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2,
     HostMatrix& resultMatrix, PRECISION alpha, PRECISION beta) const {
 #ifdef DEBUG

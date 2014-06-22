@@ -14,6 +14,7 @@
 #include <Id.h>
 #include <ConstructorHelpers.h>
 #include <EnvironmentFactorHandlerMock.h>
+#include <InvalidState.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
@@ -91,8 +92,20 @@ void EnvironmentVectorTest::TearDown() {
 
 }
 
+#ifdef DEBUG
+TEST_F(EnvironmentVectorTest, ConstructAndGetException){
+  EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+
+  EXPECT_THROW(environmentVector.getCurrentEnvironmentFactor(), InvalidState);
+  EXPECT_THROW(environmentVector.applyStatisticModel(), InvalidState);
+  EXPECT_THROW(environmentVector.getRecodedData(), InvalidState);
+  EXPECT_THROW(environmentVector.recode(), InvalidState);
+}
+#endif
+
 TEST_F(EnvironmentVectorTest, ConstructAndGet) {
-  EnvironmentVector environmentVector(*environmentFactorHandlerMock, startFactor);
+  EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+  environmentVector.switchEnvironmentFactor(startFactor);
 
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
   ASSERT_EQ(startFactor, environmentVector.getCurrentEnvironmentFactor());
@@ -105,7 +118,8 @@ TEST_F(EnvironmentVectorTest, ConstructAndGet) {
 }
 
 TEST_F(EnvironmentVectorTest, Switch) {
-  EnvironmentVector environmentVector(*environmentFactorHandlerMock, startFactor);
+  EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+  environmentVector.switchEnvironmentFactor(startFactor);
 
   environmentVector.switchEnvironmentFactor(binaryFactor);
   ASSERT_EQ(binaryFactor, environmentVector.getCurrentEnvironmentFactor());
@@ -118,7 +132,8 @@ TEST_F(EnvironmentVectorTest, Switch) {
 }
 
 TEST_F(EnvironmentVectorTest, RecodeNonBinary) {
-  EnvironmentVector environmentVector(*environmentFactorHandlerMock, startFactor);
+  EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+  environmentVector.switchEnvironmentFactor(startFactor);
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
 
   environmentVector.recode(ALL_RISK);
@@ -182,7 +197,7 @@ TEST_F(EnvironmentVectorTest, RecodeBinary) {
     }
   }
 
-  EnvironmentVector environmentVector(*environmentFactorHandlerMock, startFactor);
+  EnvironmentVector environmentVector(*environmentFactorHandlerMock);
   environmentVector.switchEnvironmentFactor(binaryFactor);
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
 
@@ -235,7 +250,8 @@ TEST_F(EnvironmentVectorTest, RecodeBinary) {
 }
 
 TEST_F(EnvironmentVectorTest, StatisticModel) {
-  EnvironmentVector environmentVector(*environmentFactorHandlerMock, startFactor);
+  EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+  environmentVector.switchEnvironmentFactor(startFactor);
   Container::HostVector* interactionVector;
 #ifdef CPU
   interactionVector=new LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
@@ -272,7 +288,8 @@ TEST_F(EnvironmentVectorTest, StatisticModel) {
 }
 
 TEST_F(EnvironmentVectorTest, RecodeDifferentOrder) {
-  EnvironmentVector environmentVector(*environmentFactorHandlerMock, startFactor);
+  EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+  environmentVector.switchEnvironmentFactor(startFactor);
 
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
   ASSERT_EQ(startFactor, environmentVector.getCurrentEnvironmentFactor());

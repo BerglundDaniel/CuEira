@@ -45,6 +45,10 @@ EnvironmentFactorHandler::~EnvironmentFactorHandler() {
   delete environmentFactors;
 }
 
+int EnvironmentFactorHandler::getNumberOfIndividualsToInclude() const{
+   return numberOfIndividualsToInclude;
+}
+
 const std::vector<EnvironmentFactor*>& EnvironmentFactorHandler::getHeaders() const {
   return *environmentFactors;
 }

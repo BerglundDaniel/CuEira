@@ -15,8 +15,8 @@ namespace Container {
 
 class EnvironmentVectorMock: public EnvironmentVector {
 public:
-  EnvironmentVectorMock(const EnvironmentFactorHandler& environmentHandler, EnvironmentFactor& environmentFactor) :
-      EnvironmentVector(environmentHandler, environmentFactor) {
+  EnvironmentVectorMock(const EnvironmentFactorHandler& environmentHandler) :
+      EnvironmentVector(environmentHandler) {
 
   }
 

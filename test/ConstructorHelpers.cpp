@@ -83,7 +83,7 @@ Container::EnvironmentVectorMock* ConstructorHelpers::constructEnvironmentVector
   }
 
   EnvironmentFactorHandler environmentHandler(dataMatrix, environmentFactors);
-  return new Container::EnvironmentVectorMock(environmentHandler, *(*environmentFactors)[0]);
+  return new Container::EnvironmentVectorMock(environmentHandler);
 }
 
 Container::SNPVectorMock* ConstructorHelpers::constructSNPVectorMock() {

@@ -3,11 +3,9 @@
 namespace CuEira {
 namespace Container {
 
-EnvironmentVector::EnvironmentVector(const EnvironmentFactorHandler& environmentHandler,
-    EnvironmentFactor& environmentFactor) :
-    numberOfIndividualsToInclude(originalData->getNumberOfRows()), currentRecode(ALL_RISK), environmentHandler(
-        environmentHandler), originalData(&environmentHandler.getData(environmentFactor)), environmentFactor(
-        environmentFactor),
+EnvironmentVector::EnvironmentVector(const EnvironmentFactorHandler& environmentHandler) :
+    numberOfIndividualsToInclude(environmentHandler.getNumberOfIndividualsToInclude()), currentRecode(ALL_RISK), environmentHandler(
+        environmentHandler), originalData(nullptr), state(NOT_INITIALISED), environmentFactor(nullptr),
 #ifdef CPU
         recodedData(new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude)))
 #else
@@ -21,12 +19,17 @@ EnvironmentVector::~EnvironmentVector() {
   delete recodedData;
 }
 
-void EnvironmentVector::switchEnvironmentFactor(EnvironmentFactor& environmentFactor) {
-  this->environmentFactor = environmentFactor;
+void EnvironmentVector::switchEnvironmentFactor(const EnvironmentFactor& environmentFactor) {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    state = INITIALISED;
+  }
+#endif
 
+  this->environmentFactor = &environmentFactor;
   originalData = &environmentHandler.getData(environmentFactor);
 
-  currentRecode=ALL_RISK;
+  currentRecode = ALL_RISK;
   recodeAllRisk();
 }
 
@@ -35,10 +38,21 @@ int EnvironmentVector::getNumberOfIndividualsToInclude() const {
 }
 
 const Container::HostVector& EnvironmentVector::getRecodedData() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Have to use switch on EnvironmentVector before get.");
+  }
+#endif
   return *recodedData;
 }
 
 void EnvironmentVector::recode(Recode recode) {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Have to use switch on EnvironmentVector before recode.");
+  }
+#endif
+
   if(currentRecode == recode){
     return;
   }
@@ -54,6 +68,12 @@ void EnvironmentVector::recode(Recode recode) {
 }
 
 void EnvironmentVector::applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector) {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Have to use switch on EnvironmentVector before applyStatisticModel.");
+  }
+#endif
+
   if(statisticModel == ADDITIVE){
     for(int i = 0; i < numberOfIndividualsToInclude; ++i){
       if(interactionVector(i) != 0){
@@ -65,7 +85,7 @@ void EnvironmentVector::applyStatisticModel(StatisticModel statisticModel, const
 }
 
 void EnvironmentVector::recodeEnvironmentProtective() {
-  if(environmentFactor.getVariableType() == BINARY){
+  if(environmentFactor->getVariableType() == BINARY){
     for(int i = 0; i < numberOfIndividualsToInclude; ++i){
       if((*originalData)(i) == 0){
         (*recodedData)(i) = 1;
@@ -92,7 +112,13 @@ void EnvironmentVector::recodeInteractionProtective() {
 }
 
 const EnvironmentFactor& EnvironmentVector::getCurrentEnvironmentFactor() const {
-  return environmentFactor;
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Have to use switch on EnvironmentVector before getCurrentEnvironmentFactor.");
+  }
+#endif
+
+  return *environmentFactor;
 }
 
 } /* namespace Container */

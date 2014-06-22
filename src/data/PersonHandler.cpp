@@ -94,9 +94,7 @@ int PersonHandler::getRowIncludeFromPerson(const Person& person) const {
 
 bool PersonHandler::shouldPersonBeIncluded(Id id, Sex sex, Phenotype phenotype) const {
   if(phenotype == MISSING){
-#ifdef DEBUG
     std::cerr << "Excluding person " << id.getString() << std::endl;
-#endif
     return false;
   }else{
     return true;

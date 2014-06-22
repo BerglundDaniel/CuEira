@@ -23,6 +23,7 @@ public:
 
   virtual const std::vector<EnvironmentFactor*>& getHeaders() const;
   virtual const Container::HostVector& getData(const EnvironmentFactor& environmentFactor) const;
+  virtual int getNumberOfIndividualsToInclude() const;
 
 private:
   Container::HostMatrix* dataMatrix;

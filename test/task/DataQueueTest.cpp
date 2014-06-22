@@ -59,7 +59,10 @@ TEST_F(DataQueueTest, QueueTest) {
     EXPECT_TRUE(dataQueue.hasNext());
     SNP* snp = dataQueue.next();
 
-    EXPECT_EQ(*(*snpVector)[i], *snp);
+    std::cerr << "asdf " << snp->getId().getString() << std::endl;
+
+    EXPECT_TRUE(*((*snpVector)[i]) == *snp);
+    EXPECT_EQ(*((*snpVector)[i]), *snp);
     delete snp;
   }
   EXPECT_FALSE(dataQueue.hasNext());

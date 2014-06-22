@@ -85,7 +85,7 @@ TEST_F(MKLWrapperTest, matrixVectorMultiply) {
   const int numberOfColumns = 5;
 #ifdef CPU
   LapackppHostVector vector(new LaVectorDouble(numberOfColumns));
-  LapackppHostVector vectorRes(new LaVectorDouble(numberOfColumns));
+  LapackppHostVector vectorRes(new LaVectorDouble(numberOfRows));
   LapackppHostMatrix matrix1(new LaGenMatDouble(numberOfRows, numberOfColumns));
 #else
   PinnedHostVector vector(numberOfColumns);
@@ -129,7 +129,7 @@ TEST_F(MKLWrapperTest, matrixTransVectorMultiply) {
   const int numberOfColumns = 5;
 #ifdef CPU
   LapackppHostVector vector(new LaVectorDouble(numberOfColumns));
-  LapackppHostVector vectorRes(new LaVectorDouble(numberOfColumns));
+  LapackppHostVector vectorRes(new LaVectorDouble(numberOfRows));
   LapackppHostMatrix matrixT(new LaGenMatDouble(numberOfColumns, numberOfRows));
 #else
   PinnedHostVector vector(numberOfColumns);
@@ -143,25 +143,25 @@ TEST_F(MKLWrapperTest, matrixTransVectorMultiply) {
   vector(3) = 4;
   vector(4) = 5;
 
-  matrix1(0, 0) = 1;
-  matrix1(1, 0) = 2;
-  matrix1(2, 0) = 3;
-  matrix1(3, 0) = 4;
-  matrix1(4, 0) = 5;
+  matrixT(0, 0) = 1;
+  matrixT(1, 0) = 2;
+  matrixT(2, 0) = 3;
+  matrixT(3, 0) = 4;
+  matrixT(4, 0) = 5;
 
-  matrix1(0, 1) = 10;
-  matrix1(1, 1) = 20;
-  matrix1(2, 1) = 30;
-  matrix1(3, 1) = 40;
-  matrix1(4, 1) = 50;
+  matrixT(0, 1) = 10;
+  matrixT(1, 1) = 20;
+  matrixT(2, 1) = 30;
+  matrixT(3, 1) = 40;
+  matrixT(4, 1) = 50;
 
-  matrix1(0, 2) = 1.1;
-  matrix1(1, 2) = 2.2;
-  matrix1(2, 2) = 3.3;
-  matrix1(3, 2) = 4.4;
-  matrix1(4, 2) = 5.5;
+  matrixT(0, 2) = 1.1;
+  matrixT(1, 2) = 2.2;
+  matrixT(2, 2) = 3.3;
+  matrixT(3, 2) = 4.4;
+  matrixT(4, 2) = 5.5;
 
-  mklWrapper.matrixTransVectorMultiply(matrix1, vector, vectorRes, 1, 0);
+  mklWrapper.matrixTransVectorMultiply(matrixT, vector, vectorRes, 1, 0);
 
   EXPECT_EQ(55, vectorRes(0));
   EXPECT_EQ(550, vectorRes(1));
@@ -241,32 +241,32 @@ TEST_F(MKLWrapperTest, matrixTransMatrixMultiply) {
   const int numberOfRows2 = 5;
   const int numberOfColumns2 = 4;
 #ifdef CPU
-  LapackppHostMatrix matrix1(new LaGenMatDouble(numberOfRows, numberOfColumns));
+  LapackppHostMatrix matrixT(new LaGenMatDouble(numberOfRows, numberOfColumns));
   LapackppHostMatrix matrix2(new LaGenMatDouble(numberOfRows2, numberOfColumns2));
   LapackppHostMatrix matrixRes(new LaGenMatDouble(numberOfColumns, numberOfColumns2));
 #else
-  PinnedHostMatrix matrix1(numberOfRows, numberOfColumns);
+  PinnedHostMatrix matrixT(numberOfRows, numberOfColumns);
   PinnedHostMatrix matrix2(numberOfRows2, numberOfColumns2);
   PinnedHostMatrix matrixRes(numberOfColumns, numberOfColumns2);
 #endif
 
-  matrix1(0, 0) = 1;
-  matrix1(1, 0) = 2;
-  matrix1(2, 0) = 3;
-  matrix1(3, 0) = 4;
-  matrix1(4, 0) = 5;
+  matrixT(0, 0) = 1;
+  matrixT(1, 0) = 2;
+  matrixT(2, 0) = 3;
+  matrixT(3, 0) = 4;
+  matrixT(4, 0) = 5;
 
-  matrix1(0, 1) = 10;
-  matrix1(1, 1) = 20;
-  matrix1(2, 1) = 30;
-  matrix1(3, 1) = 40;
-  matrix1(4, 1) = 50;
+  matrixT(0, 1) = 10;
+  matrixT(1, 1) = 20;
+  matrixT(2, 1) = 30;
+  matrixT(3, 1) = 40;
+  matrixT(4, 1) = 50;
 
-  matrix1(0, 2) = 1.1;
-  matrix1(1, 2) = 2.2;
-  matrix1(2, 2) = 3.3;
-  matrix1(3, 2) = 4.4;
-  matrix1(4, 2) = 5.5;
+  matrixT(0, 2) = 1.1;
+  matrixT(1, 2) = 2.2;
+  matrixT(2, 2) = 3.3;
+  matrixT(3, 2) = 4.4;
+  matrixT(4, 2) = 5.5;
 
   for(int i = 0; i < numberOfRows2; ++i){
     matrix2(i, 0) = 6;
@@ -284,7 +284,7 @@ TEST_F(MKLWrapperTest, matrixTransMatrixMultiply) {
     matrix2(i, 3) = 9;
   }
 
-  mklWrapper.matrixTransMatrixMultiply(matrix1, matrix2, matrixRes, 1, 0);
+  mklWrapper.matrixTransMatrixMultiply(matrixT, matrix2, matrixRes, 1, 0);
 
   EXPECT_EQ(0, matrixRes(90, 1));
   EXPECT_EQ(0, matrixRes(105, 2));
@@ -328,7 +328,7 @@ TEST_F(MKLWrapperTest, differenceElememtWise) {
   }
 }
 
-TEST_F(MKLWrapperTest, absoluteSum) {
+TEST_F(MKLWrapperTest, absoluteSumInt) {
   const int size = 5;
 #ifdef CPU
   LapackppHostVector vector(new LaVectorDouble(size));
@@ -337,7 +337,30 @@ TEST_F(MKLWrapperTest, absoluteSum) {
 #endif
 
   for(int i = 0; i < size; ++i){
-    vector(i) = i - size / 2 + 0.01;
+    vector(i) = i - 2;
+  }
+
+  PRECISION* res = new PRECISION(0);
+  mklWrapper.absoluteSum(vector, res);
+
+  PRECISION sum = 0;
+  for(int i = 0; i < size; ++i){
+    sum += abs(vector(i));
+  }
+
+  EXPECT_EQ(sum, *res);
+}
+
+TEST_F(MKLWrapperTest, absoluteSumFloat) {
+  const int size = 5;
+#ifdef CPU
+  LapackppHostVector vector(new LaVectorDouble(size));
+#else
+  PinnedHostVector vector(size);
+#endif
+
+  for(int i = 0; i < size; ++i){
+    vector(i) = i - size / 2;
   }
 
   PRECISION* res = new PRECISION(0);

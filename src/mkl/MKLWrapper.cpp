@@ -60,7 +60,7 @@ void MKLWrapper::matrixVectorMultiply(const HostMatrix& matrix, const HostVector
 #ifdef DEBUG
   if((matrix.getNumberOfColumns() != vector.getNumberOfRows())
       || (matrix.getNumberOfRows() != resultVector.getNumberOfRows())){
-    throw DimensionMismatch("Sizes doesn't match in matrixTransVectorMultiply");
+    throw DimensionMismatch("Sizes doesn't match in matrixVectorMultiply");
   }
 #endif
 
@@ -104,7 +104,7 @@ void MKLWrapper::matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatri
 #ifdef DEBUG
   if((matrix1.getNumberOfColumns() != matrix2.getNumberOfRows()) || (matrix1.getNumberOfRows() != resultMatrix.getNumberOfRows())
       || (matrix2.getNumberOfColumns() != resultMatrix.getNumberOfColumns())){
-    throw DimensionMismatch("Matrix sizes doesn't match in matrixTransMatrixMultiply");
+    throw DimensionMismatch("Matrix sizes doesn't match in matrixMatrixMultiply");
   }
 #endif
 
@@ -117,7 +117,7 @@ void MKLWrapper::matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatri
       numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsMatrix2, matrix2.getMemoryPointer(),
       numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfRowsMatrix1);
 #else
-  cblas_sgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, numberOfColumnsMatrix1, numberOfColumnsMatrix2,
+  cblas_sgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, numberOfRowsMatrix1, numberOfColumnsMatrix2,
       numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsMatrix2, matrix2.getMemoryPointer(),
       numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfRowsMatrix1);
 #endif

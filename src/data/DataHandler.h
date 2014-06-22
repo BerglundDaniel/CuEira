@@ -29,10 +29,9 @@ namespace CuEira {
 class DataHandler {
 public:
   DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader,
-      const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue);
+      const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue, Container::EnvironmentVector* environmentVector);
   virtual ~DataHandler();
 
-  int getNumberOfIndividualsToInclude() const;
   const SNP& getCurrentSNP() const;
   const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
@@ -56,9 +55,7 @@ private:
   Task::DataQueue& dataQueue;
   const StatisticModel statisticModel;
   const FileIO::BedReader& bedReader;
-  const EnvironmentFactorHandler& environmentFactorHandler;
-  const std::vector<EnvironmentFactor*>& environmentInformation;
-  int numberOfIndividualsToInclude;
+  const std::vector<const EnvironmentFactor*>& environmentInformation;
   Container::EnvironmentVector* environmentVector;
   Container::SNPVector* snpVector;
   Container::InteractionVector* interactionVector;

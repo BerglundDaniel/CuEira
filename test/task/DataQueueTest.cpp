@@ -55,13 +55,10 @@ TEST_F(DataQueueTest, QueueTest) {
 
   Task::DataQueue dataQueue(snpQueue);
 
-  for(int i = 0; i < numberOfSNPs; ++i){
-    EXPECT_TRUE(dataQueue.hasNext());
+  for(int i = numberOfSNPs - 1; i >= 0; --i){
+    ASSERT_TRUE(dataQueue.hasNext());
     SNP* snp = dataQueue.next();
 
-    std::cerr << "asdf " << snp->getId().getString() << std::endl;
-
-    EXPECT_TRUE(*((*snpVector)[i]) == *snp);
     EXPECT_EQ(*((*snpVector)[i]), *snp);
     delete snp;
   }

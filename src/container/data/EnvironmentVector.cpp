@@ -5,14 +5,19 @@ namespace Container {
 
 EnvironmentVector::EnvironmentVector(const EnvironmentFactorHandler& environmentHandler) :
     numberOfIndividualsToInclude(environmentHandler.getNumberOfIndividualsToInclude()), currentRecode(ALL_RISK), environmentHandler(
-        environmentHandler), originalData(nullptr), state(NOT_INITIALISED), environmentFactor(nullptr),
+        &environmentHandler), originalData(nullptr), state(NOT_INITIALISED), environmentFactor(nullptr),
 #ifdef CPU
         recodedData(new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude)))
 #else
         recodedData(new PinnedHostVector(numberOfIndividualsToInclude))
 #endif
 {
-  recodeAllRisk();
+
+}
+
+EnvironmentVector::EnvironmentVector() :
+    recodedData(nullptr) {
+
 }
 
 EnvironmentVector::~EnvironmentVector() {
@@ -27,7 +32,7 @@ void EnvironmentVector::switchEnvironmentFactor(const EnvironmentFactor& environ
 #endif
 
   this->environmentFactor = &environmentFactor;
-  originalData = &environmentHandler.getData(environmentFactor);
+  originalData = &environmentHandler->getData(environmentFactor);
 
   currentRecode = ALL_RISK;
   recodeAllRisk();

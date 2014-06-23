@@ -83,9 +83,8 @@ EnvironmentVectorTest::~EnvironmentVectorTest() {
 }
 
 void EnvironmentVectorTest::SetUp() {
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(AtLeast(0)).WillRepeatedly(
-      ReturnRef(*binaryData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
+      Return(numberOfIndividuals));
 }
 
 void EnvironmentVectorTest::TearDown() {
@@ -94,17 +93,32 @@ void EnvironmentVectorTest::TearDown() {
 
 #ifdef DEBUG
 TEST_F(EnvironmentVectorTest, ConstructAndGetException){
+  Container::HostVector* interactionVector;
+#ifdef CPU
+  interactionVector=new LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
+#else
+  interactionVector = new PinnedHostVector(numberOfIndividuals);
+#endif
+
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
   EXPECT_THROW(environmentVector.getCurrentEnvironmentFactor(), InvalidState);
-  EXPECT_THROW(environmentVector.applyStatisticModel(), InvalidState);
+  EXPECT_THROW(environmentVector.applyStatisticModel(MULTIPLICATIVE, *interactionVector), InvalidState);
+  EXPECT_THROW(environmentVector.applyStatisticModel(ADDITIVE, *interactionVector), InvalidState);
   EXPECT_THROW(environmentVector.getRecodedData(), InvalidState);
-  EXPECT_THROW(environmentVector.recode(), InvalidState);
+  EXPECT_THROW(environmentVector.recode(ALL_RISK), InvalidState);
+  EXPECT_THROW(environmentVector.recode(ENVIRONMENT_PROTECT), InvalidState);
+  EXPECT_THROW(environmentVector.recode(SNP_PROTECT), InvalidState);
+  EXPECT_THROW(environmentVector.recode(INTERACTION_PROTECT), InvalidState);
+
+  delete interactionVector;
 }
 #endif
 
 TEST_F(EnvironmentVectorTest, ConstructAndGet) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
@@ -119,9 +133,13 @@ TEST_F(EnvironmentVectorTest, ConstructAndGet) {
 
 TEST_F(EnvironmentVectorTest, Switch) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(ReturnRef(*binaryData));
   environmentVector.switchEnvironmentFactor(binaryFactor);
+
   ASSERT_EQ(binaryFactor, environmentVector.getCurrentEnvironmentFactor());
 
   const Container::HostVector& recodedData = environmentVector.getRecodedData();
@@ -133,7 +151,10 @@ TEST_F(EnvironmentVectorTest, Switch) {
 
 TEST_F(EnvironmentVectorTest, RecodeNonBinary) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
+
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
 
   environmentVector.recode(ALL_RISK);
@@ -198,6 +219,8 @@ TEST_F(EnvironmentVectorTest, RecodeBinary) {
   }
 
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(ReturnRef(*binaryData));
   environmentVector.switchEnvironmentFactor(binaryFactor);
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
 
@@ -251,7 +274,10 @@ TEST_F(EnvironmentVectorTest, RecodeBinary) {
 
 TEST_F(EnvironmentVectorTest, StatisticModel) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
+
   Container::HostVector* interactionVector;
 #ifdef CPU
   interactionVector=new LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
@@ -273,8 +299,10 @@ TEST_F(EnvironmentVectorTest, StatisticModel) {
     EXPECT_EQ((*orgData)(i), (*recodedData)(i));
   }
 
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(ReturnRef(*binaryData));
   environmentVector.switchEnvironmentFactor(binaryFactor);
   environmentVector.applyStatisticModel(ADDITIVE, *interactionVector);
+
   recodedData = &environmentVector.getRecodedData();
   for(int i = 0; i < numberOfIndividuals; ++i){
     if((*interactionVector)(i) != 0){
@@ -289,6 +317,8 @@ TEST_F(EnvironmentVectorTest, StatisticModel) {
 
 TEST_F(EnvironmentVectorTest, RecodeDifferentOrder) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
+
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);

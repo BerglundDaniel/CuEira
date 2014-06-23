@@ -45,6 +45,9 @@ public:
   virtual void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
   virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
+protected:
+  EnvironmentVector(); //For the mock
+
 private:
   enum State{
      NOT_INITIALISED, INITIALISED
@@ -56,7 +59,7 @@ private:
   void doRecode();
 
   State state;
-  const EnvironmentFactorHandler& environmentHandler;
+  const EnvironmentFactorHandler* environmentHandler;
   int numberOfIndividualsToInclude;
   const HostVector * originalData;
   HostVector* recodedData;

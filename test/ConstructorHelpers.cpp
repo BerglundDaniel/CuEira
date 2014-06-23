@@ -64,26 +64,7 @@ Person* ConstructorHelpers::constructPersonInclude(int number, Phenotype phenoty
 }
 
 Container::EnvironmentVectorMock* ConstructorHelpers::constructEnvironmentVectorMock() {
-  const int numberOfIndividuals = 3;
-  const int numberOfColumns = 2;
-
-#ifdef CPU
-  Container::HostMatrix* dataMatrix= new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfIndividuals, numberOfColumns));
-#else
-  Container::HostMatrix* dataMatrix = new Container::PinnedHostMatrix(numberOfIndividuals, numberOfColumns);
-#endif
-
-  std::vector<EnvironmentFactor*>* environmentFactors = new std::vector<EnvironmentFactor*>(numberOfColumns);
-  for(int i = 0; i < numberOfColumns; ++i){
-    std::ostringstream os;
-    os << "envfactor" << i;
-    Id id(os.str());
-    (*environmentFactors)[i] = new EnvironmentFactor(id);
-  }
-
-  EnvironmentFactorHandler environmentHandler(dataMatrix, environmentFactors);
-  return new Container::EnvironmentVectorMock(environmentHandler);
+  return new Container::EnvironmentVectorMock();
 }
 
 Container::SNPVectorMock* ConstructorHelpers::constructSNPVectorMock() {

@@ -15,8 +15,8 @@ namespace Container {
 
 class EnvironmentVectorMock: public EnvironmentVector {
 public:
-  EnvironmentVectorMock(const EnvironmentFactorHandler& environmentHandler) :
-      EnvironmentVector(environmentHandler) {
+  EnvironmentVectorMock() :
+      EnvironmentVector() {
 
   }
 
@@ -24,7 +24,7 @@ public:
 
   }
 
-  MOCK_METHOD1(switchEnvironmentFactor, void(EnvironmentFactor&));
+  MOCK_METHOD1(switchEnvironmentFactor, void(const EnvironmentFactor&));
   MOCK_METHOD1(recode, void(Recode));
 
   MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());

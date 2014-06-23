@@ -82,12 +82,25 @@ void InteractionVectorTest::TearDown() {
 
 }
 
+#ifdef DEBUG
+TEST_F(InteractionVectorTest, Exception) {
+  EXPECT_CALL(*environmentVectorMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
+      Return(numberOfIndividuals));
+
+  InteractionVector interactionVector(*environmentVectorMock);
+
+  ASSERT_THROW(interactionVector.getRecodedData(), InvalidState);
+}
+#endif
+
 TEST_F(InteractionVectorTest, ConstructAndGet) {
   EXPECT_CALL(*environmentVectorMock, getRecodedData()).Times(1).WillRepeatedly(ReturnRef(*envData));
+  EXPECT_CALL(*environmentVectorMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
+      Return(numberOfIndividuals));
   EXPECT_CALL(*snpVectorMock, getRecodedData()).Times(1).WillRepeatedly(ReturnRef(*snpData));
-  EXPECT_CALL(*snpVectorMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(Return(numberOfIndividuals));
 
-  InteractionVector interactionVector(*environmentVectorMock, *snpVectorMock);
+  InteractionVector interactionVector(*environmentVectorMock);
+  interactionVector.recode(*snpVectorMock);
 
   ASSERT_EQ(numberOfIndividuals, interactionVector.getNumberOfIndividualsToInclude());
 

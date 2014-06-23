@@ -4,10 +4,10 @@ namespace CuEira {
 
 DataHandler::DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader,
     const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
-    Container::EnvironmentVector* environmentVector) :
+    Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector) :
     currentRecode(ALL_RISK), dataQueue(dataQueue), statisticModel(statisticModel), bedReader(bedReader), interactionVector(
-        nullptr), snpVector(nullptr), environmentVector(environmentVector), environmentInformation(
-        environmentInformation), currentSNP(nullptr), currentEnvironmentFactorPos(0), state(NOT_INITIALISED) {
+        interactionVector), snpVector(nullptr), environmentVector(environmentVector), environmentInformation(
+        environmentInformation), currentEnvironmentFactorPos(0), state(NOT_INITIALISED) {
 
 }
 
@@ -20,7 +20,7 @@ DataHandler::~DataHandler() {
 const SNP& DataHandler::getCurrentSNP() const {
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
-    throw InvalidState("Before using the getter run next() at least once.");
+    throw InvalidState("Before using the getCurrentSNP use next() at least once.");
   }
 #endif
   return snpVector->getAssociatedSNP();
@@ -29,10 +29,10 @@ const SNP& DataHandler::getCurrentSNP() const {
 const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
-    throw new InvalidState("Before using the getter run next() at least once.");
+    throw InvalidState("Before using the getCurrentEnvironmentFactor use next() at least once.");
   }
 #endif
-  return environmentVector->getCurrentEnvironmentFactor();
+  return *environmentInformation[currentEnvironmentFactorPos];
 }
 
 bool DataHandler::next() {
@@ -43,15 +43,14 @@ bool DataHandler::next() {
 
     state = INITIALISED;
     SNP* nextSNP = dataQueue.next();
+
     const EnvironmentFactor* nextEnvironmentFactor = environmentInformation[0];
     currentEnvironmentFactorPos = 0;
 
     environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
     readSNP(*nextSNP);
-
   }else{
     currentRecode = ALL_RISK;
-    delete interactionVector;
 
     if(currentEnvironmentFactorPos == environmentInformation.size() - 1){
       if(!dataQueue.hasNext()){
@@ -70,8 +69,7 @@ bool DataHandler::next() {
     environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
   } /* else if NOT_INITIALISED */
 
-  interactionVector = new Container::InteractionVector(*environmentVector, *snpVector);
-
+  interactionVector->recode(*snpVector);
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 
@@ -112,12 +110,13 @@ void DataHandler::recode(Recode recode) {
     throw InvalidState("Unknown recode for a SNPVector.");
   }
 #endif
+  currentRecode = recode;
 
   snpVector->recode(recode);
 
   environmentVector->recode(recode);
 
-  interactionVector->recode();
+  interactionVector->recode(*snpVector);
 
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());

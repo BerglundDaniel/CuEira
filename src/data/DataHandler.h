@@ -2,6 +2,8 @@
 #define DATAHANDLER_H_
 
 #include <utility>
+#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
 
 #include <SNPVector.h>
 #include <InteractionVector.h>
@@ -20,6 +22,7 @@
 #include <DataQueue.h>
 
 namespace CuEira {
+class DataHandlerTest;
 
 /**
  * This is
@@ -27,25 +30,29 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class DataHandler {
+  friend DataHandlerTest;
+  FRIEND_TEST(DataHandlerTest, Next);
+  FRIEND_TEST(DataHandlerTest, Recode);
 public:
   DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader,
-      const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue, Container::EnvironmentVector* environmentVector);
+      const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
+      Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector);
   virtual ~DataHandler();
 
-  const SNP& getCurrentSNP() const;
-  const EnvironmentFactor& getCurrentEnvironmentFactor() const;
+  virtual const SNP& getCurrentSNP() const;
+  virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
-  bool next();
+  virtual bool next();
 
-  Recode getRecode() const;
-  void recode(Recode recode);
+  virtual Recode getRecode() const;
+  virtual void recode(Recode recode);
 
-  const Container::HostVector& getSNP() const;
-  const Container::HostVector& getInteraction() const;
-  const Container::HostVector& getEnvironment() const;
+  virtual const Container::HostVector& getSNP() const;
+  virtual const Container::HostVector& getInteraction() const;
+  virtual const Container::HostVector& getEnvironment() const;
 
 private:
-  enum State{
+  enum State {
     NOT_INITIALISED, INITIALISED
   };
 
@@ -60,7 +67,6 @@ private:
   Container::SNPVector* snpVector;
   Container::InteractionVector* interactionVector;
   Recode currentRecode;
-  SNP* currentSNP;
   int currentEnvironmentFactorPos;
 };
 

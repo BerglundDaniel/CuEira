@@ -5,6 +5,7 @@
 #include <SNPVector.h>
 #include <EnvironmentVector.h>
 #include <Recode.h>
+#include <InvalidState.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
@@ -23,16 +24,23 @@ namespace Container {
  */
 class InteractionVector {
 public:
-  InteractionVector(const EnvironmentVector& environmentVector, const SNPVector& snpVector);
+  InteractionVector(const EnvironmentVector& environmentVector);
   virtual ~InteractionVector();
 
-  void recode();
-  int getNumberOfIndividualsToInclude() const;
-  const Container::HostVector& getRecodedData() const;
+  virtual void recode(const SNPVector& snpVector);
+  virtual int getNumberOfIndividualsToInclude() const;
+  virtual const Container::HostVector& getRecodedData() const;
+
+protected:
+  InteractionVector();
 
 private:
-  const EnvironmentVector& environmentVector;
-  const SNPVector& snpVector;
+  enum State {
+    NOT_INITIALISED, INITIALISED
+  };
+
+  State state;
+  const EnvironmentVector* environmentVector;
   int numberOfIndividualsToInclude;
   Container::HostVector* interactionVector;
 };

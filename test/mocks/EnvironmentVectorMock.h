@@ -26,11 +26,12 @@ public:
 
   MOCK_METHOD1(switchEnvironmentFactor, void(const EnvironmentFactor&));
   MOCK_METHOD1(recode, void(Recode));
+  MOCK_METHOD2(applyStatisticModel, void(StatisticModel, const Container::HostVector&));
 
   MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());
   MOCK_CONST_METHOD0(getRecodedData, const Container::HostVector& ());
   MOCK_CONST_METHOD0(getCurrentEnvironmentFactor, const EnvironmentFactor&());
-  MOCK_CONST_METHOD2(applyStatisticModel, void(StatisticModel, const Container::HostVector&));
+
 };
 
 } /* namespace Container */

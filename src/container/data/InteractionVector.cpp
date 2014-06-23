@@ -3,16 +3,21 @@
 namespace CuEira {
 namespace Container {
 
-InteractionVector::InteractionVector(const EnvironmentVector& environmentVector, const SNPVector& snpVector) :
-    environmentVector(environmentVector), snpVector(snpVector), numberOfIndividualsToInclude(
-        snpVector.getNumberOfIndividualsToInclude()),
+InteractionVector::InteractionVector(const EnvironmentVector& environmentVector) :
+    environmentVector(&environmentVector), numberOfIndividualsToInclude(
+        environmentVector.getNumberOfIndividualsToInclude()), state(NOT_INITIALISED),
 #ifdef CPU
         interactionVector(new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude)))
 #else
         interactionVector(new PinnedHostVector(numberOfIndividualsToInclude))
 #endif
 {
-  recode();
+
+}
+
+InteractionVector::InteractionVector() :
+    interactionVector(nullptr) {
+
 }
 
 InteractionVector::~InteractionVector() {
@@ -20,6 +25,12 @@ InteractionVector::~InteractionVector() {
 }
 
 const Container::HostVector& InteractionVector::getRecodedData() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using the getRecodedData use recode() at least once.");
+  }
+#endif
+
   return *interactionVector;
 }
 
@@ -27,8 +38,14 @@ int InteractionVector::getNumberOfIndividualsToInclude() const {
   return numberOfIndividualsToInclude;
 }
 
-void InteractionVector::recode() {
-  const HostVector& envData = environmentVector.getRecodedData();
+void InteractionVector::recode(const SNPVector& snpVector) {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    state=INITIALISED;
+  }
+#endif
+
+  const HostVector& envData = environmentVector->getRecodedData();
   const HostVector& snpData = snpVector.getRecodedData();
 
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){

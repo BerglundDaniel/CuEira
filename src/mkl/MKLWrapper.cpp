@@ -114,11 +114,11 @@ void MKLWrapper::matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatri
 
 #ifdef DOUBLEPRECISION
   cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, numberOfRowsMatrix1, numberOfColumnsMatrix2,
-      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsMatrix2, matrix2.getMemoryPointer(),
+      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsMatrix1, matrix2.getMemoryPointer(),
       numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfRowsMatrix1);
 #else
   cblas_sgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, numberOfRowsMatrix1, numberOfColumnsMatrix2,
-      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsMatrix2, matrix2.getMemoryPointer(),
+      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsMatrix1, matrix2.getMemoryPointer(),
       numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfRowsMatrix1);
 #endif
 }
@@ -132,18 +132,19 @@ void MKLWrapper::matrixTransMatrixMultiply(const HostMatrix& matrix1, const Host
   }
 #endif
 
-  int numberOfColumnsMatrix1 = matrix1.getNumberOfColumns(); //Rows after transpose
-  int numberOfColumnsMatrix2 = matrix2.getNumberOfColumns();
+  int numberOfRowsOpMatrix1 = matrix1.getNumberOfColumns();
+  int numberOfColumnsOpMatrix1 = matrix1.getNumberOfRows();
   int numberOfRowsMatrix2 = matrix2.getNumberOfRows();
+  int numberOfColumnsMatrix2 = matrix2.getNumberOfColumns();
 
 #ifdef DOUBLEPRECISION
-  cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, numberOfColumnsMatrix1, numberOfColumnsMatrix2,
-      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsMatrix2, matrix2.getMemoryPointer(),
-      numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfColumnsMatrix1);
+  cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, numberOfRowsOpMatrix1, numberOfColumnsMatrix2,
+      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsOpMatrix1, matrix2.getMemoryPointer(),
+      numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfRowsOpMatrix1);
 #else
-  cblas_sgemm(CblasColMajor, CblasTrans, CblasNoTrans, numberOfColumnsMatrix1, numberOfColumnsMatrix2,
-      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsMatrix2, matrix2.getMemoryPointer(),
-      numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfColumnsMatrix1);
+  cblas_sgemm(CblasColMajor, CblasTrans, CblasNoTrans, numberOfRowsOpMatrix1, numberOfColumnsMatrix2,
+      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsOpMatrix1, matrix2.getMemoryPointer(),
+      numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfRowsOpMatrix1);
 #endif
 }
 

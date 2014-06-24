@@ -89,7 +89,7 @@ TEST_F(MKLWrapperTest, matrixVectorMultiply) {
   LapackppHostMatrix matrix1(new LaGenMatDouble(numberOfRows, numberOfColumns));
 #else
   PinnedHostVector vector(numberOfColumns);
-  PinnedHostVector vectorRes(numberOfColumns);
+  PinnedHostVector vectorRes(numberOfRows);
   PinnedHostMatrix matrix1(numberOfRows, numberOfColumns);
 #endif
 
@@ -128,8 +128,8 @@ TEST_F(MKLWrapperTest, matrixTransVectorMultiply) {
   const int numberOfRows = 3;
   const int numberOfColumns = 5;
 #ifdef CPU
-  LapackppHostVector vector(new LaVectorDouble(numberOfColumns));
-  LapackppHostVector vectorRes(new LaVectorDouble(numberOfRows));
+  LapackppHostVector vector(new LaVectorDouble(numberOfRows));
+  LapackppHostVector vectorRes(new LaVectorDouble(numberOfColumns));
   LapackppHostMatrix matrixT(new LaGenMatDouble(numberOfColumns, numberOfRows));
 #else
   PinnedHostVector vector(numberOfColumns);

@@ -15,7 +15,7 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
         new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), logLikelihood(new PRECISION(0)), betaCoefficentsHost(
         deviceToHost.transferVector(&betaCoefficentsDevice)) {
 
-  double* diffSumHost = new double(0);
+  PRECISION* diffSumHost = new PRECISION(0);
   PinnedHostVector sigma(numberOfPredictors);
   PinnedHostMatrix uSVD(numberOfPredictors, numberOfPredictors);
   PinnedHostMatrix vtSVD(numberOfPredictors, numberOfPredictors);

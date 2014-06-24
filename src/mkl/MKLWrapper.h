@@ -2,6 +2,7 @@
 #define MKLWRAPPER_H_
 
 #include <mkl.h>
+#include <iostream>
 
 #include <MKLException.h>
 #include <HostMatrix.h>

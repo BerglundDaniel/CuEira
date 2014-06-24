@@ -117,6 +117,10 @@ TEST_F(MKLWrapperTest, matrixVectorMultiply) {
   matrix1(2, 3) = 4.4;
   matrix1(2, 4) = 5.5;
 
+  vectorRes(0) = 0;
+  vectorRes(1) = 0;
+  vectorRes(2) = 0;
+
   mklWrapper.matrixVectorMultiply(matrix1, vector, vectorRes, 1, 0);
 
   EXPECT_EQ(55, vectorRes(0));
@@ -128,12 +132,12 @@ TEST_F(MKLWrapperTest, matrixTransVectorMultiply) {
   const int numberOfRows = 3;
   const int numberOfColumns = 5;
 #ifdef CPU
-  LapackppHostVector vector(new LaVectorDouble(numberOfRows));
-  LapackppHostVector vectorRes(new LaVectorDouble(numberOfColumns));
+  LapackppHostVector vector(new LaVectorDouble(numberOfColumns));
+  LapackppHostVector vectorRes(new LaVectorDouble(numberOfRows));
   LapackppHostMatrix matrixT(new LaGenMatDouble(numberOfColumns, numberOfRows));
 #else
   PinnedHostVector vector(numberOfColumns);
-  PinnedHostVector vectorRes(numberOfColumns);
+  PinnedHostVector vectorRes(numberOfRows);
   PinnedHostMatrix matrixT(numberOfColumns, numberOfRows);
 #endif
 
@@ -161,6 +165,10 @@ TEST_F(MKLWrapperTest, matrixTransVectorMultiply) {
   matrixT(3, 2) = 4.4;
   matrixT(4, 2) = 5.5;
 
+  vectorRes(0) = 0;
+  vectorRes(1) = 0;
+  vectorRes(2) = 0;
+
   mklWrapper.matrixTransVectorMultiply(matrixT, vector, vectorRes, 1, 0);
 
   EXPECT_EQ(55, vectorRes(0));
@@ -171,7 +179,7 @@ TEST_F(MKLWrapperTest, matrixTransVectorMultiply) {
 TEST_F(MKLWrapperTest, matrixMatrixMultiply) {
   const int numberOfRows = 3;
   const int numberOfColumns = 5;
-  const int numberOfRows2 = 5;
+  const int numberOfRows2 = numberOfColumns;
   const int numberOfColumns2 = 4;
 #ifdef CPU
   LapackppHostMatrix matrix1(new LaGenMatDouble(numberOfRows, numberOfColumns));
@@ -219,20 +227,20 @@ TEST_F(MKLWrapperTest, matrixMatrixMultiply) {
 
   mklWrapper.matrixMatrixMultiply(matrix1, matrix2, matrixRes, 1, 0);
 
-  EXPECT_EQ(0, matrixRes(90, 1));
-  EXPECT_EQ(0, matrixRes(105, 2));
-  EXPECT_EQ(0, matrixRes(120, 3));
-  EXPECT_EQ(0, matrixRes(135, 4));
+  EXPECT_EQ(90, matrixRes(0, 0));
+  EXPECT_EQ(105, matrixRes(0, 1));
+  EXPECT_EQ(120, matrixRes(0, 2));
+  EXPECT_EQ(135, matrixRes(0, 3));
 
-  EXPECT_EQ(0, matrixRes(900, 1));
-  EXPECT_EQ(0, matrixRes(1050, 2));
-  EXPECT_EQ(0, matrixRes(1200, 3));
-  EXPECT_EQ(0, matrixRes(1350, 4));
+  EXPECT_EQ(900, matrixRes(1, 0));
+  EXPECT_EQ(1050, matrixRes(1, 1));
+  EXPECT_EQ(1200, matrixRes(1, 2));
+  EXPECT_EQ(1350, matrixRes(1, 3));
 
-  EXPECT_EQ(0, matrixRes(99, 1));
-  EXPECT_EQ(0, matrixRes(115.5, 2));
-  EXPECT_EQ(0, matrixRes(132, 3));
-  EXPECT_EQ(0, matrixRes(148.5, 4));
+  EXPECT_EQ(99, matrixRes(2, 0));
+  EXPECT_EQ(115.5, matrixRes(2, 1));
+  EXPECT_EQ(132, matrixRes(2, 2));
+  EXPECT_EQ(148.5, matrixRes(2, 3));
 }
 
 TEST_F(MKLWrapperTest, matrixTransMatrixMultiply) {
@@ -286,20 +294,20 @@ TEST_F(MKLWrapperTest, matrixTransMatrixMultiply) {
 
   mklWrapper.matrixTransMatrixMultiply(matrixT, matrix2, matrixRes, 1, 0);
 
-  EXPECT_EQ(0, matrixRes(90, 1));
-  EXPECT_EQ(0, matrixRes(105, 2));
-  EXPECT_EQ(0, matrixRes(120, 3));
-  EXPECT_EQ(0, matrixRes(135, 4));
+  EXPECT_EQ(90, matrixRes(0, 0));
+  EXPECT_EQ(105, matrixRes(0, 1));
+  EXPECT_EQ(120, matrixRes(0, 2));
+  EXPECT_EQ(135, matrixRes(0, 3));
 
-  EXPECT_EQ(0, matrixRes(900, 1));
-  EXPECT_EQ(0, matrixRes(1050, 2));
-  EXPECT_EQ(0, matrixRes(1200, 3));
-  EXPECT_EQ(0, matrixRes(1350, 4));
+  EXPECT_EQ(900, matrixRes(1, 0));
+  EXPECT_EQ(1050, matrixRes(1, 1));
+  EXPECT_EQ(1200, matrixRes(1, 2));
+  EXPECT_EQ(1350, matrixRes(1, 3));
 
-  EXPECT_EQ(0, matrixRes(99, 1));
-  EXPECT_EQ(0, matrixRes(115.5, 2));
-  EXPECT_EQ(0, matrixRes(132, 3));
-  EXPECT_EQ(0, matrixRes(148.5, 4));
+  EXPECT_EQ(99, matrixRes(2, 0));
+  EXPECT_EQ(115.5, matrixRes(2, 1));
+  EXPECT_EQ(132, matrixRes(2, 2));
+  EXPECT_EQ(148.5, matrixRes(2, 3));
 }
 
 TEST_F(MKLWrapperTest, differenceElememtWise) {

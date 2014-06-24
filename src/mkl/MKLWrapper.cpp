@@ -86,16 +86,15 @@ void MKLWrapper::matrixTransVectorMultiply(const HostMatrix& matrix, const HostV
   }
 #endif
 
-//kanske fel med storleken m och n FIXME
-  int m = matrix.getNumberOfRows();
-  int n = matrix.getNumberOfColumns();
+  int numberOfRowsMatrix = matrix.getNumberOfRows();
+  int numberOfColumnsMatrix = matrix.getNumberOfColumns();
 
 #ifdef DOUBLEPRECISION
-  cblas_dgemv(CblasColMajor, CblasTrans, m, n, alpha, matrix.getMemoryPointer(), m, vector.getMemoryPointer(), 1,
+  cblas_dgemv(CblasColMajor, CblasTrans, numberOfRowsMatrix, numberOfColumnsMatrix, alpha, matrix.getMemoryPointer(), numberOfRowsMatrix, vector.getMemoryPointer(), 1,
       beta, resultVector.getMemoryPointer(), 1);
 #else
-  cblas_sgemv(CblasColMajor, CblasTrans, m, n, alpha, matrix.getMemoryPointer(), m, vector.getMemoryPointer(), 1, beta,
-      resultVector.getMemoryPointer(), 1);
+  cblas_sgemv(CblasColMajor, CblasTrans, numberOfRowsMatrix, numberOfColumnsMatrix, alpha, matrix.getMemoryPointer(),
+      numberOfRowsMatrix, vector.getMemoryPointer(), 1, beta, resultVector.getMemoryPointer(), 1);
 #endif
 }
 
@@ -139,11 +138,11 @@ void MKLWrapper::matrixTransMatrixMultiply(const HostMatrix& matrix1, const Host
 
 #ifdef DOUBLEPRECISION
   cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, numberOfRowsOpMatrix1, numberOfColumnsMatrix2,
-      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsOpMatrix1, matrix2.getMemoryPointer(),
+      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), matrix1.getNumberOfRows(), matrix2.getMemoryPointer(),
       numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfRowsOpMatrix1);
 #else
   cblas_sgemm(CblasColMajor, CblasTrans, CblasNoTrans, numberOfRowsOpMatrix1, numberOfColumnsMatrix2,
-      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), numberOfRowsOpMatrix1, matrix2.getMemoryPointer(),
+      numberOfRowsMatrix2, alpha, matrix1.getMemoryPointer(), matrix1.getNumberOfRows(), matrix2.getMemoryPointer(),
       numberOfRowsMatrix2, beta, resultMatrix.getMemoryPointer(), numberOfRowsOpMatrix1);
 #endif
 }

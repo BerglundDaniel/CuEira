@@ -22,7 +22,7 @@ PinnedHostVector::~PinnedHostVector() {
 PRECISION& PinnedHostVector::operator()(unsigned int index) {
   if(index >= numberOfRows){
     std::ostringstream os;
-    os << "Index" << index << " is larger than the number of rows " << numberOfRows << std::endl;
+    os << "Index " << index << " is larger than the number of rows " << numberOfRows << std::endl;
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }
@@ -33,7 +33,7 @@ PRECISION& PinnedHostVector::operator()(unsigned int index) {
 const PRECISION& PinnedHostVector::operator()(unsigned int index) const {
   if(index >= numberOfRows){
     std::ostringstream os;
-    os << "Index" << index << " is larger than the number of rows " << numberOfRows << std::endl;
+    os << "Index " << index << " is larger than the number of rows " << numberOfRows << std::endl;
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }

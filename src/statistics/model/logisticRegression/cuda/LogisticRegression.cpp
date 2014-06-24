@@ -11,7 +11,7 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
         lrConfiguration.getConvergenceThreshold()), numberOfRows(lrConfiguration.getNumberOfRows()), numberOfPredictors(
         lrConfiguration.getNumberOfPredictors()), informationMatrixDevice(lrConfiguration.getInformationMatrix()), betaCoefficentsDevice(
         lrConfiguration.getBetaCoefficents()), informationMatrixHost(
-        new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), scoresHost(new PinnedHostVector(numberOfRows)), inverseInformationMatrixHost(
+        new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), scoresHost(new PinnedHostVector(numberOfPredictors)), inverseInformationMatrixHost(
         new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), logLikelihood(new PRECISION(0)), betaCoefficentsHost(
         deviceToHost.transferVector(&betaCoefficentsDevice)) {
 

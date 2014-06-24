@@ -15,7 +15,7 @@ PinnedHostMatrix::~PinnedHostMatrix() {
 HostVector* PinnedHostMatrix::operator()(unsigned int column) {
   if(column >= numberOfColumns){
     std::ostringstream os;
-    os << "Index" << column << " is larger than the number of columns " << numberOfColumns << std::endl;
+    os << "Index " << column << " is larger than the number of columns " << numberOfColumns << std::endl;
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }
@@ -27,7 +27,7 @@ HostVector* PinnedHostMatrix::operator()(unsigned int column) {
 const HostVector* PinnedHostMatrix::operator()(unsigned int column) const {
   if(column >= numberOfColumns){
     std::ostringstream os;
-    os << "Index" << column << " is larger than the number of columns " << numberOfColumns << std::endl;
+    os << "Index " << column << " is larger than the number of columns " << numberOfColumns << std::endl;
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }
@@ -39,7 +39,7 @@ const HostVector* PinnedHostMatrix::operator()(unsigned int column) const {
 PRECISION& PinnedHostMatrix::operator()(unsigned int row, unsigned int column) {
   if(row >= numberOfRows){
     std::ostringstream os;
-    os << "Index" << row << " is larger than the number of rows " << numberOfRows << std::endl;
+    os << "Index " << row << " is larger than the number of rows " << numberOfRows << std::endl;
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }
@@ -56,13 +56,13 @@ PRECISION& PinnedHostMatrix::operator()(unsigned int row, unsigned int column) {
 const PRECISION& PinnedHostMatrix::operator()(unsigned int row, unsigned int column) const {
   if(row >= numberOfRows){
     std::ostringstream os;
-    os << "Index" << row << " is larger than the number of rows " << numberOfRows << std::endl;
+    os << "Index " << row << " is larger than the number of rows " << numberOfRows << std::endl;
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }
   if(column >= numberOfColumns){
     std::ostringstream os;
-    os << "Index" << column << " is larger than the number of columns " << numberOfColumns << std::endl;
+    os << "Index " << column << " is larger than the number of columns " << numberOfColumns << std::endl;
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }

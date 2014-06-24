@@ -164,21 +164,16 @@ TEST_F(LogisticRegressionTest, SmallTestNoCov) {
   cudaStreamSynchronize(stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
-  std::cerr << "t1" << std::endl;
   LogisticRegression logisticRegression(lrConfig, hostToDeviceStream1, deviceToHostStream1);
-  std::cerr << "t2" << std::endl;
   HostVector* beta = logisticRegression.stealBeta();
-  std::cerr << "t3" << std::endl;
 
   for(int i = 0; i < numberOfPredictorsNoCov; ++i){
-    std::cerr << "t4" << std::endl;
     PRECISION l = correctBeta[i] - e;
     PRECISION h = correctBeta[i] + e;
 
     EXPECT_THAT((*beta)(i), Ge(l));
     EXPECT_THAT((*beta)(i), Le(h));
   }
-  std::cerr << "t5" << std::endl;
 
   delete beta;
   delete outcomeDeviceVector;

@@ -28,6 +28,8 @@ using testing::Return;
 using testing::_;
 using testing::ReturnRef;
 using testing::Eq;
+using testing::Ge;
+using testing::Le;
 
 namespace CuEira {
 namespace FileIO {
@@ -144,6 +146,9 @@ TEST_F(CSVReaderTest, ReadFileWrongNumber) {
 
 TEST_F(CSVReaderTest, ReadAndGetData) {
   CuEira::FileIO::CSVReader csvReader(filePath, idColumnName, delimiter);
+  double e = 1e-5;
+  double l;
+  double h;
   PRECISION column1[numberOfIndividualsToIncludeStatic] = {1, 0, 1, 0, 1, 0};
   PRECISION column2[numberOfIndividualsToIncludeStatic] = {1.1, -3, -10, 3, 2, 2};
 
@@ -156,8 +161,17 @@ TEST_F(CSVReaderTest, ReadAndGetData) {
   ASSERT_EQ(numberOfColumns, dataMatrix->getNumberOfColumns());
 
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    ASSERT_EQ(column1[i], (*dataMatrix)(i, 0));
-    ASSERT_EQ(column2[i], (*dataMatrix)(i, 1));
+    l = column1[i] - e;
+    h = column1[i] + e;
+
+    EXPECT_THAT((*dataMatrix)(i, 0), Ge(l));
+    EXPECT_THAT((*dataMatrix)(i, 0), Le(h));
+
+    l = column2[i] - e;
+    h = column2[i] + e;
+
+    EXPECT_THAT((*dataMatrix)(i, 1), Ge(l));
+    EXPECT_THAT((*dataMatrix)(i, 1), Le(h));
   }
 
   delete dataMatrix;

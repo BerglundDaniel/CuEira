@@ -4,7 +4,6 @@
 #include <iostream>
 #include <math.h>
 #include <algorithm>
-
 #include <lapackpp/gmd.h> //matrix double
 #include <lapackpp/lavd.h> //vector double
 #include <lapackpp/laexcp.h> //exceptions
@@ -12,7 +11,8 @@
 #include <lapackpp/blas2pp.h> //matrix - vector operations
 #include <lapackpp/blas3pp.h> //matrix-matrix operations
 #include <lapackpp/lasvd.h> //singular value decomp
-#include "LogisticRegression.h"
+
+#include <LogisticRegression.h>
 
 namespace CuEira {
 namespace Model {

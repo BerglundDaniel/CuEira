@@ -103,7 +103,7 @@ public:
   /**
    * Sums the vectors elements and puts the result in the given pointer
    */
-  void sumResultToHost(const DeviceVector& vector, PRECISION* sumHost) const;
+  void sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector, PRECISION* sumHost) const;
 
   /**
    * Syncs the associated stream
@@ -126,6 +126,9 @@ private:
   const cublasHandle_t& cublasHandle;
   const cudaStream_t& cudaStream;
   static const int numberOfThreadsPerBlock = 256;
+
+  const PRECISION* constOne;
+  const PRECISION* constZero;
 };
 
 } /* namespace CUDA */

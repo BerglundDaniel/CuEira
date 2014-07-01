@@ -31,8 +31,7 @@ using namespace CuEira::Container;
 using namespace CuEira::CUDA;
 
 /**
- * Test for testing transfers between host and device in both directions.
- * Assumes that the container classes are working.
+ * Test for ...
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */

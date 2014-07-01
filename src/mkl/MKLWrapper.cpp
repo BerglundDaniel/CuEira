@@ -64,7 +64,6 @@ void MKLWrapper::matrixVectorMultiply(const HostMatrix& matrix, const HostVector
   }
 #endif
 
-//kanske fel med storleken m och n FIXME
   int m = matrix.getNumberOfRows();
   int n = matrix.getNumberOfColumns();
 

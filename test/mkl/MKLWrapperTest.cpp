@@ -18,6 +18,9 @@
 #include <PinnedHostVector.h>
 #endif
 
+using ::testing::Ge;
+using ::testing::Le;
+
 namespace CuEira {
 namespace CuEira_Test {
 
@@ -36,9 +39,11 @@ protected:
   virtual void TearDown();
 
   MKLWrapper mklWrapper;
+  double e;
 };
 
-MKLWrapperTest::MKLWrapperTest() {
+MKLWrapperTest::MKLWrapperTest() :
+    e(1e-5) {
 
 }
 
@@ -77,7 +82,188 @@ TEST_F(MKLWrapperTest, CopyVector) {
 }
 
 TEST_F(MKLWrapperTest, SVD) {
+  const int size = 3;
+  double l;
+  double h;
+  double x;
+#ifdef CPU
+  LapackppHostVector sigma(new LaVectorDouble(size));
+  LapackppHostMatrix matrix(new LaGenMatDouble(size, size));
+  LapackppHostMatrix uSVD(new LaGenMatDouble(size, size));
+  LapackppHostMatrix vtSVD(new LaGenMatDouble(size, size));
+#else
+  PinnedHostVector sigma(size);
+  PinnedHostMatrix matrix(size, size);
+  PinnedHostMatrix uSVD(size, size);
+  PinnedHostMatrix vtSVD(size, size);
+#endif
 
+  matrix(0, 0) = 1;
+  matrix(1, 0) = 2;
+  matrix(2, 0) = 3;
+
+  matrix(0, 1) = 4;
+  matrix(1, 1) = 5;
+  matrix(2, 1) = 6;
+
+  matrix(0, 2) = 7;
+  matrix(1, 2) = 8;
+  matrix(2, 2) = 9;
+
+  mklWrapper.svd(matrix, uSVD, sigma, vtSVD);
+
+  ///
+  ///sigma
+  ///
+  x = 16.84810;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(sigma(0), Ge(l));
+  EXPECT_THAT(sigma(0), Le(h));
+
+  x = 1.068370;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(sigma(1), Ge(l));
+  EXPECT_THAT(sigma(1), Le(h));
+
+  //x = 5.543107e-16;
+  //Checking that it's around 0.
+  l = -1e-4;
+  h = 1e-4;
+  EXPECT_THAT(sigma(2), Ge(l));
+  EXPECT_THAT(sigma(2), Le(h));
+
+  /*
+   $u
+   [,1]        [,2]       [,3]
+   [1,] -0.4796712  0.77669099  0.4082483
+   [2,] -0.5723678  0.07568647 -0.8164966
+   [3,] -0.6650644 -0.62531805  0.4082483
+
+
+
+   $vt
+   [,1]       [,2]       [,3]
+   [1,] -0.2148372 -0.5205874 -0.8263375
+   [2,] -0.8872307 -0.2496440  0.3879428
+   [3,]  0.4082483 -0.8164966  0.4082483
+
+   */
+
+  ///
+  ///uSVD
+  ///
+  x = -0.4796712;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(uSVD(0, 0), Ge(l));
+  EXPECT_THAT(uSVD(0, 0), Le(h));
+
+  x = 0.77669099;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(uSVD(0, 1), Ge(l));
+  EXPECT_THAT(uSVD(0, 1), Le(h));
+
+  x = 0.4082483;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(uSVD(0, 2), Ge(l));
+  EXPECT_THAT(uSVD(0, 2), Le(h));
+
+  x = -0.5723678;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(uSVD(1, 0), Ge(l));
+  EXPECT_THAT(uSVD(1, 0), Le(h));
+
+  x = 0.07568647;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(uSVD(1, 1), Ge(l));
+  EXPECT_THAT(uSVD(1, 1), Le(h));
+
+  x = -0.8164966;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(uSVD(1, 2), Ge(l));
+  EXPECT_THAT(uSVD(1, 2), Le(h));
+
+  x = -0.6650644;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(uSVD(2, 0), Ge(l));
+  EXPECT_THAT(uSVD(2, 0), Le(h));
+
+  x = -0.62531805;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(uSVD(2, 1), Ge(l));
+  EXPECT_THAT(uSVD(2, 1), Le(h));
+
+  x = 0.4082483;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(uSVD(2, 2), Ge(l));
+  EXPECT_THAT(uSVD(2, 2), Le(h));
+
+  ///
+  ///vtSVD
+  ///
+  x = -0.2148372;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(vtSVD(0, 0), Ge(l));
+  EXPECT_THAT(vtSVD(0, 0), Le(h));
+
+  x = -0.5205874;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(vtSVD(0, 1), Ge(l));
+  EXPECT_THAT(vtSVD(0, 1), Le(h));
+
+  x = -0.8263375;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(vtSVD(0, 2), Ge(l));
+  EXPECT_THAT(vtSVD(0, 2), Le(h));
+
+  x = -0.8872307;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(vtSVD(1, 0), Ge(l));
+  EXPECT_THAT(vtSVD(1, 0), Le(h));
+
+  x = -0.2496440;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(vtSVD(1, 1), Ge(l));
+  EXPECT_THAT(vtSVD(1, 1), Le(h));
+
+  x = 0.3879428;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(vtSVD(1, 2), Ge(l));
+  EXPECT_THAT(vtSVD(1, 2), Le(h));
+
+  x = 0.4082483;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(vtSVD(2, 0), Ge(l));
+  EXPECT_THAT(vtSVD(2, 0), Le(h));
+
+  x = -0.8164966;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(vtSVD(2, 1), Ge(l));
+  EXPECT_THAT(vtSVD(2, 1), Le(h));
+
+  x = 0.4082483;
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(vtSVD(2, 2), Ge(l));
+  EXPECT_THAT(vtSVD(2, 2), Le(h));
 }
 
 TEST_F(MKLWrapperTest, matrixVectorMultiply) {

@@ -26,7 +26,7 @@ set(PRECISION single) #single or double
 #set(TARGET_ARCHITECTURE fermi) #fermi or kepler
 option(CPU off)
 option(CLUSTER off)
-option(ENABLE_MKL "Enable MKL flag" ON)
+option(ENABLE_MKL "Enable MKL flag" on)
 
 #Set things based on options
 if(${VERBOSE})
@@ -129,7 +129,11 @@ else()
   MESSAGE( STATUS "CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS}" )
 endif(${CPU})
 
+#TODO message abou blas
+
+if(${CLUSTER})
 #TODO message mpi
+endif(${CLUSTER})
 
 #Add all sub dirs, the src sub dir will create librart ${CUEIRA_LIB} and set ${INCLUDE_DIRECTORIES}
 add_subdirectory(gmock-1.7.0)

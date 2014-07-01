@@ -16,12 +16,13 @@ namespace CuEira {
 namespace CUDA {
 
 KernelWrapper::KernelWrapper(const cudaStream_t& cudaStream, const cublasHandle_t& cublasHandle) :
-    cudaStream(cudaStream), cublasHandle(cublasHandle) {
+    cudaStream(cudaStream), cublasHandle(cublasHandle), constOne(new PRECISION(1)), constZero(new PRECISION(0)) {
 
 }
 
 KernelWrapper::~KernelWrapper() {
-
+  delete constOne;
+  delete constZero;
 }
 
 void KernelWrapper::logisticTransform(const DeviceVector& logitVector, DeviceVector& probabilites) const {
@@ -184,17 +185,15 @@ void KernelWrapper::matrixVectorMultiply(const DeviceMatrix& matrix, const Devic
   }
 #endif
 
-  const PRECISION* const1 = new PRECISION(1);
 #ifdef DOUBLEPRECISION
-  cublasDgemv(cublasHandle, CUBLAS_OP_N, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), const1,
-      matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, const1, result.getMemoryPointer(),
+  cublasDgemv(cublasHandle, CUBLAS_OP_N, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), constOne,
+      matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, constZero, result.getMemoryPointer(),
       1);
 #else
-  cublasSgemv(cublasHandle, CUBLAS_OP_N, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), const1,
-      matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, const1,
+  cublasSgemv(cublasHandle, CUBLAS_OP_N, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), constOne,
+      matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, constZero,
       result.getMemoryPointer(), 1);
 #endif
-  delete const1;
 }
 
 void KernelWrapper::matrixTransVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
@@ -208,52 +207,37 @@ void KernelWrapper::matrixTransVectorMultiply(const DeviceMatrix& matrix, const 
   }
 #endif
 
-  const PRECISION* const1 = new PRECISION(1);
 #ifdef DOUBLEPRECISION
-  cublasDgemv(cublasHandle, CUBLAS_OP_T, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), const1,
-      matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, const1, result.getMemoryPointer(),
+  cublasDgemv(cublasHandle, CUBLAS_OP_T, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), constOne,
+      matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, constZero, result.getMemoryPointer(),
       1);
 #else
-  cublasSgemv(cublasHandle, CUBLAS_OP_T, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), const1,
-      matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, const1,
+  cublasSgemv(cublasHandle, CUBLAS_OP_T, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), constOne,
+      matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, constZero,
       result.getMemoryPointer(), 1);
 #endif
-  delete const1;
 }
 
 void KernelWrapper::matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const DeviceMatrix& matrix2,
     DeviceMatrix& result) const {
 #ifdef DEBUG
-  if((matrix1.getNumberOfRows() != matrix2.getNumberOfRows()) || (matrix1.getNumberOfColumns() != result.getNumberOfRows())){
-    std::ostringstream os;
-    os << "Number of rows(columns for first matrix) doesn't match in matrixTransMatrixMultiply function, they are " << matrix1.getNumberOfColumns()
-    << " , " << matrix2.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
-    const std::string& tmp = os.str();
-    throw CudaException(tmp.c_str());
-  }
-
-  if((matrix1.getNumberOfColumns() != matrix2.getNumberOfColumns()) || (matrix2.getNumberOfColumns() != result.getNumberOfColumns())){
-    std::ostringstream os;
-    os << "Number of columns(rows for first matrix) doesn't match in matrixTransMatrixMultiply function, they are " << matrix1.getNumberOfRows()
-    << " , " << matrix2.getNumberOfColumns() << " and " << result.getNumberOfColumns() << std::endl;
-    const std::string& tmp = os.str();
-    throw CudaException(tmp.c_str());
+  if((matrix1.getNumberOfRows() != matrix2.getNumberOfRows()) || (matrix1.getNumberOfColumns() != result.getNumberOfRows())
+      || (matrix2.getNumberOfColumns() != result.getNumberOfColumns())){
+    throw DimensionMismatch("Matrix sizes doesn't match in matrixTransMatrixMultiply");
   }
 #endif
 
-  const PRECISION* const1 = new PRECISION(1);
 #ifdef DOUBLEPRECISION
   cublasDgemm(cublasHandle, CUBLAS_OP_T, CUBLAS_OP_N, matrix1.getNumberOfColumns(), matrix2.getNumberOfColumns(),
-      matrix1.getNumberOfRows(), const1, matrix1.getMemoryPointer(), matrix1.getNumberOfRows(),
-      matrix2.getMemoryPointer(), matrix2.getNumberOfRows(), const1, result.getMemoryPointer(),
+      matrix1.getNumberOfRows(), constOne, matrix1.getMemoryPointer(), matrix1.getNumberOfRows(),
+      matrix2.getMemoryPointer(), matrix2.getNumberOfRows(), constZero, result.getMemoryPointer(),
       result.getNumberOfRows());
 #else
   cublasSgemm(cublasHandle, CUBLAS_OP_T, CUBLAS_OP_N, matrix1.getNumberOfColumns(), matrix2.getNumberOfColumns(),
-      matrix1.getNumberOfRows(), const1, matrix1.getMemoryPointer(), matrix1.getNumberOfRows(),
-      matrix2.getMemoryPointer(), matrix2.getNumberOfRows(), const1, result.getMemoryPointer(),
+      matrix1.getNumberOfRows(), constOne, matrix1.getMemoryPointer(), matrix1.getNumberOfRows(),
+      matrix2.getMemoryPointer(), matrix2.getNumberOfRows(), constZero, result.getMemoryPointer(),
       result.getNumberOfRows());
 #endif
-  delete const1;
 }
 
 void KernelWrapper::columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix,
@@ -287,11 +271,14 @@ void KernelWrapper::columnByColumnMatrixVectorElementWiseMultiply(const DeviceMa
   }
 }
 
-void KernelWrapper::sumResultToHost(const DeviceVector& vector, PRECISION* sumHost) const {
+void KernelWrapper::sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector,
+    PRECISION* sumHost) const {
 #ifdef DOUBLEPRECISION
-  cublasDasum(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, sumHost);
+  cublasDdot(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, oneVector.getMemoryPointer(), 1,
+      sumHost);
 #else
-  cublasSasum(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, sumHost);
+  cublasSdot(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, oneVector.getMemoryPointer(), 1,
+      sumHost);
 #endif
 }
 

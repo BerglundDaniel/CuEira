@@ -539,7 +539,7 @@ TEST_F(MKLWrapperTest, absoluteSumInt) {
 
   PRECISION sum = 0;
   for(int i = 0; i < size; ++i){
-    sum += abs(vector(i));
+    sum += fabs(vector(i));
   }
 
   EXPECT_EQ(sum, *res);
@@ -562,7 +562,7 @@ TEST_F(MKLWrapperTest, absoluteSumFloat) {
 
   PRECISION sum = 0;
   for(int i = 0; i < size; ++i){
-    sum += abs(vector(i));
+    sum += fabs(vector(i));
   }
 
   EXPECT_EQ(sum, *res);

@@ -24,8 +24,8 @@ set(MKL_MULTI_THREADED on) #FIXME this is not used
 option(VERBOSE "Set CMake and compilation to verbose" on) #FIXME Change to off later
 set(PRECISION single) #single or double
 #set(TARGET_ARCHITECTURE fermi) #fermi or kepler
-option(CPU off)
-option(CLUSTER off)
+option(CPU "Use CPU only" off)
+option(CLUSTER "Use cluster" off)
 option(ENABLE_MKL "Enable MKL flag" on)
 
 #Set things based on options

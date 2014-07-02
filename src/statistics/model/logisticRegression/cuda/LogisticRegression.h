@@ -50,19 +50,19 @@ public:
   LogisticRegressionResult* calculate();
 
 private:
-  void calcuateProbabilites(const DeviceMatrix& predictorsDevice, DeviceVector& betaCoefficentsDevice,
+  void calcuateProbabilites(const DeviceMatrix& predictorsDevice, const DeviceVector& betaCoefficentsDevice,
       DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device);
   void calculateScores(const DeviceMatrix& predictorsDevice, const DeviceVector& outcomesDevice,
-      DeviceVector& probabilitesDevice, DeviceVector& scoresDevice, DeviceVector& workVectorNx1Device);
-  void calculateInformationMatrix(const DeviceMatrix& predictorsDevice, DeviceVector& probabilitesDevice,
+      const DeviceVector& probabilitesDevice, DeviceVector& scoresDevice, DeviceVector& workVectorNx1Device);
+  void calculateInformationMatrix(const DeviceMatrix& predictorsDevice, const DeviceVector& probabilitesDevice,
       DeviceVector& workVectorNx1Device, DeviceMatrix& informationMatrixDevice, DeviceMatrix& workMatrixNxMDevice);
   void invertInformationMatrix(HostMatrix& informationMatrixHost, HostMatrix& inverseInformationMatrixHost,
      HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD, HostMatrix& workMatrixMxMHost);
   void calculateNewBeta(HostMatrix& inverseInformationMatrixHost, HostVector& scoresHost,
       HostVector& betaCoefficentsHost);
-  void calculateDifference(HostVector& betaCoefficentsHost, HostVector& betaCoefficentsOldHost, PRECISION* diffSumHost);
+  void calculateDifference(const HostVector& betaCoefficentsHost, HostVector& betaCoefficentsOldHost, PRECISION* diffSumHost);
   void calculateLogLikelihood(const DeviceVector& outcomesDevice, const DeviceVector& oneVector,
-      DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device, PRECISION* logLikelihood);
+      const DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device, PRECISION* logLikelihood);
 
   MKLWrapper mklWrapper;
   const HostToDevice& hostToDevice;

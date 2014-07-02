@@ -4,7 +4,6 @@
 #include <sstream>
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
-#include <stdlib.h>
 
 #include <CudaAdapter.cu>
 #include <CudaException.h>
@@ -91,7 +90,7 @@ TEST_F(ElementWiseAbsoluteDifferenceTest, KernelSmallVector) {
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
 
   for(int i = 0; i < numberOfRows; ++i){
-    PRECISION x = abs((*hostVector1)(i) - (*hostVector2)(i));
+    PRECISION x = fabs((*hostVector1)(i) - (*hostVector2)(i));
     EXPECT_EQ(x, (*resultHostVector)(i));
   }
 

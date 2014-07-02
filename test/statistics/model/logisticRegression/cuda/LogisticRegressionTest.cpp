@@ -379,7 +379,7 @@ TEST_F(LogisticRegressionTest, calculateInformationMatrix) {
 }
 
 TEST_F(LogisticRegressionTest, invertInformationMatrix) {
-  double e = 1e-5;
+  double e = 1e-4;
   double x, h, l;
   const int numberOfRows = 3;
   const int numberOfPredictors = 3;
@@ -561,15 +561,17 @@ TEST_F(LogisticRegressionTest, calculateDifference) {
   betaCoefficentsHost(2) = 3;
 
   betaCoefficentsOldHost(0) = -4;
-  betaCoefficentsOldHost(1) = 1.1;
+  betaCoefficentsOldHost(1) = 1.2;
   betaCoefficentsOldHost(2) = 5.1;
 
-  logisticRegression.calculateDifference(betaCoefficentsHost, betaCoefficentsOldHost, diffSumHost);
-
   PRECISION sum = 0;
+  PRECISION diff;
   for(int i = 0; i < numberOfPredictors; ++i){
-    sum += abs(betaCoefficentsHost(i) - betaCoefficentsOldHost(i));
+    diff = betaCoefficentsHost(i) - betaCoefficentsOldHost(i);
+    sum += fabs(diff);
   }
+
+  logisticRegression.calculateDifference(betaCoefficentsHost, betaCoefficentsOldHost, diffSumHost);
 
   x = sum;
   l = x - e;
@@ -657,7 +659,7 @@ TEST_F(LogisticRegressionTest, calculateLogLikelihood) {
 }
 
 TEST_F(LogisticRegressionTest, SmallTestNoCov) {
-  double e = 1e-5;
+  double e = 1e-4;
   const int numberOfRows = 10;
   PinnedHostVector outcomes(numberOfRows);
   PinnedHostVector snpData(numberOfRows);
@@ -742,14 +744,12 @@ TEST_F(LogisticRegressionTest, SmallTestNoCov) {
     EXPECT_THAT(beta(i), Le(h));
   }
 
-  std::cerr << "LR test " << lrResult->getNumberOfIterations() << std::endl;
-
   delete outcomeDeviceVector;
   delete lrResult;
 }
 
 TEST_F(LogisticRegressionTest, SmallTestNoCovIntOnly) {
-  double e = 1e-5;
+  double e = 1e-4;
   const int numberOfRows = 10;
   PinnedHostVector outcomes(numberOfRows);
   PinnedHostVector snpData(numberOfRows);
@@ -833,8 +833,6 @@ TEST_F(LogisticRegressionTest, SmallTestNoCovIntOnly) {
     EXPECT_THAT(beta(i), Ge(l));
     EXPECT_THAT(beta(i), Le(h));
   }
-
-  std::cerr << "LR test " << lrResult->getNumberOfIterations() << std::endl;
 
   delete outcomeDeviceVector;
   delete lrResult;

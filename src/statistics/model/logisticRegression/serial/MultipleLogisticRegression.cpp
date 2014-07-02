@@ -55,6 +55,7 @@ void MultipleLogisticRegression::calculate() {
 
   while(true){
     ++currentIteration;
+
     betaCoefficientsOld->copy(*betaCoefficients);
 
     calculateProbabilitiesScoreAndLogLikelihood(probabilites, scores, logLikelihood, betaCoefficients, workVectorNx1);
@@ -138,6 +139,7 @@ void MultipleLogisticRegression::calculateNewBeta(LaVectorDouble* betaCoefficien
   }
 
   Blas_Mat_Trans_Vec_Mult(vSVDTranspose, *betaCoefficients, workAreaVectorMx1, 1, 0); //s=v_trans'*beta
+
   //Copy over to beta and add old beta
   for(int i = 0; i < numberOfPredictors; ++i){
     (*betaCoefficients)(i) = workAreaVectorMx1(i) + (*betaCoefficientsOld)(i);

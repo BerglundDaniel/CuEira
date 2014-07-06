@@ -8,6 +8,7 @@
 #include <DimensionMismatch.h>
 #include <HostMatrix.h>
 #include <HostVector.h>
+#include <LogisticRegressionResult.h>
 
 namespace CuEira {
 
@@ -18,7 +19,7 @@ namespace CuEira {
  */
 class Statistics {
 public:
-  Statistics(Container::HostVector* betaCoefficents, Container::HostVector* standardError);
+  Statistics(const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult);
   virtual ~Statistics();
 
   double getReri() const;
@@ -28,19 +29,21 @@ public:
   const std::vector<double>& getOddsRatiosHigh() const;
 
 private:
+  std::vector<double>* calculateStandardError(const Container::HostMatrix& covarianceMatrix) const;
   double calculateReri(const std::vector<double>& oddsRatios) const;
   double calculateAp(double reri, PRECISION interactionBeta) const;
-  std::vector<double> calculateOddsRatios(const Container::HostVector& betaCoefficents) const;
-  std::vector<double> calculateOddsRatiosLow(const Container::HostVector& betaCoefficents,
-      const Container::HostVector& standardError) const;
-  std::vector<double> calculateOddsRatiosHigh(const Container::HostVector& betaCoefficents,
-      const Container::HostVector& standardError) const;
+  std::vector<double>* calculateOddsRatios(const Container::HostVector& betaCoefficents) const;
+  std::vector<double>* calculateOddsRatiosLow(const Container::HostVector& betaCoefficents,
+      const std::vector<double>& standardError) const;
+  std::vector<double>* calculateOddsRatiosHigh(const Container::HostVector& betaCoefficents,
+      const std::vector<double>& standardError) const;
 
-  Container::HostVector* betaCoefficents;
-  Container::HostVector* standardError;
-  std::vector<double> oddsRatios;
-  std::vector<double> oddsRatiosLow;
-  std::vector<double> oddsRatiosHigh;
+  const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult;
+  const Container::HostVector& betaCoefficents;
+  std::vector<double>* standardError;
+  std::vector<double>* oddsRatios;
+  std::vector<double>* oddsRatiosLow;
+  std::vector<double>* oddsRatiosHigh;
   double reri;
   double ap;
 };

@@ -6,14 +6,16 @@
 #include <BedReader.h>
 #include <SNP.h>
 #include <SNPVector.h>
+#include <SNPVectorFactory.h>
 
 namespace CuEira {
 namespace FileIO {
 
 class BedReaderMock: public BedReader {
 public:
-  BedReaderMock(const Configuration& configuration, const PersonHandler& personHandler) :
-      BedReader(configuration, personHandler) {
+  BedReaderMock(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
+      const PersonHandler& personHandler) :
+      BedReader(configuration, snpVectorFactory, personHandler) {
 
   }
 

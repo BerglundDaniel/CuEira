@@ -28,22 +28,8 @@ public:
   std::string getAlleleOneName() const;
   std::string getAlleleTwoName() const;
 
-  void setMinorAlleleFrequency(double maf);
-  double getMinorAlleleFrequency() const;
-
   void setRiskAllele(RiskAllele riskAllele);
   RiskAllele getRiskAllele() const;
-
-  void setCaseAlleleFrequencies(double alleleOneCaseFrequency, double alleleTwoCaseFrequency);
-  void setControlAlleleFrequencies(double alleleOneControlFrequency, double alleleTwoControlFrequency);
-  void setAllAlleleFrequencies(double alleleOneAllFrequency, double alleleTwoAllFrequency);
-
-  double getAlleleOneCaseFrequency() const;
-  double getAlleleTwoCaseFrequency() const;
-  double getAlleleOneControlFrequency() const;
-  double getAlleleTwoControlFrequency() const;
-  double getAlleleOneAllFrequency() const;
-  double getAlleleTwoAllFrequency() const;
 
   bool operator<(const SNP& otherSNP) const;
   bool operator==(const SNP& otherSNP) const;
@@ -55,22 +41,8 @@ private:
   const std::string alleleTwoName;
   const unsigned int position;
 
-  double minorAlleleFrequency;
-  bool minorAlleleFrequencyHasBeenSet;
-
   RiskAllele riskAllele;
   bool riskAlleleHasBeenSet;
-
-  double alleleOneCaseFrequency;
-  double alleleTwoCaseFrequency;
-  double alleleOneControlFrequency;
-  double alleleTwoControlFrequency;
-  double alleleOneAllFrequency;
-  double alleleTwoAllFrequency;
-
-  bool caseAlleleHasBeenSet;
-  bool controlAlleleHasBeenSet;
-  bool allAlleleHasBeenSet;
 };
 
 } /* namespace CuEira */

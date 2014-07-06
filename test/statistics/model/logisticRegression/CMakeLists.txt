@@ -12,6 +12,7 @@ set(TEST_INCLUDE_DIRECTORIES
 
 set(TEST_SOURCE
   ${TEST_SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionResultTest.cpp
   PARENT_SCOPE
 )
 

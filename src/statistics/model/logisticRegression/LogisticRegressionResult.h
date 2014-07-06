@@ -1,8 +1,11 @@
 #ifndef LOGISTICREGRESSIONRESULT_H_
 #define LOGISTICREGRESSIONRESULT_H_
 
+#include <iostream>
+
 #include <HostVector.h>
 #include <HostMatrix.h>
+#include <Recode.h>
 
 namespace CuEira {
 namespace Model {
@@ -25,27 +28,32 @@ public:
   /**
    * Get beta
    */
-  const Container::HostVector& getBeta() const;
+  virtual const Container::HostVector& getBeta() const;
 
   /**
    * Get the information matrix
    */
-  const Container::HostMatrix& getInformationMatrix() const;
+  virtual const Container::HostMatrix& getInformationMatrix() const;
 
   /**
    * Get the inverse of the information matrix
    */
-  const Container::HostMatrix& getInverseInformationMatrixHost() const;
+  virtual const Container::HostMatrix& getInverseInformationMatrix() const;
 
   /**
    * Get the number of iterations
    */
-  int getNumberOfIterations() const;
+  virtual int getNumberOfIterations() const;
 
   /**
    * Get the log likelihood
    */
-  PRECISION getLogLikelihood() const;
+  virtual PRECISION getLogLikelihood() const;
+
+  /**
+   * Calculate if there is a need for recoding
+   */
+  virtual Recode calculateRecode() const;
 
 private:
   Container::HostVector* beta;

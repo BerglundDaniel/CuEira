@@ -19,11 +19,15 @@
 #include <HostVector.h>
 #include <FileReaderException.h>
 #include <SNPVector.h>
+#include <SNPVectorFactoryMock.h>
+#include <SNPVectorFactory.h>
 
 using testing::Return;
 using testing::_;
 using testing::ReturnRef;
 using testing::Eq;
+using testing::SaveArg;
+using testing::DoAll;
 
 namespace CuEira {
 namespace FileIO {
@@ -44,9 +48,10 @@ protected:
   static const int numberOfIndividualsToIncludeStatic = 6;
   const int numberOfIndividualsTotal;
   const int numberOfIndividualsToInclude;
+  CuEira_Test::ConstructorHelpers constructorHelpers;
   PersonHandlerMock personHandlerMock;
   ConfigurationMock configMock;
-  CuEira_Test::ConstructorHelpers constructorHelpers;
+  Container::SNPVectorFactoryMock* snpVectorFactoryMock;
   std::string filePath;
   std::vector<int> notInclude; //Index 0 based
   static const int numberOfSNPs = 10;
@@ -58,7 +63,8 @@ protected:
 
 BedReaderTest::BedReaderTest() :
     filePath(std::string(CuEira_BUILD_DIR) + std::string("/test.bed")), numberOfIndividualsTotal(
-        numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(numberOfIndividualsToIncludeStatic), notInclude(4) {
+        numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(numberOfIndividualsToIncludeStatic), notInclude(
+        4), snpVectorFactoryMock(constructorHelpers.constructSNPVectorFactoryMock()) {
   notInclude[0] = 1;
   notInclude[1] = 2;
   notInclude[2] = 5;
@@ -66,15 +72,14 @@ BedReaderTest::BedReaderTest() :
 }
 
 BedReaderTest::~BedReaderTest() {
-
+  delete snpVectorFactoryMock;
 }
 
 void BedReaderTest::SetUp() {
-//Expect Configuration
-  EXPECT_CALL(configMock, getMinorAlleleFrequencyThreshold()).WillRepeatedly(Return(0.05));
+  //Expect Configuration
   EXPECT_CALL(configMock, getBedFilePath()).Times(1).WillRepeatedly(Return(filePath));
 
-//Expect PersonHandler
+  //Expect PersonHandler
   EXPECT_CALL(personHandlerMock, getNumberOfIndividualsTotal()).Times(1).WillRepeatedly(
       Return(numberOfIndividualsTotal));
   EXPECT_CALL(personHandlerMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
@@ -86,16 +91,12 @@ void BedReaderTest::TearDown() {
 }
 
 TEST_F(BedReaderTest, ConstructorCheckMode) {
-  EXPECT_CALL(configMock, getGeneticModel()).Times(1).WillRepeatedly(Return(DOMINANT));
-
-  CuEira::FileIO::BedReader bedReader(configMock, personHandlerMock, numberOfSNPs);
+  CuEira::FileIO::BedReader bedReader(configMock, *snpVectorFactoryMock, personHandlerMock, numberOfSNPs);
 
   ASSERT_EQ(0, bedReader.mode);
 }
 
 TEST_F(BedReaderTest, ReadSnp0) {
-  EXPECT_CALL(configMock, getGeneticModel()).Times(1).WillRepeatedly(Return(DOMINANT));
-
   int j = 0;
   int includePos = 0;
   for(int i = 0; i < numberOfIndividualsTotal; ++i){
@@ -117,14 +118,14 @@ TEST_F(BedReaderTest, ReadSnp0) {
     ids[i] = new Id(person->getId().getString());
   }
 
-//Expect PersonHandler
+  //Expect PersonHandler
   for(int i = 0; i < numberOfIndividualsTotal; ++i){
     Person* person = persons[i];
     EXPECT_CALL(personHandlerMock, getPersonFromRowAll(i)).WillRepeatedly(ReturnRef(*person));
     EXPECT_CALL(personHandlerMock, getRowIncludeFromPerson(Eq(*person))).WillRepeatedly(Return(includePosArr[i]));
   }
 
-  CuEira::FileIO::BedReader bedReader(configMock, personHandlerMock, numberOfSNPs);
+  CuEira::FileIO::BedReader bedReader(configMock, *snpVectorFactoryMock, personHandlerMock, numberOfSNPs);
 
   Id id1("SNP1");
   unsigned int pos1 = 0; //First SNP
@@ -132,35 +133,43 @@ TEST_F(BedReaderTest, ReadSnp0) {
   std::string alleTwoString1("a1_2");
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
 
+  Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();
+  std::vector<int>* originalSNPData = nullptr;
+  std::vector<int>* numberOfAlleles = nullptr;
+  bool missingData = true;
+
+  EXPECT_CALL(*snpVectorFactoryMock, constructSNPVector(_,_,_,_)).Times(1).WillRepeatedly(
+      DoAll(SaveArg<3>(&missingData), SaveArg<1>(&originalSNPData), SaveArg<2>(&numberOfAlleles),
+          Return(snpVectorMock)));
+
   Container::SNPVector* snpVector = bedReader.readSNP(snp1);
-  ASSERT_TRUE(snp1.getInclude());
-  const std::vector<int>& snpData = snpVector->getOrginalData();
-  ASSERT_EQ(6, snpData.size());
+  ASSERT_EQ(snpVectorMock, snpVector);
+  delete snpVectorMock;
 
-//Check maf and all freqs
-  EXPECT_EQ(ALLELE_ONE, snp1.getRiskAllele());
-  EXPECT_EQ(snp1.getAlleleOneAllFrequency(), snp1.getMinorAlleleFrequency());
+  ASSERT_FALSE(missingData);
 
-  EXPECT_EQ(0.5, snp1.getAlleleOneCaseFrequency());
-  EXPECT_EQ(0.5, snp1.getAlleleTwoCaseFrequency());
-  EXPECT_EQ(0.5, snp1.getAlleleOneControlFrequency());
-  EXPECT_EQ(0.5, snp1.getAlleleTwoControlFrequency());
-  EXPECT_EQ(0.5, snp1.getAlleleOneAllFrequency());
-  EXPECT_EQ(0.5, snp1.getAlleleTwoAllFrequency());
+  ASSERT_EQ(numberOfIndividualsToInclude, originalSNPData->size());
+  ASSERT_EQ(6, numberOfAlleles->size());
 
-//Check data
-  EXPECT_EQ(0, (snpData)[0]);
-  EXPECT_EQ(2, (snpData)[1]);
-  EXPECT_EQ(1, (snpData)[2]);
-  EXPECT_EQ(1, (snpData)[3]);
-  EXPECT_EQ(1, (snpData)[4]);
-  EXPECT_EQ(1, (snpData)[5]);
+  EXPECT_EQ(3, (*numberOfAlleles)[ALLELE_ONE_CASE_POSITION]);
+  EXPECT_EQ(3, (*numberOfAlleles)[ALLELE_TWO_CASE_POSITION]);
+  EXPECT_EQ(3, (*numberOfAlleles)[ALLELE_ONE_CONTROL_POSITION]);
+  EXPECT_EQ(3, (*numberOfAlleles)[ALLELE_TWO_CONTROL_POSITION]);
+  EXPECT_EQ(6, (*numberOfAlleles)[ALLELE_ONE_ALL_POSITION]);
+  EXPECT_EQ(6, (*numberOfAlleles)[ALLELE_TWO_ALL_POSITION]);
 
-  delete snpVector;
+  //Check data
+  EXPECT_EQ(0, (*originalSNPData)[0]);
+  EXPECT_EQ(2, (*originalSNPData)[1]);
+  EXPECT_EQ(1, (*originalSNPData)[2]);
+  EXPECT_EQ(1, (*originalSNPData)[3]);
+  EXPECT_EQ(1, (*originalSNPData)[4]);
+  EXPECT_EQ(1, (*originalSNPData)[5]);
+
+  delete numberOfAlleles;
+  delete originalSNPData;
 }
 TEST_F(BedReaderTest, ReadSnp1) {
-  EXPECT_CALL(configMock, getGeneticModel()).Times(1).WillRepeatedly(Return(DOMINANT));
-
   int j = 0;
   int includePos = 0;
   for(int i = 0; i < numberOfIndividualsTotal; ++i){
@@ -182,14 +191,14 @@ TEST_F(BedReaderTest, ReadSnp1) {
     ids[i] = new Id(person->getId().getString());
   }
 
-//Expect PersonHandler
+  //Expect PersonHandler
   for(int i = 0; i < numberOfIndividualsTotal; ++i){
     Person* person = persons[i];
     EXPECT_CALL(personHandlerMock, getPersonFromRowAll(i)).WillRepeatedly(ReturnRef(*person));
     EXPECT_CALL(personHandlerMock, getRowIncludeFromPerson(Eq(*person))).WillRepeatedly(Return(includePosArr[i]));
   }
 
-  CuEira::FileIO::BedReader bedReader(configMock, personHandlerMock, numberOfSNPs);
+  CuEira::FileIO::BedReader bedReader(configMock, *snpVectorFactoryMock, personHandlerMock, numberOfSNPs);
 
   Id id1("SNP1");
   unsigned int pos1 = 1; //Second SNP
@@ -197,31 +206,41 @@ TEST_F(BedReaderTest, ReadSnp1) {
   std::string alleTwoString1("a1_2");
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
 
+  Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();
+  std::vector<int>* originalSNPData = nullptr;
+  std::vector<int>* numberOfAlleles = nullptr;
+  bool missingData = true;
+
+  EXPECT_CALL(*snpVectorFactoryMock, constructSNPVector(_,_,_,_)).Times(1).WillRepeatedly(
+      DoAll(SaveArg<3>(&missingData), SaveArg<1>(&originalSNPData), SaveArg<2>(&numberOfAlleles),
+          Return(snpVectorMock)));
+
   Container::SNPVector* snpVector = bedReader.readSNP(snp1);
-  ASSERT_TRUE(snp1.getInclude());
-  const std::vector<int>& snpData = snpVector->getOrginalData();
-  ASSERT_EQ(6, snpData.size());
+  ASSERT_EQ(snpVectorMock, snpVector);
+  delete snpVectorMock;
 
-//Check maf and all freqs
-  EXPECT_EQ(ALLELE_TWO, snp1.getRiskAllele());
-  EXPECT_EQ(snp1.getAlleleOneAllFrequency(), snp1.getMinorAlleleFrequency());
+  ASSERT_FALSE(missingData);
 
-  EXPECT_EQ(1.0 / 6.0, snp1.getAlleleOneCaseFrequency());
-  EXPECT_EQ(5.0 / 6.0, snp1.getAlleleTwoCaseFrequency());
-  EXPECT_EQ(2.0 / 6.0, snp1.getAlleleOneControlFrequency());
-  EXPECT_EQ(4.0 / 6.0, snp1.getAlleleTwoControlFrequency());
-  EXPECT_EQ(3.0 / 12.0, snp1.getAlleleOneAllFrequency());
-  EXPECT_EQ(9.0 / 12.0, snp1.getAlleleTwoAllFrequency());
+  ASSERT_EQ(numberOfIndividualsToInclude, originalSNPData->size());
+  ASSERT_EQ(6, numberOfAlleles->size());
 
-//Check data
-  EXPECT_EQ(2, (snpData)[0]);
-  EXPECT_EQ(2, (snpData)[1]);
-  EXPECT_EQ(1, (snpData)[2]);
-  EXPECT_EQ(2, (snpData)[3]);
-  EXPECT_EQ(2, (snpData)[4]);
-  EXPECT_EQ(0, (snpData)[5]);
+  EXPECT_EQ(1, (*numberOfAlleles)[ALLELE_ONE_CASE_POSITION]);
+  EXPECT_EQ(5, (*numberOfAlleles)[ALLELE_TWO_CASE_POSITION]);
+  EXPECT_EQ(2, (*numberOfAlleles)[ALLELE_ONE_CONTROL_POSITION]);
+  EXPECT_EQ(4, (*numberOfAlleles)[ALLELE_TWO_CONTROL_POSITION]);
+  EXPECT_EQ(3, (*numberOfAlleles)[ALLELE_ONE_ALL_POSITION]);
+  EXPECT_EQ(9, (*numberOfAlleles)[ALLELE_TWO_ALL_POSITION]);
 
-  delete snpVector;
+  //Check data
+  EXPECT_EQ(2, (*originalSNPData)[0]);
+  EXPECT_EQ(2, (*originalSNPData)[1]);
+  EXPECT_EQ(1, (*originalSNPData)[2]);
+  EXPECT_EQ(2, (*originalSNPData)[3]);
+  EXPECT_EQ(2, (*originalSNPData)[4]);
+  EXPECT_EQ(0, (*originalSNPData)[5]);
+
+  delete numberOfAlleles;
+  delete originalSNPData;
 }
 
 }

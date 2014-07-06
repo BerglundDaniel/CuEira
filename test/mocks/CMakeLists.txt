@@ -13,6 +13,8 @@ endif(NOT ${CPU})
 set(TEST_SOURCE
   ${TEST_SOURCE}
   ${GPU_LOCAL_SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/BedReaderMock.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionResultMock.h
   ${CMAKE_CURRENT_SOURCE_DIR}/PersonHandlerMock.h
   ${CMAKE_CURRENT_SOURCE_DIR}/ConfigurationMock.h
   ${CMAKE_CURRENT_SOURCE_DIR}/SNPVectorMock.h

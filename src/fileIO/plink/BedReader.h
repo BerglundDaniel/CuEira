@@ -16,9 +16,9 @@
 #include <SNP.h>
 #include <Configuration.h>
 #include <FileReaderException.h>
-#include <GeneticModel.h>
 #include <RiskAllele.h>
 #include <Phenotype.h>
+#include <SNPVectorFactory.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -33,13 +33,15 @@ class BedReader {
   friend BedReaderTest;
   FRIEND_TEST(BedReaderTest, ConstructorCheckMode);
 public:
-  explicit BedReader(const Configuration& configuration, const PersonHandler& personHandler, const int numberOfSNPs);
+  explicit BedReader(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
+      const PersonHandler& personHandler, const int numberOfSNPs);
   virtual ~BedReader();
 
   virtual Container::SNPVector* readSNP(SNP& snp) const;
 
 protected:
-  explicit BedReader(const Configuration& configuration, const PersonHandler& personHandler); //Used by the mock
+  explicit BedReader(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
+      const PersonHandler& personHandler); //Used by the mock
 
 private:
   enum Mode {
@@ -54,9 +56,9 @@ private:
   void openBedFile(std::ifstream& bedFile) const;
 
   const Configuration& configuration;
+  const Container::SNPVectorFactory& snpVectorFactory;
   const PersonHandler& personHandler;
   Mode mode;
-  const GeneticModel geneticModel;
   const static int readBufferSizeMaxSNPMAJOR = 100000; //10kb
   const static int headerSize = 3;
   const int numberOfSNPs;

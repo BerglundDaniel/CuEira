@@ -7,6 +7,7 @@
 #include <Statistics.h>
 #include <HostVector.h>
 #include <HostMatrix.h>
+#include <LogisticRegressionResultMock.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
@@ -17,6 +18,9 @@
 
 using ::testing::Ge;
 using ::testing::Le;
+using testing::Return;
+using testing::_;
+using testing::ReturnRef;
 
 namespace CuEira {
 namespace CuEira_Test {
@@ -34,65 +38,57 @@ protected:
   virtual void TearDown();
 
   const int numberOfPredictors;
-  Container::HostVector* beta;
-  Container::HostVector* standardError;
+  Model::LogisticRegression::LogisticRegressionResultMock* logisticRegressionResultMock;
 
-#ifdef CPU
-  Container::LapackppHostVector oddsRatios;
-  Container::LapackppHostVector oddsRatiosLow;
-  Container::LapackppHostVector oddsRatiosHigh;
-#else
-  Container::PinnedHostVector oddsRatios;
-  Container::PinnedHostVector oddsRatiosLow;
-  Container::PinnedHostVector oddsRatiosHigh;
-#endif
+  Container::HostMatrix* inverseInfoMat;
+  Container::HostVector* beta;
+
+  std::vector<double> oddsRatios;
+  std::vector<double> oddsRatiosLow;
+  std::vector<double> oddsRatiosHigh;
 
 };
 
 StatisticsTest::StatisticsTest() :
-    numberOfPredictors(4),
+    numberOfPredictors(4), logisticRegressionResultMock(nullptr), oddsRatios(numberOfPredictors), oddsRatiosLow(
+        numberOfPredictors), oddsRatiosHigh(numberOfPredictors),
 #ifdef CPU
-        beta(new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors))), oddsRatios(new LaVectorDouble(numberOfPredictors - 1)),
-        standardError(new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors))),oddsRatiosLow(new LaVectorDouble(numberOfPredictors - 1)),
-        oddsRatiosHigh(new LaVectorDouble(numberOfPredictors - 1))
+        beta(new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors))), inverseInfoMat(
+            new Container::LapackppHostMatrix(new LaGenMatDouble(numberOfPredictors, numberOfPredictors)))
 #else
-        beta(new Container::PinnedHostVector(numberOfPredictors)), oddsRatios(numberOfPredictors - 1), standardError(
-            new Container::PinnedHostVector(numberOfPredictors)), oddsRatiosLow(numberOfPredictors - 1), oddsRatiosHigh(
-            numberOfPredictors - 1)
+        beta(new Container::PinnedHostVector(numberOfPredictors)), inverseInfoMat(
+            new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors))
 #endif
-
 {
-
-}
-
-StatisticsTest::~StatisticsTest() {
- //Don't need to delete beta and standardError since Statistics class will do that.
-}
-
-void StatisticsTest::SetUp() {
-#ifdef CPU
-  beta = new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors));
-  standardError = new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors));
-#else
-  beta = new Container::PinnedHostVector(numberOfPredictors);
-  standardError = new Container::PinnedHostVector(numberOfPredictors);
-#endif
-
   for(int i = 0; i < numberOfPredictors; ++i){
     (*beta)(i) = (i + 7) / 10.3;
   }
 
+  //Only care about the diagonal of the information matrix inverse
   for(int i = 0; i < numberOfPredictors; ++i){
-    (*standardError)(i) = (i + 3) / 3.1;
+    (*inverseInfoMat)(i, i) = i;
   }
 
   for(int i = 0; i < numberOfPredictors - 1; ++i){
-    oddsRatios(i) = exp((*beta)(i + 1));
+    oddsRatios[i] = exp((*beta)(i + 1));
 
-    oddsRatiosLow(i) = exp(-1.96 * (*standardError)(i + 1) + (*beta)(i + 1));
-    oddsRatiosHigh(i) = exp(1.96 * (*standardError)(i + 1) + (*beta)(i + 1));
+    oddsRatiosLow[i] = exp(-1.96 * (*inverseInfoMat)(i + 1, i + 1) + (*beta)(i + 1));
+    oddsRatiosHigh[i] = exp(1.96 * (*inverseInfoMat)(i + 1, i + 1) + (*beta)(i + 1));
   }
+}
 
+StatisticsTest::~StatisticsTest() {
+  //Don't need to LogisticRegressionResult since Statistics class will do that.
+  delete inverseInfoMat;
+  delete beta;
+}
+
+void StatisticsTest::SetUp() {
+  logisticRegressionResultMock = new Model::LogisticRegression::LogisticRegressionResultMock();
+
+  EXPECT_CALL(*logisticRegressionResultMock, getBeta()).Times(1).WillRepeatedly(ReturnRef(*beta));
+  EXPECT_CALL(*logisticRegressionResultMock, getInverseInformationMatrix()).Times(1).WillRepeatedly(
+      ReturnRef(*inverseInfoMat));
 }
 
 void StatisticsTest::TearDown() {
@@ -100,10 +96,10 @@ void StatisticsTest::TearDown() {
 }
 
 TEST_F(StatisticsTest, Reri) {
-  Statistics statistics(beta, standardError);
-  double e = 10e-5;
+  Statistics statistics(logisticRegressionResultMock);
+  double e = 1e-5;
 
-  double reri = oddsRatios(2) - oddsRatios(1) - oddsRatios(0) + 1;
+  double reri = oddsRatios[2] - oddsRatios[1] - oddsRatios[0] + 1;
   double l = reri - e;
   double h = reri + e;
 
@@ -113,8 +109,8 @@ TEST_F(StatisticsTest, Reri) {
 }
 
 TEST_F(StatisticsTest, Ap) {
-  Statistics statistics(beta, standardError);
-  double e = 10e-5;
+  Statistics statistics(logisticRegressionResultMock);
+  double e = 1e-5;
 
   double reri = statistics.getReri();
   double or11 = (*beta)(3);
@@ -128,14 +124,14 @@ TEST_F(StatisticsTest, Ap) {
 }
 
 TEST_F(StatisticsTest, OddsRatios) {
-  Statistics statistics(beta, standardError);
+  Statistics statistics(logisticRegressionResultMock);
 
   std::vector<double> oddsRatiosStat = statistics.getOddsRatios();
 
-  double e = 10e-5;
+  double e = 1e-5;
   for(int i = 0; i < numberOfPredictors - 1; ++i){
-    double l = oddsRatios(i) - e;
-    double h = oddsRatios(i) + e;
+    double l = oddsRatios[i] - e;
+    double h = oddsRatios[i] + e;
 
     EXPECT_THAT(oddsRatiosStat[i], Ge(l));
     EXPECT_THAT(oddsRatiosStat[i], Le(h));
@@ -143,20 +139,20 @@ TEST_F(StatisticsTest, OddsRatios) {
 }
 
 TEST_F(StatisticsTest, OddsRatiosLowAndHigh) {
-  Statistics statistics(beta, standardError);
+  Statistics statistics(logisticRegressionResultMock);
 
   std::vector<double> oddsRatiosLowStat = statistics.getOddsRatiosLow();
   std::vector<double> oddsRatiosHighStat = statistics.getOddsRatiosHigh();
 
-  double e = 10e-5;
+  double e = 1e-5;
   for(int i = 0; i < numberOfPredictors - 1; ++i){
     EXPECT_THAT(oddsRatiosLowStat[i], Le(oddsRatiosHighStat[i]));
 
-    double l_low = oddsRatiosLow(i) - e;
-    double h_low = oddsRatiosLow(i) + e;
+    double l_low = oddsRatiosLow[i] - e;
+    double h_low = oddsRatiosLow[i] + e;
 
-    double l_high = oddsRatiosHigh(i) - e;
-    double h_high = oddsRatiosHigh(i) + e;
+    double l_high = oddsRatiosHigh[i] - e;
+    double h_high = oddsRatiosHigh[i] + e;
 
     EXPECT_THAT(oddsRatiosLowStat[i], Ge(l_low));
     EXPECT_THAT(oddsRatiosLowStat[i], Le(h_low));

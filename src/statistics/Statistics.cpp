@@ -2,17 +2,21 @@
 
 namespace CuEira {
 
-Statistics::Statistics(Container::HostVector* betaCoefficents, Container::HostVector* standardError) :
-    betaCoefficents(betaCoefficents), standardError(standardError), ap(calculateAp(reri, (*betaCoefficents)(3))), reri(
-        calculateReri(oddsRatios)), oddsRatios(calculateOddsRatios(*betaCoefficents)), oddsRatiosLow(
-        calculateOddsRatiosLow(*betaCoefficents, *standardError)), oddsRatiosHigh(
-        calculateOddsRatiosHigh(*betaCoefficents, *standardError)) {
+Statistics::Statistics(const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult) :
+    logisticRegressionResult(logisticRegressionResult), betaCoefficents(logisticRegressionResult->getBeta()), standardError(
+        calculateStandardError(logisticRegressionResult->getInverseInformationMatrix())), ap(
+        calculateAp(reri, betaCoefficents(3))), reri(calculateReri(*oddsRatios)), oddsRatios(
+        calculateOddsRatios(betaCoefficents)), oddsRatiosLow(calculateOddsRatiosLow(betaCoefficents, *standardError)), oddsRatiosHigh(
+        calculateOddsRatiosHigh(betaCoefficents, *standardError)) {
 
 }
 
 Statistics::~Statistics() {
-  delete betaCoefficents;
+  delete logisticRegressionResult;
   delete standardError;
+  delete oddsRatios;
+  delete oddsRatiosLow;
+  delete oddsRatiosHigh;
 }
 
 double Statistics::getReri() const {
@@ -24,15 +28,15 @@ double Statistics::getAp() const {
 }
 
 const std::vector<double>& Statistics::getOddsRatios() const {
-  return oddsRatios;
+  return *oddsRatios;
 }
 
 const std::vector<double>& Statistics::getOddsRatiosLow() const {
-  return oddsRatiosLow;
+  return *oddsRatiosLow;
 }
 
 const std::vector<double>& Statistics::getOddsRatiosHigh() const {
-  return oddsRatiosHigh;
+  return *oddsRatiosHigh;
 }
 
 double Statistics::calculateReri(const std::vector<double>& oddsRatios) const {
@@ -43,38 +47,49 @@ double Statistics::calculateAp(double reri, PRECISION interactionBeta) const {
   return reri / interactionBeta;
 }
 
-std::vector<double> Statistics::calculateOddsRatios(const Container::HostVector& betaCoefficents) const {
-  const int size = betaCoefficents.getNumberOfRows() - 1; //Skipping the intercept
-  std::vector<double> oddsRatios(size);
+std::vector<double>* Statistics::calculateStandardError(const Container::HostMatrix& covarianceMatrix) const {
+  const int size = covarianceMatrix.getNumberOfRows(); //Symmetrical matrix
+  std::vector<double>* standardError = new std::vector<double>(size);
 
   for(int i = 0; i < size; ++i){
-    oddsRatios[i] = exp(betaCoefficents(i + 1));
+    (*standardError)[i] = covarianceMatrix(i, i);
+  }
+
+  return standardError;
+}
+
+std::vector<double>* Statistics::calculateOddsRatios(const Container::HostVector& betaCoefficents) const {
+  const int size = betaCoefficents.getNumberOfRows() - 1; //Skipping the intercept
+  std::vector<double>* oddsRatios = new std::vector<double>(size);
+
+  for(int i = 0; i < size; ++i){
+    (*oddsRatios)[i] = exp(betaCoefficents(i + 1));
   }
 
   return oddsRatios;
 }
 
-std::vector<double> Statistics::calculateOddsRatiosLow(const Container::HostVector& betaCoefficents,
-    const Container::HostVector& standardError) const {
+std::vector<double>* Statistics::calculateOddsRatiosLow(const Container::HostVector& betaCoefficents,
+    const std::vector<double>& standardError) const {
 
   const int size = betaCoefficents.getNumberOfRows() - 1; //Skipping the intercept
-  std::vector<double> oddsRatiosLow(size);
+  std::vector<double>* oddsRatiosLow = new std::vector<double>(size);
 
   for(int i = 0; i < size; ++i){
-    oddsRatiosLow[i] = exp(-1.96 * standardError(i + 1) + betaCoefficents(i + 1));
+    (*oddsRatiosLow)[i] = exp(-1.96 * standardError[i + 1] + betaCoefficents(i + 1));
   }
 
   return oddsRatiosLow;
 }
 
-std::vector<double> Statistics::calculateOddsRatiosHigh(const Container::HostVector& betaCoefficents,
-    const Container::HostVector& standardError) const {
+std::vector<double>* Statistics::calculateOddsRatiosHigh(const Container::HostVector& betaCoefficents,
+    const std::vector<double>& standardError) const {
 
   const int size = betaCoefficents.getNumberOfRows() - 1; //Skipping the intercept
-  std::vector<double> oddsRatiosHigh(size);
+  std::vector<double>* oddsRatiosHigh = new std::vector<double>(size);
 
   for(int i = 0; i < size; ++i){
-    oddsRatiosHigh[i] = exp(1.96 * standardError(i + 1) + betaCoefficents(i + 1));
+    (*oddsRatiosHigh)[i] = exp(1.96 * standardError[i + 1] + betaCoefficents(i + 1));
   }
 
   return oddsRatiosHigh;

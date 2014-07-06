@@ -1,8 +1,15 @@
 #ifndef SNPVECTOR_H_
 #define SNPVECTOR_H_
 
+#define ALLELE_ONE_CASE_POSITION 0
+#define ALLELE_TWO_CASE_POSITION 1
+#define ALLELE_ONE_CONTROL_POSITION 2
+#define ALLELE_TWO_CONTROL_POSITION 3
+#define ALLELE_ONE_ALL_POSITION 4
+#define ALLELE_TWO_ALL_POSITION 5
+#define ABSOLUTE_FREQUENCY_THRESHOLD 5
+
 #include <vector>
-#include <stdexcept>
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
 
@@ -37,7 +44,18 @@ class SNPVector {
   FRIEND_TEST(SNPVectorTest, DoRecodeRecessiveAlleleTwo);
   FRIEND_TEST(SNPVectorTest, InvertRiskAllele);
 public:
-  SNPVector(std::vector<int>* originalSNPData, SNP& snp, GeneticModel geneticModel);
+  /**
+   * Constructs a normal SNPVector
+   */
+  SNPVector(SNP& snp, GeneticModel geneticModel, const std::vector<int>* originalSNPData, const std::vector<int>* numberOfAlleles,
+      const std::vector<double>* alleleFrequencies);
+
+  /**
+   * Constructs a SNPVector that only holds the allele frequencies. Used when the SNP shouldn't be included.
+   */
+  SNPVector(SNP& snp, const std::vector<int>* numberOfAlleles, const std::vector<double>* alleleFrequencies,
+      int numberOfIndividualsToInclude);
+
   virtual ~SNPVector();
 
   virtual int getNumberOfIndividualsToInclude() const;
@@ -46,6 +64,8 @@ public:
   virtual const SNP& getAssociatedSNP() const;
   virtual void recode(Recode recode);
   virtual void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
+  virtual const std::vector<int>& getAlleleNumbers() const;
+  virtual const std::vector<double>& getAlleleFrequencies() const;
 
 private:
   void recodeAllRisk();
@@ -56,13 +76,16 @@ private:
 
   const int numberOfIndividualsToInclude;
   SNP& snp;
+  const std::vector<int>* numberOfAlleles;
+  const std::vector<double>* alleleFrequencies;
   RiskAllele currentRiskAllele;
   GeneticModel currentGeneticModel;
   const RiskAllele originalRiskAllele;
   const GeneticModel originalGeneticModel;
-  std::vector<int>* originalSNPData;
+  const std::vector<int>* originalSNPData;
   Container::HostVector* modifiedSNPData;
   Recode currentRecode;
+  bool onlyFrequencies;
 };
 
 } /* namespace Container */

@@ -5,6 +5,8 @@
 #include <string>
 #include <stdlib.h>
 #include <time.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include <Id.h>
 #include <Sex.h>
@@ -21,6 +23,7 @@
 #include <Configuration.h>
 #include <PersonHandlerMock.h>
 #include <ConfigurationMock.h>
+#include <SNPVectorFactoryMock.h>
 
 #ifdef CPU
 #include <lapackpp/gmd.h>
@@ -28,6 +31,8 @@
 #else
 #include <PinnedHostMatrix.h>
 #endif
+
+using testing::Return;
 
 namespace CuEira {
 namespace CuEira_Test {
@@ -50,6 +55,7 @@ public:
   Container::SNPVectorMock* constructSNPVectorMock();
   EnvironmentFactorHandlerMock* constructEnvironmentFactorHandlerMock();
   FileIO::BedReaderMock* constructBedReaderMock();
+  Container::SNPVectorFactoryMock* constructSNPVectorFactoryMock();
 
 private:
 

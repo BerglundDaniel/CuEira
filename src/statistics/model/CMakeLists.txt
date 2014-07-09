@@ -13,7 +13,7 @@ if(${CPU})
 else()
   set(GPU_SOURCE
     ${GPU_SOURCE}
-    #${CMAKE_CURRENT_SOURCE_DIR}/GpuModelHandler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/GpuModelHandler.cpp
     PARENT_SCOPE
   )
 endif()

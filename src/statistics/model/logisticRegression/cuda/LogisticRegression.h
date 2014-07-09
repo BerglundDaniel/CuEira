@@ -40,7 +40,7 @@ class LogisticRegression {
   FRIEND_TEST(LogisticRegressionTest, calculateDifference);
   FRIEND_TEST(LogisticRegressionTest, calculateLogLikelihood);
 public:
-  LogisticRegression(LogisticRegressionConfiguration& lrConfiguration, const HostToDevice& hostToDevice,
+  LogisticRegression(LogisticRegressionConfiguration* lrConfiguration, const HostToDevice& hostToDevice,
       const DeviceToHost& deviceToHost);
   virtual ~LogisticRegression();
 
@@ -64,10 +64,10 @@ private:
   void calculateLogLikelihood(const DeviceVector& outcomesDevice, const DeviceVector& oneVector,
       const DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device, PRECISION* logLikelihood);
 
+  LogisticRegressionConfiguration* lrConfiguration;
   MKLWrapper mklWrapper;
   const HostToDevice& hostToDevice;
   const DeviceToHost& deviceToHost;
-  LogisticRegressionConfiguration& lrConfiguration;
   const int numberOfRows;
   const int numberOfPredictors;
   const int maxIterations;

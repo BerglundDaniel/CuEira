@@ -1,6 +1,9 @@
 #ifndef MODELHANDLER_H_
 #define MODELHANDLER_H_
 
+#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
+
 #include <DataHandler.h>
 #include <Statistics.h>
 #include <Recode.h>
@@ -11,6 +14,7 @@
 
 namespace CuEira {
 namespace Model {
+class GpuModelHandlerTest;
 
 /**
  * This is
@@ -18,6 +22,9 @@ namespace Model {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class ModelHandler {
+  friend GpuModelHandlerTest;
+  FRIEND_TEST(GpuModelHandlerTest, Next);
+  FRIEND_TEST(GpuModelHandlerTest, NextAndCalculate);
 public:
   ModelHandler(DataHandler* dataHandler);
   virtual ~ModelHandler();

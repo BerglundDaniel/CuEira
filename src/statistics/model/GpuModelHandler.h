@@ -13,8 +13,7 @@
 #include <LogisticRegression.h>
 #include <PinnedHostVector.h>
 #include <InvalidState.h>
-#include <HostToDevice.h>
-#include <DeviceToHost.h>
+#include <LogisticRegressionResult.h>
 
 namespace CuEira {
 namespace Model {
@@ -27,15 +26,15 @@ namespace Model {
 class GpuModelHandler: public ModelHandler {
 public:
   GpuModelHandler(DataHandler* dataHandler,
-      LogisticRegression::LogisticRegressionConfiguration* logisticRegressionConfiguration, const CUDA::HostToDevice& hostToDevice, const CUDA::DeviceToHost& deviceToHost);
+      LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration,
+      LogisticRegression::LogisticRegression* logisticRegression);
   virtual ~GpuModelHandler();
 
   virtual Statistics* calculateModel();
 
 protected:
-  const CUDA::HostToDevice& hostToDevice;
-  const CUDA::DeviceToHost& deviceToHost;
-  LogisticRegression::LogisticRegressionConfiguration* logisticRegressionConfiguration;
+  LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration;
+  LogisticRegression::LogisticRegression* logisticRegression;
   const int numberOfRows;
   const int numberOfPredictors;
 };

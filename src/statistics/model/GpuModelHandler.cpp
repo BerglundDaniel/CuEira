@@ -4,17 +4,16 @@ namespace CuEira {
 namespace Model {
 
 GpuModelHandler::GpuModelHandler(DataHandler* dataHandler,
-    LogisticRegression::LogisticRegressionConfiguration* logisticRegressionConfiguration,
-    const CUDA::HostToDevice& hostToDevice, const CUDA::DeviceToHost& deviceToHost) :
-    ModelHandler(dataHandler), logisticRegressionConfiguration(logisticRegressionConfiguration), numberOfRows(
-        logisticRegressionConfiguration->getNumberOfRows()), numberOfPredictors(
-        logisticRegressionConfiguration->getNumberOfPredictors()), hostToDevice(hostToDevice), deviceToHost(
-        deviceToHost) {
+    LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration,
+    LogisticRegression::LogisticRegression* logisticRegression) :
+    ModelHandler(dataHandler), logisticRegressionConfiguration(logisticRegressionConfiguration), logisticRegression(
+        logisticRegression), numberOfRows(logisticRegressionConfiguration.getNumberOfRows()), numberOfPredictors(
+        logisticRegressionConfiguration.getNumberOfPredictors()) {
 
 }
 
 GpuModelHandler::~GpuModelHandler() {
-  delete logisticRegressionConfiguration;
+  delete logisticRegression;
 }
 
 Statistics* GpuModelHandler::calculateModel() {
@@ -25,58 +24,37 @@ Statistics* GpuModelHandler::calculateModel() {
 #endif
 
   if(state == INITIALISED_READY){
-    logisticRegressionConfiguration->setSNP(*snpData);
-    logisticRegressionConfiguration->setEnvironmentFactor(*environmentData);
+    logisticRegressionConfiguration.setSNP(*snpData);
+    logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
   }else{
-
     if(!(*currentSNP == *oldSNP)){
-      logisticRegressionConfiguration->setSNP(*snpData);
+      logisticRegressionConfiguration.setSNP(*snpData);
     }
 
     if(!(*currentEnvironmentFactor == *oldEnvironmentFactor)){
-      logisticRegressionConfiguration->setEnvironmentFactor(*environmentData);
+      logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
     }
   }
 
-  logisticRegressionConfiguration->setInteraction(*interactionData);
+  logisticRegressionConfiguration.setInteraction(*interactionData);
 
-  LogisticRegression::LogisticRegression* logisticRegression = new LogisticRegression::LogisticRegression(
-      *logisticRegressionConfiguration, hostToDevice, deviceToHost);
+  LogisticRegression::LogisticRegressionResult* logisticRegressionResult = logisticRegression->calculate();
 
-  Container::HostVector* betaCoefficents = logisticRegression->stealBeta();
-  const Container::HostMatrix* covarianceMatrix = &logisticRegression->getCovarianceMatrix();
-
-  //Does any of the data need to be recoded?
-  Recode recode;
-  double snpBeta = (*betaCoefficents)(1);
-  double envBeta = (*betaCoefficents)(2);
-  double interactionBeta = (*betaCoefficents)(3);
-
-  if(snpBeta < 0 && snpBeta < envBeta && snpBeta < interactionBeta){
-    recode = SNP_PROTECT;
-  }else if(envBeta < 0 && envBeta < snpBeta && envBeta < interactionBeta){
-    recode = ENVIRONMENT_PROTECT;
-  }else if(interactionBeta < 0 && interactionBeta < snpBeta && interactionBeta < envBeta){
-    recode = INTERACTION_PROTECT;
-  }
+  Recode recode = logisticRegressionResult->calculateRecode();
 
   if(recode != ALL_RISK){
     dataHandler->recode(recode);
 
+    logisticRegressionConfiguration.setSNP(*snpData);
+    logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
+    logisticRegressionConfiguration.setInteraction(*interactionData);
+
     //Calculate again
-    logisticRegression = new LogisticRegression::LogisticRegression(*logisticRegressionConfiguration, hostToDevice,
-        deviceToHost);
-    betaCoefficents = logisticRegression->stealBeta();
-    covarianceMatrix = &logisticRegression->getCovarianceMatrix();
+    delete logisticRegressionResult;
+    logisticRegressionResult = logisticRegression->calculate();
   }
 
-  Container::HostVector* standardError = new Container::PinnedHostVector(numberOfPredictors);
-  for(int i = 0; i < numberOfPredictors; ++i){
-    (*standardError)(i) = (*covarianceMatrix)(i, i);
-  }
-
-  delete logisticRegression;
-  return new Statistics(betaCoefficents, standardError); //FIXME statistics owns beta and stanarderror?
+  return new Statistics(logisticRegressionResult);
 }
 
 } /* namespace Model */

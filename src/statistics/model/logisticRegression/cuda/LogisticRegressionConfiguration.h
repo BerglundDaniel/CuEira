@@ -46,25 +46,25 @@ public:
    */
   virtual ~LogisticRegressionConfiguration();
 
-  void setEnvironmentFactor(const HostVector& environmentData);
-  void setSNP(const HostVector& snpData);
-  void setInteraction(const HostVector& interactionVector);
+  virtual void setEnvironmentFactor(const HostVector& environmentData);
+  virtual void setSNP(const HostVector& snpData);
+  virtual void setInteraction(const HostVector& interactionVector);
 
-  int getNumberOfRows() const;
-  int getNumberOfPredictors() const;
-  int getNumberOfMaxIterations() const;
-  double getConvergenceThreshold() const;
-  const KernelWrapper& getKernelWrapper() const;
+  virtual int getNumberOfRows() const;
+  virtual int getNumberOfPredictors() const;
+  virtual int getNumberOfMaxIterations() const;
+  virtual double getConvergenceThreshold() const;
+  virtual const KernelWrapper& getKernelWrapper() const;
 
-  const DeviceMatrix& getPredictors()const;
-  const DeviceVector& getOutcomes()const;
-  DeviceVector& getProbabilites();
-  DeviceVector& getScores();
-  DeviceMatrix& getInformationMatrix();
-  DeviceVector& getBetaCoefficents();
+  virtual const DeviceMatrix& getPredictors() const;
+  virtual const DeviceVector& getOutcomes() const;
+  virtual DeviceVector& getProbabilites();
+  virtual DeviceVector& getScores();
+  virtual DeviceMatrix& getInformationMatrix();
+  virtual DeviceVector& getBetaCoefficents();
 
-  DeviceMatrix& getWorkMatrixNxM();
-  DeviceVector& getWorkVectorNx1();
+  virtual DeviceMatrix& getWorkMatrixNxM();
+  virtual DeviceVector& getWorkVectorNx1();
 
 private:
   void transferIntercept();

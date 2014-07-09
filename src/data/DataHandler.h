@@ -51,6 +51,9 @@ public:
   virtual const Container::HostVector& getInteraction() const;
   virtual const Container::HostVector& getEnvironment() const;
 
+protected:
+  DataHandler(); //For the mock
+
 private:
   enum State {
     NOT_INITIALISED, INITIALISED
@@ -59,10 +62,10 @@ private:
   void readSNP(SNP& nextSnp);
 
   State state;
-  Task::DataQueue& dataQueue;
+  Task::DataQueue* dataQueue;
   const StatisticModel statisticModel;
-  const FileIO::BedReader& bedReader;
-  const std::vector<const EnvironmentFactor*>& environmentInformation;
+  const FileIO::BedReader* bedReader;
+  const std::vector<const EnvironmentFactor*>* environmentInformation;
   Container::EnvironmentVector* environmentVector;
   Container::SNPVector* snpVector;
   Container::InteractionVector* interactionVector;

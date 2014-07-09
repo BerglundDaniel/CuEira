@@ -103,7 +103,8 @@ TEST_F(LogisticRegressionTest, calcuateProbabilites) {
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
   cudaStreamSynchronize(stream1);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceLRConfig, kernelWrapper);
+  LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
+      *outcomeDeviceLRConfig, kernelWrapper);
   cudaStreamSynchronize(stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calcuateProbabilites: ");
 
@@ -187,7 +188,8 @@ TEST_F(LogisticRegressionTest, calculateScores) {
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
   cudaStreamSynchronize(stream1);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceLRConfig, kernelWrapper);
+  LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
+      *outcomeDeviceLRConfig, kernelWrapper);
   cudaStreamSynchronize(stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateScores: ");
 
@@ -285,7 +287,8 @@ TEST_F(LogisticRegressionTest, calculateInformationMatrix) {
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
   cudaStreamSynchronize(stream1);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceLRConfig, kernelWrapper);
+  LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
+      *outcomeDeviceLRConfig, kernelWrapper);
   cudaStreamSynchronize(stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateInformationMatrix: ");
 
@@ -386,7 +389,8 @@ TEST_F(LogisticRegressionTest, invertInformationMatrix) {
 
   DeviceVector* outcomeDeviceLRConfig = new DeviceVector(numberOfRows);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceLRConfig, kernelWrapper);
+  LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
+      *outcomeDeviceLRConfig, kernelWrapper);
   cudaStreamSynchronize(stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateLogLikelihood: ");
 
@@ -485,7 +489,8 @@ TEST_F(LogisticRegressionTest, calculateNewBeta) {
 
   DeviceVector* outcomeDeviceLRConfig = new DeviceVector(numberOfRows);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceLRConfig, kernelWrapper);
+  LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
+      *outcomeDeviceLRConfig, kernelWrapper);
   cudaStreamSynchronize(stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateLogLikelihood: ");
 
@@ -546,7 +551,8 @@ TEST_F(LogisticRegressionTest, calculateDifference) {
 
   DeviceVector* outcomeDeviceLRConfig = new DeviceVector(numberOfRows);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceLRConfig, kernelWrapper);
+  LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
+      *outcomeDeviceLRConfig, kernelWrapper);
   cudaStreamSynchronize(stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateLogLikelihood: ");
 
@@ -597,7 +603,8 @@ TEST_F(LogisticRegressionTest, calculateLogLikelihood) {
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
   cudaStreamSynchronize(stream1);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceLRConfig, kernelWrapper);
+  LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
+      *outcomeDeviceLRConfig, kernelWrapper);
   cudaStreamSynchronize(stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateLogLikelihood: ");
 
@@ -725,10 +732,11 @@ TEST_F(LogisticRegressionTest, SmallTestNoCov) {
   DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(&outcomes);
   cudaStreamSynchronize(stream1);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper);
-  lrConfig.setSNP(snpData);
-  lrConfig.setEnvironmentFactor(environmentData);
-  lrConfig.setInteraction(interactionVector);
+  LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
+      *outcomeDeviceLRConfig, kernelWrapper);
+  lrConfig->setSNP(snpData);
+  lrConfig->setEnvironmentFactor(environmentData);
+  lrConfig->setInteraction(interactionVector);
   cudaStreamSynchronize(stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
@@ -815,10 +823,11 @@ TEST_F(LogisticRegressionTest, SmallTestNoCovIntOnly) {
   DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(&outcomes);
   cudaStreamSynchronize(stream1);
 
-  LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper);
-  lrConfig.setSNP(snpData);
-  lrConfig.setEnvironmentFactor(environmentData);
-  lrConfig.setInteraction(interactionVector);
+  LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
+      *outcomeDeviceLRConfig, kernelWrapper);
+  lrConfig->setSNP(snpData);
+  lrConfig->setEnvironmentFactor(environmentData);
+  lrConfig->setInteraction(interactionVector);
   cudaStreamSynchronize(stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 

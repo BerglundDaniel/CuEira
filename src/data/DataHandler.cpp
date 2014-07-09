@@ -5,9 +5,16 @@ namespace CuEira {
 DataHandler::DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader,
     const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
     Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector) :
-    currentRecode(ALL_RISK), dataQueue(dataQueue), statisticModel(statisticModel), bedReader(bedReader), interactionVector(
+    currentRecode(ALL_RISK), dataQueue(&dataQueue), statisticModel(statisticModel), bedReader(&bedReader), interactionVector(
         interactionVector), snpVector(nullptr), environmentVector(environmentVector), environmentInformation(
-        environmentInformation), currentEnvironmentFactorPos(0), state(NOT_INITIALISED) {
+        &environmentInformation), currentEnvironmentFactorPos(0), state(NOT_INITIALISED) {
+
+}
+
+DataHandler::DataHandler() :
+    currentRecode(ALL_RISK), dataQueue(nullptr), statisticModel(ADDITIVE), bedReader(nullptr), interactionVector(
+        nullptr), snpVector(nullptr), environmentVector(nullptr), environmentInformation(nullptr), currentEnvironmentFactorPos(
+        0), state(NOT_INITIALISED) {
 
 }
 
@@ -32,19 +39,19 @@ const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
     throw InvalidState("Before using the getCurrentEnvironmentFactor use next() at least once.");
   }
 #endif
-  return *environmentInformation[currentEnvironmentFactorPos];
+  return *(*environmentInformation)[currentEnvironmentFactorPos];
 }
 
 bool DataHandler::next() {
   if(state == NOT_INITIALISED){
-    if(!dataQueue.hasNext()){
+    if(!dataQueue->hasNext()){
       return false;
     }
 
     state = INITIALISED;
-    SNP* nextSNP = dataQueue.next();
+    SNP* nextSNP = dataQueue->next();
 
-    const EnvironmentFactor* nextEnvironmentFactor = environmentInformation[0];
+    const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[0];
     currentEnvironmentFactorPos = 0;
 
     environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
@@ -52,12 +59,12 @@ bool DataHandler::next() {
   }else{
     currentRecode = ALL_RISK;
 
-    if(currentEnvironmentFactorPos == environmentInformation.size() - 1){
-      if(!dataQueue.hasNext()){
+    if(currentEnvironmentFactorPos == environmentInformation->size() - 1){
+      if(!dataQueue->hasNext()){
         return false;
       }
 
-      SNP* nextSNP = dataQueue.next();
+      SNP* nextSNP = dataQueue->next();
       currentEnvironmentFactorPos = 0;
 
       readSNP(*nextSNP);
@@ -65,7 +72,7 @@ bool DataHandler::next() {
       currentEnvironmentFactorPos++;
     }
 
-    const EnvironmentFactor* nextEnvironmentFactor = environmentInformation[currentEnvironmentFactorPos];
+    const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
     environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
   } /* else if NOT_INITIALISED */
 
@@ -79,7 +86,7 @@ bool DataHandler::next() {
 void DataHandler::readSNP(SNP& nextSnp) {
   delete snpVector;
 
-  snpVector = bedReader.readSNP(nextSnp);
+  snpVector = bedReader->readSNP(nextSnp);
   if(!nextSnp.getInclude()){ //SNP can changed based on the reading so we have to check that it still should be included
     this->next(); //FIXME write result or something?
   }

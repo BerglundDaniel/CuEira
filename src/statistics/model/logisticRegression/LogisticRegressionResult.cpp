@@ -12,6 +12,12 @@ LogisticRegressionResult::LogisticRegressionResult(Container::HostVector* beta,
 
 }
 
+LogisticRegressionResult::LogisticRegressionResult() :
+    beta(nullptr), informationMatrix(nullptr), inverseInformationMatrixHost(nullptr), numberOfIterations(0), logLikelihood(
+        0) {
+
+}
+
 LogisticRegressionResult::~LogisticRegressionResult() {
   delete beta;
   delete informationMatrix;

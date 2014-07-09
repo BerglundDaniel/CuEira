@@ -4,17 +4,17 @@ namespace CuEira {
 namespace Model {
 namespace LogisticRegression {
 
-LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfiguration,
+LogisticRegression::LogisticRegression(LogisticRegressionConfiguration* lrConfiguration,
     const HostToDevice& hostToDevice, const DeviceToHost& deviceToHost) :
-    hostToDevice(hostToDevice), deviceToHost(deviceToHost), kernelWrapper(lrConfiguration.getKernelWrapper()), lrConfiguration(
-        lrConfiguration), maxIterations(lrConfiguration.getNumberOfMaxIterations()), convergenceThreshold(
-        lrConfiguration.getConvergenceThreshold()), numberOfRows(lrConfiguration.getNumberOfRows()), numberOfPredictors(
-        lrConfiguration.getNumberOfPredictors()), informationMatrixDevice(lrConfiguration.getInformationMatrix()), betaCoefficentsDevice(
-        lrConfiguration.getBetaCoefficents()), scoresHost(new PinnedHostVector(numberOfPredictors)), logLikelihood(
+    hostToDevice(hostToDevice), deviceToHost(deviceToHost), kernelWrapper(lrConfiguration->getKernelWrapper()), lrConfiguration(
+        lrConfiguration), maxIterations(lrConfiguration->getNumberOfMaxIterations()), convergenceThreshold(
+        lrConfiguration->getConvergenceThreshold()), numberOfRows(lrConfiguration->getNumberOfRows()), numberOfPredictors(
+        lrConfiguration->getNumberOfPredictors()), informationMatrixDevice(lrConfiguration->getInformationMatrix()), betaCoefficentsDevice(
+        lrConfiguration->getBetaCoefficents()), scoresHost(new PinnedHostVector(numberOfPredictors)), logLikelihood(
         new PRECISION(0)), mklWrapper(), betaCoefficentsOldHost(new Container::PinnedHostVector(numberOfPredictors)), predictorsDevice(
-        lrConfiguration.getPredictors()), outcomesDevice(lrConfiguration.getOutcomes()), probabilitesDevice(
-        lrConfiguration.getProbabilites()), scoresDevice(lrConfiguration.getScores()), workMatrixNxMDevice(
-        lrConfiguration.getWorkMatrixNxM()), workVectorNx1Device(lrConfiguration.getWorkVectorNx1()), sigma(
+        lrConfiguration->getPredictors()), outcomesDevice(lrConfiguration->getOutcomes()), probabilitesDevice(
+        lrConfiguration->getProbabilites()), scoresDevice(lrConfiguration->getScores()), workMatrixNxMDevice(
+        lrConfiguration->getWorkMatrixNxM()), workVectorNx1Device(lrConfiguration->getWorkVectorNx1()), sigma(
         new PinnedHostVector(numberOfPredictors)), uSVD(new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), vtSVD(
         new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), workMatrixMxMHost(
         new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), oneVector(predictorsDevice(0)) {
@@ -22,6 +22,7 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration& lrConfig
 }
 
 LogisticRegression::~LogisticRegression() {
+  delete lrConfiguration;
   delete betaCoefficentsOldHost;
   delete scoresHost;
   delete sigma;

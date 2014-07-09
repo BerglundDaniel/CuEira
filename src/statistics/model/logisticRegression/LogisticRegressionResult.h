@@ -55,6 +55,9 @@ public:
    */
   virtual Recode calculateRecode() const;
 
+protected:
+  LogisticRegressionResult(); //For the mock
+
 private:
   Container::HostVector* beta;
   Container::HostMatrix* informationMatrix;

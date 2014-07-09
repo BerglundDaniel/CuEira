@@ -49,6 +49,9 @@ public:
    */
   LogisticRegressionResult* calculate();
 
+protected:
+  LogisticRegression(); //For the mock
+
 private:
   void calcuateProbabilites(const DeviceMatrix& predictorsDevice, const DeviceVector& betaCoefficentsDevice,
       DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device);
@@ -66,25 +69,26 @@ private:
 
   LogisticRegressionConfiguration* lrConfiguration;
   MKLWrapper mklWrapper;
-  const HostToDevice& hostToDevice;
-  const DeviceToHost& deviceToHost;
+  const HostToDevice* hostToDevice;
+  const DeviceToHost* deviceToHost;
   const int numberOfRows;
   const int numberOfPredictors;
   const int maxIterations;
   const double convergenceThreshold;
-  const KernelWrapper& kernelWrapper;
-  int iterationNumber;
+  const KernelWrapper* kernelWrapper;
   PRECISION* logLikelihood;
 
-  const Container::DeviceMatrix& predictorsDevice;
-  const Container::DeviceVector& outcomesDevice;
+  const Container::DeviceMatrix* predictorsDevice;
+  const Container::DeviceVector* outcomesDevice;
   const Container::DeviceVector* oneVector; //Vector of length numberOfIndividuals with just ones. To save space its the same as the first column in predictors
-  Container::DeviceMatrix& informationMatrixDevice;
-  Container::DeviceVector& betaCoefficentsDevice;
-  Container::DeviceVector& probabilitesDevice;
-  Container::DeviceVector& scoresDevice;
-  Container::DeviceMatrix& workMatrixNxMDevice;
-  Container::DeviceVector& workVectorNx1Device;
+
+  //NOTE The config class owns all device memory while this class owns the host classes
+  Container::DeviceMatrix* informationMatrixDevice;
+  Container::DeviceVector* betaCoefficentsDevice;
+  Container::DeviceVector* probabilitesDevice;
+  Container::DeviceVector* scoresDevice;
+  Container::DeviceMatrix* workMatrixNxMDevice;
+  Container::DeviceVector* workVectorNx1Device;
 
   Container::HostVector* scoresHost;
   Container::HostVector* betaCoefficentsOldHost;

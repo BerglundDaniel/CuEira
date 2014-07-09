@@ -6,18 +6,28 @@ namespace LogisticRegression {
 
 LogisticRegression::LogisticRegression(LogisticRegressionConfiguration* lrConfiguration,
     const HostToDevice& hostToDevice, const DeviceToHost& deviceToHost) :
-    hostToDevice(hostToDevice), deviceToHost(deviceToHost), kernelWrapper(lrConfiguration->getKernelWrapper()), lrConfiguration(
+    hostToDevice(&hostToDevice), deviceToHost(&deviceToHost), kernelWrapper(&lrConfiguration->getKernelWrapper()), lrConfiguration(
         lrConfiguration), maxIterations(lrConfiguration->getNumberOfMaxIterations()), convergenceThreshold(
         lrConfiguration->getConvergenceThreshold()), numberOfRows(lrConfiguration->getNumberOfRows()), numberOfPredictors(
-        lrConfiguration->getNumberOfPredictors()), informationMatrixDevice(lrConfiguration->getInformationMatrix()), betaCoefficentsDevice(
-        lrConfiguration->getBetaCoefficents()), scoresHost(new PinnedHostVector(numberOfPredictors)), logLikelihood(
+        lrConfiguration->getNumberOfPredictors()), informationMatrixDevice(&lrConfiguration->getInformationMatrix()), betaCoefficentsDevice(
+        &lrConfiguration->getBetaCoefficents()), scoresHost(new PinnedHostVector(numberOfPredictors)), logLikelihood(
         new PRECISION(0)), mklWrapper(), betaCoefficentsOldHost(new Container::PinnedHostVector(numberOfPredictors)), predictorsDevice(
-        lrConfiguration->getPredictors()), outcomesDevice(lrConfiguration->getOutcomes()), probabilitesDevice(
-        lrConfiguration->getProbabilites()), scoresDevice(lrConfiguration->getScores()), workMatrixNxMDevice(
-        lrConfiguration->getWorkMatrixNxM()), workVectorNx1Device(lrConfiguration->getWorkVectorNx1()), sigma(
+        &lrConfiguration->getPredictors()), outcomesDevice(&lrConfiguration->getOutcomes()), probabilitesDevice(
+        &lrConfiguration->getProbabilites()), scoresDevice(&lrConfiguration->getScores()), workMatrixNxMDevice(
+        &lrConfiguration->getWorkMatrixNxM()), workVectorNx1Device(&lrConfiguration->getWorkVectorNx1()), sigma(
         new PinnedHostVector(numberOfPredictors)), uSVD(new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), vtSVD(
         new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), workMatrixMxMHost(
         new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), oneVector(predictorsDevice(0)) {
+
+}
+
+LogisticRegression::LogisticRegression() :
+    maxIterations(0), mklWrapper(), numberOfRows(0), numberOfPredictors(0), convergenceThreshold(0), hostToDevice(
+        nullptr), deviceToHost(nullptr), kernelWrapper(nullptr), informationMatrixDevice(nullptr), betaCoefficentsDevice(
+        nullptr), predictorsDevice(nullptr), outcomesDevice(nullptr), probabilitesDevice(nullptr), scoresDevice(
+        nullptr), workMatrixNxMDevice(nullptr), workVectorNx1Device(nullptr), scoresHost(nullptr), logLikelihood(
+        nullptr), betaCoefficentsOldHost(nullptr), lrConfiguration(nullptr), sigma(nullptr), uSVD(nullptr), vtSVD(
+        nullptr), workMatrixMxMHost(nullptr), oneVector(nullptr) {
 
 }
 
@@ -36,27 +46,27 @@ LogisticRegressionResult* LogisticRegression::calculate() {
   PRECISION* diffSumHost = new PRECISION(0);
 
   //Somethings are initialised here since the result wrapper will take responsibility for them at the end so can't reuse them
-  Container::HostVector* betaCoefficentsHost = deviceToHost.transferVector(&betaCoefficentsDevice);
+  Container::HostVector* betaCoefficentsHost = deviceToHost->transferVector(betaCoefficentsDevice);
   Container::HostMatrix* informationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
       numberOfPredictors);
   Container::HostMatrix* inverseInformationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
       numberOfPredictors);
 
-  for(iterationNumber = 0; iterationNumber < maxIterations; ++iterationNumber){
-    calcuateProbabilites(predictorsDevice, betaCoefficentsDevice, probabilitesDevice, workVectorNx1Device);
+  for(int iterationNumber = 0; iterationNumber < maxIterations; ++iterationNumber){
+    calcuateProbabilites(*predictorsDevice, *betaCoefficentsDevice, *probabilitesDevice, *workVectorNx1Device);
 
-    calculateScores(predictorsDevice, outcomesDevice, probabilitesDevice, scoresDevice, workVectorNx1Device);
+    calculateScores(*predictorsDevice, *outcomesDevice, *probabilitesDevice, *scoresDevice, *workVectorNx1Device);
 
-    calculateInformationMatrix(predictorsDevice, probabilitesDevice, workVectorNx1Device, informationMatrixDevice,
-        workMatrixNxMDevice);
+    calculateInformationMatrix(*predictorsDevice, *probabilitesDevice, *workVectorNx1Device, *informationMatrixDevice,
+        *workMatrixNxMDevice);
 
     //Copy beta to old beta
     mklWrapper.copyVector(*betaCoefficentsHost, *betaCoefficentsOldHost);
 
     //Transfer needed data to host
-    deviceToHost.transferMatrix(&informationMatrixDevice, informationMatrixHost->getMemoryPointer());
-    deviceToHost.transferVector(&scoresDevice, scoresHost->getMemoryPointer());
-    kernelWrapper.syncStream();
+    deviceToHost->transferMatrix(informationMatrixDevice, informationMatrixHost->getMemoryPointer());
+    deviceToHost->transferVector(scoresDevice, scoresHost->getMemoryPointer());
+    kernelWrapper->syncStream();
 
     invertInformationMatrix(*informationMatrixHost, *inverseInformationMatrixHost, *uSVD, *sigma, *vtSVD,
         *workMatrixMxMHost);
@@ -66,43 +76,43 @@ LogisticRegressionResult* LogisticRegression::calculate() {
     calculateDifference(*betaCoefficentsHost, *betaCoefficentsOldHost, diffSumHost);
 
     if(*diffSumHost < convergenceThreshold){
-      calculateLogLikelihood(outcomesDevice, *oneVector, probabilitesDevice, workVectorNx1Device, logLikelihood);
+      calculateLogLikelihood(*outcomesDevice, *oneVector, *probabilitesDevice, *workVectorNx1Device, logLikelihood);
 
       //Transfer the information matrix again since it was destroyed during the SVD.
-      deviceToHost.transferMatrix(&informationMatrixDevice, informationMatrixHost->getMemoryPointer());
+      deviceToHost->transferMatrix(informationMatrixDevice, informationMatrixHost->getMemoryPointer());
 
       break;
     }else{
-      hostToDevice.transferVector(betaCoefficentsHost, betaCoefficentsDevice.getMemoryPointer());
-      kernelWrapper.syncStream();
+      hostToDevice->transferVector(betaCoefficentsHost, betaCoefficentsDevice->getMemoryPointer());
+      kernelWrapper->syncStream();
     }
   } /* for iterationNumber */
 
   delete diffSumHost;
 
-  kernelWrapper.syncStream();
+  kernelWrapper->syncStream();
   return new LogisticRegressionResult(betaCoefficentsHost, informationMatrixHost, inverseInformationMatrixHost,
       iterationNumber, *logLikelihood);
 }
 void LogisticRegression::calcuateProbabilites(const DeviceMatrix& predictorsDevice,
     const DeviceVector& betaCoefficentsDevice, DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device) {
-  kernelWrapper.matrixVectorMultiply(predictorsDevice, betaCoefficentsDevice, workVectorNx1Device);
-  kernelWrapper.logisticTransform(workVectorNx1Device, probabilitesDevice);
+  kernelWrapper->matrixVectorMultiply(predictorsDevice, betaCoefficentsDevice, workVectorNx1Device);
+  kernelWrapper->logisticTransform(workVectorNx1Device, probabilitesDevice);
 }
 
 void LogisticRegression::calculateScores(const DeviceMatrix& predictorsDevice, const DeviceVector& outcomesDevice,
     const DeviceVector& probabilitesDevice, DeviceVector& scoresDevice, DeviceVector& workVectorNx1Device) {
-  kernelWrapper.elementWiseDifference(outcomesDevice, probabilitesDevice, workVectorNx1Device);
-  kernelWrapper.matrixTransVectorMultiply(predictorsDevice, workVectorNx1Device, scoresDevice);
+  kernelWrapper->elementWiseDifference(outcomesDevice, probabilitesDevice, workVectorNx1Device);
+  kernelWrapper->matrixTransVectorMultiply(predictorsDevice, workVectorNx1Device, scoresDevice);
 }
 
 void LogisticRegression::calculateInformationMatrix(const DeviceMatrix& predictorsDevice,
     const DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device, DeviceMatrix& informationMatrixDevice,
     DeviceMatrix& workMatrixNxMDevice) {
-  kernelWrapper.probabilitesMultiplyProbabilites(probabilitesDevice, workVectorNx1Device);
-  kernelWrapper.columnByColumnMatrixVectorElementWiseMultiply(predictorsDevice, workVectorNx1Device,
+  kernelWrapper->probabilitesMultiplyProbabilites(probabilitesDevice, workVectorNx1Device);
+  kernelWrapper->columnByColumnMatrixVectorElementWiseMultiply(predictorsDevice, workVectorNx1Device,
       workMatrixNxMDevice);
-  kernelWrapper.matrixTransMatrixMultiply(predictorsDevice, workMatrixNxMDevice, informationMatrixDevice);
+  kernelWrapper->matrixTransMatrixMultiply(predictorsDevice, workMatrixNxMDevice, informationMatrixDevice);
 }
 
 void LogisticRegression::invertInformationMatrix(HostMatrix& informationMatrixHost,
@@ -143,8 +153,8 @@ void LogisticRegression::calculateDifference(const HostVector& betaCoefficentsHo
 
 void LogisticRegression::calculateLogLikelihood(const DeviceVector& outcomesDevice, const DeviceVector& oneVector,
     const DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device, PRECISION* logLikelihood) {
-  kernelWrapper.logLikelihoodParts(outcomesDevice, probabilitesDevice, workVectorNx1Device);
-  kernelWrapper.sumResultToHost(workVectorNx1Device, oneVector, logLikelihood);
+  kernelWrapper->logLikelihoodParts(outcomesDevice, probabilitesDevice, workVectorNx1Device);
+  kernelWrapper->sumResultToHost(workVectorNx1Device, oneVector, logLikelihood);
 }
 
 } /* namespace LogisticRegression */

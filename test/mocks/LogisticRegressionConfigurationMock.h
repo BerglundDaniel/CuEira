@@ -9,11 +9,11 @@
 #include <DeviceMatrix.h>
 #include <DeviceVector.h>
 
-using CuEira::Container;
-
 namespace CuEira {
 namespace Model {
 namespace LogisticRegression {
+
+using CuEira::Container;
 
 class LogisticRegressionConfigurationMock: public LogisticRegressionConfiguration {
 public:

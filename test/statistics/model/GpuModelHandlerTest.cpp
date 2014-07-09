@@ -13,6 +13,9 @@
 #include <SNP.h>
 #include <Id.h>
 #include <EnvironmentFactor.h>
+#include <GpuModelHandler.h>
+#include <ModelHandler.h>
+#include <Statistics.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>

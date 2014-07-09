@@ -66,17 +66,20 @@ public:
   virtual DeviceMatrix& getWorkMatrixNxM();
   virtual DeviceVector& getWorkVectorNx1();
 
+protected:
+  LogisticRegressionConfiguration(); //For the mock
+
 private:
   void transferIntercept();
   void setDefaultBeta();
 
-  const Configuration& configuration;
-  const HostToDevice& hostToDevice;
+  const Configuration* configuration;
+  const HostToDevice* hostToDevice;
   const int numberOfRows;
   const int numberOfPredictors;
-  const KernelWrapper& kernelWrapper;
+  const KernelWrapper* kernelWrapper;
   DeviceMatrix* devicePredictors;
-  const DeviceVector& deviceOutcomes;
+  const DeviceVector* deviceOutcomes;
   int maxIterations;
   double convergenceThreshold;
   bool usingCovariates;

@@ -733,7 +733,7 @@ TEST_F(LogisticRegressionTest, SmallTestNoCov) {
   cudaStreamSynchronize(stream1);
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
-      *outcomeDeviceLRConfig, kernelWrapper);
+      *outcomeDeviceVector, kernelWrapper);
   lrConfig->setSNP(snpData);
   lrConfig->setEnvironmentFactor(environmentData);
   lrConfig->setInteraction(interactionVector);
@@ -824,7 +824,7 @@ TEST_F(LogisticRegressionTest, SmallTestNoCovIntOnly) {
   cudaStreamSynchronize(stream1);
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
-      *outcomeDeviceLRConfig, kernelWrapper);
+      *outcomeDeviceVector, kernelWrapper);
   lrConfig->setSNP(snpData);
   lrConfig->setEnvironmentFactor(environmentData);
   lrConfig->setInteraction(interactionVector);

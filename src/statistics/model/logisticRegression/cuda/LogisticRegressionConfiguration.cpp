@@ -27,9 +27,9 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
 LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configuration& configuration,
     const HostToDevice& hostToDevice, const DeviceVector& deviceOutcomes, const KernelWrapper& kernelWrapper,
     const HostMatrix& covariates) :
-    usingCovariates(true), hostToDevice(hostToDevice), kernelWrapper(kernelWrapper), configuration(configuration), numberOfRows(
+    usingCovariates(true), hostToDevice(&hostToDevice), kernelWrapper(&kernelWrapper), configuration(&configuration), numberOfRows(
         deviceOutcomes.getNumberOfRows()), numberOfPredictors(4 + covariates.getNumberOfColumns()), devicePredictors(
-        new DeviceMatrix(numberOfRows, numberOfPredictors)), deviceOutcomes(deviceOutcomes), maxIterations(
+        new DeviceMatrix(numberOfRows, numberOfPredictors)), deviceOutcomes(&deviceOutcomes), maxIterations(
         configuration.getNumberOfMaxLRIterations()), convergenceThreshold(configuration.getLRConvergenceThreshold()), devicePredictorsMemoryPointer(
         devicePredictors->getMemoryPointer()), betaCoefficentsDevice(new DeviceVector(numberOfPredictors)), probabilitesDevice(
         new DeviceVector(numberOfRows)), scoresDevice(new DeviceVector(numberOfRows)), informationMatrixDevice(
@@ -49,6 +49,14 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
   kernelWrapper.syncStream();
 }
 
+LogisticRegressionConfiguration::LogisticRegressionConfiguration() :
+    usingCovariates(false), numberOfPredictors(0), numberOfRows(0), maxIterations(0), hostToDevice(nullptr), kernelWrapper(
+        nullptr), configuration(nullptr), deviceOutcomes(nullptr), devicePredictors(nullptr), convergenceThreshold(0), devicePredictorsMemoryPointer(
+        nullptr), betaCoefficentsDevice(nullptr), probabilitesDevice(nullptr), scoresDevice(nullptr), informationMatrixDevice(
+        nullptr), workMatrixNxMDevice(nullptr), workVectorNx1Device(nullptr), betaCoefficentsDefaultHost(nullptr) {
+
+}
+
 LogisticRegressionConfiguration::~LogisticRegressionConfiguration() {
   delete devicePredictors;
   delete betaCoefficentsDevice;
@@ -66,7 +74,7 @@ void LogisticRegressionConfiguration::transferIntercept() {
     interceptHostVector(i) = 1;
   }
 
-  hostToDevice.transferVector(&interceptHostVector, devicePredictorsMemoryPointer); //Putting the intercept as first column
+  hostToDevice->transferVector(&interceptHostVector, devicePredictorsMemoryPointer); //Putting the intercept as first column
 }
 
 void LogisticRegressionConfiguration::setDefaultBeta() {
@@ -77,17 +85,17 @@ void LogisticRegressionConfiguration::setDefaultBeta() {
 
 void LogisticRegressionConfiguration::setEnvironmentFactor(const HostVector& environmentData) {
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 2; //Putting the environment as the third column
-  hostToDevice.transferVector(&environmentData, pos);
+  hostToDevice->transferVector(&environmentData, pos);
 }
 
 void LogisticRegressionConfiguration::setSNP(const HostVector& snpData) {
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 1; //Putting the snp column as the second column
-  hostToDevice.transferVector(&snpData, pos);
+  hostToDevice->transferVector(&snpData, pos);
 }
 
 void LogisticRegressionConfiguration::setInteraction(const HostVector& interactionVector) {
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 3; //Putting the interaction column as the fourth column
-  hostToDevice.transferVector(&interactionVector, pos);
+  hostToDevice->transferVector(&interactionVector, pos);
 }
 
 int LogisticRegressionConfiguration::getNumberOfRows() const {
@@ -107,7 +115,7 @@ double LogisticRegressionConfiguration::getConvergenceThreshold() const {
 }
 
 const KernelWrapper& LogisticRegressionConfiguration::getKernelWrapper() const {
-  return kernelWrapper;
+  return *kernelWrapper;
 }
 
 const DeviceMatrix& LogisticRegressionConfiguration::getPredictors() const {
@@ -115,7 +123,7 @@ const DeviceMatrix& LogisticRegressionConfiguration::getPredictors() const {
 }
 
 const DeviceVector& LogisticRegressionConfiguration::getOutcomes() const {
-  return deviceOutcomes;
+  return *deviceOutcomes;
 }
 
 DeviceVector& LogisticRegressionConfiguration::getProbabilites() {
@@ -131,7 +139,7 @@ DeviceMatrix& LogisticRegressionConfiguration::getInformationMatrix() {
 }
 
 DeviceVector& LogisticRegressionConfiguration::getBetaCoefficents() {
-  hostToDevice.transferVector(betaCoefficentsDefaultHost, betaCoefficentsDevice->getMemoryPointer());
+  hostToDevice->transferVector(betaCoefficentsDefaultHost, betaCoefficentsDevice->getMemoryPointer());
   return *betaCoefficentsDevice;
 }
 

@@ -13,7 +13,7 @@ namespace LogisticRegression {
 class LogisticRegressionMock: public LogisticRegression {
 public:
   LogisticRegressionMock() :
-      LogisticRegression() { //FIXME
+      LogisticRegression() {
 
   }
 

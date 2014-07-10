@@ -17,7 +17,7 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration* lrConfig
         &lrConfiguration->getWorkMatrixNxM()), workVectorNx1Device(&lrConfiguration->getWorkVectorNx1()), sigma(
         new PinnedHostVector(numberOfPredictors)), uSVD(new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), vtSVD(
         new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), workMatrixMxMHost(
-        new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), oneVector(predictorsDevice(0)) {
+        new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), oneVector((*predictorsDevice)(0)) {
 
 }
 
@@ -52,7 +52,8 @@ LogisticRegressionResult* LogisticRegression::calculate() {
   Container::HostMatrix* inverseInformationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
       numberOfPredictors);
 
-  for(int iterationNumber = 0; iterationNumber < maxIterations; ++iterationNumber){
+  int iterationNumber = 0;
+  for(iterationNumber = 0; iterationNumber < maxIterations; ++iterationNumber){
     calcuateProbabilites(*predictorsDevice, *betaCoefficentsDevice, *probabilitesDevice, *workVectorNx1Device);
 
     calculateScores(*predictorsDevice, *outcomesDevice, *probabilitesDevice, *scoresDevice, *workVectorNx1Device);

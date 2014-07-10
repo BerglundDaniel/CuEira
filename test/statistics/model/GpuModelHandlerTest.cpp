@@ -28,10 +28,15 @@ using testing::Return;
 using testing::ReturnRef;
 using testing::_;
 using ::testing::Ge;
+using ::testing::Eq;
 using ::testing::Le;
 
 namespace CuEira {
 namespace Model {
+
+MATCHER_P(CompareAddress, value, "Compares the address of the args"){
+return &value == &arg;
+}
 
 /**
  * Test for testing GpuModelHandler
@@ -80,7 +85,7 @@ void GpuModelHandlerTest::TearDown() {
 
 TEST_F(GpuModelHandlerTest, Next) {
   GpuModelHandler gpuModelHandler(dataHandlerMock, *logisticRegressionConfigurationMock, logisticRegressionMock);
-  ASSERT_EQUAL(ModelHandler.State.NOT_INITIALISED, gpuModelHandler.state);
+  ASSERT_EQ(gpuModelHandler.NOT_INITIALISED, gpuModelHandler.state);
 
   SNP snp(Id("snp1"), "a1", "a2", 1);
   EnvironmentFactor envFactor(Id("env1"));
@@ -98,7 +103,7 @@ TEST_F(GpuModelHandlerTest, Next) {
   EXPECT_CALL(*dataHandlerMock, getCurrentEnvironmentFactor()).Times(1).WillRepeatedly(ReturnRef(envFactor));
 
   ASSERT_TRUE(gpuModelHandler.next());
-  ASSERT_EQUAL(ModelHandler.State.INITIALISED_READY, gpuModelHandler.state);
+  ASSERT_EQ(gpuModelHandler.INITIALISED_READY, gpuModelHandler.state);
 }
 
 TEST_F(GpuModelHandlerTest, NextFalse) {
@@ -112,7 +117,7 @@ TEST_F(GpuModelHandlerTest, NextFalse) {
 
 TEST_F(GpuModelHandlerTest, NextAndCalculate) {
   GpuModelHandler gpuModelHandler(dataHandlerMock, *logisticRegressionConfigurationMock, logisticRegressionMock);
-  ASSERT_EQUAL(ModelHandler.State.NOT_INITIALISED, gpuModelHandler.state);
+  ASSERT_EQ(gpuModelHandler.NOT_INITIALISED, gpuModelHandler.state);
 
   SNP snp1(Id("snp1"), "a1", "a2", 1);
   EnvironmentFactor envFactor1(Id("env1"));
@@ -136,11 +141,11 @@ TEST_F(GpuModelHandlerTest, NextAndCalculate) {
   EXPECT_CALL(*dataHandlerMock, getCurrentEnvironmentFactor()).Times(1).WillRepeatedly(ReturnRef(envFactor1));
 
   ASSERT_TRUE(gpuModelHandler.next());
-  ASSERT_EQUAL(ModelHandler.State.INITIALISED_READY, gpuModelHandler.state);
+  ASSERT_EQ(gpuModelHandler.INITIALISED_READY, gpuModelHandler.state);
 
-  EXPECT_CALL(*logisticRegressionConfigurationMock, setSNP(snpData1)).Times(1);
-  EXPECT_CALL(*logisticRegressionConfigurationMock, setEnvironmentFactor(envData1)).Times(1);
-  EXPECT_CALL(*logisticRegressionConfigurationMock, setInteraction(interactionData1)).Times(1);
+  EXPECT_CALL(*logisticRegressionConfigurationMock, setSNP(CompareAddress(snpData1))).Times(1);
+  EXPECT_CALL(*logisticRegressionConfigurationMock, setEnvironmentFactor(CompareAddress(envData1))).Times(1);
+  EXPECT_CALL(*logisticRegressionConfigurationMock, setInteraction(CompareAddress(interactionData1))).Times(1);
 
   EXPECT_CALL(*logisticRegressionMock, calculate()).Times(2).WillRepeatedly(Return(logisticRegressionResultMock));
   EXPECT_CALL(*logisticRegressionResultMock, calculateRecode()).Times(2).WillRepeatedly(Return(ALL_RISK));
@@ -155,11 +160,11 @@ TEST_F(GpuModelHandlerTest, NextAndCalculate) {
   EXPECT_CALL(*dataHandlerMock, getCurrentEnvironmentFactor()).Times(1).WillRepeatedly(ReturnRef(envFactor2));
 
   ASSERT_TRUE(gpuModelHandler.next());
-  ASSERT_EQUAL(ModelHandler.State.INITIALISED_FULL, gpuModelHandler.state);
+  ASSERT_EQ(gpuModelHandler.INITIALISED_FULL, gpuModelHandler.state);
 
-  EXPECT_CALL(*logisticRegressionConfigurationMock, setSNP(snpData2)).Times(1);
-  EXPECT_CALL(*logisticRegressionConfigurationMock, setEnvironmentFactor(envData2)).Times(1);
-  EXPECT_CALL(*logisticRegressionConfigurationMock, setInteraction(interactionData2)).Times(1);
+  EXPECT_CALL(*logisticRegressionConfigurationMock, setSNP(CompareAddress(snpData2))).Times(1);
+  EXPECT_CALL(*logisticRegressionConfigurationMock, setEnvironmentFactor(CompareAddress(envData2))).Times(1);
+  EXPECT_CALL(*logisticRegressionConfigurationMock, setInteraction(CompareAddress(interactionData2))).Times(1);
 
   Statistics* statistics2 = gpuModelHandler.calculateModel();
 
@@ -187,9 +192,9 @@ TEST_F(GpuModelHandlerTest, NextAndCalculateRecode) {
 
   ASSERT_TRUE(gpuModelHandler.next());
 
-  EXPECT_CALL(*logisticRegressionConfigurationMock, setSNP(snpData)).Times(2);
-  EXPECT_CALL(*logisticRegressionConfigurationMock, setEnvironmentFactor(envData)).Times(2);
-  EXPECT_CALL(*logisticRegressionConfigurationMock, setInteraction(interactionData)).Times(2);
+  EXPECT_CALL(*logisticRegressionConfigurationMock, setSNP(CompareAddress(snpData))).Times(1);
+  EXPECT_CALL(*logisticRegressionConfigurationMock, setEnvironmentFactor(CompareAddress(envData))).Times(1);
+  EXPECT_CALL(*logisticRegressionConfigurationMock, setInteraction(CompareAddress(interactionData))).Times(1);
 
   EXPECT_CALL(*logisticRegressionMock, calculate()).Times(2).WillRepeatedly(Return(logisticRegressionResultMock));
   EXPECT_CALL(*logisticRegressionResultMock, calculateRecode()).Times(1).WillRepeatedly(Return(INTERACTION_PROTECT));

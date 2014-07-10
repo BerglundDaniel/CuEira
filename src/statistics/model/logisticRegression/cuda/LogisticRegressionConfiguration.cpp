@@ -6,9 +6,9 @@ namespace LogisticRegression {
 
 LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configuration& configuration,
     const HostToDevice& hostToDevice, const DeviceVector& deviceOutcomes, const KernelWrapper& kernelWrapper) :
-    usingCovariates(false), hostToDevice(hostToDevice), kernelWrapper(kernelWrapper), configuration(configuration), numberOfRows(
+    usingCovariates(false), hostToDevice(&hostToDevice), kernelWrapper(&kernelWrapper), configuration(&configuration), numberOfRows(
         deviceOutcomes.getNumberOfRows()), numberOfPredictors(4), devicePredictors(
-        new DeviceMatrix(numberOfRows, numberOfPredictors)), deviceOutcomes(deviceOutcomes), maxIterations(
+        new DeviceMatrix(numberOfRows, numberOfPredictors)), deviceOutcomes(&deviceOutcomes), maxIterations(
         configuration.getNumberOfMaxLRIterations()), convergenceThreshold(configuration.getLRConvergenceThreshold()), devicePredictorsMemoryPointer(
         devicePredictors->getMemoryPointer()), betaCoefficentsDevice(new DeviceVector(numberOfPredictors)), probabilitesDevice(
         new DeviceVector(numberOfRows)), scoresDevice(new DeviceVector(numberOfPredictors)), informationMatrixDevice(

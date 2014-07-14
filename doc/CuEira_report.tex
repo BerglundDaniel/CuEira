@@ -80,57 +80,48 @@ Asdf
 \clearpage
 \setcounter{page}{1}
 \chapter{Introduction}
-%\subsection{Epidemiology}
-%Epidemiology is the study of 
-
-%It combines
-
-%\cite{rothman1998modern,rothman2002intro_epidemiology}
 
 \section{Genome-wide association studies}
-Genome-wide association study(GWAS) is a common type of study to search for associations between genetic markers and diseases. Classically it does not consider interactions between the genetic markers nor environmental factors. Investigating gene-gene interactions have started to become more common\cite{cordell_detect_review}, however gene-environment interactions are still uncommon\cite{gene_enviroment_2013}. Interactions between genes and environmental factors are considered to be important for complex diseases such as cancer and autoimmune diseases.\cite{cordell_detect_review, gene_enviroment_2013, geira, ra_smoking}\\
+Within Epidemiology genome-wide association studies(GWAS) are a type of study to search for associations between genetic markers and diseases. Classically GWAS does not consider interactions between the genetic markers themselves or with environmental factors. Investigating gene-gene interactions recently has become more common\cite{cordell_detect_review}, however gene-environment interactions are still an uncommon focus in studies\cite{gene_enviroment_2013}. Interactions between genes and environmental factors are considered to be important for complex diseases such as cancer and autoimmune diseases.\cite{cordell_detect_review, gene_enviroment_2013, geira, ra_smoking}\\
 \\
-These type of studies are usually either cohort or case-control. In cohort studies a sample of a population that does not have the disease is followed. Variables that are suspected to be relevant for the disease are measured and over time some of the individuals are getting the disease. The data collected can then be used to find the risk factors. In case-control studies two groups are compared to find the risk factors. One group consists of individuals with the disease and the other of individuals that are similar to the cases but do not have the disease.\cite{rothman1998modern,mann_observational}\\
+GWAS are usually either cohort or case-control. In cohort studies a healthy sample of a population is being followed and over time some individuals will developed the disease of interest. In case-control studies two groups are compared to find risk factors. One group consists of individuals with the disease and the other of individuals that are similar to the cases but who do not have the disease.\cite{rothman1998modern,mann_observational}\\
 \\
 The genetic markers are commonly single-nucleotide polymorphisms(SNPs). SNPs are variations in the genome where a single nucleotide is different between individuals in a population\cite{fareed_snp}. Environmental factors can be various things such as smoking, physical activity and so on. The amount of data to handle usually consists of thousands individuals and hundred thousands or millions of SNPs. Due to the high number of SNPs few algorithms are capable to investigate more than second order interaction in a reasonable time. There are some algorithms that can handle higher interaction orders however these have drawbacks\cite{gwis,high_order_2012,fast_high_order_cluster}.
+
+\section{GEIRA and JEIRA}
+\emph{GEIRA} is a tool for analysing gene-gene and gene-environment interaction. It uses logistic regression and causal interaction\cite{geira}. \emph{JEIRA} is a parallelized implementation of the environmental interaction analysis in GEIRA. However it can only be run on one node.
+
+%TODO something about GEISA
 
 \section{Defining Interaction}
 There are several ways to define interaction. The overall goal is usually to find if \emph{biological} interactions are present. \emph{Biological} interaction is when the factors co-operate through a physiological or biological mechanism and causes the effect, eg. disease. This information can be used to explain the mechanisms involved in causing the disease and possibly help to find cures for them. However biological interaction is not well defined and thus it is not possible to calculate it directly from data.\cite{rothman1998modern,rothman2002intro_epidemiology}\\
 \\
-\emph{Statistic} interaction on the other hand is well defined. However it is scale dependent, ie. interactions can appear and disappear based on transformations of the data. Statistic interaction also depends on the used model. The common way to define statistic interaction is to consider the presence of a product term between the variables in the statistical model, this is referred to as \emph{multiplicative} interaction. For instance for a linear model
+\emph{Statistical} interaction on the other hand is well defined. However it is scale dependent, ie. interactions can appear and disappear based on transformations of the data. Statistical interaction also depends on the used model. The common way to define statistical interaction is to consider the presence of a product term between the variables in the statistical model, this is referred to as \emph{multiplicative} interaction. For instance for a linear model
 \begin{equation}
 f(x,y)=ax+by+cxy+d
 \end{equation}
-c is the product term that represents multiplicative interaction between variables x and y. Statistic interaction is often called just interaction which can make it a bit confusing.\cite{geira,rothman1998modern}\\
+c is the product term that represents multiplicative interaction between variables x and y. Statistical interaction is often referred to as just interaction which can make it a bit confusing.\cite{geira,rothman1998modern}\\
 \\
-It can also be defined as the divergence from additive effects on a logarithmic scale, eg
+It can also be defined as the divergence from additive effects on a logarithmic scale, e.g.
 \begin{equation}
 OR_{both\:factors\:present}>OR_{first\:factor\:present}+OR_{second\:factor\:present}-1
 \end{equation}
-It is called additive interaction.
-%TODO fix this
-
-X developed a interaction more related to 
-
-
-It is called biological interaction by Rothman\cite{rothman1998modern}, sometimes \emph{additive} interaction\cite{geira} or \emph{causual interdependence}\cite{greenland1988invariants} is used. In this work we will use the term \emph{causal} interaction as in \cite{causal_bounds_arvid}. More about odds ratios(OR) in the section about logistic regression.\\
-
-\section{GEIRA and JEIRA}
-\emph{GEIRA} is a tool for analysing gene-gene and gene-environment interaction. It uses logistic regression and causal interaction\cite{geira}. \emph{JEIRA} is a parallelized implementation of the environmental interaction analysis in GEIRA. However it can only be run on one node.
+It is called additive interaction. It implies biological interaction as defined by Rothman, which is sometimes called \emph{causual interdependence} or \emph{causal interaction}.\cite{rothman1998modern}
 
 \clearpage
 \chapter{Background}
 %TODO
 
-Most of the conducted research in GWAS has been focused on gene-gene interactions. Few studies and tools have been investigating gene-environment interactions.
+Most of the conducted research on interactions in GWAS has been focused on gene-gene interactions. Few studies and tools have been investigating gene-environment interactions.
 
-Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}, in some cases GPU clusters\cite{gwis_conf} have been used for GWAS. GPUs have been a popular choice since most of the methods for searching for interaction are good on GPUs because each combination can usually be considered independently from the others. More about this in section \ref{gpu_gwas}
+Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} have been used for GWAS. GPUs have been a popular choice since most of the methods for searching for interaction are good on GPUs because each combination can usually be considered independently from the others. More about this in section \ref{gpu_gwas}
 
+%Bla bla lite om outline
 
 \section{Mathematical Background}
 There are a lot of algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned. They can be roughly classified into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}\\
 \\
-SNPs are commonly binary variables with either dominant or recessive models. Dominant is when a person only has to have one allele affected to get the trait. Recessive is when both have to be ?. The case where the risk is present is coded as 1 and absence is coded as 0. Co-dominant model can also be used and in that case when both alleles have the risk factor is coded as 2, when only one is present is coded as 1 and absence is 0 as before. That SNPs can be viewed as binary is an advantage that is almost always used when searching for gene-gene interaction.\\
+SNPs are commonly binary variables with either dominant or recessive models. Dominant is when a person only has to have one allele affected to get the trait. Recessive is when both alleles have to be the cause. The case where the risk is present is coded as 1 and absence is coded as 0. Co-dominant model can also be used and in that case when both alleles have the risk factor is coded as 2, when only one is present is coded as 1 and absence is 0 as before. That SNPs can be viewed as binary is an advantage that is almost always used when searching for gene-gene interactions.\\
 \\
 Environmental factors can be of any type\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variable to be binary or have other problems since they weren't designed for environmental interaction.\cite{gene_enviroment_2013}\\
 \\
@@ -197,19 +188,23 @@ Drawback of LR for interaction
 Assumes independecen between SNPs(doesn't considere the LD structure)
 Slow
 
-\subsubsection{Weighted Logistic Regression}
+\subsubsection{Fitting Logisitic Regression Models}
 %TODO
-Each individual is assigned a weight that can be ?. It is then used to weight the logistic regression.
+Done with maximum likelihood(ML), often via Newtons method.
 
-\subsection{Statistic Measures}
+Other methods to
+
+\subsubsection{Statistic Measures}
 OR
+
+In binary case it simplifies to the increase in odds when exposed
 
 Relative risk(RR)
 \begin{equation}
 RR=\frac{p_{event\:when\:exposed}}{p_{event\:when\:not\:exposed}}
 \end{equation}
 
-RR can not be esitmaded in case control since it requires prevalence in whole population. Fine in cohort. In case control it is approximate with OR.
+RR can not be esitmaded in case control since it requires prevalence in whole population which you need cohort studies to find. In case control it is approximate with OR.
 
 Relative risk due to interaction(RERI) is
 \begin{equation}
@@ -236,9 +231,21 @@ Lack of interaction shows in the values by
 AP=0
 SI=1
 %\section{Algorithmic Background}
-\subsection{Fitting Logisitic Regression Models}
+
+\subsubsection{Coding the interaction variable}
 %TODO
-Done with maximum likelihood(ML), often via Newtons method.
+bit of a problem in some ways
+easy with dominat or recessive
+absence of either is 0, having both is 1.
+
+co-dominant, absence of either is 0 as before. having both 2 is clearly worse than either 1,2 or 2,1
+but which is worse of 1,2 and 2,1? they clearly are not the same so has to be coded differently.
+
+it gets worse with categorical and continues variables
+
+however we have one snp and one environmental variable that can possible interact. so we can use the fact that the SNP is binary. Reduces the cases.
+
+additive vs multiplicative coding
 
 \subsection{Data Mining and Machine Learning Approaches}
 \label{data_machine_learning}
@@ -295,75 +302,6 @@ It has been shown in high dimensional data that RF tends to only rank interactin
 
 Decision tree figure here
 
-\subsection{Coding the interaction variable}
-%TODO
-bit of a problem in some ways
-easy with dominat or recessive
-absence of either is 0, having both is 1.
-
-co-dominant, absence of either is 0 as before. having both 2 is clearly worse than either 1,2 or 2,1
-but which is worse of 1,2 and 2,1? they clearly are not the same so has to be coded differently.
-
-it gets worse with categorical and continues variables
-
-however we have one snp and one environmental variable that can possible interact. so we can use the fact that the SNP is binary. Reduces the cases.
-
-additive vs multiplicative coding
-
-\clearpage
-\subsection{Performance Measures}
-An important part in making fast and efficient programs is to know how fast the program is under certain conditions and which parts of the program are slow. For instance the speed could suddenly drop when we start using to many threads, there might be a bottleneck in the network, and so on.\\
-\\
-There are two ways to measure how long a program takes to execute. Execution time, sometimes called wall clock time, is how long real life time the program took. The other is to measure the number of processor cycles spent. A parallel program will have shorter execution time than it is serial version however it will likely have spent more processor cycles due to overhead from communication and initialization of the threads. We are usually interested in execution time however number of cycles can be useful for comparison of algorithms.\\
-\\
-speed up is measures how much faster then program is with a certain number of threads compared to the serial version. It's defined as
-$$S(p)=\frac{T(1)}{T(p)}$$
-Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speed up is when S(p)=p, it is sometimes called perfect speed up.\\
-\\
-Efficieny reflects how efficient the program is using p threads. Linear speed has efficency 1. It's defined as
-$$E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}$$
-\\
-Strong scaling refers to how the program handles a fixed problem size and increased number of processors. An program with strong scaling has linear speed up. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased.\cite{cuda_best_practice}\\
-\\
-It can be a good idea to plot these measures while varying p, this can show when bottlnecks occur. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication affects the performance.
-
-\subsubsection{Amdahl's Law and Gustafson's Law}
-Amdahl's Law is used to find the expected speed up of a system when parts of is parallelized. Simply it says that as the number of processors increases the parts that aren't parallelized will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallelized part. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
-\\
-It says that the expected speed up with F fraction of the code parallelized and p threads is 
-$$S(p)=\frac{1}{(1-F)+\frac{F}{p}(1-F)}$$
-As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F}$. If we have 90\% of a code parallelized then even with infinite number of threads we won't get a better speed up than ten.\cite{2010_reevaluating_amdahl}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=11cm]{AmdahlsLaw.png}
-    \caption{Illustration of Amdahls Law. Wikipedia Commons}
-    \label{fig:AmdahlsLaw}
-\end{figure}
-
-There are limitation to Amdahl's Law since it makes a couple of assumptions.
-
-\begin{itemize}
-  \item The number of executing threads remain constant over the course of the program.
-  \item The parallel portion has perfect speed up. Often not true due to shared resources,eg caches, memory bandwidth, and shared data.
-  \item The parallel portion has infinite scaling, not true due to similar limits as above. More threads will not increase performance after a while or might even decrease it.
-  \item There is no overhead for creation and destruction of threads.
-  \item The length of the serial portion is independent of the number of threads. Often the serial work is to divided the work to the threads, this work will obviously increase as the number of threads go up. More threads can also lead to more communication overhead.
-  \item The serial portion can't be overlapped by the parallel parts. For instance with producer consumer type pattern the consumer could be strictly serial but the time it takes could be overlapped by the parallel producers.
-\end{itemize}
-
-This means it is most accurate with programs that are of the fork-join type. Eg serial parts and then matrix operations.\\
-\\
-Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, eg increased precision by reducing grid size, high frame rate for graphics. The second is that the parallel portion of the program tends to expand faster than the serial part, eg for matrix multiplication the initialization scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$. The former means that it is closely related to weak scaling. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speed up with p threads and F fraction of the code that is parallel is\cite{gustafson1988reevaluating, cuda_best_practice}
-$$S(p)=p+(1-F)(1-p)$$
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=13cm]{GustafsonsLaw.png}
-    \caption{Illustration of Gustafsons Law}
-    \label{fig:GustafsonsLaw}
-\end{figure}
-
 \clearpage
 \section{Computer Architecture}
 Most computers today have a multi-core architecture
@@ -394,6 +332,12 @@ branch prediction
 prefetching
 
 cpus aren't trivial either, there can be huge gains by using caches and other things correctly\cite{drepper2007cpumemory}
+
+\subsection{Caching}
+%TODO
+
+\subsection{Threads}
+%TODO
 
 \subsection{Accelerators, GPU and Xeon Phi}
 Graphics processing unit(GPU) have become more popular for general computing the last 10 years.
@@ -523,8 +467,74 @@ One of the main criticism against GPUs for general computing purposes is that it
 
 %unrolling is really good, see volkovs stuff, instruction level parallelism
 
+\clearpage
+\subsection{Performance Measures}
+An important part in making fast and efficient programs is to know how fast the program is under certain conditions and which parts of the program are slow. For instance the speed could suddenly drop when we start using to many threads, there might be a bottleneck in the network, and so on.\\
+\\
+There are two ways to measure how long a program takes to execute. Execution time, sometimes called wall clock time, is how long real life time the program took. The other is to measure the number of processor cycles spent. A parallel program will have shorter execution time than it is serial version however it will likely have spent more processor cycles due to overhead from communication and initialization of the threads. We are usually interested in execution time however number of cycles can be useful for comparison of algorithms.\\
+\\
+speed up is measures how much faster then program is with a certain number of threads compared to the serial version. It's defined as
+$$S(p)=\frac{T(1)}{T(p)}$$
+Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speed up is when S(p)=p, it is sometimes called perfect speed up.\\
+\\
+Efficieny reflects how efficient the program is using p threads. Linear speed has efficency 1. It's defined as
+$$E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}$$
+\\
+Strong scaling refers to how the program handles a fixed problem size and increased number of processors. An program with strong scaling has linear speed up. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased.\cite{cuda_best_practice}\\
+\\
+It can be a good idea to plot these measures while varying p, this can show when bottlnecks occur. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication affects the performance.
+
+\subsubsection{Amdahl's Law and Gustafson's Law}
+Amdahl's Law is used to find the expected speed up of a system when parts of is parallelized. Simply it says that as the number of processors increases the parts that aren't parallelized will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallelized part. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
+\\
+It says that the expected speed up with F fraction of the code parallelized and p threads is 
+$$S(p)=\frac{1}{(1-F)+\frac{F}{p}(1-F)}$$
+As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F}$. If we have 90\% of a code parallelized then even with infinite number of threads we won't get a better speed up than ten.\cite{2010_reevaluating_amdahl}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=11cm]{AmdahlsLaw.png}
+    \caption{Illustration of Amdahls Law. Wikipedia Commons}
+    \label{fig:AmdahlsLaw}
+\end{figure}
+
+There are limitation to Amdahl's Law since it makes a couple of assumptions.
+
+\begin{itemize}
+  \item The number of executing threads remain constant over the course of the program.
+  \item The parallel portion has perfect speed up. Often not true due to shared resources,eg caches, memory bandwidth, and shared data.
+  \item The parallel portion has infinite scaling, not true due to similar limits as above. More threads will not increase performance after a while or might even decrease it.
+  \item There is no overhead for creation and destruction of threads.
+  \item The length of the serial portion is independent of the number of threads. Often the serial work is to divided the work to the threads, this work will obviously increase as the number of threads go up. More threads can also lead to more communication overhead.
+  \item The serial portion can't be overlapped by the parallel parts. For instance with producer consumer type pattern the consumer could be strictly serial but the time it takes could be overlapped by the parallel producers.
+\end{itemize}
+
+This means it is most accurate with programs that are of the fork-join type. Eg serial parts and then matrix operations.\\
+\\
+Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, eg increased precision by reducing grid size, high frame rate for graphics. The second is that the parallel portion of the program tends to expand faster than the serial part, eg for matrix multiplication the initialization scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$. The former means that it is closely related to weak scaling. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speed up with p threads and F fraction of the code that is parallel is\cite{gustafson1988reevaluating, cuda_best_practice}
+$$S(p)=p+(1-F)(1-p)$$
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=13cm]{GustafsonsLaw.png}
+    \caption{Illustration of Gustafsons Law}
+    \label{fig:GustafsonsLaw}
+\end{figure}
+
 \subsubsection{Profilers}
 There are applications called profilers that are made to assess the programs performance and resource consumption. They calculate some of the measures mentioned earlier and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlenecks and other problems in the program. It does not matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products. For instance NVIDIA provides profilers for programs that use CUDA.\cite{introduction_hpc_hager, cuda_best_practice}
+
+\section{Clean Code}
+
+%SOLID
+
+%Unit testing
+
+%Mocking
+
+%Desing patter
+
+%Behöver nåt om cochurrancy
 
 \clearpage
 \chapter{Algorithm}
@@ -550,8 +560,6 @@ JEIRA uses Java and Javas built-in functions for concurrency.
 Producer consumer pattern
 
 Strucuture picture here.
-
-Symmetric confidence interval of additive effects.
 
 %\section{Mine}
 %exhaustive

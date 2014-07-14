@@ -3,9 +3,10 @@
 namespace CuEira {
 namespace Model {
 
-ModelHandler::ModelHandler(DataHandler* dataHandler) :
-    dataHandler(dataHandler), snpData(nullptr), environmentData(nullptr), interactionData(nullptr), currentSNP(nullptr), currentEnvironmentFactor(
-        nullptr), oldSNP(nullptr), oldEnvironmentFactor(nullptr), state(NOT_INITIALISED) {
+ModelHandler::ModelHandler(const StatisticsFactory& statisticsFactory, DataHandler* dataHandler) :
+    statisticsFactory(statisticsFactory), dataHandler(dataHandler), snpData(nullptr), environmentData(nullptr), interactionData(
+        nullptr), currentSNP(nullptr), currentEnvironmentFactor(nullptr), oldSNP(nullptr), oldEnvironmentFactor(
+        nullptr), state(NOT_INITIALISED) {
 
 }
 

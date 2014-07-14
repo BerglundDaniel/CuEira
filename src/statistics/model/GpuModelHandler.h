@@ -14,6 +14,7 @@
 #include <PinnedHostVector.h>
 #include <InvalidState.h>
 #include <LogisticRegressionResult.h>
+#include <StatisticsFactory.h>
 
 namespace CuEira {
 namespace Model {
@@ -25,7 +26,7 @@ namespace Model {
  */
 class GpuModelHandler: public ModelHandler {
 public:
-  GpuModelHandler(DataHandler* dataHandler,
+  GpuModelHandler(const StatisticsFactory& statisticsFactory, DataHandler* dataHandler,
       LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration,
       LogisticRegression::LogisticRegression* logisticRegression);
   virtual ~GpuModelHandler();

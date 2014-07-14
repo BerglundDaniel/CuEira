@@ -14,6 +14,7 @@
 #include <LapackppHostVector.h>
 #else
 #include <PinnedHostVector.h>
+#include <PinnedHostMatrix.h>
 #endif
 
 using ::testing::Ge;

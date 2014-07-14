@@ -21,7 +21,7 @@ public:
 
   }
 
-  MOCK_METHOD0(calculate, LogisticRegressionResult*());
+  MOCK_METHOD0(calculate, CuEira::Model::LogisticRegression::LogisticRegressionResult*());
 };
 
 } /* namespace LogisticRegression */

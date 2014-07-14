@@ -15,7 +15,7 @@ DeviceMatrix::DeviceMatrix(int numberOfRows, int numberOfColumns, PRECISION* mat
 
 DeviceMatrix::~DeviceMatrix() {
   if(!subview){
-  CuEira::CUDA::freeDeviceMemory(matrixDevice);
+    CuEira::CUDA::freeDeviceMemory(matrixDevice);
   }
 }
 

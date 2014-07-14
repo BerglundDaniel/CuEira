@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <string>
+#include <iostream>
 
 #include <CudaException.h>
 #include <CublasException.h>
@@ -95,8 +96,8 @@ inline void freeDeviceMemory(void* pointerDevice) {
 /**
  * Free pinned memory, throws CudaException if there is an error
  */
-inline void freePinnedMemory(void* pointerDevice) {
-  handleCudaStatus(cudaFreeHost(pointerDevice), "Freeing host memory failed: ");
+inline void freePinnedMemory(void* pointerHost) {
+  handleCudaStatus(cudaFreeHost(pointerHost), "Freeing pinned host memory failed: ");
 }
 
 } /* namespace CUDA */

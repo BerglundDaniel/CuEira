@@ -2,6 +2,7 @@
 #define PINNEDHOSTMATRIX_H_
 
 #include <sstream>
+#include <iostream>
 
 #include <HostMatrix.h>
 #include <HostVector.h>

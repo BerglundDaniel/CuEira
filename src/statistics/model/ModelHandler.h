@@ -11,6 +11,7 @@
 #include <HostVector.h>
 #include <SNP.h>
 #include <EnvironmentFactor.h>
+#include <StatisticsFactory.h>
 
 namespace CuEira {
 namespace Model {
@@ -26,7 +27,7 @@ class ModelHandler {
   FRIEND_TEST(GpuModelHandlerTest, Next);
   FRIEND_TEST(GpuModelHandlerTest, NextAndCalculate);
 public:
-  ModelHandler(DataHandler* dataHandler);
+  ModelHandler(const StatisticsFactory& statisticsFactory, DataHandler* dataHandler);
   virtual ~ModelHandler();
 
   bool next();
@@ -37,6 +38,7 @@ protected:
     NOT_INITIALISED, INITIALISED_READY, INITIALISED_FULL
   };
 
+  const StatisticsFactory& statisticsFactory;
   DataHandler* dataHandler;
   const Container::HostVector * environmentData;
   const Container::HostVector * snpData;

@@ -16,6 +16,7 @@ set(SOURCE
   ${SOURCE}
   ${CPU_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/Statistics.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/StatisticsFactory.cpp
   PARENT_SCOPE
 )
 

@@ -4,7 +4,6 @@
 namespace CuEira {
 namespace Container {
 
-
 /**
  * This is ...
  *

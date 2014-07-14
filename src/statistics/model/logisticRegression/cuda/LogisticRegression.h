@@ -47,7 +47,7 @@ public:
   /**
    * Calculate the model
    */
-  LogisticRegressionResult* calculate();
+  virtual LogisticRegressionResult* calculate();
 
 protected:
   LogisticRegression(); //For the mock

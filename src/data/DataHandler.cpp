@@ -43,6 +43,7 @@ const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
 }
 
 bool DataHandler::next() {
+  std::cerr << "data next" << std::endl;
   if(state == NOT_INITIALISED){
     if(!dataQueue->hasNext()){
       return false;

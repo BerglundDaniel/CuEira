@@ -2,7 +2,6 @@
 #define PINNEDHOSTVECTOR_H_
 
 #include <sstream>
-#include <iostream>
 
 #include <HostVector.h>
 #include <DimensionMismatch.h>

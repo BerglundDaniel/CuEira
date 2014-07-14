@@ -25,7 +25,6 @@ LogisticRegressionResult::~LogisticRegressionResult() {
 }
 
 const Container::HostVector& LogisticRegressionResult::getBeta() const {
-  std::cerr << "LR beta" << std::endl;
   return *beta;
 }
 
@@ -34,7 +33,6 @@ const Container::HostMatrix& LogisticRegressionResult::getInformationMatrix() co
 }
 
 const Container::HostMatrix& LogisticRegressionResult::getInverseInformationMatrix() const {
-  std::cerr << "LR inverse" << std::endl;
   return *inverseInformationMatrixHost;
 }
 

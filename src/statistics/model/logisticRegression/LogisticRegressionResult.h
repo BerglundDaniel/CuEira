@@ -1,8 +1,6 @@
 #ifndef LOGISTICREGRESSIONRESULT_H_
 #define LOGISTICREGRESSIONRESULT_H_
 
-#include <iostream>
-
 #include <HostVector.h>
 #include <HostMatrix.h>
 #include <Recode.h>

@@ -164,7 +164,7 @@ TEST_F(GpuModelHandlerTest, NextAndCalculate) {
 
   EXPECT_CALL(*dataHandlerMock, getCurrentSNP()).Times(1).WillRepeatedly(ReturnRef(snp2));
   EXPECT_CALL(*dataHandlerMock, getCurrentEnvironmentFactor()).Times(1).WillRepeatedly(ReturnRef(envFactor2));
-  std::cerr << "t6" << std::endl;
+
   ASSERT_TRUE(gpuModelHandler.next());
   ASSERT_EQ(gpuModelHandler.INITIALISED_FULL, gpuModelHandler.state);
 

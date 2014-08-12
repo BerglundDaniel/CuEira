@@ -183,30 +183,29 @@ If move the logit to the right side we get the moddelling of the probability
 \pi(X)=\frac{exp(\alpha+\beta_1 x_1+\beta_2 x_2+...+\beta_n x_n)}{1+exp(\alpha+\beta_1 x_1+\beta_2 x_2+...+\beta_n x_n}
 \end{equation}
 
+Finding the coefficents are done in a similar way as other linear regression models since they all are generalized linear models. It's done using  maximum likelihood(ML), often via Newtons method.
 
-Drawback of LR for interaction
-Assumes independecen between SNPs(doesn't considere the LD structure)
-Slow
-
-\subsubsection{Fitting Logisitic Regression Models}
-%TODO
-Done with maximum likelihood(ML), often via Newtons method.
-
-Other methods to
+It's an iterattive method which means it is slow compared to non iterative mehtods. Logistic regression as most other methods for interaction assumes independecne between the variables.
 
 \subsubsection{Statistic Measures}
-OR
+There are various statistical measures of interest that we can calculate from the logistic regression model.\\
+\\
+Odds ratio(OR) describes the change in odds between different levels of exposure.
 
-In binary case it simplifies to the increase in odds when exposed
+The odds is ?
+
+In binary case it simplifies to the increased odds when exposed.
+
+An odds ratio of one means the the odds and therefore the odds is the same whetever exposed or not. An odds ratio below one means that the odds of being affected is lower when exposed and if the odds ratio is above one it means that the odds is increased. In the case when the outcome is an disease or similar we call variables with odds ratio below one \emph{protective} and when it is above one it is a \emph{risk factor}.
 
 Relative risk(RR)
 \begin{equation}
 RR=\frac{p_{event\:when\:exposed}}{p_{event\:when\:not\:exposed}}
 \end{equation}
 
-RR can not be esitmaded in case control since it requires prevalence in whole population which you need cohort studies to find. In case control it is approximate with OR.
+RR can not be esitmaded in case control since it requires the prevalence in whole population which you need cohort studies to find. In case control it is approximate with OR.
 
-Relative risk due to interaction(RERI) is
+Relative  excess risk due to interaction(RERI) is
 \begin{equation}
 RERI=RR_{11}-RR_{10}-RR_{01}+1
 \end{equation}
@@ -230,22 +229,35 @@ ln(SI)=ln(RR_{11}-1)-ln(RR_{10}+RR_{01}-2)
 Lack of interaction shows in the values by
 AP=0
 SI=1
-%\section{Algorithmic Background}
 
 \subsubsection{Coding the interaction variable}
 %TODO
-bit of a problem in some ways
-easy with dominat or recessive
-absence of either is 0, having both is 1.
+For the interaction
 
-co-dominant, absence of either is 0 as before. having both 2 is clearly worse than either 1,2 or 2,1
-but which is worse of 1,2 and 2,1? they clearly are not the same so has to be coded differently.
+%math stuff for mult
 
-it gets worse with categorical and continues variables
+%math stuff for add
 
-however we have one snp and one environmental variable that can possible interact. so we can use the fact that the SNP is binary. Reduces the cases.
+However there is a problem when there is multiple categories in both variables. In short it's becase of how OR works and that the categories for LR become rated in increased or decreased order, that is how the categories are labeled matters. Say three locations, code as 1,2,3 or 2,1,3 matters. 
 
-additive vs multiplicative coding
+There is two cases, 
+one were we don't know any severness or whatever, say locations
+
+second were we do have it, say it's smoking as never, previous and current. current is likely worse than previous worse than never
+
+but if the second one also has levels say it's also of second type as simplest case example here
+how do we know which is worst? current smoker or exampel badest
+number of possiblitys increases with levels and to examine all means lots of computions and loss of statistical powers
+
+Why occurs due to how OR works
+
+However in our case we know that the gene is binary under dominat or recessive model. So we can just multiply. However means we can't use co-domiant model.
+
+Dummy variables
+Stratification
+
+\subsubsection{Recoding}
+%TODO ask Henrik about refrences and why etc
 
 \subsection{Data Mining and Machine Learning Approaches}
 \label{data_machine_learning}
@@ -326,18 +338,36 @@ Central processing unit(CPU) is \cite{introduction_hpc_hager}
 
 Until 1996 there was computers with just a single core CPU on top 500\cite{TOP500}. Since about 2005 most desktop computers CPU has several cores which has increased the need for parallelization. The cores themselves aren't getting faster, the CPUs have more cores.
 
-schematic here
+%schematic here
+
+As you can see most of it is not used for calculations. A large part of the area is used for optimizations and caching. We will talk about caching in the next section. CPUs have various optimizations too improve their performance.
 
 branch prediction
-prefetching
 
-cpus aren't trivial either, there can be huge gains by using caches and other things correctly\cite{drepper2007cpumemory}
-
-\subsection{Caching}
+\subsection{Caching and Other Optimization}
 %TODO
+The CPU optimzation that is most important to know for programmers is caching because it affect the way the code has to be written and the diffrence between using it correctly and not is huge.
 
-\subsection{Threads}
+%aliasing
+It happens when two pointers point to the same place in memory and the code does operations on them at the same place. This means that operations that look like they can be done in any order actually can't and thus prevents the compiler to make optimizations. The problem is that the compiler has to take this in to account for all pointers even if no aliasing occurs because it might happen.
+
+\cite{drepper2007cpumemory}
+
+\subsection{Concurrency and Threads}
 %TODO
+concurrency what is it
+
+doing multiple things and the same time, instead of \emph{sequential}
+
+dinning philosphers
+
+in computer science, instructions seperated in threads
+
+SIMD
+
+MIMD
+
+\cite{introduction_hpc_hager}
 
 \subsection{Accelerators, GPU and Xeon Phi}
 Graphics processing unit(GPU) have become more popular for general computing the last 10 years.
@@ -349,15 +379,16 @@ Graphics processing unit(GPU) have become more popular for general computing the
     \label{fig:gpu_vs_cpu}
 \end{figure}
 
-structure of gpu
+%structure of gpu
+
+'dummer' threads than CPU, more area for calculations
 
 Xeon Phi, intel mic
 mimd
 knights landing, interesting new development from intel.
 however usually but not always require memory copy
 still need vectorisation and other stuff
-you end up with similar problems
-might be useful for old serial legacy code, but you still need to parallelize it to get speed
+you end up with similar problems as gpu, though probably easier to use
 
 structure of mic
 
@@ -378,11 +409,15 @@ GPUs are good for interaction algorithms since most approaches are embarrassingl
 \subsection{Clusters}
 Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communciate over a shared network but have separate memory and processors. Storage is usually shared. A computer in a cluster is called a \emph{node}. \cite{intro_hpc, kirk2012programming}
 
+various programming models, shared memory and so on
+%shared memory, cache coherrency and stuff
+
 mpi is commonly used for clusters\cite{kirk2012programming}
 
 top 500\cite{TOP500}
 
 Few clusters used GPUs before 2009 but now mix of GPUs and cpu are common among the top clusters. It was driven largely by demand for power saving while still giving high performance. The GPUs can do the heavy computation while other parts are used on CPU. Most of these clusters are highly ranked in Green 500. \cite{kirk2012programming}
+%Something about Intel MIC
 
 Flops is not everything, bad performance compare to theoretical maximum
 Stuck in network, hard drives, etc. Latency
@@ -395,11 +430,10 @@ Max achived with LinPack 33 PetaFlops
 Picture of Tianhe-2 here
 
 \subsection{CUDA programming model}
-warps threads and stuff about CUDA\cite{cuda}
+Cuda function calls are done by using kernels
+divided into blocks
 
-SIMT
-
-blocks
+These blocks can be executed in any order so depending on the number of streaming multiprocessors(SM) they get executed differently
 
 \begin{figure}[h]
     \centering
@@ -408,7 +442,44 @@ blocks
     \label{fig:blocks_scaling}
 \end{figure}
 
-Heterogeneous programming model is used when seperate memory for CPU and GPU.
+Kernels are declared by using the \_\_global\_\_ specifier 
+setting stuff for the call to the kernel by using <<<...>>>
+
+%simple kernel example here
+
+The blocks are organized in one, two or three dimensional \emph{grid}. These can be accesed in a kernel.
+each block also share some memory, see efficient cuda part or the cuda programming guide for the details.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{grid_2d.png}
+    \caption{2d grid of blocks}
+    \label{fig:grid_2d}
+\end{figure}
+
+The streaming multiprocessors can execute hundreds of threads concurrently, it uses \emph{SIMT}(Single-Instruction, Multiple-Thread).
+It executes on groups of 32 threads called warps
+when an SM gets a number of blocks they are split into warps that are assigned to warp schedulers
+each warp scheduler gives one instruction to the whole warp so full efficiency is achieved when all 32 threads do the same instruction. if there is any divergence it has to disable unrelated threads, so divergence is costly. different warps can diverge without problem
+
+since the GPUs memory is physically on a different device, the \emph{host} and \emph{device} have separate memory spaces. They are referred to as \emph{host memory} and \emph{device memory}. Because it is separate data has to be transferred to the device and this is done by explicit calls to transfer sections of the memory.
+
+%shared memory and other memory types, here or in efficient cuda?
+
+The kernel calls can be made on a stream. By default a kernel is executed on the null stream. The easiest way to think of the stream is as queue, the kernels on a stream will be executed in the order they are made but different kernels from different streams can be executed in any order and if there are resouraces enough at the same time. In this way it is possible to execute up to 32 concurrent kernels depending on GPU.
+
+Streams are important for asynchronous transfers. These transfers are executed on a stream and just as kernels gets executed after the previous kernels on the same stream is done. And as with the kernels the transfer on one stream can happen . This however depends on the number of copy engies and kernel engines. Some older GPUs have one copy engine and one kernel engine. Newer ones have one copy engine for device to host and one for host to device. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers.
+
+%example from the fortran stuff with graphs and such
+
+CUBLAS is provides blas functions for cuda.
+can also be run concurrently with streams
+
+%single vs double precision
+
+As already mentioned different architectures and even different GPUs differ how they work. Make sure to lookup the different specifics and read the guides for the relevant architecture. NVIDIA uses something called computational capability. It ranges from 1.0, 2.0, 3.0, 3.5 and 5.0. The higher the number the more functions. 1.0 and 2.0 lack some of the things described here.
+
+\cite{cuda}
 
 \subsubsection{Efficient CUDA}
 One of the main criticism against GPUs for general computing purposes is that it is hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. Here are somethings that needs to be considered when writing GPU programs.\cite{plink_gpu, cuda, cuda_best_practice}
@@ -419,11 +490,11 @@ One of the main criticism against GPUs for general computing purposes is that it
   \item[Minimize transfers between host and device] \hfill \\
   Moving data between host and device is expensive and should be avoided if possible. It can be better to run serial parts on the GPU rather than moving the data to the host to do the calculation on the CPU. The bandwidth between host and device is one of the large performance bottlenecks. This can be a problem when the data is to large to fit in the relatively small GPU dram.\cite{cuda, cuda_best_practice}
   \item[Find the optimal number of blocks and threads] \hfill \\
-  There are a lot of things affected by the number of blocks and threads so they should be considered carefully. It's a good idea to parameterize them so that they can be changed for future hardware and varied for optimization. NVIDIA has an occupancy calculator which can be helpful in determining the optimal numbers, however high occupancy does not mean high performance.\cite{cuda, cuda_best_practice}\\
+  There are a lot of things affected by the number of blocks and threads so they should be considered carefully. It is a good idea to parameterize them so that they can be changed for future hardware and varied for optimization. NVIDIA has an occupancy calculator which can be helpful in determining the optimal numbers, however high occupancy does not mean high performance.\cite{cuda, cuda_best_practice}\\
   \\
   The number of blocks should be larger than the number of multiprocessors so that all multiprocessors have at least one block to execute. Having two blocks or more per multiprocessor can be good so that there are blocks that aren't waiting for a \_\_syncthreads() that can be executed. However this is not always possible due to shared memory usage and similar.\cite{cuda_best_practice}\\
   \\  
-  The number of threads per block should be a multiplier of 32 but minimum 64. It's also important to remember that multiple concurrent blocks can reside on the same multiprocessor. To large number of threads in a block and parts of the multiprocessor might be idle since there aren't a block small enough to use those threads. Between 128 and 256 threads is a good place to start.\cite{cuda_best_practice}
+  The number of threads per block should be a multiplier of 32 but minimum 64. It's also important to remember that multiple concurrent blocks can reside on the same multiprocessor. Too large number of threads in a block and parts of the multiprocessor might be idle since there aren't a block small enough to use those threads. Between 128 and 256 threads is a good place to start.\cite{cuda_best_practice}
   \item[Streams, concurrent kernels and asynchronous transfers] \hfill \\
   By using streams it is possible to overlap memory transfers with calculations. This means that the data for the next batch can be transfered while the current batch is calculated and when it is done it can start calculating on the next batch directly after the current one is done. This can hide the time for transfers completely in some situations. However it requires the memory on the host to be pinned. Pinning too much memory can reduce performance of the host.\cite{cuda}\\
   \\
@@ -456,7 +527,7 @@ One of the main criticism against GPUs for general computing purposes is that it
   \item[Avoid slow instructions] \hfill \\
   There are some instructions that can be slow and should be avoided if possible, for instance type conversion, integer division and modulo. If a function is called with a floating point number that might be used as a double and require a conversion. By putting an f at the end of the number it is told to be single precision float, for instance 0.5f. In some cases it is possible to use bitwise operations instead which is faster.\cite{cuda, cuda_best_practice}
   \item[Restricted pointers can give increased performance] \hfill \\
-  Aliasing is a problem in some languages, it happens when two pointers point to the same place in memory and the code does operations on them at the same place. This means that operations that look like they can be done in any order actually can't and thus prevents the compiler to make optimizations. The problem is that the compiler has to take this in to account for all pointers even if no aliasing occurs because it might happen. By using the \_\_restrict\_\_ keyword on pointers the compiler can be told that no aliasing will occur, however it is up to the programmer to make sure that is the case or there might be strange results. Not using aliasing reduces the number of memory accesses the CPU needs to make. However it increases register pressure so it can have an negative effect on performance.\cite{cuda} Aliasing can be important to keep in mind for CPU code as well\cite{drepper2007cpumemory}.
+  Aliasing can be a problem as mentioned earlier. By using the \_\_restrict\_\_ keyword on pointers the compiler can be told that no aliasing will occur, however it is up to the programmer to make sure that is the case or there might be unexpected results. Not using aliasing reduces the number of memory accesses the CPU needs to make. However it increases register pressure so it can have an negative effect on performance.\cite{cuda}
   \item[Use fast math functions if precision isn't needed] \hfill \\
   There are two versions of runtime math functions. The ones of the type funcf() is slower but more accurate than \_funcf(). The option -use\_fast\_math makes the compiler change all the funcf() to \_funcf().\cite{cuda_best_practice}
 \end{description}
@@ -466,6 +537,7 @@ One of the main criticism against GPUs for general computing purposes is that it
 %They dont share memory but gpu-gpu memory copys are faster if they are connected since it does not involve the cpu
 
 %unrolling is really good, see volkovs stuff, instruction level parallelism
+%unrolling also works on CPUs
 
 \clearpage
 \subsection{Performance Measures}
@@ -524,17 +596,55 @@ $$S(p)=p+(1-F)(1-p)$$
 \subsubsection{Profilers}
 There are applications called profilers that are made to assess the programs performance and resource consumption. They calculate some of the measures mentioned earlier and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlenecks and other problems in the program. It does not matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products. For instance NVIDIA provides profilers for programs that use CUDA.\cite{introduction_hpc_hager, cuda_best_practice}
 
-\section{Clean Code}
+\clearpage
+\section{Software Design}
+How to design software so it can be mainted over time .
 
-%SOLID
+The messier code will cost productivity in the future when bugs and other problems stack up because of earlier misstakes. All code aquire problems overtime however a well designed system will degenerate a lot slower than one that was designed without much thought. Our code will also be read by others and ourselves later which means readability is important.
 
-%Unit testing
+%study om repro in comp science
+%använde repeabtibility istället för reproducebility
 
-%Mocking
+There are ways to code in such a way that these problems can be avoided. Most of the things described here goes under the agile development type and the concept of clean code. SOLID is an acronym for five principles for object oriented programming and design. When used together they are intended to make programs that are easy to maintain and extend. One of the first things to keep in mind that others and ones future self will likely read the code. This means that it has to be written so that things are as clear as possible. Correct names will make the code explain itself without other documentation, the code itself is the documentation.
 
-%Desing patter
+\begin{table}[h]
+\begin{tabular}{ l l l}
+  \hline
+  Initial & Principal & Concept\\
+  \hline
+  S & Single responsibility principle & A class should only have a single responsibility \\
+  O & Open/closed principle & A class should be open for extension but closed for modification \\
+  L & Liskov substitution principle & If S is a subtype of T, then objects of type T may be replaced by objects of type S without without altering any of the desierable properties of the program(e.g. work performed)\\
+  I & Interface segregation principle & Use several smaller and more specific interfaces instead of one large \\
+  D & Dependency inversion principle & Depend on abstractions(e.g. interfaces) not details \\
+  \hline  
+\end{tabular}
+\caption{The five SOLID principles}
+\label{table:solid_table}
+\end{table}
 
-%Behöver nåt om cochurrancy
+Dependacy injection is one way to implement dependacy inversion principle. Injection is passing the dependacy to the dependent object. This is used instead of allowing the depedent object to construct or find the dependacy.
+
+\subsection{Unit Tests and Mocks}
+\emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work.\\
+\\
+It is easy to denote test code as less important than the main code but they should be treated as equally important. Tests should also not be an incovieance to use so they should be easy to run, take reasonable ammount of time to complete and not require any outside interpretation whtever they failed or not.\\
+\\
+\emph{Mocking} is to replace a real object with a fake object called a \emph{mock} that for the code is indistinguishable from the real object. This allows one to create situations and test with more control and without depending on the real objects code. The second is important for unit tests since it enables one to test units that normally depend on others in isolation. In the first case it is useful in situatuons such as when one wants to test a class handling of a rare failure. Such failures can be hard and time consuming to induce. It is then easier to use a mock object that behaves like the failure has accured. However mocking requires that the code for the class doesn't create the object itself since there is no way to replace the object with the mock. This is one of the reasons why dependacy injection should be use.
+
+\subsection{Design Patterns}
+A \emph{design pattern} in software design is a reusable general solution to a common reacurring problem in a given context. It is templates and structures to solve the problem, however it is not code. However they are partially dependent on the programming language since different langauages have different features and limitations.\\
+\\
+The \emph{? pattern} %example pattern?
+\\
+\emph{Concurrancy patterns} are design patterns in contexts which involves concurrancy, i.e. multithreaded programs.
+
+locks
+
+\emph{Consumer producer} is a pattern for when there are a number of consumers/workers and producers. They share a common queue for products. The producer generates some product and put it into the queue, while the the consumers consume the products. The problem is that the producers should not add to an non empty slot and that each product should only be consumed once.
+
+%cite http://www.objectmentor.com/resources/articles/Principles_and_Patterns.pdf
+%cite clean code
 
 \clearpage
 \chapter{Algorithm}
@@ -559,10 +669,18 @@ JEIRA uses Java and Javas built-in functions for concurrency.
 
 Producer consumer pattern
 
+%strucuture picture
+
+\section{CuEira}
+%exhaustive
+
+Producer consumer pattern ?
+
 Strucuture picture here.
 
-%\section{Mine}
-%exhaustive
+%optimizations
+unrolling+padding
+compilers
 
 \chapter{Results}
 %Results (up till 15 pages including plots)
@@ -572,36 +690,48 @@ Strucuture picture here.
 %  - multy-node performance
 
 
+%What was used
+%Zorn specs
+%compiler intel 13.1
+%cmake 2.8
+%mkl 13.1
+%cuda 5.5
+
 \chapter{Discussion and Conclusions}
 %Discussion and Conclusions (up to 3 pages)
 %Need for novel methods for gene-environment interaction
-%Need for methods for third order interaction or higher, for both gene-gene and gene-environment
+%Need for methods for third order interaction and higher
 
 \chapter{Outlook}
 %Outlook (up to one page)
 
+cublas not that much harder than regular blas. A wrapper could enable simple and easy use without losing too much features.
+own kernels more than simple elemntwise, probably hard to optimize. unknowish
+
 \chapter{Appendix}
-\section{A Variables}
+\section{A List of Variables}
+
 \begin{description}
 %anything with hat is estimate
-  \item[OR]
-	Odds ratio
-	\item[$RR_{ij}$]
-	Relative risk with exposure i j?
-	\item[X]
-	Predictors
-	\item[Y]
-	The outcome, binary variable
-	\item[$\pi(x)$]
-	P(Y=1)
+\item[OR]
+  Odds ratio
+\item[$RR_{ij}$]
+  Relative risk with exposure i j?
+\item[X]
+  Predictors
+\item[Y]
+  The outcome, binary variable
+\item[$\pi(x)$]
+  P(Y=1)
 \end{description}
 
-\section{B Abbrivations}
+\section{B List of Abbrivations}
+
 \begin{description}
-  \item[MAF] \hfill \\
-	Minor allele frequency, the frequency of the least common allele.
-	\item[RF] \hfill \\
-	Random Forest
+\item[MAF] \hfill \\
+  Minor allele frequency, the frequency of the least common allele.
+\item[RF] \hfill \\
+  Random Forest
 \end{description}
 
 %List of figs

@@ -95,4 +95,23 @@ std::vector<double>* Statistics::calculateOddsRatiosHigh(const Container::HostVe
   return oddsRatiosHigh;
 }
 
+std::ostream & operator<<(std::ostream& os, const Statistics& statistics) {
+  //Print AP
+  os << statistics.ap << ", ";
+
+  //Print RERIR
+  os << statistics.reri << ", ";
+
+  //Print ORs including covariates if any
+  const int size = statistics.betaCoefficents.getNumberOfRows() - 1; //Skipping the intercept
+  for(int i = 0; i < size - 1; ++i){
+    os << (*(statistics.oddsRatios))[i] << ", " << (*(statistics.oddsRatiosLow))[i] << ", "
+        << (*(statistics.oddsRatiosHigh))[i] << ", ";
+  }
+  os << (*(statistics.oddsRatios))[size - 1] << ", " << (*(statistics.oddsRatiosLow))[size - 1] << ", "
+      << (*(statistics.oddsRatiosHigh))[size - 1];
+
+  return os;
+}
+
 } /* namespace CuEira */

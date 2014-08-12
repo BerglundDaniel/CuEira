@@ -1,6 +1,8 @@
 #ifndef SNPVECTORFACTORY_H_
 #define SNPVECTORFACTORY_H_
 
+#define ABSOLUTE_FREQUENCY_THRESHOLD 5
+
 #include <vector>
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>

@@ -184,10 +184,16 @@ TEST_F(FileIOIntegrationTest, ReadEnvironment) {
   EnvironmentFactor envFactor(id);
 
   const Container::HostVector& envData = environmentFactorHandler->getData(envFactor);
-  const std::vector<EnvironmentFactor*>& envInfo = environmentFactorHandler->getHeaders();
+  const std::vector<const EnvironmentFactor*>& envInfo = environmentFactorHandler->getHeaders();
 
   ASSERT_EQ(numberOfIndividualsToInclude, envData.getNumberOfRows());
   ASSERT_EQ(2, envInfo.size());
+
+  ASSERT_EQ(BINARY, envInfo[0]->getVariableType());
+  ASSERT_EQ(OTHER, envInfo[1]->getVariableType());
+
+  EXPECT_EQ(Id("env1"), envInfo[0]->getId());
+  EXPECT_EQ(Id("env2"), envInfo[1]->getId());
 
   EXPECT_EQ(1, envData(0));
   EXPECT_EQ(1, envData(1));

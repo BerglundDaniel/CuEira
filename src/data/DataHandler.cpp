@@ -159,4 +159,16 @@ const Container::HostVector& DataHandler::getEnvironment() const {
   return environmentVector->getRecodedData();
 }
 
+const Container::SNPVector& DataHandler::getSNPVector() const {
+  return *snpVector;
+}
+
+const Container::InteractionVector& DataHandler::getInteractionVector() const {
+  return *interactionVector;
+}
+
+const Container::EnvironmentVector& DataHandler::getEnvironmentVector() const {
+  return *environmentVector;
+}
+
 } /* namespace CuEira */

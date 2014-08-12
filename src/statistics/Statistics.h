@@ -4,6 +4,7 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
+#include <ostream>
 
 #include <DimensionMismatch.h>
 #include <HostMatrix.h>
@@ -18,6 +19,7 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class Statistics {
+  friend std::ostream& operator<<(std::ostream& os, const Statistics& statistics);
 public:
   Statistics(const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult);
   virtual ~Statistics();

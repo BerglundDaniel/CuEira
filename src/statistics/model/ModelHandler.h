@@ -30,8 +30,15 @@ public:
   ModelHandler(const StatisticsFactory& statisticsFactory, DataHandler* dataHandler);
   virtual ~ModelHandler();
 
-  bool next();
+  virtual bool next();
   virtual Statistics* calculateModel()=0;
+
+  virtual const SNP& getCurrentSNP() const;
+  virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
+
+  virtual const Container::SNPVector& getSNPVector() const;
+  virtual const Container::InteractionVector& getInteractionVector() const;
+  virtual const Container::EnvironmentVector& getEnvironmentVector() const;
 
 protected:
   enum State{

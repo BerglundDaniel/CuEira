@@ -69,4 +69,21 @@ bool SNP::operator==(const SNP& otherSNP) const {
 #endif
 }
 
+std::ostream & operator<<(std::ostream& os, const SNP& snp) {
+  //Print the id
+  os << snp.id.getString() << ", ";
+
+  //Print the risk allele name
+  if(snp.riskAllele == ALLELE_ONE){
+    os << snp.alleleOneName << ", ";
+  }else{
+    os << snp.alleleTwoName << ", ";
+  }
+
+  //Print the allele names
+  os << snp.alleleOneName << ", " << snp.alleleTwoName;
+
+  return os;
+}
+
 } /* namespace CuEira */

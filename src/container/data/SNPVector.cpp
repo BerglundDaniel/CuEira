@@ -7,8 +7,7 @@ SNPVector::SNPVector(SNP& snp, GeneticModel geneticModel, const std::vector<int>
     const std::vector<int>* numberOfAlleles, const std::vector<double>* alleleFrequencies) :
     snp(snp), numberOfIndividualsToInclude(originalSNPData->size()), originalSNPData(originalSNPData), originalGeneticModel(
         geneticModel), currentGeneticModel(geneticModel), currentRecode(ALL_RISK), alleleFrequencies(alleleFrequencies), numberOfAlleles(
-        numberOfAlleles), originalRiskAllele(snp.getRiskAllele()), currentRiskAllele(snp.getRiskAllele()), onlyFrequencies(
-        false),
+        numberOfAlleles), originalRiskAllele(snp.getRiskAllele()), onlyFrequencies(false),
 #ifdef CPU
         modifiedSNPData(
             new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude)))
@@ -23,8 +22,8 @@ SNPVector::SNPVector(SNP& snp, GeneticModel geneticModel, const std::vector<int>
 SNPVector::SNPVector(SNP& snp, const std::vector<int>* numberOfAlleles, const std::vector<double>* alleleFrequencies,
     int numberOfIndividualsToInclude) :
     snp(snp), originalSNPData(nullptr), modifiedSNPData(nullptr), numberOfAlleles(numberOfAlleles), alleleFrequencies(
-        alleleFrequencies), originalRiskAllele(snp.getRiskAllele()), currentRiskAllele(snp.getRiskAllele()), originalGeneticModel(
-        DOMINANT), currentGeneticModel(DOMINANT), currentRecode(ALL_RISK), onlyFrequencies(true), numberOfIndividualsToInclude(
+        alleleFrequencies), originalRiskAllele(snp.getRiskAllele()), originalGeneticModel(DOMINANT), currentGeneticModel(
+        DOMINANT), currentRecode(ALL_RISK), onlyFrequencies(true), numberOfIndividualsToInclude(
         numberOfIndividualsToInclude) {
 
 }
@@ -95,21 +94,18 @@ void SNPVector::recode(Recode recode) {
 }
 
 void SNPVector::recodeAllRisk() {
-  currentRiskAllele = originalRiskAllele;
   currentGeneticModel = originalGeneticModel;
-  snp.setRiskAllele(currentRiskAllele);
+  snp.setRiskAllele(originalRiskAllele);
 }
 
 void SNPVector::recodeSNPProtective() {
-  currentRiskAllele = invertRiskAllele(originalRiskAllele);
   currentGeneticModel = RECESSIVE;
-  snp.setRiskAllele(currentRiskAllele);
+  snp.setRiskAllele(invertRiskAllele(originalRiskAllele));
 }
 
 void SNPVector::recodeInteractionProtective() {
-  currentRiskAllele = invertRiskAllele(originalRiskAllele);
   currentGeneticModel = RECESSIVE;
-  snp.setRiskAllele(currentRiskAllele);
+  snp.setRiskAllele(invertRiskAllele(originalRiskAllele));
 }
 
 RiskAllele SNPVector::invertRiskAllele(RiskAllele riskAllele) {
@@ -123,6 +119,7 @@ RiskAllele SNPVector::invertRiskAllele(RiskAllele riskAllele) {
 }
 
 void SNPVector::doRecode() {
+  RiskAllele currentRiskAllele = snp.getRiskAllele();
   int* snpData0 = new int(-1);
   int* snpData1 = new int(-1);
   int* snpData2 = new int(-1);
@@ -188,6 +185,29 @@ void SNPVector::applyStatisticModel(StatisticModel statisticModel, const HostVec
     }
   }
   return;
+}
+
+std::ostream& operator<<(std::ostream& os, const Container::SNPVector& snpVector) {
+  ///Print allele numbers
+  os << (*(snpVector.numberOfAlleles))[ALLELE_ONE_CASE_POSITION] << ", "
+      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_CASE_POSITION] << ", "
+      << (*(snpVector.numberOfAlleles))[ALLELE_ONE_CONTROL_POSITION] << ", "
+      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_CONTROL_POSITION] << ", "
+      << (*(snpVector.numberOfAlleles))[ALLELE_ONE_ALL_POSITION] << ", "
+      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_ALL_POSITION] << ", ";
+
+  //Print allele frequencies
+  os << (*(snpVector.alleleFrequencies))[ALLELE_ONE_CASE_POSITION] << ", "
+      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_CASE_POSITION] << ", "
+      << (*(snpVector.alleleFrequencies))[ALLELE_ONE_CONTROL_POSITION] << ", "
+      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_CONTROL_POSITION] << ", "
+      << (*(snpVector.alleleFrequencies))[ALLELE_ONE_ALL_POSITION] << ", "
+      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_ALL_POSITION] << ", ";
+
+  //Print recode
+  os << snpVector.currentRecode;
+
+  return os;
 }
 
 } /* namespace Container */

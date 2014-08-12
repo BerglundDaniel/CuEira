@@ -39,4 +39,10 @@ bool EnvironmentFactor::operator==(const EnvironmentFactor& otherEnvironmentFact
   return id == otherEnvironmentFactor.getId();
 }
 
+std::ostream & operator<<(std::ostream& os, const EnvironmentFactor& envFactor) {
+  os << envFactor.id.getString();
+
+  return os;
+}
+
 } /* namespace CuEira */

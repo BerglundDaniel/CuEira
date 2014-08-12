@@ -2,6 +2,7 @@
 #define SNP_H_
 
 #include <sstream>
+#include <ostream>
 
 #include <RiskAllele.h>
 #include <Id.h>
@@ -15,6 +16,7 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class SNP {
+  friend std::ostream& operator<<(std::ostream& os, const SNP& snp);
 public:
   explicit SNP(Id id, std::string alleleOneName, std::string alleleTwoName, unsigned int position, bool include = true);
   virtual ~SNP();

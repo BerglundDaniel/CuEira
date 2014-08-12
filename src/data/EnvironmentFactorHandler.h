@@ -21,13 +21,14 @@ public:
   EnvironmentFactorHandler(Container::HostMatrix* dataMatrix, std::vector<EnvironmentFactor*>* environmentFactors);
   virtual ~EnvironmentFactorHandler();
 
-  virtual const std::vector<EnvironmentFactor*>& getHeaders() const;
+  virtual const std::vector<const EnvironmentFactor*>& getHeaders() const;
   virtual const Container::HostVector& getData(const EnvironmentFactor& environmentFactor) const;
   virtual int getNumberOfIndividualsToInclude() const;
 
 private:
   Container::HostMatrix* dataMatrix;
   std::vector<EnvironmentFactor*>* environmentFactors;
+  std::vector<const EnvironmentFactor*> constEnvironmentFactors;
   const int numberOfColumns;
   const int numberOfIndividualsToInclude;
 };

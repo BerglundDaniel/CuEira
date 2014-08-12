@@ -80,7 +80,7 @@ TEST_F(EnvironmentFactorHandlerTest, FactorVariableTypes) {
 
   EnvironmentFactorHandler environmentFactorHandler(dataMatrix, environmentFactors);
 
-  const std::vector<EnvironmentFactor*>& envFactorsOut = environmentFactorHandler.getHeaders();
+  const std::vector<const EnvironmentFactor*>& envFactorsOut = environmentFactorHandler.getHeaders();
 
   EXPECT_EQ(BINARY, envFactorsOut[0]->getVariableType());
   EXPECT_EQ(OTHER, envFactorsOut[1]->getVariableType());

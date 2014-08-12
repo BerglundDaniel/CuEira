@@ -51,6 +51,10 @@ public:
   virtual const Container::HostVector& getInteraction() const;
   virtual const Container::HostVector& getEnvironment() const;
 
+  virtual const Container::SNPVector& getSNPVector() const;
+  virtual const Container::InteractionVector& getInteractionVector() const;
+  virtual const Container::EnvironmentVector& getEnvironmentVector() const;
+
 protected:
   DataHandler(); //For the mock
 

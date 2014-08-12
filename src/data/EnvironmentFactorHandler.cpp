@@ -5,7 +5,8 @@ namespace CuEira {
 EnvironmentFactorHandler::EnvironmentFactorHandler(Container::HostMatrix* dataMatrix,
     std::vector<EnvironmentFactor*>* environmentFactors) :
     dataMatrix(dataMatrix), environmentFactors(environmentFactors), numberOfColumns(environmentFactors->size()), numberOfIndividualsToInclude(
-        dataMatrix->getNumberOfRows()) {
+        dataMatrix->getNumberOfRows()), constEnvironmentFactors(environmentFactors->size())
+{
 
   if(dataMatrix->getNumberOfColumns() != environmentFactors->size()){
     std::ostringstream os;
@@ -33,6 +34,10 @@ EnvironmentFactorHandler::EnvironmentFactorHandler(Container::HostMatrix* dataMa
     }else{
       environmentFactor->setVariableType(OTHER);
     }
+
+    //Set the factor in the constFactor vector
+    constEnvironmentFactors[i] = environmentFactor;
+
   } // for i
 
 }
@@ -49,8 +54,8 @@ int EnvironmentFactorHandler::getNumberOfIndividualsToInclude() const {
   return numberOfIndividualsToInclude;
 }
 
-const std::vector<EnvironmentFactor*>& EnvironmentFactorHandler::getHeaders() const {
-  return *environmentFactors;
+const std::vector<const EnvironmentFactor*>& EnvironmentFactorHandler::getHeaders() const {
+  return constEnvironmentFactors;
 }
 
 const Container::HostVector& EnvironmentFactorHandler::getData(const EnvironmentFactor& environmentFactor) const {

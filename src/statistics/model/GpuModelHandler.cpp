@@ -38,6 +38,7 @@ Statistics* GpuModelHandler::calculateModel() {
 
   logisticRegressionConfiguration.setInteraction(*interactionData);
   LogisticRegression::LogisticRegressionResult* logisticRegressionResult = logisticRegression->calculate();
+  CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
 
   Recode recode = logisticRegressionResult->calculateRecode();
   if(recode != ALL_RISK){
@@ -50,6 +51,7 @@ Statistics* GpuModelHandler::calculateModel() {
     //Calculate again
     delete logisticRegressionResult;
     logisticRegressionResult = logisticRegression->calculate();
+    CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
   }
 
   return statisticsFactory.constructStatistics(logisticRegressionResult);

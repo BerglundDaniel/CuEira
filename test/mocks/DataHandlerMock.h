@@ -8,6 +8,9 @@
 #include <HostVector.h>
 #include <EnvironmentFactor.h>
 #include <Recode.h>
+#include <SNPVector.h>
+#include <InteractionVector.h>
+#include <EnvironmentVector.h>
 
 namespace CuEira {
 
@@ -28,6 +31,9 @@ public:
   MOCK_CONST_METHOD0(getSNP, const Container::HostVector&());
   MOCK_CONST_METHOD0(getInteraction, const Container::HostVector&());
   MOCK_CONST_METHOD0(getEnvironment, const Container::HostVector&());
+  MOCK_CONST_METHOD0(getSNPVector, const Container::SNPVector&());
+  MOCK_CONST_METHOD0(getInteractionVector, const Container::InteractionVector&());
+  MOCK_CONST_METHOD0(getEnvironmentVector, const Container::EnvironmentVector&());
 
   MOCK_METHOD0(next, bool());
   MOCK_METHOD1(recode, void(Recode));

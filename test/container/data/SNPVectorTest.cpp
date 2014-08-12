@@ -283,7 +283,7 @@ TEST_F(SNPVectorTest, DoRecodeDominantAlleleOne) {
   std::vector<double>* alleleFrequencies = new std::vector<double>(6);
 
   SNPVector snpVector(snp1, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
-  snpVector.currentRiskAllele = ALLELE_TWO;
+  snp1.setRiskAllele(ALLELE_TWO);
   snpVector.doRecode();
   const HostVector& recodedData = snpVector.getRecodedData();
 
@@ -307,7 +307,7 @@ TEST_F(SNPVectorTest, DoRecodeDominantAlleleTwo) {
   std::vector<double>* alleleFrequencies = new std::vector<double>(6);
 
   SNPVector snpVector(snp, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
-  snpVector.currentRiskAllele = ALLELE_ONE;
+  snp.setRiskAllele(ALLELE_ONE);
   snpVector.doRecode();
   const HostVector& recodedData = snpVector.getRecodedData();
 
@@ -331,7 +331,7 @@ TEST_F(SNPVectorTest, DoRecodeRecessiveAlleleOne) {
   std::vector<double>* alleleFrequencies = new std::vector<double>(6);
 
   SNPVector snpVector(snp1, RECESSIVE, originalSNPData, numberOfAlleles, alleleFrequencies);
-  snpVector.currentRiskAllele = ALLELE_TWO;
+  snp1.setRiskAllele(ALLELE_TWO);
   snpVector.doRecode();
   const HostVector& recodedData = snpVector.getRecodedData();
 
@@ -355,7 +355,7 @@ TEST_F(SNPVectorTest, DoRecodeRecessiveAlleleTwo) {
   std::vector<double>* alleleFrequencies = new std::vector<double>(6);
 
   SNPVector snpVector(snp, RECESSIVE, originalSNPData, numberOfAlleles, alleleFrequencies);
-  snpVector.currentRiskAllele = ALLELE_ONE;
+  snp.setRiskAllele(ALLELE_ONE);
   snpVector.doRecode();
   const HostVector& recodedData = snpVector.getRecodedData();
 

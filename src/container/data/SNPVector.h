@@ -7,9 +7,9 @@
 #define ALLELE_TWO_CONTROL_POSITION 3
 #define ALLELE_ONE_ALL_POSITION 4
 #define ALLELE_TWO_ALL_POSITION 5
-#define ABSOLUTE_FREQUENCY_THRESHOLD 5
 
 #include <vector>
+#include <ostream>
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
 
@@ -37,6 +37,7 @@ class SNPVectorTest;
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class SNPVector {
+  friend std::ostream& operator<<(std::ostream& os, const Container::SNPVector& snpVector);
   friend SNPVectorTest;
   FRIEND_TEST(SNPVectorTest, DoRecodeDominantAlleleOne);
   FRIEND_TEST(SNPVectorTest, DoRecodeDominantAlleleTwo);
@@ -78,7 +79,6 @@ private:
   SNP& snp;
   const std::vector<int>* numberOfAlleles;
   const std::vector<double>* alleleFrequencies;
-  RiskAllele currentRiskAllele;
   GeneticModel currentGeneticModel;
   const RiskAllele originalRiskAllele;
   const GeneticModel originalGeneticModel;

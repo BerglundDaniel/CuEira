@@ -116,7 +116,7 @@ TEST_F(EnvironmentCSVReaderTest, ReadAndGetData) {
   PRECISION column2[numberOfIndividualsToIncludeStatic] = {3, 1, 1, 3, 0, 3};
 
   EnvironmentFactorHandler* envFactorHandler = envCSVReader.readEnvironmentFactorInformation(personHandlerMock);
-  const std::vector<EnvironmentFactor*>& envInfo = envFactorHandler->getHeaders();
+  const std::vector<const EnvironmentFactor*>& envInfo = envFactorHandler->getHeaders();
 
   const Container::HostVector& dataVector1 = envFactorHandler->getData(*envInfo[0]);
 
@@ -154,7 +154,7 @@ TEST_F(EnvironmentCSVReaderTest, GetEnvironmentFactorsInfo) {
   CuEira::FileIO::EnvironmentCSVReader envCSVReader(filePath, idColumnName, delimiter);
 
   EnvironmentFactorHandler* envFactorHandler = envCSVReader.readEnvironmentFactorInformation(personHandlerMock);
-  const std::vector<EnvironmentFactor*>& envInfo = envFactorHandler->getHeaders();
+  const std::vector<const EnvironmentFactor*>& envInfo = envFactorHandler->getHeaders();
 
   ASSERT_EQ(numberOfColumns, envInfo.size());
 

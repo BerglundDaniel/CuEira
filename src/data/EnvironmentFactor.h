@@ -1,6 +1,8 @@
 #ifndef ENVIRONMENTFACTOR_H_
 #define ENVIRONMENTFACTOR_H_
 
+#include <ostream>
+
 #include <Id.h>
 #include <VariableType.h>
 
@@ -12,6 +14,7 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class EnvironmentFactor {
+  friend std::ostream& operator<<(std::ostream& os, const EnvironmentFactor& envFactor);
 public:
   EnvironmentFactor(Id id);
   virtual ~EnvironmentFactor();

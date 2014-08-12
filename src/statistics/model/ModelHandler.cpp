@@ -39,5 +39,25 @@ bool ModelHandler::next() {
   return true;
 }
 
+const SNP& ModelHandler::getCurrentSNP() const {
+  return dataHandler->getCurrentSNP();
+}
+
+const EnvironmentFactor& ModelHandler::getCurrentEnvironmentFactor() const {
+  return dataHandler->getCurrentEnvironmentFactor();
+}
+
+const Container::SNPVector& ModelHandler::getSNPVector() const {
+  return dataHandler->getSNPVector();
+}
+
+const Container::InteractionVector& ModelHandler::getInteractionVector() const {
+  return dataHandler->getInteractionVector();
+}
+
+const Container::EnvironmentVector& ModelHandler::getEnvironmentVector() const {
+  return dataHandler->getEnvironmentVector();
+}
+
 } /* namespace Model */
 } /* namespace CuEira */

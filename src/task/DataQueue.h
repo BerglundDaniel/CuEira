@@ -19,16 +19,14 @@ namespace Task {
  */
 class DataQueue {
 public:
-  DataQueue(std::vector<SNP*>* snpQueue);
+  DataQueue(std::vector<SNP*> snpQueue);
   virtual ~DataQueue();
 
   bool hasNext();
   SNP* next();
 
 private:
-  std::vector<SNP*>* snpQueue;
-
-  SNP* currentSNP;
+  std::vector<SNP*> snpQueue;
 };
 
 } /* namespace Task */

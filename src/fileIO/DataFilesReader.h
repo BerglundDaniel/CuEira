@@ -19,6 +19,7 @@
 #include <EnvironmentFactor.h>
 #include <PersonHandler.h>
 #include <EnvironmentFactorHandler.h>
+#include <FileReaderException.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -32,6 +33,7 @@ class DataFilesReader {
 public:
   explicit DataFilesReader(BimReader* bimReader, FamReader* famReader, EnvironmentCSVReader* environmentCSVReader,
       CSVReader* covariateCSVReader);
+  explicit DataFilesReader(BimReader* bimReader, FamReader* famReader, EnvironmentCSVReader* environmentCSVReader);
   virtual ~DataFilesReader();
 
   std::pair<Container::HostMatrix*, std::vector<std::string>* >* readCovariates(const PersonHandler& personHandler) const;
@@ -40,6 +42,7 @@ public:
   EnvironmentFactorHandler* readEnvironmentFactorInformation(const PersonHandler& personHandler) const;
 
 private:
+  bool useCovariates;
   BimReader* bimReader;
   FamReader* famReader;
   EnvironmentCSVReader* environmentCSVReader;

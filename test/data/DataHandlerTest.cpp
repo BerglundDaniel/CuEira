@@ -113,7 +113,7 @@ void DataHandlerTest::SetUp() {
     (*snpQueue)[i] = (*snpStore)[i];
   }
 
-  dataQueue = new Task::DataQueue(snpQueue);
+  dataQueue = new Task::DataQueue(*snpQueue);
 }
 
 void DataHandlerTest::TearDown() {
@@ -123,6 +123,7 @@ void DataHandlerTest::TearDown() {
 
   delete snpStore;
   delete dataQueue;
+  delete snpQueue;
 }
 
 #ifdef DEBUG

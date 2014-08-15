@@ -87,7 +87,8 @@ int main(int argc, char* argv[]) {
   std::cerr << "m9" << std::endl;
   CUDA::HostToDevice hostToDevice(cudaStream);
   CUDA::DeviceToHost deviceToHost(cudaStream);
-  Container::DeviceVector* deviceOutcomes = hostToDevice.transferVector(&personHandler->getOutcomes());
+  Container::DeviceVector* deviceOutcomes = hostToDevice.transferVector(&(personHandler->getOutcomes()));
+  CUDA::handleCudaStatus(cudaGetLastError(), "Error transferring outcomes to device in main: ");
   std::cerr << "m10" << std::endl;
   CUDA::KernelWrapper kernelWrapper(cudaStream, cublasHandle);
 
@@ -95,10 +96,10 @@ int main(int argc, char* argv[]) {
   std::cerr << "m11" << std::endl;
   if(configuration.covariateFileSpecified()){
     logisticRegressionConfiguration = new Model::LogisticRegression::LogisticRegressionConfiguration(configuration,
-        hostToDevice, *deviceOutcomes, kernelWrapper);
+        hostToDevice, *deviceOutcomes, kernelWrapper, *covariates);
   }else{
     logisticRegressionConfiguration = new Model::LogisticRegression::LogisticRegressionConfiguration(configuration,
-        hostToDevice, *deviceOutcomes, kernelWrapper, *covariates);
+        hostToDevice, *deviceOutcomes, kernelWrapper);
   }
   std::cerr << "m12" << std::endl;
   Model::LogisticRegression::LogisticRegression* logisticRegression = new Model::LogisticRegression::LogisticRegression(

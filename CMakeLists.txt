@@ -25,7 +25,7 @@ option(VERBOSE "Set CMake and compilation to verbose" on) #FIXME Change to off l
 set(PRECISION single) #single or double
 #set(TARGET_ARCHITECTURE fermi) #fermi or kepler
 option(CPU "Use CPU only" off)
-option(CLUSTER "Use cluster" off)
+option(CLUSTER "Use cluster" off) #FIXME not implemented
 option(ENABLE_MKL "Enable MKL flag" on)
 
 #Set things based on options
@@ -54,6 +54,7 @@ add_definitions(-DCuEira_BUILD_DIR="${TEST_DATA_DIR}")
 #IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
   MESSAGE( STATUS "Debug build." )
   add_definitions(-DDEBUG=1)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 #endif (CMAKE_BUILD_TYPE MATCHES DEBUG)
 
 if(${PRECISION} MATCHES single)

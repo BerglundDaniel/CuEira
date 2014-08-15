@@ -60,8 +60,8 @@ InteractionVectorTest::InteractionVectorTest() :
 #endif
 {
   for(int i = 0; i < numberOfIndividuals; ++i){
-    (*envData)(i) = 0;
-    (*snpData)(i) = 0;
+    (*envData)(i) = 0.1;
+    (*snpData)(i) = i;
 
     interact[i] = (*envData)(i) * (*snpData)(i);
   }

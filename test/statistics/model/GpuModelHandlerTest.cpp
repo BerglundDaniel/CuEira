@@ -18,12 +18,7 @@
 #include <Statistics.h>
 #include <StatisticsFactoryMock.h>
 
-#ifdef CPU
-#include <lapackpp/lavd.h>
-#include <LapackppHostVector.h>
-#else
 #include <PinnedHostVector.h>
-#endif
 
 using testing::Return;
 using testing::ReturnRef;

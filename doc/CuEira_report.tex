@@ -9,7 +9,7 @@
 \usepackage{courier}
 \usepackage[T1]{fontenc}
 \usepackage[titles]{tocloft}
-\usepackage{subfig}
+\usepackage{subcaption}
 
 \setcounter{secnumdepth}{5}
 \setlength{\parindent}{0in}
@@ -89,12 +89,12 @@ GWAS are usually either cohort or case-control. In cohort studies a healthy samp
 The genetic markers are commonly single-nucleotide polymorphisms(SNPs). SNPs are variations in the genome where a single nucleotide is different between individuals in a population\cite{fareed_snp}. Environmental factors can be various things such as smoking, physical activity and so on. The amount of data to handle usually consists of thousands individuals and hundred thousands or millions of SNPs. Due to the high number of SNPs few algorithms are capable to investigate more than second order interaction in a reasonable time. There are some algorithms that can handle higher interaction orders however these have drawbacks\cite{gwis,high_order_2012,fast_high_order_cluster}.
 
 \section{GEIRA and JEIRA}
-\emph{GEIRA} is a tool for analysing gene-gene and gene-environment interaction. It uses logistic regression and causal interaction\cite{geira}. \emph{JEIRA} is a parallelized implementation of the environmental interaction analysis in GEIRA. However it can only be run on one node.
+\emph{GEIRA} is a tool for analysing gene-gene and gene-environment interaction. It uses logistic regression and causal interaction\cite{geira}. \emph{JEIRA} is a parallel implementation of the environmental interaction analysis in GEIRA.
 
 %TODO something about GEISA
 
 \section{Defining Interaction}
-There are several ways to define interaction. The overall goal is usually to find if \emph{biological} interactions are present. \emph{Biological} interaction is when the factors co-operate through a physiological or biological mechanism and causes the effect, eg. disease. This information can be used to explain the mechanisms involved in causing the disease and possibly help to find cures for them. However biological interaction is not well defined and thus it is not possible to calculate it directly from data.\cite{rothman1998modern,rothman2002intro_epidemiology}\\
+There are several ways to define interaction. The overall goal is usually to find if \emph{biological} interactions are present. \emph{Biological} interaction is when the factors co-operate through a physiological or biological mechanism and causes the effect, e.g. disease. This information can be used to explain the mechanisms involved in causing the disease and possibly help to find cures for them. However biological interaction is not well defined and thus it is not possible to calculate it directly from data.\cite{rothman1998modern,rothman2002intro_epidemiology}\\
 \\
 \emph{Statistical} interaction on the other hand is well defined. However it is scale dependent, ie. interactions can appear and disappear based on transformations of the data. Statistical interaction also depends on the used model. The common way to define statistical interaction is to consider the presence of a product term between the variables in the statistical model, this is referred to as \emph{multiplicative} interaction. For instance for a linear model
 \begin{equation}
@@ -106,7 +106,7 @@ It can also be defined as the divergence from additive effects on a logarithmic 
 \begin{equation}
 OR_{both\:factors\:present}>OR_{first\:factor\:present}+OR_{second\:factor\:present}-1
 \end{equation}
-It is called additive interaction. It implies biological interaction as defined by Rothman, which is sometimes called \emph{causual interdependence} or \emph{causal interaction}.\cite{rothman1998modern}
+It is called additive interaction. It implies biological interaction as defined by Rothman, which is sometimes called \emph{causal interdependence} or \emph{causal interaction}.\cite{rothman1998modern}
 
 \clearpage
 \chapter{Background}
@@ -125,7 +125,7 @@ SNPs are commonly binary variables with either dominant or recessive models. Dom
 \\
 Environmental factors can be of any type\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variable to be binary or have other problems since they weren't designed for environmental interaction.\cite{gene_enviroment_2013}\\
 \\
-\emph{Exhaustive search} is the most direct approach, it compares all combinations of the SNPs in the data. Exhaustive search methods will not miss a signficant combination because it didn't considere it however it also means that they can bee slow. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and BOOST\cite{boost_gene_gene} are two examples of this type of algorithm.\\
+\emph{Exhaustive search} is the most direct approach, it compares all combinations of the SNPs in the data. Exhaustive search methods will not miss a significant combination because it didn't consider it however it also means that they can be slow. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and BOOST\cite{boost_gene_gene} are two examples of this type of algorithm.\\
 \\
 \emph{Stochastic} methods uses random sampling to ``walk'' through the data. BEAM\cite{beam_2007} is one example and it uses Markov Chain Monte Carlo(MCMC) method.\\
 \\
@@ -149,12 +149,12 @@ It is not uncommon to test a lot of hypothesis on the same data and in the case 
 Bonferroni correction is the simplest and viewed as the most conservative way to correct for this problem. It simply divides the p-value threshold that a test passes by the number of hypothesis. However the number of hypothesis made is not always clear. With a two-stage analysis, is the number of hypothesis the number of tests done in both stages combined, the number made in the first stage or the second stage?\cite{bonferroni_multiple}
 
 \subsection{Contingency Tables}
-A contingency table is a matrix used to describe categorical data. Each cell contains the frequency of occurrences with a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 3 table. From this table we can for instance see that 171 persons that got the placebo had a nonfatal attack. Contingency tables are the basis for various statistical tests to model the data. Contingency tables can be used directly for tests like $chi^2$.\cite{agresti_categorical}
+A contingency table is a matrix used to describe categorical data. Each cell contains the frequency of occurrences with a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 3 table. From this table we can for instance see that 171 persons that got the placebo had a non-fatal attack. Contingency tables are the basis for various statistical tests to model the data. Contingency tables can be used directly for tests like $chi^2$.\cite{agresti_categorical}
 
 \begin{table}[h]
 \begin{tabular}{ l c c c }
   \hline
-  & Fatal Attack & Nonfatal Attack & No Attack\\
+  & Fatal Attack & Non-fatal Attack & No Attack\\
   \hline
   Placebo & 18 & 171 & 10 845 \\
   Aspirin & 5 & 99 & 10 933 \\
@@ -164,8 +164,8 @@ A contingency table is a matrix used to describe categorical data. Each cell con
 \label{table:contingency_table}
 \end{table}
 
-\subsection{Logisitic Regression}
-One way to model the contigency tables is by using logistic regression. Logistic regression is a type of linear regression model for classification that models a latent probability for the outcomes. The outcomes are commonly considred binary, however it can be extended to multiple outcomes. In this work we will only consider them as binary. Logistic regression transforms the probability by using the \emph{logit} transformation. The logit transformation with probability \emph{p} is 
+\subsection{Logistic Regression}
+One way to model the contingency tables is by using logistic regression. Logistic regression is a type of linear regression model for classification that models a latent probability for the outcomes. The outcomes are binary, however the method can be extended to multiple outcomes. In this work we will only consider them as binary. Logistic regression transforms the probability by using the \emph{logit} transformation. The logit transformation with probability \emph{p} is 
 
 \begin{equation}
 log(\frac{p}{1-p})
@@ -178,14 +178,14 @@ The probability with a set of predictor variables \emph{X} is $\pi(X)=P(Y=1)$. T
 logit[\pi(X)]=\alpha+\beta_1 x_1+\beta_2 x_2+...+\beta_n x_n
 \end{equation}
 
-If move the logit to the right side we get the moddelling of the probability
+If move the logit to the right side we get the modelling of the probability
 \begin{equation}
 \pi(X)=\frac{exp(\alpha+\beta_1 x_1+\beta_2 x_2+...+\beta_n x_n)}{1+exp(\alpha+\beta_1 x_1+\beta_2 x_2+...+\beta_n x_n}
 \end{equation}
 
-Finding the coefficents are done in a similar way as other linear regression models since they all are generalized linear models. It's done using  maximum likelihood(ML), often via Newtons method.
+Finding the coefficients are done in a similar way as other linear regression models since they all are generalized linear models. It's done using  maximum likelihood(ML), often via Newtons method.
 
-It's an iterattive method which means it is slow compared to non iterative mehtods. Logistic regression as most other methods for interaction assumes independecne between the variables.
+It's an iterative method which means it is slow compared to non iterative methods. Logistic regression as most other methods for interaction assumes independence between the variables.
 
 \subsubsection{Statistic Measures}
 There are various statistical measures of interest that we can calculate from the logistic regression model.\\
@@ -196,14 +196,14 @@ The odds is ?
 
 In binary case it simplifies to the increased odds when exposed.
 
-An odds ratio of one means the the odds and therefore the odds is the same whetever exposed or not. An odds ratio below one means that the odds of being affected is lower when exposed and if the odds ratio is above one it means that the odds is increased. In the case when the outcome is an disease or similar we call variables with odds ratio below one \emph{protective} and when it is above one it is a \emph{risk factor}.
+An odds ratio of one means the the odds and therefore the odds is the same whether exposed or not. An odds ratio below one means that the odds of being affected is lower when exposed and if the odds ratio is above one it means that the odds is increased. In the case when the outcome is an disease or similar variables with odds ratio below one are called \emph{protective} and when it is above one it is a \emph{risk factor}.
 
 Relative risk(RR)
 \begin{equation}
 RR=\frac{p_{event\:when\:exposed}}{p_{event\:when\:not\:exposed}}
 \end{equation}
 
-RR can not be esitmaded in case control since it requires the prevalence in whole population which you need cohort studies to find. In case control it is approximate with OR.
+RR can not be estimated in case control since it requires the prevalence in whole population which you need cohort studies to find. In case control it is approximate with OR.
 
 Relative  excess risk due to interaction(RERI) is
 \begin{equation}
@@ -230,15 +230,23 @@ Lack of interaction shows in the values by
 AP=0
 SI=1
 
+\subsubsection{Minor Allele Frequency and Risk Allele}
+%TODO
+\emph{Minor allele frequency}(MAF) is the frequency of the least common allele. If it is too low an analysis will be of little value, 5\% is usually used as the threshold. The same problem occurs if the absolute number is too low.
+
+The \emph(risk allele) is the allele that is most frequent in cases but also more frequent in cases than controls
+
 \subsubsection{Coding the interaction variable}
 %TODO
-For the interaction
+To represent the interaction in the model there needs to be a variable that holds the information. This value depends on the chosen model for interaction as discussed in ?.
 
 %math stuff for mult
 
 %math stuff for add
 
-However there is a problem when there is multiple categories in both variables. In short it's becase of how OR works and that the categories for LR become rated in increased or decreased order, that is how the categories are labeled matters. Say three locations, code as 1,2,3 or 2,1,3 matters. 
+However there is a problem when there is multiple categories in both variables. 
+
+In short it's becase of how OR works and that the categories for LR become rated in increased or decreased order, that is how the categories are labeled matters. Say three locations, code as 1,2,3 or 2,1,3 matters. 
 
 There is two cases, 
 one were we don't know any severness or whatever, say locations
@@ -253,8 +261,7 @@ Why occurs due to how OR works
 
 However in our case we know that the gene is binary under dominat or recessive model. So we can just multiply. However means we can't use co-domiant model.
 
-Dummy variables
-Stratification
+There are ways around it by using dummy variables or stratification but that will decease statistical power.
 
 \subsubsection{Recoding}
 %TODO ask Henrik about refrences and why etc
@@ -266,9 +273,9 @@ Approaches based on Data Mining and Machine Learning have been a popular choice 
 Their biggest advantage is that they are usually nonparametric and designed with high dimensional data in mind. However they are prone to overfitting and the usual way to try to prevent that is to use cross validation and sometimes permutation tests. It means that even if the method itself is fast it is repeated so many times that the whole algorithm can be slow in the end.\cite{cordell_detect_review}
 
 \subsubsection{Multifactor-Dimensionality Reduction}
-Multifactor-Dimensionality Reduction(MDR) is a method that reduces the number of dimensions by combining several dimensions into one. For GWAS it combines a number of variables from all the variable combinations and its new dimension is then compared against the outcome. If its predictability is high then the variables that were combined are considered to interact with each other. MDR repeates the process on all combinations of variables. It combines the selected n variables by calculating the ratio of cases versus controls for each combination of the possible values of the variables. If the ratio is above a certain threshold all the members of that groups is gets the value 1 for the new dimension, otherwise 0. However due to the cross validation and permutation tests this method can be slow. On the other hand it is still faster than exhaustive search with regression methods.\cite{cordell_detect_review,mdr_2001}\\
+Multifactor-Dimensionality Reduction(MDR) is a method that reduces the number of dimensions by combining several dimensions into one. For GWAS it combines a number of variables from all the variable combinations and its new dimension is then compared against the outcome. If its predictability is high then the variables that were combined are considered to interact with each other. MDR repeats the process on all combinations of variables. It combines the selected n variables by calculating the ratio of cases versus controls for each combination of the possible values of the variables. If the ratio is above a certain threshold all the members of that groups is gets the value 1 for the new dimension, otherwise 0. However due to the cross validation and permutation tests this method can be slow. On the other hand it is still faster than exhaustive search with regression methods.\cite{cordell_detect_review,mdr_2001}\\
 \\
-An simple example of MDR using exclusive or(XOR). XOR is an logical operator that is true if one and only one of its two variables is true. We have 4 possible combinations and an occurrence for each of them. The combination (1,0) and (0,1) both have one case with outcome 1 so MDR will classify them as 1 in the new variable Z. The other two combinations have outcome 0 so will be classified with Z=0. From here it is easy to make an predictor from Z to the outcome Y by comparining the values.
+An simple example of MDR using exclusive or(XOR). XOR is an logical operator that is true if one and only one of its two variables is true. We have 4 possible combinations and an occurrence for each of them. The combination (1,0) and (0,1) both have one case with outcome 1 so MDR will classify them as 1 in the new variable Z. The other two combinations have outcome 0 so will be classified with Z=0. From here it is easy to make an predictor from Z to the outcome Y by comparing the values.
 
 \begin{table}[h]
 \begin{tabular}{ | c | c | c | }
@@ -316,7 +323,8 @@ Decision tree figure here
 
 \clearpage
 \section{Computer Architecture}
-Most computers today have a multi-core architecture
+Most computers today have a multi-core architecture, e.g. their CPUs have multiple cores.
+
 means several processors share the main memory and other resources. they can cooperate on the same problem but it they are coordinated on a case by case basis since each algorithm requires different sharing.
 
 Von Neumann architecture
@@ -344,9 +352,11 @@ As you can see most of it is not used for calculations. A large part of the area
 
 branch prediction
 
-\subsection{Caching and Other Optimization}
+\subsection{Caching and Memory}
 %TODO
 The CPU optimzation that is most important to know for programmers is caching because it affect the way the code has to be written and the diffrence between using it correctly and not is huge.
+
+%correct vs incorrect matrix, element operations
 
 %aliasing
 It happens when two pointers point to the same place in memory and the code does operations on them at the same place. This means that operations that look like they can be done in any order actually can't and thus prevents the compiler to make optimizations. The problem is that the compiler has to take this in to account for all pointers even if no aliasing occurs because it might happen.
@@ -355,7 +365,7 @@ It happens when two pointers point to the same place in memory and the code does
 
 \subsection{Concurrency and Threads}
 %TODO
-concurrency what is it
+\emph{concurrency} what is it
 
 doing multiple things and the same time, instead of \emph{sequential}
 
@@ -363,9 +373,45 @@ dinning philosphers
 
 in computer science, instructions seperated in threads
 
-SIMD
+The architectures can be divided into groups. The non parallelized is \emph{SISD}(Single-Instruction,Single-Data) and is what the name says, single instructions on single data.
+\emph{SIMD}(Single-Instruction, Multiple-Data) is applying the same instruction on different data. SIMD is also called vectorisation.
+\emph{MIMD}(Multiple-Instruction, Multiple-Data) applies different instructions on different data.
 
-MIMD
+There is also \emph{MISD}(Multiple-Instruction, Single-Data) but it is uncommon. It performs different operations at the same time on a piece of data.
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.4\textwidth}
+                \includegraphics[width=\textwidth]{SISD}
+                \caption{SISD}
+                \label{fig:SISD}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.4\textwidth}
+                \includegraphics[width=\textwidth]{MISD}
+                \caption{MISD}
+                \label{fig:MISD}
+        \end{subfigure}
+
+        \begin{subfigure}[b]{0.4\textwidth}
+                \includegraphics[width=\textwidth]{SIMD}
+                \caption{SIMD}
+                \label{fig:SIMD}
+        \end{subfigure}
+        ~
+        \begin{subfigure}[b]{0.4\textwidth}
+                \includegraphics[width=\textwidth]{MIMD}
+                \caption{MIMD}
+                \label{fig:MIMD}
+        \end{subfigure}
+        \caption{Flynns taxamony}\label{fig:flynn}
+\end{figure}
+
+\emph{Deadlocks} occur when two or more threads wait for the other to finish, since they are all stucking in waiting the program will not progress.
+
+A \emph{race condition} occurs when the result depends on which threads affects it first. Due to the nature of how parallelism works the output can vary between different runs of the program depending on which thread is fastest.
+
+\emph{Locks} are used to prevent situtions as the ones described above by making sure only one thread at a time can change the data in question.
 
 \cite{introduction_hpc_hager}
 
@@ -391,6 +437,8 @@ still need vectorisation and other stuff
 you end up with similar problems as gpu, though probably easier to use
 
 structure of mic
+
+Most CPUs have a marginal decrease in performance when using double precision instead of single. GPUs lose much more. %TODO
 
 \subsection{Which program for GPU and which for CPU?}
 \label{gpu_gwas}
@@ -438,7 +486,7 @@ These blocks can be executed in any order so depending on the number of streamin
 \begin{figure}[h]
     \centering
     \includegraphics[width=10cm]{automatic-scalability.png}
-    \caption{Text abou blocks. Need to make a black white verison}
+    \caption{Text abou blocks. Need to make a black white version}
     \label{fig:blocks_scaling}
 \end{figure}
 
@@ -457,7 +505,7 @@ each block also share some memory, see efficient cuda part or the cuda programmi
     \label{fig:grid_2d}
 \end{figure}
 
-The streaming multiprocessors can execute hundreds of threads concurrently, it uses \emph{SIMT}(Single-Instruction, Multiple-Thread).
+The streaming multiprocessors can execute hundreds of threads concurrently, it uses \emph{SIMT}(Single-Instruction, Multiple-Thread). It is similar to SIMD but there are some differences.
 It executes on groups of 32 threads called warps
 when an SM gets a number of blocks they are split into warps that are assigned to warp schedulers
 each warp scheduler gives one instruction to the whole warp so full efficiency is achieved when all 32 threads do the same instruction. if there is any divergence it has to disable unrelated threads, so divergence is costly. different warps can diverge without problem
@@ -466,7 +514,7 @@ since the GPUs memory is physically on a different device, the \emph{host} and \
 
 %shared memory and other memory types, here or in efficient cuda?
 
-The kernel calls can be made on a stream. By default a kernel is executed on the null stream. The easiest way to think of the stream is as queue, the kernels on a stream will be executed in the order they are made but different kernels from different streams can be executed in any order and if there are resouraces enough at the same time. In this way it is possible to execute up to 32 concurrent kernels depending on GPU.
+The kernel calls can be made on a stream. By default a kernel is executed on the null stream. The easiest way to think of the stream is as queue, the kernels on a stream will be executed in the order they are made but different kernels from different streams can be executed in any order and if there are resources enough at the same time. In this way it is possible to execute up to 32 concurrent kernels depending on GPU.
 
 Streams are important for asynchronous transfers. These transfers are executed on a stream and just as kernels gets executed after the previous kernels on the same stream is done. And as with the kernels the transfer on one stream can happen . This however depends on the number of copy engies and kernel engines. Some older GPUs have one copy engine and one kernel engine. Newer ones have one copy engine for device to host and one for host to device. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers.
 
@@ -475,14 +523,12 @@ Streams are important for asynchronous transfers. These transfers are executed o
 CUBLAS is provides blas functions for cuda.
 can also be run concurrently with streams
 
-%single vs double precision
-
 As already mentioned different architectures and even different GPUs differ how they work. Make sure to lookup the different specifics and read the guides for the relevant architecture. NVIDIA uses something called computational capability. It ranges from 1.0, 2.0, 3.0, 3.5 and 5.0. The higher the number the more functions. 1.0 and 2.0 lack some of the things described here.
 
 \cite{cuda}
 
 \subsubsection{Efficient CUDA}
-One of the main criticism against GPUs for general computing purposes is that it is hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. Here are somethings that needs to be considered when writing GPU programs.\cite{plink_gpu, cuda, cuda_best_practice}
+One of the main criticism against GPUs for general computing purposes is that it is hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. Here are some things that needs to be considered when writing GPU programs.\cite{plink_gpu, cuda, cuda_best_practice}
 \\
 \begin{description}
   \item[Maximize parallelism] \hfill \\
@@ -490,13 +536,13 @@ One of the main criticism against GPUs for general computing purposes is that it
   \item[Minimize transfers between host and device] \hfill \\
   Moving data between host and device is expensive and should be avoided if possible. It can be better to run serial parts on the GPU rather than moving the data to the host to do the calculation on the CPU. The bandwidth between host and device is one of the large performance bottlenecks. This can be a problem when the data is to large to fit in the relatively small GPU dram.\cite{cuda, cuda_best_practice}
   \item[Find the optimal number of blocks and threads] \hfill \\
-  There are a lot of things affected by the number of blocks and threads so they should be considered carefully. It is a good idea to parameterize them so that they can be changed for future hardware and varied for optimization. NVIDIA has an occupancy calculator which can be helpful in determining the optimal numbers, however high occupancy does not mean high performance.\cite{cuda, cuda_best_practice}\\
+  There are a lot of things affected by the number of blocks and threads so they should be considered carefully. It is a good idea to parametrize them so that they can be changed for future hardware and varied for optimization. NVIDIA has an occupancy calculator which can be helpful in determining the optimal numbers, however high occupancy does not mean high performance.\cite{cuda, cuda_best_practice}\\
   \\
   The number of blocks should be larger than the number of multiprocessors so that all multiprocessors have at least one block to execute. Having two blocks or more per multiprocessor can be good so that there are blocks that aren't waiting for a \_\_syncthreads() that can be executed. However this is not always possible due to shared memory usage and similar.\cite{cuda_best_practice}\\
   \\  
   The number of threads per block should be a multiplier of 32 but minimum 64. It's also important to remember that multiple concurrent blocks can reside on the same multiprocessor. Too large number of threads in a block and parts of the multiprocessor might be idle since there aren't a block small enough to use those threads. Between 128 and 256 threads is a good place to start.\cite{cuda_best_practice}
   \item[Streams, concurrent kernels and asynchronous transfers] \hfill \\
-  By using streams it is possible to overlap memory transfers with calculations. This means that the data for the next batch can be transfered while the current batch is calculated and when it is done it can start calculating on the next batch directly after the current one is done. This can hide the time for transfers completely in some situations. However it requires the memory on the host to be pinned. Pinning too much memory can reduce performance of the host.\cite{cuda}\\
+  By using streams it is possible to overlap memory transfers with calculations. This means that the data for the next batch can be transferred while the current batch is calculated and when it is done it can start calculating on the next batch directly after the current one is done. This can hide the time for transfers completely in some situations. However it requires the memory on the host to be pinned. Pinning too much memory can reduce performance of the host.\cite{cuda}\\
   \\
   Operations on a stream is guaranteed to be done in the order they are made however calls on different streams can be executed in any order. Some GPUs allow kernels from different streams to be executed concurrently which can be a big boost if the kernels small enough to fit on the multiprocessors at the same time. Up to 16 or 32 kernels, depending on GPU, can be executed at the same time.\\
   \\
@@ -549,17 +595,17 @@ speed up is measures how much faster then program is with a certain number of th
 $$S(p)=\frac{T(1)}{T(p)}$$
 Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speed up is when S(p)=p, it is sometimes called perfect speed up.\\
 \\
-Efficieny reflects how efficient the program is using p threads. Linear speed has efficency 1. It's defined as
+Efficiency reflects how efficient the program is using p threads. Linear speed has efficiency 1. It's defined as
 $$E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}$$
 \\
 Strong scaling refers to how the program handles a fixed problem size and increased number of processors. An program with strong scaling has linear speed up. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased.\cite{cuda_best_practice}\\
 \\
-It can be a good idea to plot these measures while varying p, this can show when bottlnecks occur. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication affects the performance.
+It can be a good idea to plot these measures while varying p, this can show when bottlenecks occur. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication affects the performance.
 
 \subsubsection{Amdahl's Law and Gustafson's Law}
-Amdahl's Law is used to find the expected speed up of a system when parts of is parallelized. Simply it says that as the number of processors increases the parts that aren't parallelized will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallelized part. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
+Amdahl's Law is used to find the expected speed up of a system when parts of is parallelised. Simply it says that as the number of processors increases the parts that aren't parallelised will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallelised part. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
 \\
-It says that the expected speed up with F fraction of the code parallelized and p threads is 
+It says that the expected speed up with F fraction of the code parallelised and p threads is 
 $$S(p)=\frac{1}{(1-F)+\frac{F}{p}(1-F)}$$
 As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F}$. If we have 90\% of a code parallelized then even with infinite number of threads we won't get a better speed up than ten.\cite{2010_reevaluating_amdahl}
 
@@ -581,9 +627,9 @@ There are limitation to Amdahl's Law since it makes a couple of assumptions.
   \item The serial portion can't be overlapped by the parallel parts. For instance with producer consumer type pattern the consumer could be strictly serial but the time it takes could be overlapped by the parallel producers.
 \end{itemize}
 
-This means it is most accurate with programs that are of the fork-join type. Eg serial parts and then matrix operations.\\
+This means it is most accurate with programs that are of the fork-join type, e.g. both serial and parallel parts.\\
 \\
-Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, eg increased precision by reducing grid size, high frame rate for graphics. The second is that the parallel portion of the program tends to expand faster than the serial part, eg for matrix multiplication the initialization scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$. The former means that it is closely related to weak scaling. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speed up with p threads and F fraction of the code that is parallel is\cite{gustafson1988reevaluating, cuda_best_practice}
+Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, e.g. increased precision by reducing grid size for simulations, higher frame rate for graphics and so on. The second is that the parallel portion of the program tends to expand faster than the serial part, e.g. for matrix multiplication the initialization scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$. The former means that it is closely related to weak scaling. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speed up with p threads and F fraction of the code that is parallel is\cite{gustafson1988reevaluating, cuda_best_practice}
 $$S(p)=p+(1-F)(1-p)$$
 
 \begin{figure}[h]
@@ -594,27 +640,27 @@ $$S(p)=p+(1-F)(1-p)$$
 \end{figure}
 
 \subsubsection{Profilers}
-There are applications called profilers that are made to assess the programs performance and resource consumption. They calculate some of the measures mentioned earlier and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlenecks and other problems in the program. It does not matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products. For instance NVIDIA provides profilers for programs that use CUDA.\cite{introduction_hpc_hager, cuda_best_practice}
+There are applications called profilers that are made to assess the programs performance and resource consumption. They calculate some of the measures mentioned earlier and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlenecks and other problems in the program. It does not matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products.\cite{introduction_hpc_hager, cuda_best_practice}
 
 \clearpage
 \section{Software Design}
-How to design software so it can be mainted over time .
+How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software.
 
-The messier code will cost productivity in the future when bugs and other problems stack up because of earlier misstakes. All code aquire problems overtime however a well designed system will degenerate a lot slower than one that was designed without much thought. Our code will also be read by others and ourselves later which means readability is important.
+The messier code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. All code gather problems overtime, however a well designed system will degenerate a lot slower than one that was designed carelessly. Our code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code.
 
 %study om repro in comp science
 %använde repeabtibility istället för reproducebility
 
-There are ways to code in such a way that these problems can be avoided. Most of the things described here goes under the agile development type and the concept of clean code. SOLID is an acronym for five principles for object oriented programming and design. When used together they are intended to make programs that are easy to maintain and extend. One of the first things to keep in mind that others and ones future self will likely read the code. This means that it has to be written so that things are as clear as possible. Correct names will make the code explain itself without other documentation, the code itself is the documentation.
+There are ways to code in such a way that these problems can be mitigated. Most of the things described here goes under the agile development type and the concept of clean code. SOLID is an acronym for five principles for object oriented programming and design. When used together they are intended to make programs that are easy to maintain and extend. As already mentioned readability is important. Correct names will make the code explain itself without other documentation, the code itself is the documentation.
 
 \begin{table}[h]
-\begin{tabular}{ l l l}
+\begin{tabular}{ l l p{2in}}
   \hline
   Initial & Principal & Concept\\
   \hline
   S & Single responsibility principle & A class should only have a single responsibility \\
   O & Open/closed principle & A class should be open for extension but closed for modification \\
-  L & Liskov substitution principle & If S is a subtype of T, then objects of type T may be replaced by objects of type S without without altering any of the desierable properties of the program(e.g. work performed)\\
+  L & Liskov substitution principle & If S is a subtype of T, then objects of type T may be replaced by objects of type S without without altering any of the desirable properties of the program(e.g. work performed)\\
   I & Interface segregation principle & Use several smaller and more specific interfaces instead of one large \\
   D & Dependency inversion principle & Depend on abstractions(e.g. interfaces) not details \\
   \hline  
@@ -623,23 +669,21 @@ There are ways to code in such a way that these problems can be avoided. Most of
 \label{table:solid_table}
 \end{table}
 
-Dependacy injection is one way to implement dependacy inversion principle. Injection is passing the dependacy to the dependent object. This is used instead of allowing the depedent object to construct or find the dependacy.
+Dependency injection is one way to implement dependency inversion principle. Injection is passing the dependency to the dependent object. This is used instead of allowing the dependent object to construct or find the dependency.
 
 \subsection{Unit Tests and Mocks}
-\emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work.\\
+\emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work.\cite{cleancode2008}\\
 \\
-It is easy to denote test code as less important than the main code but they should be treated as equally important. Tests should also not be an incovieance to use so they should be easy to run, take reasonable ammount of time to complete and not require any outside interpretation whtever they failed or not.\\
+It is easy to denote test code as less important than the main code but they should be treated as equally important. Tests should also not be an inconvenience to use so they should be easy to run, take reasonable ammount of time to complete and not require any outside interpretation whether they failed or not.\cite{cleancode2008}\\
 \\
-\emph{Mocking} is to replace a real object with a fake object called a \emph{mock} that for the code is indistinguishable from the real object. This allows one to create situations and test with more control and without depending on the real objects code. The second is important for unit tests since it enables one to test units that normally depend on others in isolation. In the first case it is useful in situatuons such as when one wants to test a class handling of a rare failure. Such failures can be hard and time consuming to induce. It is then easier to use a mock object that behaves like the failure has accured. However mocking requires that the code for the class doesn't create the object itself since there is no way to replace the object with the mock. This is one of the reasons why dependacy injection should be use.
+\emph{Mocking} is to replace a real object with a fake object called a \emph{mock} that for the code is indistinguishable from the real object. This allows one to create situations and test with more control and without depending on the real objects code. The second is important for unit tests since it enables one to test units that normally depend on others in isolation. In the first case it is useful in situations such as when one wants to test a class handling of a rare failure. Such failures can be hard and time consuming to induce. It is then easier to use a mock object that behaves like the failure has occurred. However mocking requires that the code for the class doesn't create the object itself since there is no way to replace the object with the mock. This is one of the reasons why dependency injection should be use.\cite{cleancode2008}
 
 \subsection{Design Patterns}
-A \emph{design pattern} in software design is a reusable general solution to a common reacurring problem in a given context. It is templates and structures to solve the problem, however it is not code. However they are partially dependent on the programming language since different langauages have different features and limitations.\\
+A \emph{design pattern} in software design is a reusable general solution to a common recurring problem in a given context. It is templates and structures to solve the problem, however it is not code. However they are partially dependent on the programming language since different languages have different features and limitations.\\
 \\
 The \emph{? pattern} %example pattern?
 \\
-\emph{Concurrancy patterns} are design patterns in contexts which involves concurrancy, i.e. multithreaded programs.
-
-locks
+\emph{Concurrency patterns} are design patterns in contexts which involves concurrency.
 
 \emph{Consumer producer} is a pattern for when there are a number of consumers/workers and producers. They share a common queue for products. The producer generates some product and put it into the queue, while the the consumers consume the products. The problem is that the producers should not add to an non empty slot and that each product should only be consumed once.
 

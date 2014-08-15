@@ -40,6 +40,10 @@ Statistics* GpuModelHandler::calculateModel() {
   LogisticRegression::LogisticRegressionResult* logisticRegressionResult = logisticRegression->calculate();
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
 
+  std::cerr << "LR numiter " << logisticRegressionResult->getNumberOfIterations() << std::endl;
+  const Container::HostVector& b = logisticRegressionResult->getBeta();
+  std::cerr << "LR beta " << b(0) << " " << b(1) << " " << b(2) << " " << b(3) << std::endl;
+
   Recode recode = logisticRegressionResult->calculateRecode();
   if(recode != ALL_RISK){
     dataHandler->recode(recode);

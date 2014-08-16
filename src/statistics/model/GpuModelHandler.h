@@ -38,6 +38,7 @@ protected:
   LogisticRegression::LogisticRegression* logisticRegression;
   const int numberOfRows;
   const int numberOfPredictors;
+  Recode lastRecode;
 };
 
 } /* namespace Model */

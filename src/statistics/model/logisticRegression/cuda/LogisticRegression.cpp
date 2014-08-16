@@ -52,8 +52,8 @@ LogisticRegressionResult* LogisticRegression::calculate() {
   Container::HostMatrix* inverseInformationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
       numberOfPredictors);
 
-  int iterationNumber = 0;
-  for(iterationNumber = 0; iterationNumber < maxIterations; ++iterationNumber){
+  int iterationNumber = 1;
+  for(iterationNumber = 1; iterationNumber < maxIterations; ++iterationNumber){
     calcuateProbabilites(*predictorsDevice, *betaCoefficentsDevice, *probabilitesDevice, *workVectorNx1Device);
 
     calculateScores(*predictorsDevice, *outcomesDevice, *probabilitesDevice, *scoresDevice, *workVectorNx1Device);
@@ -68,11 +68,18 @@ LogisticRegressionResult* LogisticRegression::calculate() {
     deviceToHost->transferMatrix(informationMatrixDevice, informationMatrixHost->getMemoryPointer());
     deviceToHost->transferVector(scoresDevice, scoresHost->getMemoryPointer());
     kernelWrapper->syncStream();
+    std::cerr << "score h " << (*scoresHost)(0) << " " << (*scoresHost)(1) << " " << (*scoresHost)(2) << " "
+        << (*scoresHost)(3) << std::endl;
+    std::cerr << "infomat h " << (*informationMatrixHost)(0, 0) << " " << (*informationMatrixHost)(0, 1) << " "
+        << (*informationMatrixHost)(1, 0) << " " << (*informationMatrixHost)(1, 1) << std::endl;
 
     invertInformationMatrix(*informationMatrixHost, *inverseInformationMatrixHost, *uSVD, *sigma, *vtSVD,
         *workMatrixMxMHost);
 
     calculateNewBeta(*inverseInformationMatrixHost, *scoresHost, *betaCoefficentsHost);
+
+    std::cerr << "beta h " << (*betaCoefficentsHost)(0) << " " << (*betaCoefficentsHost)(1) << " " << (*betaCoefficentsHost)(2) << " "
+            << (*betaCoefficentsHost)(3) << std::endl;
 
     calculateDifference(*betaCoefficentsHost, *betaCoefficentsOldHost, diffSumHost);
 

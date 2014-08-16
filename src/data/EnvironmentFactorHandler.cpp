@@ -61,7 +61,7 @@ const std::vector<const EnvironmentFactor*>& EnvironmentFactorHandler::getHeader
 const Container::HostVector& EnvironmentFactorHandler::getData(const EnvironmentFactor& environmentFactor) const {
   for(int i = 0; i < numberOfColumns; ++i){
     if(*(*environmentFactors)[i] == environmentFactor){
-      const Container::HostVector& vector = *((*dataMatrix)(i));
+      const Container::HostVector& vector = *((*dataMatrix)(i)); //FIXME memory leak
       return vector;
     } // if
   } // for i

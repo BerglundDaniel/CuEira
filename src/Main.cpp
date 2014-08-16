@@ -119,7 +119,6 @@ int main(int argc, char* argv[]) {
   std::cout << std::endl;
 
   while(modelHandler->next()){
-    std::cerr << "m iter" << std::endl;
     Statistics* statistics = modelHandler->calculateModel();
     const Container::SNPVector& snpVector = modelHandler->getSNPVector();
     const SNP& snp = modelHandler->getCurrentSNP();

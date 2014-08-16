@@ -97,9 +97,6 @@ TEST_F(LogisticRegressionTest, calcuateProbabilites) {
 
   PinnedHostVector outcomesLRConfig(numberOfRows);
 
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfPredictors);
-
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
   cudaStreamSynchronize(stream1);
 
@@ -181,9 +178,6 @@ TEST_F(LogisticRegressionTest, calculateScores) {
   const int numberOfPredictors = 3;
 
   PinnedHostVector outcomesLRConfig(numberOfRows);
-
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfPredictors);
 
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
   cudaStreamSynchronize(stream1);
@@ -280,9 +274,6 @@ TEST_F(LogisticRegressionTest, calculateInformationMatrix) {
   const int numberOfPredictors = 3;
 
   PinnedHostVector outcomesLRConfig(numberOfRows);
-
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfPredictors);
 
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
   cudaStreamSynchronize(stream1);
@@ -597,9 +588,6 @@ TEST_F(LogisticRegressionTest, calculateLogLikelihood) {
 
   PinnedHostVector outcomesLRConfig(numberOfRows);
 
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfPredictors);
-
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
   cudaStreamSynchronize(stream1);
 
@@ -672,9 +660,6 @@ TEST_F(LogisticRegressionTest, SmallTestNoCov) {
   PinnedHostVector snpData(numberOfRows);
   PinnedHostVector environmentData(numberOfRows);
   PinnedHostVector interactionVector(numberOfRows);
-
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfPredictorsNoCov);
 
   //SNP
   snpData(0) = 1.33;
@@ -763,9 +748,6 @@ TEST_F(LogisticRegressionTest, SmallTestNoCovIntOnly) {
   PinnedHostVector snpData(numberOfRows);
   PinnedHostVector environmentData(numberOfRows);
   PinnedHostVector interactionVector(numberOfRows);
-
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfPredictorsNoCov);
 
   //SNP
   snpData(0) = 1;

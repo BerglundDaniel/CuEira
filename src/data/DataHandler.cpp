@@ -57,9 +57,8 @@ bool DataHandler::next() {
     environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
     readSNP(*nextSNP);
   }else{
-    currentRecode = ALL_RISK;
 
-    if(currentEnvironmentFactorPos == environmentInformation->size() - 1){
+    if(currentEnvironmentFactorPos == environmentInformation->size() - 1){ //Check if we were at the last EnvironmentFactor so should start with next snp
       if(!dataQueue->hasNext()){
         return false;
       }
@@ -70,6 +69,9 @@ bool DataHandler::next() {
       readSNP(*nextSNP);
     }else{
       currentEnvironmentFactorPos++;
+      if(currentRecode != ALL_RISK){ //FIXME does this work?
+        snpVector->recode(ALL_RISK);
+      }
     }
 
     const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
@@ -80,6 +82,7 @@ bool DataHandler::next() {
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 
+  currentRecode = ALL_RISK;
   return true;
 }
 

@@ -8,7 +8,7 @@ GpuModelHandler::GpuModelHandler(const StatisticsFactory& statisticsFactory, Dat
     LogisticRegression::LogisticRegression* logisticRegression) :
     ModelHandler(statisticsFactory, dataHandler), logisticRegressionConfiguration(logisticRegressionConfiguration), logisticRegression(
         logisticRegression), numberOfRows(logisticRegressionConfiguration.getNumberOfRows()), numberOfPredictors(
-        logisticRegressionConfiguration.getNumberOfPredictors()) {
+        logisticRegressionConfiguration.getNumberOfPredictors()), lastRecode(ALL_RISK) {
 
 }
 
@@ -23,18 +23,25 @@ Statistics* GpuModelHandler::calculateModel() {
   }
 #endif
 
-  if(state == INITIALISED_READY){
-    logisticRegressionConfiguration.setSNP(*snpData);
-    logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
-  }else{
-    if(!(*currentSNP == *oldSNP)){
-      logisticRegressionConfiguration.setSNP(*snpData);
-    }
+  logisticRegressionConfiguration.setSNP(*snpData);
+  logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
 
-    if(!(*currentEnvironmentFactor == *oldEnvironmentFactor)){
-      logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
-    }
+  std::cerr << "Model" << std::endl;
+  std::cerr << currentSNP->getId().getString() << " " << currentEnvironmentFactor->getId().getString() << std::endl;
+  for(int i = 0; i < snpData->getNumberOfRows(); ++i){
+    std::cerr << (*snpData)(i);
   }
+  std::cerr << std::endl;
+
+  for(int i = 0; i < snpData->getNumberOfRows(); ++i){
+    std::cerr << (*environmentData)(i);
+  }
+  std::cerr << std::endl;
+
+  for(int i = 0; i < snpData->getNumberOfRows(); ++i){
+    std::cerr << (*interactionData)(i);
+  }
+  std::cerr << std::endl;
 
   logisticRegressionConfiguration.setInteraction(*interactionData);
   LogisticRegression::LogisticRegressionResult* logisticRegressionResult = logisticRegression->calculate();
@@ -58,6 +65,7 @@ Statistics* GpuModelHandler::calculateModel() {
     CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
   }
 
+  lastRecode = recode;
   return statisticsFactory.constructStatistics(logisticRegressionResult);
 }
 

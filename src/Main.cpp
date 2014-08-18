@@ -66,6 +66,7 @@ int main(int argc, char* argv[]) {
   StatisticsFactory statisticsFactory;
   std::cerr << "m6" << std::endl;
   FileIO::BedReader bedReader(configuration, snpVectorFactory, *personHandler, numberOfSNPs);
+
   Task::DataQueue* dataQueue = new Task::DataQueue(*snpInformation);
   std::cerr << "m7" << std::endl;
   //FIXME this part to factory for DataHandler
@@ -84,6 +85,8 @@ int main(int argc, char* argv[]) {
   cublasHandle_t cublasHandle;
   CUDA::handleCublasStatus(cublasCreate(&cublasHandle), "Failed to create cublas handle:");
   CUDA::handleCudaStatus(cudaStreamCreate(&cudaStream), "Failed to create cudaStream:");
+  CUDA::handleCublasStatus(cublasSetStream(cublasHandle, cudaStream), "Failed to set cuda stream:");
+
   std::cerr << "m9" << std::endl;
   CUDA::HostToDevice hostToDevice(cudaStream);
   CUDA::DeviceToHost deviceToHost(cudaStream);
@@ -110,16 +113,20 @@ int main(int argc, char* argv[]) {
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with initialisation in main: ");
 #endif
   std::cerr << "m13" << std::endl;
-  std::cout << "header"; //FIXME
+  std::cout << "snp_id, risk_allele, minor, major, env_id, ap, reri, OR_snp, OR_snp_L, OR_snp_H, OR_env, OR_env_L, OR_env_H, OR_inter, OR_inter_L, OR_inter_H, ";
 
   for(int i = 0; i < numberOfCovariates; ++i){
-    std::cout << (*covariatesNames)[i] << "_OR, " << (*covariatesNames)[i] << "_OR_L, " << (*covariatesNames)[i]
-        << "_OR_H";
+    std::cout << (*covariatesNames)[i] << "_cov_OR, " << (*covariatesNames)[i] << "_cov_OR_L, " << (*covariatesNames)[i]
+        << "_cov_OR_H, ";
   }
+
+  std::cout << "recode"; //FIXME
   std::cout << std::endl;
 
   while(modelHandler->next()){
     Statistics* statistics = modelHandler->calculateModel();
+    handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in Main: ");
+
     const Container::SNPVector& snpVector = modelHandler->getSNPVector();
     const SNP& snp = modelHandler->getCurrentSNP();
     const EnvironmentFactor& envFactor = modelHandler->getCurrentEnvironmentFactor();

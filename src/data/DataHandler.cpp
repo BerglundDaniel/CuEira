@@ -69,16 +69,35 @@ bool DataHandler::next() {
       readSNP(*nextSNP);
     }else{
       currentEnvironmentFactorPos++;
-      if(currentRecode != ALL_RISK){ //FIXME does this work?
-        snpVector->recode(ALL_RISK);
-      }
+      snpVector->recode(ALL_RISK);
     }
 
     const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
     environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
   } /* else if NOT_INITIALISED */
 
+  std::cerr << "DataHandler" << std::endl;
+  const Container::HostVector& snpData = snpVector->getRecodedData();
+  const Container::HostVector& environmentData = environmentVector->getRecodedData();
+
+  for(int i = 0; i < snpData.getNumberOfRows(); ++i){
+    std::cerr << snpData(i);
+  }
+  std::cerr << std::endl;
+
+  for(int i = 0; i < snpData.getNumberOfRows(); ++i){
+    std::cerr << environmentData(i);
+  }
+  std::cerr << std::endl;
+
   interactionVector->recode(*snpVector);
+
+  const Container::HostVector& interactionData = interactionVector->getRecodedData();
+  for(int i = 0; i < snpData.getNumberOfRows(); ++i){
+    std::cerr << interactionData(i);
+  }
+  std::cerr << std::endl;
+
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 
@@ -123,9 +142,7 @@ void DataHandler::recode(Recode recode) {
   currentRecode = recode;
 
   snpVector->recode(recode);
-
   environmentVector->recode(recode);
-
   interactionVector->recode(*snpVector);
 
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());

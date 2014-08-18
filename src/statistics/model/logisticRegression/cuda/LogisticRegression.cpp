@@ -17,7 +17,8 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration* lrConfig
         &lrConfiguration->getWorkMatrixNxM()), workVectorNx1Device(&lrConfiguration->getWorkVectorNx1()), sigma(
         new PinnedHostVector(numberOfPredictors)), uSVD(new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), vtSVD(
         new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), workMatrixMxMHost(
-        new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), oneVector((*predictorsDevice)(0)) {
+        new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), oneVector((*predictorsDevice)(0)), defaultBetaCoefficents(
+        lrConfiguration->getDefaultBetaCoefficents()) {
 
 }
 
@@ -27,7 +28,7 @@ LogisticRegression::LogisticRegression() :
         nullptr), predictorsDevice(nullptr), outcomesDevice(nullptr), probabilitesDevice(nullptr), scoresDevice(
         nullptr), workMatrixNxMDevice(nullptr), workVectorNx1Device(nullptr), scoresHost(nullptr), logLikelihood(
         nullptr), betaCoefficentsOldHost(nullptr), lrConfiguration(nullptr), sigma(nullptr), uSVD(nullptr), vtSVD(
-        nullptr), workMatrixMxMHost(nullptr), oneVector(nullptr) {
+        nullptr), workMatrixMxMHost(nullptr), oneVector(nullptr), defaultBetaCoefficents(nullptr) {
 
 }
 
@@ -44,9 +45,12 @@ LogisticRegression::~LogisticRegression() {
 
 LogisticRegressionResult* LogisticRegression::calculate() {
   PRECISION* diffSumHost = new PRECISION(0);
+  (*logLikelihood) = 0;
 
-  //Somethings are initialised here since the result wrapper will take responsibility for them at the end so can't reuse them
-  Container::HostVector* betaCoefficentsHost = deviceToHost->transferVector(betaCoefficentsDevice);
+  Container::HostVector* betaCoefficentsHost = new Container::PinnedHostVector(numberOfPredictors);
+  mklWrapper.copyVector(defaultBetaCoefficents, *betaCoefficentsHost);
+  hostToDevice->transferVector(defaultBetaCoefficents, betaCoefficentsDevice->getMemoryPointer());
+
   Container::HostMatrix* informationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
       numberOfPredictors);
   Container::HostMatrix* inverseInformationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
@@ -78,8 +82,8 @@ LogisticRegressionResult* LogisticRegression::calculate() {
 
     calculateNewBeta(*inverseInformationMatrixHost, *scoresHost, *betaCoefficentsHost);
 
-    std::cerr << "beta h " << (*betaCoefficentsHost)(0) << " " << (*betaCoefficentsHost)(1) << " " << (*betaCoefficentsHost)(2) << " "
-            << (*betaCoefficentsHost)(3) << std::endl;
+    std::cerr << "beta h " << (*betaCoefficentsHost)(0) << " " << (*betaCoefficentsHost)(1) << " "
+        << (*betaCoefficentsHost)(2) << " " << (*betaCoefficentsHost)(3) << std::endl;
 
     calculateDifference(*betaCoefficentsHost, *betaCoefficentsOldHost, diffSumHost);
 

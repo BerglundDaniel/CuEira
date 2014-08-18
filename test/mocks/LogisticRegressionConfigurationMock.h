@@ -31,6 +31,7 @@ public:
   MOCK_CONST_METHOD0(getKernelWrapper, const KernelWrapper&());
   MOCK_CONST_METHOD0(getPredictors, const Container::DeviceMatrix&());
   MOCK_CONST_METHOD0(getOutcomes, const Container::DeviceVector&());
+  MOCK_CONST_METHOD0(getDefaultBetaCoefficents, const Container::HostVector&());
 
   MOCK_METHOD0(getProbabilites, Container::DeviceVector&());
   MOCK_METHOD0(getScores, Container::DeviceVector&());

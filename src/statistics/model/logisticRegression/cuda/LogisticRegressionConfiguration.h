@@ -66,6 +66,8 @@ public:
   virtual DeviceMatrix& getWorkMatrixNxM();
   virtual DeviceVector& getWorkVectorNx1();
 
+  virtual const HostVector& getDefaultBetaCoefficents() const;
+
 protected:
   LogisticRegressionConfiguration(); //For the mock
 

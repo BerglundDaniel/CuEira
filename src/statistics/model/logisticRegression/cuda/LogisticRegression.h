@@ -96,6 +96,8 @@ private:
   Container::HostMatrix* uSVD;
   Container::HostMatrix* vtSVD;
   Container::HostMatrix* workMatrixMxMHost;
+
+  const Container::HostVector* defaultBetaCoefficents; //Config owns it
 };
 
 } /* namespace LogisticRegression */

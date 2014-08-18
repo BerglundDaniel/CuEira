@@ -6,7 +6,7 @@
 
 #include <HostVector.h>
 #include <HostMatrix.h>
-#include <DataHandlerMock.h>
+#include <DataHandler.h>
 #include <LogisticRegression.h>
 #include <LogisticRegressionConfiguration.h>
 #include <LogisticRegressionResult.h>
@@ -147,15 +147,14 @@ TEST_F(GpuModelHandlerLRIntegrationTest, 2Env_2SNP) {
 
   Container::DeviceVector* deviceOutcomes = hostToDevice.transferVector(&hostOutcomes);
 
-  DataHandlerMock dataHandlerMock;
-
-  //TODO excpect call
+  DataHandler dataHandler(ADDITIVE, bedReaderMock, environmentInformation, dataQueue, environmentVector,
+      interactionVector);
 
   Model::LogisticRegression::LogisticRegressionConfiguration =
       new Model::LogisticRegression::LogisticRegressionConfiguration(configuration, hostToDevice, *deviceOutcomes,
           kernelWrapper);
 
-  GpuModelHandler gpuModelHandler(statisticsFactory, dataHandlerMock, logisticRegressionConfiguration,
+  GpuModelHandler gpuModelHandler(statisticsFactory, dataHandler, logisticRegressionConfiguration,
       logisticRegressionMock);
 
   while(gpuModelHandler.next()){

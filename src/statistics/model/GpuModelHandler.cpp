@@ -25,6 +25,7 @@ Statistics* GpuModelHandler::calculateModel() {
 
   logisticRegressionConfiguration.setSNP(*snpData);
   logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
+  logisticRegressionConfiguration.setInteraction(*interactionData);
 
   std::cerr << "Model" << std::endl;
   std::cerr << currentSNP->getId().getString() << " " << currentEnvironmentFactor->getId().getString() << std::endl;
@@ -43,7 +44,6 @@ Statistics* GpuModelHandler::calculateModel() {
   }
   std::cerr << std::endl;
 
-  logisticRegressionConfiguration.setInteraction(*interactionData);
   LogisticRegression::LogisticRegressionResult* logisticRegressionResult = logisticRegression->calculate();
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
 
@@ -65,7 +65,6 @@ Statistics* GpuModelHandler::calculateModel() {
     CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
   }
 
-  lastRecode = recode;
   return statisticsFactory.constructStatistics(logisticRegressionResult);
 }
 

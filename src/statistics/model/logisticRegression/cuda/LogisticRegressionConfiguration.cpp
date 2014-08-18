@@ -16,6 +16,8 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
         new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), betaCoefficentsDefaultHost(
         new PinnedHostVector(numberOfPredictors)) {
 
+  std::cerr << "num " << numberOfRows << " " << numberOfPredictors << std::endl;
+
   kernelWrapper.setSymbolNumberOfRows(numberOfRows);
   kernelWrapper.setSymbolNumberOfPredictors(numberOfPredictors);
 
@@ -145,7 +147,6 @@ DeviceMatrix& LogisticRegressionConfiguration::getInformationMatrix() {
 }
 
 DeviceVector& LogisticRegressionConfiguration::getBetaCoefficents() {
-  hostToDevice->transferVector(betaCoefficentsDefaultHost, betaCoefficentsDevice->getMemoryPointer());
   return *betaCoefficentsDevice;
 }
 
@@ -155,6 +156,10 @@ DeviceMatrix& LogisticRegressionConfiguration::getWorkMatrixNxM() {
 
 DeviceVector& LogisticRegressionConfiguration::getWorkVectorNx1() {
   return *workVectorNx1Device;
+}
+
+const HostVector& LogisticRegressionConfiguration::getDefaultBetaCoefficents() const {
+  return *betaCoefficentsDefaultHost;
 }
 
 } /* namespace LogisticRegression */

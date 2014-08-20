@@ -186,18 +186,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorNoMock) {
     EXPECT_EQ(1, (*predictorsHostMatrix)(i, 0));
   }
 
-  //Beta
-  const DeviceVector& betaDevice = lrConfig.getBetaCoefficents();
-  HostVector* betaHost = deviceToHostStream1.transferVector(&betaDevice);
-  cudaStreamSynchronize(stream1);
-
-  ASSERT_EQ(numberOfPredictorsNoCov, betaHost->getNumberOfRows());
-  for(int i = 0; i < numberOfPredictorsNoCov; ++i){
-    EXPECT_EQ(0, (*betaHost)(i));
-  }
-
   delete outcomeDeviceVector;
-  delete betaHost;
 }
 
 TEST_F(LogisticRegressionConfigurationTest, ConstructorCovNoMock) {
@@ -241,18 +230,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorCovNoMock) {
     }
   }
 
-  //Beta
-  const DeviceVector& betaDevice = lrConfig.getBetaCoefficents();
-  HostVector* betaHost = deviceToHostStream1.transferVector(&betaDevice);
-  cudaStreamSynchronize(stream1);
-
-  ASSERT_EQ(numberOfPredictorsWithCov, betaHost->getNumberOfRows());
-  for(int i = 0; i < numberOfPredictorsWithCov; ++i){
-    EXPECT_EQ(0, (*betaHost)(i));
-  }
-
   delete outcomeDeviceVector;
-  delete betaHost;
 }
 
 TEST_F(LogisticRegressionConfigurationTest, GetSNPEnvInteract) {

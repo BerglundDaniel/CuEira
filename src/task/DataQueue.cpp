@@ -13,9 +13,14 @@ DataQueue::~DataQueue() {
 }
 
 SNP* DataQueue::next() {
+  if(snpQueue.empty()){
+    return nullptr;
+  }
+
   mutex.lock();
 
   if(snpQueue.empty()){
+    mutex.unlock();
     return nullptr;
   }
 

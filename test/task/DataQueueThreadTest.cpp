@@ -9,6 +9,16 @@
 namespace CuEira {
 namespace CuEira_Test {
 
+void threadDataQueueTest(Task::DataQueue* dataQueue, std::vector<SNP*>* snpVector) {
+  while(true){
+    SNP* snp = dataQueue->next();
+    if(snp == nullptr){
+      break;
+    }
+    snpVector->push_back(snp);
+  } //While true
+}
+
 /**
  * Test for testing DataQueue with threads
  *
@@ -61,7 +71,7 @@ TEST_F(DataQueueThreadTest, ThreadTest) {
     std::vector<SNP*>* snpVector = new std::vector<SNP*>();
     vectorOfSNPVector[i] = snpVector;
 
-    std::thread* t = new std::thread(threadDataQueueTest, dataQueue, snpVector);
+    std::thread* t = new std::thread(CuEira::CuEira_Test::threadDataQueueTest, dataQueue, snpVector);
     threadVector[i] = t;
   }
 
@@ -83,7 +93,7 @@ TEST_F(DataQueueThreadTest, ThreadTest) {
       SNP* snp = (*snpVector)[j];
 
       for(int k = 0; k < numberOfSNPs; ++k){
-        if((*snpQueue)[k] == *snp){
+        if(*(*snpQueue)[k] == *snp){
           ASSERT_FALSE(accessedSnps[k]);
           accessedSnps[k] = true;
           break;
@@ -91,6 +101,10 @@ TEST_F(DataQueueThreadTest, ThreadTest) {
       } //for k
     } //for j
   } //for i
+
+  for(int i = 0; i < numberOfSNPs; ++i){
+    ASSERT_TRUE(accessedSnps[i]);
+  }
 
   //Delete stuff
   for(int i = 0; i < numberOfThreads; ++i){
@@ -104,16 +118,6 @@ TEST_F(DataQueueThreadTest, ThreadTest) {
 
   delete snpQueue;
   delete dataQueue;
-}
-
-void threadDataQueueTest(Task::DataQueue* dataQueue, std::vector<SNP*>* snpVector) {
-  while(true){
-    SNP* snp = dataQueue->next();
-    if(snp == nullptr){
-      break;
-    }
-    snpVector->push_back(snp);
-  } //While true
 }
 
 }

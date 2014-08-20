@@ -189,20 +189,20 @@ void SNPVector::applyStatisticModel(StatisticModel statisticModel, const HostVec
 
 std::ostream& operator<<(std::ostream& os, const Container::SNPVector& snpVector) {
   ///Print allele numbers
-  os << (*(snpVector.numberOfAlleles))[ALLELE_ONE_CASE_POSITION] << ", "
-      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_CASE_POSITION] << ", "
-      << (*(snpVector.numberOfAlleles))[ALLELE_ONE_CONTROL_POSITION] << ", "
-      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_CONTROL_POSITION] << ", "
-      << (*(snpVector.numberOfAlleles))[ALLELE_ONE_ALL_POSITION] << ", "
-      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_ALL_POSITION] << ", ";
+  os << (*(snpVector.numberOfAlleles))[ALLELE_ONE_CASE_POSITION] << ","
+      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_CASE_POSITION] << ","
+      << (*(snpVector.numberOfAlleles))[ALLELE_ONE_CONTROL_POSITION] << ","
+      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_CONTROL_POSITION] << ","
+      << (*(snpVector.numberOfAlleles))[ALLELE_ONE_ALL_POSITION] << ","
+      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_ALL_POSITION] << ",";
 
   //Print allele frequencies
-  os << (*(snpVector.alleleFrequencies))[ALLELE_ONE_CASE_POSITION] << ", "
-      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_CASE_POSITION] << ", "
-      << (*(snpVector.alleleFrequencies))[ALLELE_ONE_CONTROL_POSITION] << ", "
-      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_CONTROL_POSITION] << ", "
-      << (*(snpVector.alleleFrequencies))[ALLELE_ONE_ALL_POSITION] << ", "
-      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_ALL_POSITION] << ", ";
+  os << (*(snpVector.alleleFrequencies))[ALLELE_ONE_CASE_POSITION] << ","
+      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_CASE_POSITION] << ","
+      << (*(snpVector.alleleFrequencies))[ALLELE_ONE_CONTROL_POSITION] << ","
+      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_CONTROL_POSITION] << ","
+      << (*(snpVector.alleleFrequencies))[ALLELE_ONE_ALL_POSITION] << ","
+      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_ALL_POSITION] << ",";
 
   //Print recode
   os << snpVector.currentRecode;

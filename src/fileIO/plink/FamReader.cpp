@@ -39,8 +39,8 @@ PersonHandler* FamReader::readPersonInformation() const {
 
   //Read file
   while(std::getline(famFile, line)){
-    //std::cerr << individualNumber << std::endl;
     std::vector<std::string> lineSplit;
+    boost::trim(line);
     boost::split(lineSplit, line, boost::is_any_of("\t "));
 
     Id id(lineSplit[1]);
@@ -50,7 +50,6 @@ PersonHandler* FamReader::readPersonInformation() const {
     //Add the person
     personHandler->createPerson(id, sex, phenotype, individualNumber);
     individualNumber++;
-
   } /* while getline */
 
   famFile.close();
@@ -65,7 +64,7 @@ Phenotype FamReader::stringToPhenotype(std::string phenotypeString) const {
   long int phenotypeInt = strtol(phenotypeString.c_str(), &temp, 0);
   if(*temp != '\0'){ //Check if there was an error with strtol
     std::ostringstream os;
-    os << "Problem with string to int conversion of phenotype in fam file " << famFileStr << std::endl;
+    os << "Problem with string to int conversion of phenotype in fam file " << famFileStr << " of string " << phenotypeString << std::endl;
     const std::string& tmp = os.str();
     throw FileReaderException(tmp.c_str());
   }

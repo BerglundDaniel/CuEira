@@ -35,29 +35,32 @@ std::pair<Container::HostMatrix*, std::vector<std::string>*>* CSVReader::readDat
 
   while(std::getline(csvFile, line)){
     std::vector<std::string> lineSplit;
+    boost::trim(line);
     boost::split(lineSplit, line, boost::is_any_of(delim));
     int lineSplitSize = lineSplit.size();
 
     if(header){
       header = false;
-      int numberOfColumns = lineSplitSize - 1;
-      dataColumnNames = new std::vector<std::string>(numberOfColumns);
+      const int numberOfDataColumns = lineSplitSize - 1;
+      dataColumnNames = new std::vector<std::string>(numberOfDataColumns);
+      int dataColumnPos=0;
 
       //Read column names
       for(int i = 0; i < lineSplitSize; ++i){
         if(strcmp(lineSplit[i].c_str(), idColumnName.c_str()) == 0){
           idColumnNumber = i;
         }else{
-          (*dataColumnNames)[i] = lineSplit[i];
+          (*dataColumnNames)[dataColumnPos] = lineSplit[i];
+          dataColumnPos++;
         }
       }
 
       //Initialise matrix
 #ifdef CPU
-      LaGenMatDouble* lapackppMatrix = new LaGenMatDouble(numberOfIndividualsToInclude, numberOfColumns);
+      LaGenMatDouble* lapackppMatrix = new LaGenMatDouble(numberOfIndividualsToInclude, numberOfDataColumns);
       dataMatrix = new Container::LapackppHostMatrix(lapackppMatrix);
 #else
-      dataMatrix = new Container::PinnedHostMatrix(numberOfIndividualsToInclude, numberOfColumns);
+      dataMatrix = new Container::PinnedHostMatrix(numberOfIndividualsToInclude, numberOfDataColumns);
 #endif
 
     }else{ /* if header */

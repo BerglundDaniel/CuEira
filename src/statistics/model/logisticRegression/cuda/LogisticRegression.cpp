@@ -18,7 +18,7 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration* lrConfig
         new PinnedHostVector(numberOfPredictors)), uSVD(new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), vtSVD(
         new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), workMatrixMxMHost(
         new PinnedHostMatrix(numberOfPredictors, numberOfPredictors)), oneVector((*predictorsDevice)(0)), defaultBetaCoefficents(
-        lrConfiguration->getDefaultBetaCoefficents()) {
+        &lrConfiguration->getDefaultBetaCoefficents()) {
 
 }
 
@@ -48,7 +48,7 @@ LogisticRegressionResult* LogisticRegression::calculate() {
   (*logLikelihood) = 0;
 
   Container::HostVector* betaCoefficentsHost = new Container::PinnedHostVector(numberOfPredictors);
-  mklWrapper.copyVector(defaultBetaCoefficents, *betaCoefficentsHost);
+  mklWrapper.copyVector(*defaultBetaCoefficents, *betaCoefficentsHost);
   hostToDevice->transferVector(defaultBetaCoefficents, betaCoefficentsDevice->getMemoryPointer());
 
   Container::HostMatrix* informationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,

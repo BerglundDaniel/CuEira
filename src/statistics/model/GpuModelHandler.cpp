@@ -8,7 +8,7 @@ GpuModelHandler::GpuModelHandler(const StatisticsFactory& statisticsFactory, Dat
     LogisticRegression::LogisticRegression* logisticRegression) :
     ModelHandler(statisticsFactory, dataHandler), logisticRegressionConfiguration(logisticRegressionConfiguration), logisticRegression(
         logisticRegression), numberOfRows(logisticRegressionConfiguration.getNumberOfRows()), numberOfPredictors(
-        logisticRegressionConfiguration.getNumberOfPredictors()), lastRecode(ALL_RISK) {
+        logisticRegressionConfiguration.getNumberOfPredictors()) {
 
 }
 

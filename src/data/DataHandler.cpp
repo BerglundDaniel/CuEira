@@ -44,12 +44,12 @@ const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
 
 bool DataHandler::next() {
   if(state == NOT_INITIALISED){
-    if(!dataQueue->hasNext()){
+    SNP* nextSNP = dataQueue->next();
+    if(nextSNP == nullptr){
       return false;
     }
 
     state = INITIALISED;
-    SNP* nextSNP = dataQueue->next();
 
     const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[0];
     currentEnvironmentFactorPos = 0;
@@ -59,13 +59,12 @@ bool DataHandler::next() {
   }else{
 
     if(currentEnvironmentFactorPos == environmentInformation->size() - 1){ //Check if we were at the last EnvironmentFactor so should start with next snp
-      if(!dataQueue->hasNext()){
+      SNP* nextSNP = dataQueue->next();
+      if(nextSNP == nullptr){
         return false;
       }
 
-      SNP* nextSNP = dataQueue->next();
       currentEnvironmentFactorPos = 0;
-
       readSNP(*nextSNP);
     }else{
       currentEnvironmentFactorPos++;

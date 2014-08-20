@@ -7,6 +7,7 @@
 #include <iostream>
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
+#include <boost/algorithm/string.hpp>
 
 #include <Id.h>
 #include <Sex.h>

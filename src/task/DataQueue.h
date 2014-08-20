@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 #include <sstream>
+#include <thread>
 
 #include <Id.h>
 #include <SNP.h>
@@ -22,11 +23,11 @@ public:
   DataQueue(std::vector<SNP*> snpQueue);
   virtual ~DataQueue();
 
-  bool hasNext();
   SNP* next();
 
 private:
   std::vector<SNP*> snpQueue;
+  std::mutex mutex;
 };
 
 } /* namespace Task */

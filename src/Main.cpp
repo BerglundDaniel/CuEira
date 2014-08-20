@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
   FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
   std::cerr << "m2" << std::endl;
   PersonHandler* personHandler = dataFilesReader->readPersonInformation();
+  std::cerr << "m2_1" << std::endl;
   EnvironmentFactorHandler* environmentFactorHandler = dataFilesReader->readEnvironmentFactorInformation(
       *personHandler);
   std::cerr << "m3" << std::endl;
@@ -113,25 +114,41 @@ int main(int argc, char* argv[]) {
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with initialisation in main: ");
 #endif
   std::cerr << "m13" << std::endl;
-  std::cout << "snp_id, risk_allele, minor, major, env_id, ap, reri, OR_snp, OR_snp_L, OR_snp_H, OR_env, OR_env_L, OR_env_H, OR_inter, OR_inter_L, OR_inter_H, ";
+  std::cout
+      << "snp_id,risk_allele,minor,major,env_id,ap,reri,OR_snp,OR_snp_L,OR_snp_H,OR_env,OR_env_L,OR_env_H,OR_inter,OR_inter_L,OR_inter_H,";
 
   for(int i = 0; i < numberOfCovariates; ++i){
-    std::cout << (*covariatesNames)[i] << "_cov_OR, " << (*covariatesNames)[i] << "_cov_OR_L, " << (*covariatesNames)[i]
-        << "_cov_OR_H, ";
+    std::cout << (*covariatesNames)[i] << "_cov_OR," << (*covariatesNames)[i] << "_cov_OR_L," << (*covariatesNames)[i]
+        << "_cov_OR_H,";
   }
 
   std::cout << "recode"; //FIXME
   std::cout << std::endl;
 
+  const Container::HostVector& outcomes = personHandler->getOutcomes(); //TMP
+
   while(modelHandler->next()){
     Statistics* statistics = modelHandler->calculateModel();
-    handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in Main: ");
+    CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in Main: ");
 
     const Container::SNPVector& snpVector = modelHandler->getSNPVector();
     const SNP& snp = modelHandler->getCurrentSNP();
     const EnvironmentFactor& envFactor = modelHandler->getCurrentEnvironmentFactor();
 
-    std::cout << snp << ", " << envFactor << ", " << *statistics << ", " << snpVector << std::endl;
+    const Container::EnvironmentVector& envVector = modelHandler->getEnvironmentVector();
+    const Container::InteractionVector& interVector = modelHandler->getInteractionVector();
+    const Container::HostVector& snpData = snpVector.getRecodedData();
+    const Container::HostVector& envData = envVector.getRecodedData();
+    const Container::HostVector& interData = interVector.getRecodedData();
+
+    std::cerr << std::endl;
+    std::cerr << "snp " << snp.getId().getString() << std::endl;
+    for(int i = 0; i < numberOfSNPs; ++i){
+      std::cerr << outcomes(i) << "," << snpData(i) << "," << envData(i) << "," << interData(i) << std::endl;
+    }
+    std::cerr << std::endl;
+
+    std::cout << snp << "," << envFactor << "," << *statistics << "," << snpVector << std::endl;
 
     delete statistics;
   }

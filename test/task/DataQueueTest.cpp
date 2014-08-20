@@ -54,13 +54,14 @@ TEST_F(DataQueueTest, QueueTest) {
   Task::DataQueue dataQueue(*snpQueue);
 
   for(int i = numberOfSNPs - 1; i >= 0; --i){
-    ASSERT_TRUE(dataQueue.hasNext());
     SNP* snp = dataQueue.next();
+    ASSERT_TRUE(snp != nullptr);
 
     EXPECT_EQ(*((*snpQueue)[i]), *snp);
     delete snp;
   }
-  EXPECT_FALSE(dataQueue.hasNext());
+  SNP* snp = dataQueue.next();
+  ASSERT_TRUE(snp == nullptr);
 
   delete snpQueue;
 }

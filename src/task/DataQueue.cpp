@@ -12,19 +12,17 @@ DataQueue::~DataQueue() {
 
 }
 
-bool DataQueue::hasNext() {
-  return !snpQueue.empty();
-}
-
 SNP* DataQueue::next() {
-#ifdef DEBUG
+  mutex.lock();
+
   if(snpQueue.empty()){
-    throw new InvalidState("Vector of SNPs is empty in DataQueue.");
+    return nullptr;
   }
-#endif
+
   SNP* currentSNP = snpQueue.back();
   snpQueue.pop_back();
 
+  mutex.unlock();
   return currentSNP;
 }
 

@@ -21,9 +21,9 @@ std::pair<Container::HostMatrix*, std::vector<std::string>*>* CSVReader::readDat
   std::string line;
   std::ifstream csvFile;
   bool header = true;
-  int numberOfRows=0; //Not including header
+  int numberOfRows = 0; //Not including header
   std::vector<std::string>* dataColumnNames;
-  int idColumnNumber;
+  int idColumnNumber = -1;
 
   csvFile.open(filePath, std::ifstream::in);
   if(!csvFile){
@@ -43,16 +43,23 @@ std::pair<Container::HostMatrix*, std::vector<std::string>*>* CSVReader::readDat
       header = false;
       const int numberOfDataColumns = lineSplitSize - 1;
       dataColumnNames = new std::vector<std::string>(numberOfDataColumns);
-      int dataColumnPos=0;
+      int dataColumnPos = 0;
 
       //Read column names
       for(int i = 0; i < lineSplitSize; ++i){
-        if(strcmp(lineSplit[i].c_str(), idColumnName.c_str()) == 0){
+        if(boost::iequals(lineSplit[i], idColumnName)){
           idColumnNumber = i;
         }else{
           (*dataColumnNames)[dataColumnPos] = lineSplit[i];
           dataColumnPos++;
         }
+      }
+
+      if(idColumnNumber < 0){
+        std::ostringstream os;
+        os << "Can't find the column named " << idColumnName << " in csv file " << filePath << std::endl;
+        const std::string& tmp = os.str();
+        throw FileReaderException(tmp.c_str());
       }
 
       //Initialise matrix

@@ -1,6 +1,7 @@
 add_subdirectory(mocks)
 add_subdirectory(data)
 add_subdirectory(container)
+add_subdirectory(model)
 add_subdirectory(fileIO)
 add_subdirectory(statistics)
 add_subdirectory(task)

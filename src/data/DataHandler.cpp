@@ -109,6 +109,7 @@ void DataHandler::readSNP(SNP& nextSnp) {
 
   snpVector = bedReader->readSNP(nextSnp);
   if(!nextSnp.getInclude()){ //SNP can changed based on the reading so we have to check that it still should be included
+    std::cout << nextSnp.getId().getString() << std::endl;
     this->next(); //FIXME write result or something?
   }
 }

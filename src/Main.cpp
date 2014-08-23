@@ -140,14 +140,14 @@ int main(int argc, char* argv[]) {
     const Container::HostVector& snpData = snpVector.getRecodedData();
     const Container::HostVector& envData = envVector.getRecodedData();
     const Container::HostVector& interData = interVector.getRecodedData();
-
+/*
     std::cerr << std::endl;
     std::cerr << "snp " << snp.getId().getString() << std::endl;
-    for(int i = 0; i < numberOfSNPs; ++i){
+    for(int i = 0; i < numberOfIndividualsToInclude; ++i){
       std::cerr << outcomes(i) << "," << snpData(i) << "," << envData(i) << "," << interData(i) << std::endl;
     }
     std::cerr << std::endl;
-
+*/
     std::cout << snp << "," << envFactor << "," << *statistics << "," << snpVector << std::endl;
 
     delete statistics;

@@ -9,7 +9,7 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 enum StatisticModel {
-  MULTIPLICATIVE, ADDITIVE
+  ALL, MULTIPLICATIVE, ADDITIVE
 };
 
 } /* namespace CuEira */

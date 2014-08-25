@@ -132,9 +132,9 @@ TEST_F(DataHandlerTest, ConstructAndGetException){
 
   EXPECT_THROW(dataHandler.getCurrentEnvironmentFactor(), InvalidState);
   EXPECT_THROW(dataHandler.getCurrentSNP(), InvalidState);
-  EXPECT_THROW(dataHandler.getEnvironment(), InvalidState);
-  EXPECT_THROW(dataHandler.getSNP(), InvalidState);
-  EXPECT_THROW(dataHandler.getInteraction(), InvalidState);
+  EXPECT_THROW(dataHandler.getEnvironmentVector(), InvalidState);
+  EXPECT_THROW(dataHandler.getSNPVector(), InvalidState);
+  EXPECT_THROW(dataHandler.getInteractionVector(), InvalidState);
   EXPECT_THROW(dataHandler.getRecode(), InvalidState);
   EXPECT_THROW(dataHandler.recode(ALL_RISK), InvalidState);
   EXPECT_THROW(dataHandler.recode(SNP_PROTECT), InvalidState);
@@ -188,10 +188,10 @@ TEST_F(DataHandlerTest, Next) {
   const Container::EnvironmentVector& envVector1 = dataHandler.getEnvironmentVector();
   EXPECT_EQ(environmentVectorMock, &envVector1);
 
-  const Container::HostVector& snpVector1 = dataHandler.getSNPVector();
+  const Container::SNPVector& snpVector1 = dataHandler.getSNPVector();
   EXPECT_EQ(snpVectorMock1, &snpVector1);
 
-  const Container::HostVector& interactionVector1 = dataHandler.getInteractionVector();
+  const Container::InteractionVector& interactionVector1 = dataHandler.getInteractionVector();
   EXPECT_EQ(interactionVectorMock, &interactionVector1);
 
   for(int i = 1; i < numberOfEnvironmentFactors; ++i){

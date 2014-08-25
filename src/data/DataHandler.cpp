@@ -149,14 +149,29 @@ void DataHandler::recode(Recode recode) {
 }
 
 const Container::SNPVector& DataHandler::getSNPVector() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using getSNPVector run next() at least once.");
+  }
+#endif
   return *snpVector;
 }
 
 const Container::InteractionVector& DataHandler::getInteractionVector() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using getInteractionVector run next() at least once.");
+  }
+#endif
   return *interactionVector;
 }
 
 const Container::EnvironmentVector& DataHandler::getEnvironmentVector() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using getEnvironmentVector run next() at least once.");
+  }
+#endif
   return *environmentVector;
 }
 

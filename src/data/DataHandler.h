@@ -20,6 +20,7 @@
 #include <EnvironmentFactor.h>
 #include <EnvironmentFactorHandler.h>
 #include <DataQueue.h>
+#include <DataHandlerState.h>
 
 namespace CuEira {
 class DataHandlerTest;
@@ -42,14 +43,10 @@ public:
   virtual const SNP& getCurrentSNP() const;
   virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
-  virtual bool next();
+  virtual DataHandlerState next();
 
   virtual Recode getRecode() const;
   virtual void recode(Recode recode);
-
-  virtual const Container::HostVector& getSNP() const;
-  virtual const Container::HostVector& getInteraction() const;
-  virtual const Container::HostVector& getEnvironment() const;
 
   virtual const Container::SNPVector& getSNPVector() const;
   virtual const Container::InteractionVector& getInteractionVector() const;
@@ -63,7 +60,7 @@ private:
     NOT_INITIALISED, INITIALISED
   };
 
-  void readSNP(SNP& nextSnp);
+  bool readSNP(SNP& nextSnp);
 
   State state;
   Task::DataQueue* dataQueue;

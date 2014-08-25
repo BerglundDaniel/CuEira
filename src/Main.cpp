@@ -17,6 +17,7 @@
 #include <EnvironmentVector.h>
 #include <InteractionVector.h>
 #include <StatisticsFactory.h>
+#include <DataHandlerState.h>
 
 #ifdef CPU
 //#include <CpuModelHandler.h>
@@ -127,30 +128,39 @@ int main(int argc, char* argv[]) {
 
   const Container::HostVector& outcomes = personHandler->getOutcomes(); //TMP
 
-  while(modelHandler->next()){
-    Statistics* statistics = modelHandler->calculateModel();
-    CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in Main: ");
+  DataHandlerState dataHandlerState = modelHandler->next();
+  while(dataHandlerState != DONE){
 
-    const Container::SNPVector& snpVector = modelHandler->getSNPVector();
     const SNP& snp = modelHandler->getCurrentSNP();
     const EnvironmentFactor& envFactor = modelHandler->getCurrentEnvironmentFactor();
 
-    const Container::EnvironmentVector& envVector = modelHandler->getEnvironmentVector();
-    const Container::InteractionVector& interVector = modelHandler->getInteractionVector();
-    const Container::HostVector& snpData = snpVector.getRecodedData();
-    const Container::HostVector& envData = envVector.getRecodedData();
-    const Container::HostVector& interData = interVector.getRecodedData();
-/*
-    std::cerr << std::endl;
-    std::cerr << "snp " << snp.getId().getString() << std::endl;
-    for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-      std::cerr << outcomes(i) << "," << snpData(i) << "," << envData(i) << "," << interData(i) << std::endl;
-    }
-    std::cerr << std::endl;
-*/
-    std::cout << snp << "," << envFactor << "," << *statistics << "," << snpVector << std::endl;
+    if(dataHandlerState == EXCLUDE){
+      //TODO need to add allele freqs and such
+      std::cout << snp << "," << envFactor << std::endl;
+    }else{
+      Statistics* statistics = modelHandler->calculateModel();
+      CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in Main: ");
 
-    delete statistics;
+      const Container::SNPVector& snpVector = modelHandler->getSNPVector();
+      const Container::EnvironmentVector& envVector = modelHandler->getEnvironmentVector();
+      const Container::InteractionVector& interVector = modelHandler->getInteractionVector();
+      const Container::HostVector& snpData = snpVector.getRecodedData();
+      const Container::HostVector& envData = envVector.getRecodedData();
+      const Container::HostVector& interData = interVector.getRecodedData();
+      /*
+       std::cerr << std::endl;
+       std::cerr << "snp " << snp.getId().getString() << std::endl;
+       for(int i = 0; i < numberOfIndividualsToInclude; ++i){
+       std::cerr << outcomes(i) << "," << snpData(i) << "," << envData(i) << "," << interData(i) << std::endl;
+       }
+       std::cerr << std::endl;
+       */
+      std::cout << snp << "," << envFactor << "," << *statistics << "," << snpVector << std::endl;
+
+      delete statistics;
+    } //else
+
+    dataHandlerState = modelHandler->next();
   }
 
   std::cerr << "delete stuff" << std::endl;

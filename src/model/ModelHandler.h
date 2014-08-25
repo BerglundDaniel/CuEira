@@ -12,6 +12,7 @@
 #include <SNP.h>
 #include <EnvironmentFactor.h>
 #include <StatisticsFactory.h>
+#include <DataHandlerState.h>
 
 namespace CuEira {
 namespace Model {
@@ -30,7 +31,7 @@ public:
   ModelHandler(const StatisticsFactory& statisticsFactory, DataHandler* dataHandler);
   virtual ~ModelHandler();
 
-  virtual bool next();
+  virtual DataHandlerState next();
   virtual Statistics* calculateModel()=0;
 
   virtual const SNP& getCurrentSNP() const;

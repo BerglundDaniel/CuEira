@@ -14,21 +14,19 @@ ModelHandler::~ModelHandler() {
   delete dataHandler;
 }
 
-bool ModelHandler::next() {
-  bool hasNext = dataHandler->next();
-  if(!hasNext){
-    return false;
+DataHandlerState ModelHandler::next() {
+  DataHandlerState dataHandlerState = dataHandler->next();
+  if(dataHandlerState == DONE){
+    return DONE;
   }
 
+#ifdef DEBUG
   if(state == NOT_INITIALISED){
     state = INITIALISED_READY;
-  }else if(state == INITIALISED_READY){
+  } else if(state == INITIALISED_READY){
     state = INITIALISED_FULL;
   }
-
-  snpData = &dataHandler->getSNP();
-  environmentData = &dataHandler->getEnvironment();
-  interactionData = &dataHandler->getInteraction();
+#endif
 
   oldSNP = currentSNP;
   oldEnvironmentFactor = currentEnvironmentFactor;
@@ -36,7 +34,19 @@ bool ModelHandler::next() {
   currentSNP = &dataHandler->getCurrentSNP();
   currentEnvironmentFactor = &dataHandler->getCurrentEnvironmentFactor();
 
-  return true;
+  if(dataHandlerState == EXCLUDE){
+    snpData = nullptr;
+    environmentData = nullptr;
+    interactionData = nullptr;
+
+    return EXCLUDE;
+  }else{
+    snpData = &dataHandler->getSNPVector().getRecodedData();
+    environmentData = &dataHandler->getEnvironmentVector().getRecodedData();
+    interactionData = &dataHandler->getInteractionVector().getRecodedData();
+
+    return dataHandlerState;
+  }
 }
 
 const SNP& ModelHandler::getCurrentSNP() const {

@@ -185,13 +185,14 @@ TEST_F(DataHandlerTest, Next) {
 
   EXPECT_EQ(ALL_RISK, dataHandler.getRecode());
 
-  EXPECT_CALL(*environmentVectorMock, getRecodedData()).Times(1).WillRepeatedly(ReturnRef(*envData));
-  const Container::HostVector& envVector1 = dataHandler.getEnvironment();
+  const Container::EnvironmentVector& envVector1 = dataHandler.getEnvironmentVector();
+  EXPECT_EQ(environmentVectorMock, &envVector1);
 
-  EXPECT_CALL(*snpVectorMock1, getRecodedData()).Times(1).WillRepeatedly(ReturnRef(*snpData));
-  const Container::HostVector& snpVector1 = dataHandler.getSNP();
+  const Container::HostVector& snpVector1 = dataHandler.getSNPVector();
+  EXPECT_EQ(snpVectorMock1, &snpVector1);
 
-  const Container::HostVector& interactionVector1 = dataHandler.getInteraction();
+  const Container::HostVector& interactionVector1 = dataHandler.getInteractionVector();
+  EXPECT_EQ(interactionVectorMock, &interactionVector1);
 
   for(int i = 1; i < numberOfEnvironmentFactors; ++i){
     ASSERT_TRUE(dataHandler.next());
@@ -254,10 +255,6 @@ TEST_F(DataHandlerTest, Recode) {
   }
 
   delete interactionData;
-}
-
-TEST_F(DataHandlerTest, InteractionTestNoMocks) {
-  //DataHandler dataHandler(ADDITIVE, *bedReaderMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
 }
 
 } /* namespace CuEira */

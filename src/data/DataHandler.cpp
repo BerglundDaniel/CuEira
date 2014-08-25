@@ -7,7 +7,7 @@ DataHandler::DataHandler(StatisticModel statisticModel, const FileIO::BedReader&
     Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector) :
     currentRecode(ALL_RISK), dataQueue(&dataQueue), statisticModel(statisticModel), bedReader(&bedReader), interactionVector(
         interactionVector), snpVector(nullptr), environmentVector(environmentVector), environmentInformation(
-        &environmentInformation), currentEnvironmentFactorPos(0), state(NOT_INITIALISED) {
+        &environmentInformation), currentEnvironmentFactorPos(environmentInformation.size() - 1), state(NOT_INITIALISED) {
 
 }
 
@@ -42,40 +42,40 @@ const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
   return *(*environmentInformation)[currentEnvironmentFactorPos];
 }
 
-bool DataHandler::next() {
-  if(state == NOT_INITIALISED){
+DataHandlerState DataHandler::next() {
+  if(currentEnvironmentFactorPos == environmentInformation->size() - 1){ //Check if we were at the last EnvironmentFactor so should start with next snp
     SNP* nextSNP = dataQueue->next();
     if(nextSNP == nullptr){
-      return false;
+      return DONE;
     }
 
-    state = INITIALISED;
-
-    const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[0];
+    bool include = readSNP(*nextSNP);
+    if(!include){
+      return EXCLUDE;
+    }
     currentEnvironmentFactorPos = 0;
-
-    environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
-    readSNP(*nextSNP);
   }else{
-
-    if(currentEnvironmentFactorPos == environmentInformation->size() - 1){ //Check if we were at the last EnvironmentFactor so should start with next snp
-      SNP* nextSNP = dataQueue->next();
-      if(nextSNP == nullptr){
-        return false;
-      }
-
-      currentEnvironmentFactorPos = 0;
-      readSNP(*nextSNP);
-    }else{
-      currentEnvironmentFactorPos++;
-      snpVector->recode(ALL_RISK);
+#ifdef DEBUG
+    if(state == NOT_INITIALISED){
+      throw InvalidState("This shouldn't happen in DataHandler.");
     }
+#endif
 
-    const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
-    environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
-  } /* else if NOT_INITIALISED */
+    currentEnvironmentFactorPos++;
+    snpVector->recode(ALL_RISK);
+  }
 
-  std::cerr << "DataHandler" << std::endl;
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    state = INITIALISED;
+  }
+#endif
+
+  const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
+  environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
+
+  std::cerr << "DataHandler " << snpVector->getAssociatedSNP().getId().getString() << " "
+      << (*environmentInformation)[currentEnvironmentFactorPos]->getId().getString() << std::endl;
   const Container::HostVector& snpData = snpVector->getRecodedData();
   const Container::HostVector& environmentData = environmentVector->getRecodedData();
 
@@ -91,6 +91,8 @@ bool DataHandler::next() {
 
   interactionVector->recode(*snpVector);
 
+  //TODO check if it should be included based on the interaction stuff, need to store the freqs some where
+
   const Container::HostVector& interactionData = interactionVector->getRecodedData();
   for(int i = 0; i < snpData.getNumberOfRows(); ++i){
     std::cerr << interactionData(i);
@@ -101,17 +103,14 @@ bool DataHandler::next() {
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 
   currentRecode = ALL_RISK;
-  return true;
+  return INCLUDE;
 }
 
-void DataHandler::readSNP(SNP& nextSnp) {
+bool DataHandler::readSNP(SNP& nextSnp) {
   delete snpVector;
-
   snpVector = bedReader->readSNP(nextSnp);
-  if(!nextSnp.getInclude()){ //SNP can changed based on the reading so we have to check that it still should be included
-    std::cout << nextSnp.getId().getString() << std::endl;
-    this->next(); //FIXME write result or something?
-  }
+
+  return nextSnp.getInclude();
 }
 
 Recode DataHandler::getRecode() const {
@@ -147,36 +146,6 @@ void DataHandler::recode(Recode recode) {
 
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
-}
-
-const Container::HostVector& DataHandler::getSNP() const {
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    throw InvalidState("Before using the getter run next() at least once.");
-  }
-#endif
-
-  return snpVector->getRecodedData();
-}
-
-const Container::HostVector& DataHandler::getInteraction() const {
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    throw InvalidState("Before using the getter run next() at least once.");
-  }
-#endif
-
-  return interactionVector->getRecodedData();
-}
-
-const Container::HostVector& DataHandler::getEnvironment() const {
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    throw InvalidState("Before using the getter run next() at least once.");
-  }
-#endif
-
-  return environmentVector->getRecodedData();
 }
 
 const Container::SNPVector& DataHandler::getSNPVector() const {

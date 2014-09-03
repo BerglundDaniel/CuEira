@@ -3,11 +3,10 @@
 namespace CuEira {
 namespace Container {
 
-SNPVector::SNPVector(SNP& snp, GeneticModel geneticModel, const std::vector<int>* originalSNPData,
-    const std::vector<int>* numberOfAlleles, const std::vector<double>* alleleFrequencies) :
+SNPVector::SNPVector(SNP& snp, GeneticModel geneticModel, const std::vector<int>* originalSNPData) :
     snp(snp), numberOfIndividualsToInclude(originalSNPData->size()), originalSNPData(originalSNPData), originalGeneticModel(
-        geneticModel), currentGeneticModel(geneticModel), currentRecode(ALL_RISK), alleleFrequencies(alleleFrequencies), numberOfAlleles(
-        numberOfAlleles), originalRiskAllele(snp.getRiskAllele()), onlyFrequencies(false),
+        geneticModel), currentGeneticModel(geneticModel), currentRecode(ALL_RISK), originalRiskAllele(
+        snp.getRiskAllele()),
 #ifdef CPU
         modifiedSNPData(
             new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude)))
@@ -19,37 +18,16 @@ SNPVector::SNPVector(SNP& snp, GeneticModel geneticModel, const std::vector<int>
   doRecode();
 }
 
-SNPVector::SNPVector(SNP& snp, const std::vector<int>* numberOfAlleles, const std::vector<double>* alleleFrequencies,
-    int numberOfIndividualsToInclude) :
-    snp(snp), originalSNPData(nullptr), modifiedSNPData(nullptr), numberOfAlleles(numberOfAlleles), alleleFrequencies(
-        alleleFrequencies), originalRiskAllele(snp.getRiskAllele()), originalGeneticModel(DOMINANT), currentGeneticModel(
-        DOMINANT), currentRecode(ALL_RISK), onlyFrequencies(true), numberOfIndividualsToInclude(
-        numberOfIndividualsToInclude) {
-
-}
-
 SNPVector::~SNPVector() {
   delete modifiedSNPData;
   delete originalSNPData;
-  delete numberOfAlleles;
-  delete alleleFrequencies;
 }
 
 const std::vector<int>& SNPVector::getOrginalData() const {
-#ifdef DEBUG
-  if(onlyFrequencies){
-    throw InvalidState("SNPVector has only allele frequencies, can't get original data.");
-  }
-#endif
   return *originalSNPData;
 }
 
 const Container::HostVector& SNPVector::getRecodedData() const {
-#ifdef DEBUG
-  if(onlyFrequencies){
-    throw InvalidState("SNPVector has only allele frequencies, can't get recoded data.");
-  }
-#endif
   return *modifiedSNPData;
 }
 
@@ -61,20 +39,7 @@ const SNP & SNPVector::getAssociatedSNP() const {
   return snp;
 }
 
-const std::vector<int>& SNPVector::getAlleleNumbers() const {
-  return *numberOfAlleles;
-}
-
-const std::vector<double>& SNPVector::getAlleleFrequencies() const {
-  return *alleleFrequencies;
-}
-
 void SNPVector::recode(Recode recode) {
-#ifdef DEBUG
-  if(onlyFrequencies){
-    throw InvalidState("SNPVector has only allele frequencies, can't do recode.");
-  }
-#endif
   if(currentRecode == recode){
     return;
   }
@@ -87,7 +52,7 @@ void SNPVector::recode(Recode recode) {
   }else if(recode == INTERACTION_PROTECT){
     recodeInteractionProtective();
   }else{
-    return;
+    recodeAllRisk();
   }
 
   doRecode();
@@ -171,12 +136,6 @@ void SNPVector::doRecode() {
 }
 
 void SNPVector::applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector) {
-#ifdef DEBUG
-  if(onlyFrequencies){
-    throw InvalidState("SNPVector has only allele frequencies, can't apply statistic model.");
-  }
-#endif
-
   if(statisticModel == ADDITIVE){
     for(int i = 0; i < numberOfIndividualsToInclude; ++i){
       if(interactionVector(i) != 0){
@@ -188,22 +147,6 @@ void SNPVector::applyStatisticModel(StatisticModel statisticModel, const HostVec
 }
 
 std::ostream& operator<<(std::ostream& os, const Container::SNPVector& snpVector) {
-  ///Print allele numbers
-  os << (*(snpVector.numberOfAlleles))[ALLELE_ONE_CASE_POSITION] << ","
-      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_CASE_POSITION] << ","
-      << (*(snpVector.numberOfAlleles))[ALLELE_ONE_CONTROL_POSITION] << ","
-      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_CONTROL_POSITION] << ","
-      << (*(snpVector.numberOfAlleles))[ALLELE_ONE_ALL_POSITION] << ","
-      << (*(snpVector.numberOfAlleles))[ALLELE_TWO_ALL_POSITION] << ",";
-
-  //Print allele frequencies
-  os << (*(snpVector.alleleFrequencies))[ALLELE_ONE_CASE_POSITION] << ","
-      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_CASE_POSITION] << ","
-      << (*(snpVector.alleleFrequencies))[ALLELE_ONE_CONTROL_POSITION] << ","
-      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_CONTROL_POSITION] << ","
-      << (*(snpVector.alleleFrequencies))[ALLELE_ONE_ALL_POSITION] << ","
-      << (*(snpVector.alleleFrequencies))[ALLELE_TWO_ALL_POSITION] << ",";
-
   //Print recode
   os << snpVector.currentRecode;
 

@@ -1,8 +1,6 @@
 #ifndef SNPVECTORFACTORY_H_
 #define SNPVECTORFACTORY_H_
 
-#define ABSOLUTE_FREQUENCY_THRESHOLD 5
-
 #include <vector>
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
@@ -42,22 +40,14 @@ class SNPVectorFactory {
   FRIEND_TEST(SNPVectorFactoryTest, SNPInclude_ToLowMAF_1Larger2);
   FRIEND_TEST(SNPVectorFactoryTest, SNPInclude_ToLowMAF_2Larger1);
 public:
-  SNPVectorFactory(const Configuration& configuration, int numberOfIndividualsToInclude);
+  SNPVectorFactory(const Configuration& configuration);
   virtual ~SNPVectorFactory();
 
-  virtual SNPVector* constructSNPVector(SNP& snp, std::vector<int>* originalSNPData, std::vector<int>* numberOfAlleles,
-      bool missingData) const;
+  virtual SNPVector* constructSNPVector(SNP& snp, std::vector<int>* originalSNPData) const;
 
 private:
-  std::vector<double>* convertAlleleNumbersToFrequencies(const std::vector<int>& numberOfAlleles) const;
-  void setSNPRiskAllele(SNP& snp, const std::vector<double>& alleleFrequencies) const;
-  void setSNPInclude(SNP& snp, const std::vector<double>& alleleFrequencies, const std::vector<int>& numberOfAlleles,
-      bool missingData) const;
-
   const Configuration& configuration;
-  const int numberOfIndividualsToInclude;
   const GeneticModel geneticModel;
-  const double minorAlleleFrequencyThreshold;
 };
 
 } /* namespace Container */

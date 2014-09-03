@@ -34,12 +34,12 @@ DataHandlerState ModelHandler::next() {
   currentSNP = &dataHandler->getCurrentSNP();
   currentEnvironmentFactor = &dataHandler->getCurrentEnvironmentFactor();
 
-  if(dataHandlerState == EXCLUDE){
+  if(dataHandlerState == SKIP){
     snpData = nullptr;
     environmentData = nullptr;
     interactionData = nullptr;
 
-    return EXCLUDE;
+    return SKIP;
   }else{
     snpData = &dataHandler->getSNPVector().getRecodedData();
     environmentData = &dataHandler->getEnvironmentVector().getRecodedData();

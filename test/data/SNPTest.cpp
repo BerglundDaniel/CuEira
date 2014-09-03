@@ -9,6 +9,7 @@
 #include <Id.h>
 #include <RiskAllele.h>
 #include <InvalidState.h>
+#include <SNPIncludeExclude.h>
 
 namespace CuEira {
 namespace CuEira_Test {
@@ -49,23 +50,31 @@ TEST_F(SNPTest, Getters) {
   std::string alleTwoString1("a1_2");
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
 
-  ASSERT_TRUE(snp1.getInclude());
+  ASSERT_TRUE(snp1.shouldInclude());
   ASSERT_EQ(id1, snp1.getId());
   ASSERT_EQ(alleOneString1, snp1.getAlleleOneName());
   ASSERT_EQ(alleTwoString1, snp1.getAlleleTwoName());
   ASSERT_EQ(pos1, snp1.getPosition());
 
+  const std::vector<SNPIncludeExclude>& includeVector1 = snp1.getInclude();
+  ASSERT_EQ(includeVector1.size(), 1);
+  ASSERT_EQ(includeVector1[0], INCLUDE);
+
   Id id2("SNP2");
   unsigned int pos2 = 2;
   std::string alleOneString2("a2_1");
   std::string alleTwoString2("a2_2");
-  SNP snp2(id2, alleOneString2, alleTwoString2, pos2, false);
+  SNP snp2(id2, alleOneString2, alleTwoString2, pos2, MISSING_DATA);
 
-  ASSERT_FALSE(snp2.getInclude());
+  ASSERT_FALSE(snp2.shouldInclude());
   ASSERT_EQ(id2, snp2.getId());
   ASSERT_EQ(alleOneString2, snp2.getAlleleOneName());
   ASSERT_EQ(alleTwoString2, snp2.getAlleleTwoName());
   ASSERT_EQ(pos2, snp2.getPosition());
+
+  const std::vector<SNPIncludeExclude>& includeVector2 = snp2.getInclude();
+  ASSERT_EQ(includeVector2.size(), 1);
+  ASSERT_EQ(includeVector2[0], MISSING_DATA);
 }
 
 TEST_F(SNPTest, Include) {
@@ -75,11 +84,28 @@ TEST_F(SNPTest, Include) {
   std::string alleTwoString1("a1_2");
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
 
-  snp1.setInclude(true);
-  ASSERT_TRUE(snp1.getInclude());
+  snp1.setInclude(INCLUDE);
+  ASSERT_TRUE(snp1.shouldInclude());
 
-  snp1.setInclude(false);
-  ASSERT_FALSE(snp1.getInclude());
+  snp1.setInclude(MISSING_DATA);
+  ASSERT_FALSE(snp1.shouldInclude());
+
+  const std::vector<SNPIncludeExclude>& includeVector1 = snp1.getInclude();
+
+  ASSERT_EQ(includeVector1.size(), 1);
+  ASSERT_EQ(includeVector1[0], MISSING_DATA);
+
+  snp1.setInclude(LOW_MAF);
+  ASSERT_EQ(includeVector1.size(), 2);
+  ASSERT_EQ(includeVector1[1], MISSING_DATA);
+
+  snp1.setInclude(LOW_CELL_NUMBER);
+  ASSERT_EQ(includeVector1.size(), 3);
+  ASSERT_EQ(includeVector1[2], MISSING_DATA);
+
+  snp1.setInclude(NEGATIVE_POSITION);
+  ASSERT_EQ(includeVector1.size(), 4);
+  ASSERT_EQ(includeVector1[3], MISSING_DATA);
 }
 
 TEST_F(SNPTest, RiskAlleleException) {

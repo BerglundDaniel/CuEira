@@ -8,6 +8,10 @@ set(SOURCE
   ${SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/Statistics.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/StatisticsFactory.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/AlleleStatistics.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/AlleleStatisticsFactory.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ContingencyTable.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ContingencyTableFactory.cpp
   PARENT_SCOPE
 )
 

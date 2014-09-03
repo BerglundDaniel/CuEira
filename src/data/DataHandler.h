@@ -21,6 +21,10 @@
 #include <EnvironmentFactorHandler.h>
 #include <DataQueue.h>
 #include <DataHandlerState.h>
+#include <ContingencyTable.h>
+#include <ContingencyTableFactory.h>
+#include <Configuration.h>
+#include <AlleleStatistics.h>
 
 namespace CuEira {
 class DataHandlerTest;
@@ -31,17 +35,18 @@ class DataHandlerTest;
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class DataHandler {
-  friend DataHandlerTest;
-  FRIEND_TEST(DataHandlerTest, Next);
-  FRIEND_TEST(DataHandlerTest, Recode);
+  friend DataHandlerTest;FRIEND_TEST(DataHandlerTest, Next);FRIEND_TEST(DataHandlerTest, Recode);
 public:
-  DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader,
+  DataHandler(const Configuration& configuration, const FileIO::BedReader& bedReader,
+      const ContingencyTableFactory& contingencyTableFactory,
       const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
       Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector);
   virtual ~DataHandler();
 
   virtual const SNP& getCurrentSNP() const;
   virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
+  virtual const ContingencyTable& getContingencyTable() const;
+  virtual const AlleleStatistics& getAlleleStatistics() const;
 
   virtual DataHandlerState next();
 
@@ -53,7 +58,7 @@ public:
   virtual const Container::EnvironmentVector& getEnvironmentVector() const;
 
 protected:
-  DataHandler(); //For the mock
+  DataHandler(const Configuration& configuration); //For the mock
 
 private:
   enum State {
@@ -61,8 +66,11 @@ private:
   };
 
   bool readSNP(SNP& nextSnp);
+  void setSNPInclude(SNP& snp, const ContingencyTable& contingencyTable) const;
 
+  const Configuration& configuration;
   State state;
+  const ContingencyTableFactory* contingencyTableFactory;
   Task::DataQueue* dataQueue;
   const StatisticModel statisticModel;
   const FileIO::BedReader* bedReader;
@@ -70,8 +78,12 @@ private:
   Container::EnvironmentVector* environmentVector;
   Container::SNPVector* snpVector;
   Container::InteractionVector* interactionVector;
+  const ContingencyTable* contingencyTable;
+  const AlleleStatistics* alleleStatistics;
   Recode currentRecode;
   int currentEnvironmentFactorPos;
+  SNP* currentSNP;
+  const int cellCountThreshold;
 };
 
 } /* namespace CuEira */

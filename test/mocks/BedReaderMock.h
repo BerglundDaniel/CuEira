@@ -7,6 +7,8 @@
 #include <SNP.h>
 #include <SNPVector.h>
 #include <SNPVectorFactory.h>
+#include <AlleleStatistics.h>
+#include <AlleleStatisticsFactory.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -14,8 +16,8 @@ namespace FileIO {
 class BedReaderMock: public BedReader {
 public:
   BedReaderMock(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
-      const PersonHandler& personHandler) :
-      BedReader(configuration, snpVectorFactory, personHandler) {
+      const AlleleStatisticsFactory& alleleStatisticsFactory, const PersonHandler& personHandler) :
+      BedReader(configuration, snpVectorFactory, alleleStatisticsFactory, personHandler) {
 
   }
 
@@ -23,7 +25,7 @@ public:
 
   }
 
-  MOCK_CONST_METHOD1(readSNP, Container::SNPVector*(SNP&));
+  MOCK_CONST_METHOD1(readSNP, std::pair<const AlleleStatistics*, Container::SNPVector*>*(SNP&));
 
 };
 

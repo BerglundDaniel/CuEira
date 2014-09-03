@@ -18,6 +18,8 @@
 #include <InteractionVector.h>
 #include <StatisticsFactory.h>
 #include <DataHandlerState.h>
+#include <ContingencyTableFactory.h>
+#include <AlleleStatisticsFactory.h>
 
 #ifdef CPU
 //#include <CpuModelHandler.h>
@@ -36,6 +38,9 @@
 int main(int argc, char* argv[]) {
   using namespace CuEira;
   std::cerr << "Starting" << std::endl;
+#ifdef DEBUG
+  std::cerr << "CuEira was compiled in debug mode, this can affect performance." << std::endl;
+#endif
 
   Configuration configuration(argc, argv);
   std::cerr << "m1" << std::endl;
@@ -64,17 +69,20 @@ int main(int argc, char* argv[]) {
     numberOfCovariates = covariates->getNumberOfColumns();
   }
   std::cerr << "m5" << std::endl;
-  Container::SNPVectorFactory snpVectorFactory(configuration, numberOfIndividualsToInclude);
+  Container::SNPVectorFactory snpVectorFactory(configuration);
   StatisticsFactory statisticsFactory;
+  AlleleStatisticsFactory alleleStatisticsFactory;
+  ContingencyTableFactory contingencyTableFactory(personHandler->getOutcomes());
+
   std::cerr << "m6" << std::endl;
-  FileIO::BedReader bedReader(configuration, snpVectorFactory, *personHandler, numberOfSNPs);
+  FileIO::BedReader bedReader(configuration, snpVectorFactory, alleleStatisticsFactory, *personHandler, numberOfSNPs);
 
   Task::DataQueue* dataQueue = new Task::DataQueue(*snpInformation);
   std::cerr << "m7" << std::endl;
   //FIXME this part to factory for DataHandler
   Container::EnvironmentVector* environmentVector = new Container::EnvironmentVector(*environmentFactorHandler);
   Container::InteractionVector* interactionVector = new Container::InteractionVector(*environmentVector);
-  DataHandler* dataHandler = new DataHandler(configuration.getStatisticModel(), bedReader,
+  DataHandler* dataHandler = new DataHandler(configuration, bedReader, contingencyTableFactory,
       environmentFactorHandler->getHeaders(), *dataQueue, environmentVector, interactionVector);
 
 #ifdef CPU
@@ -134,12 +142,14 @@ int main(int argc, char* argv[]) {
     const SNP& snp = modelHandler->getCurrentSNP();
     const EnvironmentFactor& envFactor = modelHandler->getCurrentEnvironmentFactor();
 
-    if(dataHandlerState == EXCLUDE){
+    if(dataHandlerState == SKIP){
       //TODO need to add allele freqs and such
       std::cout << snp << "," << envFactor << std::endl;
     }else{
       Statistics* statistics = modelHandler->calculateModel();
+#ifndef CPU
       CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in Main: ");
+#endif
 
       const Container::SNPVector& snpVector = modelHandler->getSNPVector();
       const Container::EnvironmentVector& envVector = modelHandler->getEnvironmentVector();

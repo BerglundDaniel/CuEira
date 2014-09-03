@@ -48,6 +48,13 @@ std::pair<Container::HostMatrix*, std::vector<std::string>*>* CSVReader::readDat
       //Read column names
       for(int i = 0; i < lineSplitSize; ++i){
         if(boost::iequals(lineSplit[i], idColumnName)){
+          if(idColumnNumber >= 0){
+            std::ostringstream os;
+            os << "There is more than one column(case insensitive) named " << idColumnName << " in csv file "
+                << filePath << std::endl;
+            const std::string& tmp = os.str();
+            throw FileReaderException(tmp.c_str());
+          }
           idColumnNumber = i;
         }else{
           (*dataColumnNames)[dataColumnPos] = lineSplit[i];

@@ -80,12 +80,12 @@ std::vector<SNP*>* BimReader::readSNPInformation() {
     //Should SNPs with negative position be excluded?
     if(configuration.excludeSNPsWithNegativePosition()){
       if(baseSNP < 0){
-        snp = new SNP(id, alleleOneName, alleleTwoName, pos, false);
+        snp = new SNP(id, alleleOneName, alleleTwoName, pos, NEGATIVE_POSITION);
       }else{
-        snp = new SNP(id, alleleOneName, alleleTwoName, pos, true);
+        snp = new SNP(id, alleleOneName, alleleTwoName, pos);
       }
     }else{
-      snp = new SNP(id, alleleOneName, alleleTwoName, pos, true);
+      snp = new SNP(id, alleleOneName, alleleTwoName, pos);
     }
     (*SNPInformation)[pos] = snp;
 

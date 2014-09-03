@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <ostream>
 
 namespace CuEira {
 
@@ -13,6 +14,7 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class Id {
+  friend std::ostream& operator<<(std::ostream& os, const Id& id);
 public:
   explicit Id(std::string id);
   virtual ~Id();

@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <thread>
+#include <mutex>
 
 #include <Id.h>
 #include <SNP.h>

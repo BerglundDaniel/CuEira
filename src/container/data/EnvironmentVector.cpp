@@ -69,6 +69,8 @@ void EnvironmentVector::recode(Recode recode) {
     recodeEnvironmentProtective();
   }else if(recode == INTERACTION_PROTECT){
     recodeInteractionProtective();
+  }else{
+    recodeAllRisk();
   }
 }
 

@@ -21,6 +21,7 @@
 #include <SNPVector.h>
 #include <SNPVectorFactoryMock.h>
 #include <SNPVectorFactory.h>
+#include <AlleleStatisticsFactoryMock.h>
 
 using testing::Return;
 using testing::_;
@@ -52,6 +53,7 @@ protected:
   PersonHandlerMock personHandlerMock;
   ConfigurationMock configMock;
   Container::SNPVectorFactoryMock* snpVectorFactoryMock;
+  AlleleStatisticsFactoryMock* alleleStatisticsFactoryMock;
   std::string filePath;
   std::vector<int> notInclude; //Index 0 based
   static const int numberOfSNPs = 10;
@@ -64,7 +66,7 @@ protected:
 BedReaderTest::BedReaderTest() :
     filePath(std::string(CuEira_BUILD_DIR) + std::string("/test.bed")), numberOfIndividualsTotal(
         numberOfIndividualsTotalStatic), numberOfIndividualsToInclude(numberOfIndividualsToIncludeStatic), notInclude(
-        4), snpVectorFactoryMock(constructorHelpers.constructSNPVectorFactoryMock()) {
+        4), snpVectorFactoryMock(constructorHelpers.constructSNPVectorFactoryMock()),alleleStatisticsFactoryMock(new AlleleStatisticsFactoryMock) {
   notInclude[0] = 1;
   notInclude[1] = 2;
   notInclude[2] = 5;
@@ -73,6 +75,7 @@ BedReaderTest::BedReaderTest() :
 
 BedReaderTest::~BedReaderTest() {
   delete snpVectorFactoryMock;
+  delete alleleStatisticsFactoryMock;
 }
 
 void BedReaderTest::SetUp() {

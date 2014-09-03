@@ -43,6 +43,7 @@ public:
   MOCK_CONST_METHOD0(getNumberOfMaxLRIterations, int());
   MOCK_CONST_METHOD0(getLRConvergenceThreshold, double());
   MOCK_CONST_METHOD0(getStatisticModel, StatisticModel());
+  MOCK_CONST_METHOD0(getCellCountThreshold, int());
 
 };
 

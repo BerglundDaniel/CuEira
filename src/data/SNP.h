@@ -1,12 +1,13 @@
 #ifndef SNP_H_
 #define SNP_H_
 
-#include <sstream>
+#include <vector>
 #include <ostream>
 
 #include <RiskAllele.h>
 #include <Id.h>
 #include <InvalidState.h>
+#include <SNPIncludeExclude.h>
 
 namespace CuEira {
 
@@ -18,13 +19,15 @@ namespace CuEira {
 class SNP {
   friend std::ostream& operator<<(std::ostream& os, const SNP& snp);
 public:
-  explicit SNP(Id id, std::string alleleOneName, std::string alleleTwoName, unsigned int position, bool include = true);
+  explicit SNP(Id id, std::string alleleOneName, std::string alleleTwoName, unsigned int position,
+      SNPIncludeExclude includeExclude = INCLUDE);
   virtual ~SNP();
 
   Id getId() const;
 
-  bool getInclude() const;
-  void setInclude(bool include);
+  bool shouldInclude() const;
+  const std::vector<SNPIncludeExclude>& getInclude() const;
+  void setInclude(SNPIncludeExclude includeExclude);
 
   unsigned int getPosition() const;
   std::string getAlleleOneName() const;
@@ -38,7 +41,7 @@ public:
 
 private:
   Id id;
-  bool include;
+  std::vector<SNPIncludeExclude>* includeExcludeVector;
   const std::string alleleOneName;
   const std::string alleleTwoName;
   const unsigned int position;

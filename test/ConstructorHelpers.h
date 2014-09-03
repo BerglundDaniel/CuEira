@@ -24,12 +24,15 @@
 #include <PersonHandlerMock.h>
 #include <ConfigurationMock.h>
 #include <SNPVectorFactoryMock.h>
+#include <ContingencyTableFactoryMock.h>
 
 #ifdef CPU
 #include <lapackpp/gmd.h>
 #include <LapackppHostMatrix.h>
+#include <lapackpp/lavd.h>
 #else
 #include <PinnedHostMatrix.h>
+#include <PinnedHostVector.h>
 #endif
 
 using testing::Return;
@@ -56,6 +59,7 @@ public:
   EnvironmentFactorHandlerMock* constructEnvironmentFactorHandlerMock();
   FileIO::BedReaderMock* constructBedReaderMock();
   Container::SNPVectorFactoryMock* constructSNPVectorFactoryMock();
+  ContingencyTableFactoryMock constructContingencyTableFactoryMock();
 
 private:
 

@@ -125,6 +125,11 @@ public:
   virtual double getLRConvergenceThreshold() const;
 
   /**
+   * Get the threshold for the cell cell counts of the contingency table
+   */
+  virtual int getCellCountThreshold() const;
+
+  /**
    * Get the statistic model to use for the logistic regression
    */
   virtual StatisticModel getStatisticModel() const;

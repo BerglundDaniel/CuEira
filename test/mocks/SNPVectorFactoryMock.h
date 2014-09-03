@@ -15,7 +15,7 @@ namespace Container {
 class SNPVectorFactoryMock: public SNPVectorFactory {
 public:
   SNPVectorFactoryMock(const Configuration& configuration) :
-      SNPVectorFactory(configuration, 0) {
+      SNPVectorFactory(configuration) {
 
   }
 

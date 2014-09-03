@@ -9,7 +9,7 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 enum DataHandlerState {
-  INCLUDE, EXCLUDE, DONE
+  CALCULATE, SKIP, DONE
 };
 
 } /* namespace CuEira */

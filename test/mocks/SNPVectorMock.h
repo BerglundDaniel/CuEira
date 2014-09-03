@@ -17,7 +17,7 @@ namespace Container {
 class SNPVectorMock: public SNPVector {
 public:
   SNPVectorMock(SNP& snp) :
-  SNPVector(snp, nullptr, nullptr, 0){
+  SNPVector(snp, DOMINANT, nullptr){
 
   }
 
@@ -29,8 +29,6 @@ public:
   MOCK_CONST_METHOD0(getOrginalData, const std::vector<int>&());
   MOCK_CONST_METHOD0(getRecodedData, const Container::HostVector&());
   MOCK_CONST_METHOD0(getAssociatedSNP, const SNP&());
-  MOCK_CONST_METHOD0(getAlleleNumbers, const std::vector<int>&());
-  MOCK_CONST_METHOD0(getAlleleFrequencies, const std::vector<double>&());
 
   MOCK_METHOD1(recode, void(Recode));
   MOCK_METHOD2(applyStatisticModel, void(StatisticModel, const Container::HostVector&));

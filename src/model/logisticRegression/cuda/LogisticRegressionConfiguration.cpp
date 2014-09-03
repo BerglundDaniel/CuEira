@@ -16,8 +16,6 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
         new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), betaCoefficentsDefaultHost(
         new PinnedHostVector(numberOfPredictors)) {
 
-  std::cerr << "num " << numberOfRows << " " << numberOfPredictors << std::endl;
-
   kernelWrapper.setSymbolNumberOfRows(numberOfRows);
   kernelWrapper.setSymbolNumberOfPredictors(numberOfPredictors);
 

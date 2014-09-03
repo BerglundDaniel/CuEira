@@ -4,11 +4,12 @@ namespace CuEira {
 namespace FileIO {
 
 BedReader::BedReader(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
-    const PersonHandler& personHandler, const int numberOfSNPs) :
-    configuration(configuration), snpVectorFactory(snpVectorFactory), personHandler(personHandler), bedFileStr(
-        configuration.getBedFilePath()), numberOfSNPs(numberOfSNPs), numberOfIndividualsToInclude(
+    const AlleleStatisticsFactory& alleleStatisticsFactory, const PersonHandler& personHandler, const int numberOfSNPs) :
+    configuration(configuration), snpVectorFactory(snpVectorFactory), alleleStatisticsFactory(alleleStatisticsFactory), personHandler(
+        personHandler), bedFileStr(configuration.getBedFilePath()), numberOfSNPs(numberOfSNPs), numberOfIndividualsToInclude(
         personHandler.getNumberOfIndividualsToInclude()), numberOfIndividualsTotal(
-        personHandler.getNumberOfIndividualsTotal()) {
+        personHandler.getNumberOfIndividualsTotal()), minorAlleleFrequencyThreshold(
+        configuration.getMinorAlleleFrequencyThreshold()) {
 
   std::ifstream bedFile;
   openBedFile(bedFile);
@@ -55,9 +56,10 @@ BedReader::BedReader(const Configuration& configuration, const Container::SNPVec
 }
 
 BedReader::BedReader(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
-    const PersonHandler& personHandler) :
+    const AlleleStatisticsFactory& alleleStatisticsFactory, const PersonHandler& personHandler) :
     numberOfSNPs(0), numberOfIndividualsTotal(0), numberOfIndividualsToInclude(0), configuration(configuration), personHandler(
-        personHandler), snpVectorFactory(snpVectorFactory) {
+        personHandler), snpVectorFactory(snpVectorFactory), alleleStatisticsFactory(alleleStatisticsFactory), minorAlleleFrequencyThreshold(
+        0) {
 
 }
 
@@ -65,7 +67,7 @@ BedReader::~BedReader() {
 
 }
 
-Container::SNPVector* BedReader::readSNP(SNP& snp) const {
+std::pair<const AlleleStatistics*, Container::SNPVector*>* BedReader::readSNP(SNP& snp) const {
   std::ifstream bedFile;
   int numberOfAlleleOneCase = 0;
   int numberOfAlleleTwoCase = 0;
@@ -218,7 +220,24 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) const {
   (*numberOfAlleles)[ALLELE_ONE_ALL_POSITION] = numberOfAlleleOneAll;
   (*numberOfAlleles)[ALLELE_TWO_ALL_POSITION] = numberOfAlleleTwoAll;
 
-  return snpVectorFactory.constructSNPVector(snp, snpDataOriginal, numberOfAlleles, missingData);
+  std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = new std::pair<const AlleleStatistics*,
+      Container::SNPVector*>();
+  pair->first = alleleStatisticsFactory.constructAlleleStatistics(numberOfAlleles);
+
+  if(missingData){
+    snp.setInclude(MISSING_DATA);
+  }
+
+  setSNPInclude(snp, *(pair->first));
+  setSNPRiskAllele(snp, *(pair->first));
+
+  if(snp.shouldInclude()){
+    pair->second = snpVectorFactory.constructSNPVector(snp, snpDataOriginal);
+  }else{
+    pair->second = nullptr;
+  }
+
+  return pair;
 } /* readSNP */
 
 // position in range 0-7
@@ -245,6 +264,79 @@ void BedReader::closeBedFile(std::ifstream& bedFile) const {
     os << "Problem closing bed file " << bedFileStr << std::endl;
     const std::string& tmp = os.str();
     throw FileReaderException(tmp.c_str());
+  }
+}
+
+void BedReader::setSNPRiskAllele(SNP& snp, const AlleleStatistics& alleleStatistics) const {
+  const std::vector<double>& alleleFrequencies = alleleStatistics.getAlleleFrequencies();
+
+  //Check which allele is most frequent in cases
+  RiskAllele riskAllele;
+  /*
+   if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] == alleleFrequencies[ALLELE_TWO_CASE_POSITION]){
+   if(alleleFrequencies[ALLELE_ONE_CONTROL_POSITION] == alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
+   riskAllele = ALLELE_ONE;
+   }else if(alleleFrequencies[ALLELE_ONE_CONTROL_POSITION] < alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
+   riskAllele = ALLELE_ONE;
+   }else{
+   riskAllele = ALLELE_TWO;
+   }
+   }else if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] > alleleFrequencies[ALLELE_TWO_CASE_POSITION]){
+   if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] >= alleleFrequencies[ALLELE_ONE_CONTROL_POSITION]){
+   riskAllele = ALLELE_ONE;
+   }else{
+   riskAllele = ALLELE_TWO;
+   }
+   }else{
+   if(alleleFrequencies[ALLELE_TWO_CASE_POSITION] >= alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
+   riskAllele = ALLELE_TWO;
+   }else{
+   riskAllele = ALLELE_ONE;
+   }
+   }*/
+
+  //This is how Geisa does it
+  if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] > alleleFrequencies[ALLELE_TWO_CASE_POSITION]){
+    if(alleleFrequencies[ALLELE_ONE_CONTROL_POSITION] > alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
+      if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] > alleleFrequencies[ALLELE_ONE_CONTROL_POSITION]){
+        riskAllele = ALLELE_ONE;
+      }else{
+        riskAllele = ALLELE_TWO;
+      }
+    }else{
+      riskAllele = ALLELE_TWO;
+    }
+  }else{
+    if(alleleFrequencies[ALLELE_TWO_CONTROL_POSITION] > alleleFrequencies[ALLELE_ONE_CONTROL_POSITION]){
+      if(alleleFrequencies[ALLELE_TWO_CASE_POSITION] > alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
+        riskAllele = ALLELE_TWO;
+      }else{
+        riskAllele = ALLELE_ONE;
+      }
+    }else{
+      riskAllele = ALLELE_ONE;
+    }
+  }
+
+  snp.setRiskAllele(riskAllele);
+}
+
+void BedReader::setSNPInclude(SNP& snp, const AlleleStatistics& alleleStatistics) const {
+  const std::vector<double>& alleleFrequencies = alleleStatistics.getAlleleFrequencies();
+
+  //Calculate MAF
+  double minorAlleleFrequency;
+  if(alleleFrequencies[ALLELE_ONE_ALL_POSITION] == alleleFrequencies[ALLELE_TWO_ALL_POSITION]){
+    minorAlleleFrequency = alleleFrequencies[ALLELE_ONE_ALL_POSITION];
+  }else if(alleleFrequencies[ALLELE_ONE_ALL_POSITION] > alleleFrequencies[ALLELE_TWO_ALL_POSITION]){
+    minorAlleleFrequency = alleleFrequencies[ALLELE_TWO_ALL_POSITION];
+  }else{
+    minorAlleleFrequency = alleleFrequencies[ALLELE_ONE_ALL_POSITION];
+  }
+
+  if(minorAlleleFrequency < minorAlleleFrequencyThreshold){
+    snp.setInclude(LOW_MAF);
+    return;
   }
 }
 

@@ -2,19 +2,24 @@
 
 namespace CuEira {
 
-DataHandler::DataHandler(StatisticModel statisticModel, const FileIO::BedReader& bedReader,
+DataHandler::DataHandler(const Configuration& configuration, const FileIO::BedReader& bedReader,
+    const ContingencyTableFactory& contingencyTableFactory,
     const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
     Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector) :
-    currentRecode(ALL_RISK), dataQueue(&dataQueue), statisticModel(statisticModel), bedReader(&bedReader), interactionVector(
-        interactionVector), snpVector(nullptr), environmentVector(environmentVector), environmentInformation(
-        &environmentInformation), currentEnvironmentFactorPos(environmentInformation.size() - 1), state(NOT_INITIALISED) {
+    configuration(configuration), currentRecode(ALL_RISK), dataQueue(&dataQueue), statisticModel(
+        configuration.getStatisticModel()), bedReader(&bedReader), interactionVector(interactionVector), snpVector(
+        nullptr), environmentVector(environmentVector), environmentInformation(&environmentInformation), currentEnvironmentFactorPos(
+        environmentInformation.size() - 1), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(
+        &contingencyTableFactory), currentSNP(nullptr), cellCountThreshold(configuration.getCellCountThreshold()), alleleStatistics(
+        nullptr) {
 
 }
 
-DataHandler::DataHandler() :
-    currentRecode(ALL_RISK), dataQueue(nullptr), statisticModel(ADDITIVE), bedReader(nullptr), interactionVector(
-        nullptr), snpVector(nullptr), environmentVector(nullptr), environmentInformation(nullptr), currentEnvironmentFactorPos(
-        0), state(NOT_INITIALISED) {
+DataHandler::DataHandler(const Configuration& configuration) :
+    configuration(configuration), currentRecode(ALL_RISK), dataQueue(nullptr), statisticModel(ADDITIVE), bedReader(
+        nullptr), interactionVector(nullptr), snpVector(nullptr), environmentVector(nullptr), environmentInformation(
+        nullptr), currentEnvironmentFactorPos(0), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(
+        nullptr), currentSNP(nullptr), alleleStatistics(nullptr), cellCountThreshold(0) {
 
 }
 
@@ -22,6 +27,7 @@ DataHandler::~DataHandler() {
   delete interactionVector;
   delete snpVector;
   delete environmentVector;
+  delete contingencyTable;
 }
 
 const SNP& DataHandler::getCurrentSNP() const {
@@ -42,16 +48,24 @@ const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
   return *(*environmentInformation)[currentEnvironmentFactorPos];
 }
 
+const ContingencyTable& DataHandler::getContingencyTable() const {
+  return *contingencyTable;
+}
+
+const AlleleStatistics& DataHandler::getAlleleStatistics() const {
+  return *alleleStatistics;
+}
+
 DataHandlerState DataHandler::next() {
   if(currentEnvironmentFactorPos == environmentInformation->size() - 1){ //Check if we were at the last EnvironmentFactor so should start with next snp
-    SNP* nextSNP = dataQueue->next();
-    if(nextSNP == nullptr){
+    currentSNP = dataQueue->next();
+    if(currentSNP == nullptr){
       return DONE;
     }
 
-    bool include = readSNP(*nextSNP);
+    bool include = readSNP(*currentSNP);
     if(!include){
-      return EXCLUDE;
+      return SKIP;
     }
     currentEnvironmentFactorPos = 0;
   }else{
@@ -74,43 +88,31 @@ DataHandlerState DataHandler::next() {
   const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
   environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
 
-  std::cerr << "DataHandler " << snpVector->getAssociatedSNP().getId().getString() << " "
-      << (*environmentInformation)[currentEnvironmentFactorPos]->getId().getString() << std::endl;
-  const Container::HostVector& snpData = snpVector->getRecodedData();
-  const Container::HostVector& environmentData = environmentVector->getRecodedData();
-
-  for(int i = 0; i < snpData.getNumberOfRows(); ++i){
-    std::cerr << snpData(i);
-  }
-  std::cerr << std::endl;
-
-  for(int i = 0; i < snpData.getNumberOfRows(); ++i){
-    std::cerr << environmentData(i);
-  }
-  std::cerr << std::endl;
-
   interactionVector->recode(*snpVector);
 
-  //TODO check if it should be included based on the interaction stuff, need to store the freqs some where
+  delete contingencyTable;
+  contingencyTable = contingencyTableFactory->constructContingencyTable(*snpVector, *environmentVector);
 
-  const Container::HostVector& interactionData = interactionVector->getRecodedData();
-  for(int i = 0; i < snpData.getNumberOfRows(); ++i){
-    std::cerr << interactionData(i);
-  }
-  std::cerr << std::endl;
+  setSNPInclude(*currentSNP, *contingencyTable);
 
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 
   currentRecode = ALL_RISK;
-  return INCLUDE;
+  return CALCULATE;
 }
 
 bool DataHandler::readSNP(SNP& nextSnp) {
   delete snpVector;
-  snpVector = bedReader->readSNP(nextSnp);
+  delete alleleStatistics;
 
-  return nextSnp.getInclude();
+  std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = bedReader->readSNP(nextSnp);
+
+  alleleStatistics = pair->first;
+  snpVector = pair->second;
+
+  delete pair;
+  return nextSnp.shouldInclude();
 }
 
 Recode DataHandler::getRecode() const {
@@ -173,6 +175,17 @@ const Container::EnvironmentVector& DataHandler::getEnvironmentVector() const {
   }
 #endif
   return *environmentVector;
+}
+
+void DataHandler::setSNPInclude(SNP& snp, const ContingencyTable& contingencyTable) const {
+  const std::vector<int>& table = contingencyTable.getTable();
+  const int size = table.size();
+  for(int i = 0; i < size; ++i){
+    if(table[i] <= cellCountThreshold){
+      snp.setInclude(LOW_CELL_NUMBER);
+      break;
+    }
+  }
 }
 
 } /* namespace CuEira */

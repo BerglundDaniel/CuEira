@@ -112,6 +112,16 @@ Container::SNPVectorFactoryMock* ConstructorHelpers::constructSNPVectorFactoryMo
   return new Container::SNPVectorFactoryMock(configurationMock);
 }
 
+ContingencyTableFactoryMock ConstructorHelpers::constructContingencyTableFactoryMock() {
+  const int size = 3;
+#ifdef CPU
+  Container::LapackppHostVector outcomes(new LaVectorDouble(size));
+#else
+  Container::PinnedHostVector outcomes(size);
+#endif
+  return new ContingencyTableFactoryMock(outcomes);
+}
+
 }
 /* namespace CuEira_Test */
 } /* namespace CuEira */

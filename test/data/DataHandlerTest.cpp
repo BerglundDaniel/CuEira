@@ -25,6 +25,8 @@
 #include <EnvironmentFactor.h>
 #include <DataQueue.h>
 #include <ConstructorHelpers.h>
+#include <ConfigurationMock.h>
+#include <ContingencyTableFactoryMock.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
@@ -60,6 +62,8 @@ protected:
   FileIO::BedReaderMock* bedReaderMock;
   Container::EnvironmentVectorMock* environmentVectorMock;
   Container::InteractionVectorMock* interactionVectorMock;
+  ConfigurationMock* configurationMock;
+  ContingencyTableFactoryMock* contingencyTableFactoryMock;
   std::vector<SNP*>* snpQueue;
   std::vector<SNP*>* snpStore;
   Task::DataQueue* dataQueue;
@@ -68,11 +72,11 @@ protected:
 };
 
 DataHandlerTest::DataHandlerTest() :
-    numberOfSNPs(3), numberOfEnvironmentFactors(2), numberOfIndividuals(5), constructorHelpers(), bedReaderMock(
-        constructorHelpers.constructBedReaderMock()), snpQueue(nullptr), dataQueue(nullptr), environmentInformation(
-        new std::vector<const EnvironmentFactor*>(numberOfEnvironmentFactors)), environmentStore(
-        new std::vector<EnvironmentFactor*>(numberOfEnvironmentFactors)), snpStore(new std::vector<SNP*>(numberOfSNPs)), environmentVectorMock(
-        nullptr), interactionVectorMock(nullptr) {
+numberOfSNPs(3), numberOfEnvironmentFactors(2), numberOfIndividuals(5), constructorHelpers(), bedReaderMock(
+    constructorHelpers.constructBedReaderMock()), snpQueue(nullptr), dataQueue(nullptr), environmentInformation(
+    new std::vector<const EnvironmentFactor*>(numberOfEnvironmentFactors)), environmentStore(
+    new std::vector<EnvironmentFactor*>(numberOfEnvironmentFactors)), snpStore(new std::vector<SNP*>(numberOfSNPs)), environmentVectorMock(
+    nullptr), interactionVectorMock(nullptr), configurationMock(new ConfigurationMock()),contingencyTableFactoryMock(constructorHelpers.constructContingencyTableFactoryMock()){
 
   for(int i = 0; i < numberOfEnvironmentFactors; ++i){
     std::ostringstream os;
@@ -101,6 +105,8 @@ DataHandlerTest::~DataHandlerTest() {
   delete environmentInformation;
   delete environmentStore;
   delete bedReaderMock;
+  delete configurationMock;
+  delete contingencyTableFactoryMock;
 }
 
 void DataHandlerTest::SetUp() {
@@ -128,7 +134,7 @@ void DataHandlerTest::TearDown() {
 
 #ifdef DEBUG
 TEST_F(DataHandlerTest, ConstructAndGetException){
-  DataHandler dataHandler(ADDITIVE, *bedReaderMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
+  DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
 
   EXPECT_THROW(dataHandler.getCurrentEnvironmentFactor(), InvalidState);
   EXPECT_THROW(dataHandler.getCurrentSNP(), InvalidState);
@@ -144,9 +150,9 @@ TEST_F(DataHandlerTest, ConstructAndGetException){
 #endif
 
 TEST_F(DataHandlerTest, Next) {
-  StatisticModel statisticModel = ADDITIVE;
-  DataHandler dataHandler(statisticModel, *bedReaderMock, *environmentInformation, *dataQueue, environmentVectorMock,
-      interactionVectorMock);
+  const StatisticModel statisticModel = ADDITIVE;
+  DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock, *environmentInformation,
+      *dataQueue, environmentVectorMock, interactionVectorMock);
 
 #ifdef CPU
   Container::HostVector* envData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
@@ -223,9 +229,9 @@ TEST_F(DataHandlerTest, Recode) {
   Container::HostVector* interactionData = new Container::PinnedHostVector(numberOfIndividuals);
 #endif
 
-  StatisticModel statisticModel = ADDITIVE;
-  DataHandler dataHandler(statisticModel, *bedReaderMock, *environmentInformation, *dataQueue, environmentVectorMock,
-      interactionVectorMock);
+  const StatisticModel statisticModel = ADDITIVE;
+  DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock, *environmentInformation,
+      *dataQueue, environmentVectorMock, interactionVectorMock);
   dataHandler.state = dataHandler.INITIALISED;
 
   Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();

@@ -2,26 +2,39 @@
 
 namespace CuEira {
 
-SNP::SNP(Id id, std::string alleleOneName, std::string alleleTwoName, unsigned int position, bool include) :
-    id(id), alleleOneName(alleleOneName), alleleTwoName(alleleTwoName), include(include), position(position), riskAllele(
-        ALLELE_ONE), riskAlleleHasBeenSet(false) {
-
+SNP::SNP(Id id, std::string alleleOneName, std::string alleleTwoName, unsigned int position,
+    SNPIncludeExclude includeExclude) :
+    id(id), alleleOneName(alleleOneName), alleleTwoName(alleleTwoName), includeExcludeVector(
+        new std::vector<SNPIncludeExclude>()), position(position), riskAllele(ALLELE_ONE), riskAlleleHasBeenSet(false) {
+  includeExcludeVector->push_back(includeExclude);
 }
 
 SNP::~SNP() {
-
+  delete includeExcludeVector;
 }
 
 Id SNP::getId() const {
   return id;
 }
 
-bool SNP::getInclude() const {
-  return include;
+bool SNP::shouldInclude() const {
+  if((*includeExcludeVector)[0] == INCLUDE){
+    return true;
+  }else{
+    return false;
+  }
 }
 
-void SNP::setInclude(bool include) {
-  this->include = include;
+const std::vector<SNPIncludeExclude>& SNP::getInclude() const {
+  return *includeExcludeVector;
+}
+
+void SNP::setInclude(SNPIncludeExclude includeExclude) {
+  if(includeExclude == INCLUDE){
+    delete includeExcludeVector;
+    includeExcludeVector = new std::vector<SNPIncludeExclude>();
+  }
+  includeExcludeVector->push_back(includeExclude);
 }
 
 void SNP::setRiskAllele(RiskAllele riskAllele) {

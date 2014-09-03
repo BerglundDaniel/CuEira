@@ -8,6 +8,7 @@
 #include <Configuration.h>
 #include <SNP.h>
 #include <ConfigurationMock.h>
+#include <SNPIncludeExclude.h>
 
 using testing::Return;
 
@@ -93,9 +94,10 @@ TEST_F(BimReaderTest, ReadFile) {
 
     //Check include
     if(i == 3 || i == 9){
-      ASSERT_FALSE(snp->getInclude());
+      ASSERT_FALSE(snp->shouldInclude());
+      ASSERT_EQ(NEGATIVE_POSITION, (snp->getInclude())[0]);
     }else{
-      ASSERT_TRUE(snp->getInclude());
+      ASSERT_TRUE(snp->shouldInclude());
     }
 
     ASSERT_EQ(i, snp->getPosition());

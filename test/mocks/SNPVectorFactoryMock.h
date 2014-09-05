@@ -23,8 +23,7 @@ public:
 
   }
 
-  MOCK_CONST_METHOD4(constructSNPVector, SNPVector*(SNP&, std::vector<int>*, std::vector<int>*,
-          bool));
+  MOCK_CONST_METHOD2(constructSNPVector, SNPVector*(SNP&, const std::vector<int>*));
 };
 
 } /* namespace Container */

@@ -3,29 +3,29 @@
 namespace CuEira {
 namespace Task {
 
-DataQueue::DataQueue(std::vector<SNP*> snpQueue) :
+DataQueue::DataQueue(std::vector<SNP*>* snpQueue) :
     snpQueue(snpQueue) {
 
 }
 
 DataQueue::~DataQueue() {
-
+  delete snpQueue;
 }
 
 SNP* DataQueue::next() {
-  if(snpQueue.empty()){
+  if(snpQueue->empty()){
     return nullptr;
   }
 
   mutex.lock();
 
-  if(snpQueue.empty()){
+  if(snpQueue->empty()){
     mutex.unlock();
     return nullptr;
   }
 
-  SNP* currentSNP = snpQueue.back();
-  snpQueue.pop_back();
+  SNP* currentSNP = snpQueue->back();
+  snpQueue->pop_back();
 
   mutex.unlock();
   return currentSNP;

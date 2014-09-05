@@ -16,8 +16,8 @@ namespace Container {
 
 class SNPVectorMock: public SNPVector {
 public:
-  SNPVectorMock(SNP& snp) :
-  SNPVector(snp, DOMINANT, nullptr){
+  SNPVectorMock(SNP& snp, const std::vector<int>* originalSNPData) :
+  SNPVector(snp, DOMINANT, originalSNPData){
 
   }
 

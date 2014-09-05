@@ -32,7 +32,7 @@ bool Id::operator==(const Id& otherId) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Id& id) {
-  os << id;
+  os << id.id;
   return os;
 }
 

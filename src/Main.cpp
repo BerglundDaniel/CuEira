@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
   std::cerr << "m6" << std::endl;
   FileIO::BedReader bedReader(configuration, snpVectorFactory, alleleStatisticsFactory, *personHandler, numberOfSNPs);
 
-  Task::DataQueue* dataQueue = new Task::DataQueue(*snpInformation);
+  Task::DataQueue* dataQueue = new Task::DataQueue(snpInformation);
   std::cerr << "m7" << std::endl;
   //FIXME this part to factory for DataHandler
   Container::EnvironmentVector* environmentVector = new Container::EnvironmentVector(*environmentFactorHandler);
@@ -182,11 +182,6 @@ int main(int argc, char* argv[]) {
   delete dataQueue;
   delete covariates;
   delete covariatesNames;
-
-  for(int i = 0; i < numberOfSNPs; ++i){
-    delete (*snpInformation)[i];
-  }
-  delete snpInformation;
 
 #ifdef CPU
 

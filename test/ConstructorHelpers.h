@@ -25,6 +25,7 @@
 #include <ConfigurationMock.h>
 #include <SNPVectorFactoryMock.h>
 #include <ContingencyTableFactoryMock.h>
+#include <AlleleStatisticsFactoryMock.h>
 
 #ifdef CPU
 #include <lapackpp/gmd.h>
@@ -59,7 +60,7 @@ public:
   EnvironmentFactorHandlerMock* constructEnvironmentFactorHandlerMock();
   FileIO::BedReaderMock* constructBedReaderMock();
   Container::SNPVectorFactoryMock* constructSNPVectorFactoryMock();
-  ContingencyTableFactoryMock constructContingencyTableFactoryMock();
+  ContingencyTableFactoryMock* constructContingencyTableFactoryMock();
 
 private:
 

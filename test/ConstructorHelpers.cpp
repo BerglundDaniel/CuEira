@@ -70,7 +70,9 @@ Container::EnvironmentVectorMock* ConstructorHelpers::constructEnvironmentVector
 Container::SNPVectorMock* ConstructorHelpers::constructSNPVectorMock() {
   SNP snp(Id("test_snp1"), "allele1", "allele2", 1);
   snp.setRiskAllele(ALLELE_ONE);
-  return new Container::SNPVectorMock(snp);
+  std::vector<int>* originalSNPData = new std::vector<int>(0);
+
+  return new Container::SNPVectorMock(snp, originalSNPData);
 }
 
 EnvironmentFactorHandlerMock* ConstructorHelpers::constructEnvironmentFactorHandlerMock() {
@@ -98,21 +100,19 @@ EnvironmentFactorHandlerMock* ConstructorHelpers::constructEnvironmentFactorHand
 FileIO::BedReaderMock* ConstructorHelpers::constructBedReaderMock() {
   ConfigurationMock configurationMock;
   EXPECT_CALL(configurationMock, getGeneticModel()).WillRepeatedly(Return(DOMINANT));
-  EXPECT_CALL(configurationMock, getMinorAlleleFrequencyThreshold()).WillRepeatedly(Return(0.05));
 
   return new FileIO::BedReaderMock(configurationMock, Container::SNPVectorFactoryMock(configurationMock),
-      PersonHandlerMock());
+      AlleleStatisticsFactoryMock(), PersonHandlerMock());
 }
 
 Container::SNPVectorFactoryMock* ConstructorHelpers::constructSNPVectorFactoryMock() {
   ConfigurationMock configurationMock;
   EXPECT_CALL(configurationMock, getGeneticModel()).WillRepeatedly(Return(DOMINANT));
-  EXPECT_CALL(configurationMock, getMinorAlleleFrequencyThreshold()).WillRepeatedly(Return(0.05));
 
   return new Container::SNPVectorFactoryMock(configurationMock);
 }
 
-ContingencyTableFactoryMock ConstructorHelpers::constructContingencyTableFactoryMock() {
+ContingencyTableFactoryMock* ConstructorHelpers::constructContingencyTableFactoryMock() {
   const int size = 3;
 #ifdef CPU
   Container::LapackppHostVector outcomes(new LaVectorDouble(size));

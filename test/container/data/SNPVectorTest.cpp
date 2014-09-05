@@ -82,15 +82,9 @@ TEST_F(SNPVectorTest, ConstructAndGetDominant) {
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
   snp1.setRiskAllele(ALLELE_ONE);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp1, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp1, DOMINANT, originalSNPData);
   ASSERT_EQ(ALLELE_ONE, snp1.getRiskAllele());
   ASSERT_EQ(snp1, snpVector.getAssociatedSNP());
-
-  EXPECT_EQ(numberOfAlleles, &snpVector.getAlleleNumbers());
-  EXPECT_EQ(alleleFrequencies, &snpVector.getAlleleFrequencies());
 
   const std::vector<int>& orgData = snpVector.getOrginalData();
   const HostVector& recodedData = snpVector.getRecodedData();
@@ -109,15 +103,9 @@ TEST_F(SNPVectorTest, ConstructRecessive) {
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
   snp1.setRiskAllele(ALLELE_ONE);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp1, RECESSIVE, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp1, RECESSIVE, originalSNPData);
   ASSERT_EQ(ALLELE_ONE, snp1.getRiskAllele());
   ASSERT_EQ(snp1, snpVector.getAssociatedSNP());
-
-  EXPECT_EQ(numberOfAlleles, &snpVector.getAlleleNumbers());
-  EXPECT_EQ(alleleFrequencies, &snpVector.getAlleleFrequencies());
 
   const HostVector& recodedData = snpVector.getRecodedData();
 
@@ -129,50 +117,6 @@ TEST_F(SNPVectorTest, ConstructRecessive) {
   ASSERT_EQ(0, (recodedData)(5));
 }
 
-TEST_F(SNPVectorTest, ConstructSimple) {
-  Id id1("SNP1");
-  unsigned int pos1 = 1;
-  std::string alleOneString1("a1_1");
-  std::string alleTwoString1("a1_2");
-  SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
-  snp1.setRiskAllele(ALLELE_ONE);
-
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp1, numberOfAlleles, alleleFrequencies, numberOfIndividuals);
-
-  EXPECT_EQ(numberOfAlleles, &snpVector.getAlleleNumbers());
-  EXPECT_EQ(alleleFrequencies, &snpVector.getAlleleFrequencies());
-}
-
-#ifdef DEBUG
-TEST_F(SNPVectorTest, ConstructSimpleException){
-  Id id1("SNP1");
-  unsigned int pos1 = 1;
-  std::string alleOneString1("a1_1");
-  std::string alleTwoString1("a1_2");
-  SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
-  snp1.setRiskAllele(ALLELE_ONE);
-
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp1, numberOfAlleles, alleleFrequencies, numberOfIndividuals);
-
-#ifdef CPU
-  LapackppHostVector interactionVector(new LaVectorDouble(numberOfIndividuals));
-#else
-  PinnedHostVector interactionVector(numberOfIndividuals);
-#endif
-
-  EXPECT_THROW(snpVector.recode(ALL_RISK), InvalidState);
-  EXPECT_THROW(snpVector.getOrginalData(), InvalidState);
-  EXPECT_THROW(snpVector.getRecodedData(), InvalidState);
-  EXPECT_THROW(snpVector.applyStatisticModel(ADDITIVE, interactionVector), InvalidState);
-}
-#endif
-
 TEST_F(SNPVectorTest, ReCodeSame) {
   Id id1("SNP1");
   unsigned int pos1 = 1;
@@ -181,10 +125,7 @@ TEST_F(SNPVectorTest, ReCodeSame) {
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
   snp1.setRiskAllele(ALLELE_ONE);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp1, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp1, DOMINANT, originalSNPData);
   snpVector.recode(ALL_RISK);
 
   const HostVector& recodedData = snpVector.getRecodedData();
@@ -192,7 +133,7 @@ TEST_F(SNPVectorTest, ReCodeSame) {
   ASSERT_EQ(ALLELE_ONE, snp1.getRiskAllele());
 
   for(int i = 0; i < numberOfIndividuals; ++i){
-    ASSERT_EQ((*recodedSNPData)[i], (recodedData)(i));
+    EXPECT_EQ((*recodedSNPData)[i], (recodedData)(i));
   }
 }
 
@@ -204,10 +145,7 @@ TEST_F(SNPVectorTest, ReCodeSNP) {
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
   snp1.setRiskAllele(ALLELE_ONE);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp1, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp1, DOMINANT, originalSNPData);
   snpVector.recode(SNP_PROTECT);
 
   const HostVector& recodedData = snpVector.getRecodedData();
@@ -230,10 +168,7 @@ TEST_F(SNPVectorTest, ReCodeInteraction) {
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
   snp1.setRiskAllele(ALLELE_TWO);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp1, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp1, DOMINANT, originalSNPData);
   snpVector.recode(INTERACTION_PROTECT);
 
   const HostVector& recodedData = snpVector.getRecodedData();
@@ -256,10 +191,7 @@ TEST_F(SNPVectorTest, ReCodeEnvironment) {
   SNP snp1(id1, alleOneString1, alleTwoString1, pos1);
   snp1.setRiskAllele(ALLELE_ONE);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp1, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp1, DOMINANT, originalSNPData);
   snpVector.recode(ENVIRONMENT_PROTECT);
 
   const HostVector& recodedData = snpVector.getRecodedData();
@@ -279,10 +211,7 @@ TEST_F(SNPVectorTest, DoRecodeDominantAlleleOne) {
   SNP snp1(id, alleOneString, alleTwoString, pos);
   snp1.setRiskAllele(ALLELE_ONE);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp1, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp1, DOMINANT, originalSNPData);
   snp1.setRiskAllele(ALLELE_TWO);
   snpVector.doRecode();
   const HostVector& recodedData = snpVector.getRecodedData();
@@ -303,10 +232,7 @@ TEST_F(SNPVectorTest, DoRecodeDominantAlleleTwo) {
   SNP snp(id, alleOneString, alleTwoString, pos);
   snp.setRiskAllele(ALLELE_TWO);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp, DOMINANT, originalSNPData);
   snp.setRiskAllele(ALLELE_ONE);
   snpVector.doRecode();
   const HostVector& recodedData = snpVector.getRecodedData();
@@ -327,10 +253,7 @@ TEST_F(SNPVectorTest, DoRecodeRecessiveAlleleOne) {
   SNP snp1(id, alleOneString, alleTwoString, pos);
   snp1.setRiskAllele(ALLELE_ONE);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp1, RECESSIVE, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp1, RECESSIVE, originalSNPData);
   snp1.setRiskAllele(ALLELE_TWO);
   snpVector.doRecode();
   const HostVector& recodedData = snpVector.getRecodedData();
@@ -351,10 +274,7 @@ TEST_F(SNPVectorTest, DoRecodeRecessiveAlleleTwo) {
   SNP snp(id, alleOneString, alleTwoString, pos);
   snp.setRiskAllele(ALLELE_TWO);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp, RECESSIVE, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp, RECESSIVE, originalSNPData);
   snp.setRiskAllele(ALLELE_ONE);
   snpVector.doRecode();
   const HostVector& recodedData = snpVector.getRecodedData();
@@ -375,10 +295,7 @@ TEST_F(SNPVectorTest, InvertRiskAllele) {
   SNP snp(id, alleOneString, alleTwoString, pos);
   snp.setRiskAllele(ALLELE_TWO);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp, DOMINANT, originalSNPData);
 
   ASSERT_EQ(ALLELE_TWO, snpVector.invertRiskAllele(ALLELE_ONE));
   ASSERT_EQ(ALLELE_ONE, snpVector.invertRiskAllele(ALLELE_TWO));
@@ -406,10 +323,7 @@ TEST_F(SNPVectorTest, StatisticModel) {
   SNP snp(id, alleOneString, alleTwoString, pos);
   snp.setRiskAllele(ALLELE_ONE);
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-  std::vector<double>* alleleFrequencies = new std::vector<double>(6);
-
-  SNPVector snpVector(snp, DOMINANT, originalSNPData, numberOfAlleles, alleleFrequencies);
+  SNPVector snpVector(snp, DOMINANT, originalSNPData);
   snpVector.applyStatisticModel(ADDITIVE, interactionVector);
 
   const Container::HostVector& snpData = snpVector.getRecodedData();

@@ -41,6 +41,7 @@ void DataQueueTest::TearDown() {
 TEST_F(DataQueueTest, QueueTest) {
   const int numberOfSNPs = 3;
   std::vector<SNP*>* snpQueue = new std::vector<SNP*>(numberOfSNPs);
+  std::vector<SNP*> snpStore(numberOfSNPs);
 
   for(int i = 0; i < numberOfSNPs; ++i){
     std::ostringstream os;
@@ -49,21 +50,21 @@ TEST_F(DataQueueTest, QueueTest) {
 
     SNP* snp = new SNP(id, "allele1", "allele2", 1);
     (*snpQueue)[i] = snp;
+    snpStore[i] = snp;
   }
 
-  Task::DataQueue dataQueue(*snpQueue);
+  Task::DataQueue dataQueue(snpQueue);
 
   for(int i = numberOfSNPs - 1; i >= 0; --i){
     SNP* snp = dataQueue.next();
     ASSERT_TRUE(snp != nullptr);
 
-    EXPECT_EQ(*((*snpQueue)[i]), *snp);
+    EXPECT_EQ(*(snpStore[i]), *snp);
     delete snp;
   }
+
   SNP* snp = dataQueue.next();
   ASSERT_TRUE(snp == nullptr);
-
-  delete snpQueue;
 }
 
 }

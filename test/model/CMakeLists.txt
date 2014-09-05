@@ -12,7 +12,7 @@ if(${CPU})
   )
 else()
   set(GPU_TEST_SOURCE
-    ${CMAKE_CURRENT_SOURCE_DIR}/GpuModelHandlerTest.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/GpuModelHandlerTest.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/GpuModelHandlerLRIntegrationTest.cpp
   )
 endif(${CPU})

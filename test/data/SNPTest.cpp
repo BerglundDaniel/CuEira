@@ -97,15 +97,15 @@ TEST_F(SNPTest, Include) {
 
   snp1.setInclude(LOW_MAF);
   ASSERT_EQ(includeVector1.size(), 2);
-  ASSERT_EQ(includeVector1[1], MISSING_DATA);
+  ASSERT_EQ(includeVector1[1], LOW_MAF);
 
   snp1.setInclude(LOW_CELL_NUMBER);
   ASSERT_EQ(includeVector1.size(), 3);
-  ASSERT_EQ(includeVector1[2], MISSING_DATA);
+  ASSERT_EQ(includeVector1[2], LOW_CELL_NUMBER);
 
   snp1.setInclude(NEGATIVE_POSITION);
   ASSERT_EQ(includeVector1.size(), 4);
-  ASSERT_EQ(includeVector1[3], MISSING_DATA);
+  ASSERT_EQ(includeVector1[3], NEGATIVE_POSITION);
 }
 
 TEST_F(SNPTest, RiskAlleleException) {

@@ -109,7 +109,7 @@ TEST_F(FileIOIntegrationTest, ReadSNPInfo) {
   int snpSize = snpInformation->size();
   for(int i = 0; i < snpSize; ++i){
     SNP* snp = (*snpInformation)[i];
-    if(snp->getInclude()){
+    if(snp->shouldInclude()){
       ++numSNPToInclude;
     }
   }

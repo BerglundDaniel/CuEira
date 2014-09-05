@@ -23,6 +23,7 @@
 namespace CuEira {
 namespace Container {
 class SNPVectorTest;
+class SNPVectorFactoryTest;
 
 /**
  * This class ...
@@ -32,11 +33,13 @@ class SNPVectorTest;
 class SNPVector {
   friend std::ostream& operator<<(std::ostream& os, const Container::SNPVector& snpVector);
   friend SNPVectorTest;
+  friend SNPVectorFactoryTest;
   FRIEND_TEST(SNPVectorTest, DoRecodeDominantAlleleOne);
   FRIEND_TEST(SNPVectorTest, DoRecodeDominantAlleleTwo);
   FRIEND_TEST(SNPVectorTest, DoRecodeRecessiveAlleleOne);
   FRIEND_TEST(SNPVectorTest, DoRecodeRecessiveAlleleTwo);
   FRIEND_TEST(SNPVectorTest, InvertRiskAllele);
+  FRIEND_TEST(SNPVectorFactoryTest, ConstructSNPVector);
 public:
   /**
    * Construct a SNPVector

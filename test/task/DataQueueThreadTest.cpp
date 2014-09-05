@@ -63,7 +63,7 @@ TEST_F(DataQueueThreadTest, ThreadTest) {
     (*snpQueue)[i] = snp;
   }
 
-  Task::DataQueue* dataQueue = new Task::DataQueue(*snpQueue);
+  Task::DataQueue* dataQueue = new Task::DataQueue(snpQueue);
   std::vector<std::vector<SNP*>*> vectorOfSNPVector(numberOfThreads);
   std::vector<std::thread*> threadVector(numberOfThreads);
 
@@ -99,6 +99,8 @@ TEST_F(DataQueueThreadTest, ThreadTest) {
           break;
         }
       } //for k
+
+      delete snp;
     } //for j
   } //for i
 
@@ -111,12 +113,6 @@ TEST_F(DataQueueThreadTest, ThreadTest) {
     delete vectorOfSNPVector[i];
     delete threadVector[i];
   }
-
-  for(int i = 0; i < numberOfSNPs; ++i){
-    delete (*snpQueue)[i];
-  }
-
-  delete snpQueue;
   delete dataQueue;
 }
 

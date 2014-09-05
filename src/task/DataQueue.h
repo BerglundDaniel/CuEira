@@ -21,13 +21,13 @@ namespace Task {
  */
 class DataQueue {
 public:
-  DataQueue(std::vector<SNP*> snpQueue);
+  DataQueue(std::vector<SNP*>* snpQueue);
   virtual ~DataQueue();
 
   SNP* next();
 
 private:
-  std::vector<SNP*> snpQueue;
+  std::vector<SNP*>* snpQueue;
   std::mutex mutex;
 };
 

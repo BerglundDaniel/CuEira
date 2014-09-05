@@ -30,7 +30,7 @@ const std::vector<SNPIncludeExclude>& SNP::getInclude() const {
 }
 
 void SNP::setInclude(SNPIncludeExclude includeExclude) {
-  if(includeExclude == INCLUDE){
+  if(includeExclude == INCLUDE || this->shouldInclude()){
     delete includeExcludeVector;
     includeExcludeVector = new std::vector<SNPIncludeExclude>();
   }
@@ -66,31 +66,23 @@ unsigned int SNP::getPosition() const {
 
 bool SNP::operator<(const SNP& otherSNP) const {
   return id < otherSNP.getId();
-#ifdef DEBUG
-  if(this == &otherSNP){
-    std::cerr << "Something is very wrong with the SNPs." << std::endl;
-  }
-#endif
 }
 
 bool SNP::operator==(const SNP& otherSNP) const {
   return id == otherSNP.getId();
-#ifdef DEBUG
-  if(this == &otherSNP){
-    std::cerr << "Something is very wrong with the SNPs." << std::endl;
-  }
-#endif
 }
 
 std::ostream & operator<<(std::ostream& os, const SNP& snp) {
   //Print the id
   os << snp.id.getString() << ",";
 
-  //Print the risk allele name
-  if(snp.riskAllele == ALLELE_ONE){
-    os << snp.alleleOneName << ",";
-  }else{
-    os << snp.alleleTwoName << ",";
+  if(snp.riskAlleleHasBeenSet){
+    //Print the risk allele name
+    if(snp.riskAllele == ALLELE_ONE){
+      os << snp.alleleOneName << ",";
+    }else{
+      os << snp.alleleTwoName << ",";
+    }
   }
 
   //Print the allele names

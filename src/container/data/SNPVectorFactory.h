@@ -22,6 +22,7 @@ class SNPVectorFactoryTest;
  */
 class SNPVectorFactory {
   friend SNPVectorFactoryTest;
+  ///FIXME
   FRIEND_TEST(SNPVectorFactoryTest, AlleleFrequencies);
   FRIEND_TEST(SNPVectorFactoryTest, RiskAllele_Equal_Case_Control);
   FRIEND_TEST(SNPVectorFactoryTest, RiskAllele_Equal_Case_Control1_larger_Control2);
@@ -43,7 +44,7 @@ public:
   SNPVectorFactory(const Configuration& configuration);
   virtual ~SNPVectorFactory();
 
-  virtual SNPVector* constructSNPVector(SNP& snp, std::vector<int>* originalSNPData) const;
+  virtual SNPVector* constructSNPVector(SNP& snp, const std::vector<int>* originalSNPData) const;
 
 private:
   const Configuration& configuration;

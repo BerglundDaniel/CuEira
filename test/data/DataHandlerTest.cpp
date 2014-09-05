@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <utility>
 #include <vector>
 #include <ostream>
 
@@ -26,7 +27,10 @@
 #include <DataQueue.h>
 #include <ConstructorHelpers.h>
 #include <ConfigurationMock.h>
+#include <ContingencyTableMock.h>
 #include <ContingencyTableFactoryMock.h>
+#include <DataHandlerState.h>
+#include <AlleleStatisticsMock.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
@@ -40,6 +44,7 @@ using testing::AtLeast;
 using testing::ReturnRef;
 using testing::_;
 using testing::Eq;
+using testing::Sequence;
 
 namespace CuEira {
 
@@ -72,11 +77,12 @@ protected:
 };
 
 DataHandlerTest::DataHandlerTest() :
-numberOfSNPs(3), numberOfEnvironmentFactors(2), numberOfIndividuals(5), constructorHelpers(), bedReaderMock(
-    constructorHelpers.constructBedReaderMock()), snpQueue(nullptr), dataQueue(nullptr), environmentInformation(
-    new std::vector<const EnvironmentFactor*>(numberOfEnvironmentFactors)), environmentStore(
-    new std::vector<EnvironmentFactor*>(numberOfEnvironmentFactors)), snpStore(new std::vector<SNP*>(numberOfSNPs)), environmentVectorMock(
-    nullptr), interactionVectorMock(nullptr), configurationMock(new ConfigurationMock()),contingencyTableFactoryMock(constructorHelpers.constructContingencyTableFactoryMock()){
+    numberOfSNPs(2), numberOfEnvironmentFactors(3), numberOfIndividuals(5), constructorHelpers(), bedReaderMock(
+        constructorHelpers.constructBedReaderMock()), snpQueue(nullptr), dataQueue(nullptr), environmentInformation(
+        new std::vector<const EnvironmentFactor*>(numberOfEnvironmentFactors)), environmentStore(
+        new std::vector<EnvironmentFactor*>(numberOfEnvironmentFactors)), snpStore(new std::vector<SNP*>(numberOfSNPs)), environmentVectorMock(
+        nullptr), interactionVectorMock(nullptr), configurationMock(new ConfigurationMock()), contingencyTableFactoryMock(
+        constructorHelpers.constructContingencyTableFactoryMock()) {
 
   for(int i = 0; i < numberOfEnvironmentFactors; ++i){
     std::ostringstream os;
@@ -85,14 +91,6 @@ numberOfSNPs(3), numberOfEnvironmentFactors(2), numberOfIndividuals(5), construc
     EnvironmentFactor* env = new EnvironmentFactor(id);
     (*environmentInformation)[i] = env;
     (*environmentStore)[i] = env;
-  }
-
-  for(int i = 0; i < numberOfSNPs; ++i){
-    std::ostringstream os;
-    os << "snp" << i;
-    Id id(os.str());
-
-    (*snpStore)[i] = new SNP(id, "allele1", "allele2", 1);
   }
 
 }
@@ -115,25 +113,36 @@ void DataHandlerTest::SetUp() {
   interactionVectorMock = new Container::InteractionVectorMock();
 
   snpQueue = new std::vector<SNP*>(numberOfSNPs);
+
   for(int i = 0; i < numberOfSNPs; ++i){
-    (*snpQueue)[i] = (*snpStore)[i];
+    std::ostringstream os;
+    os << "snp" << i;
+    Id id(os.str());
+    SNP* snp = new SNP(id, "allele1", "allele2", 1);
+
+    (*snpStore)[i] = snp;
+    (*snpQueue)[i] = snp;
   }
 
-  dataQueue = new Task::DataQueue(*snpQueue);
+  dataQueue = new Task::DataQueue(snpQueue);
 }
 
 void DataHandlerTest::TearDown() {
-  for(int i = 0; i < numberOfSNPs; ++i){
-    delete (*snpStore)[i];
+  SNP* snp = dataQueue->next();
+  while(snp != nullptr){
+    delete snp;
+    snp = dataQueue->next();
   }
 
   delete snpStore;
   delete dataQueue;
-  delete snpQueue;
 }
 
 #ifdef DEBUG
 TEST_F(DataHandlerTest, ConstructAndGetException){
+  EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(ADDITIVE));
+  EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
+
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
 
   EXPECT_THROW(dataHandler.getCurrentEnvironmentFactor(), InvalidState);
@@ -151,6 +160,13 @@ TEST_F(DataHandlerTest, ConstructAndGetException){
 
 TEST_F(DataHandlerTest, Next) {
   const StatisticModel statisticModel = ADDITIVE;
+  EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(statisticModel));
+  EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
+  Sequence readSequence;
+  Sequence contingencyTableSequence;
+  const int numberOfContingencyTables = numberOfEnvironmentFactors + 1;
+  std::vector<ContingencyTableMock*> contingencyTableVector(numberOfContingencyTables);
+
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock, *environmentInformation,
       *dataQueue, environmentVectorMock, interactionVectorMock);
 
@@ -167,7 +183,29 @@ TEST_F(DataHandlerTest, Next) {
   Container::SNPVectorMock* snpVectorMock1 = constructorHelpers.constructSNPVectorMock();
   Container::SNPVectorMock* snpVectorMock2 = constructorHelpers.constructSNPVectorMock();
 
-  EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(1 + 2 * (numberOfEnvironmentFactors + 1)).WillRepeatedly(
+  AlleleStatisticsMock* alleleStatisticsMock1 = new AlleleStatisticsMock();
+  AlleleStatisticsMock* alleleStatisticsMock2 = new AlleleStatisticsMock();
+
+  for(int i = 0; i < numberOfContingencyTables; ++i){
+    contingencyTableVector[i] = new ContingencyTableMock();
+  }
+
+  std::vector<int> contingencyTable_Table(8);
+  for(int i = 0; i < 8; ++i){
+    contingencyTable_Table[i] = 1;
+  }
+
+  std::pair<const AlleleStatistics*, Container::SNPVector*>* pair1 = new std::pair<const AlleleStatistics*,
+      Container::SNPVector*>();
+  std::pair<const AlleleStatistics*, Container::SNPVector*>* pair2 = new std::pair<const AlleleStatistics*,
+      Container::SNPVector*>();
+
+  pair1->first = alleleStatisticsMock1;
+  pair1->second = snpVectorMock1;
+  pair2->first = alleleStatisticsMock2;
+  pair2->second = snpVectorMock2;
+
+  EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(2 * (numberOfEnvironmentFactors + 1)).WillRepeatedly(
       ReturnRef(*interactionData));
   EXPECT_CALL(*interactionVectorMock, recode(_)).Times(numberOfEnvironmentFactors + 1);
 
@@ -175,52 +213,46 @@ TEST_F(DataHandlerTest, Next) {
   EXPECT_CALL(*environmentVectorMock, switchEnvironmentFactor(_)).Times(numberOfEnvironmentFactors + 1);
 
   EXPECT_CALL(*snpVectorMock1, applyStatisticModel(statisticModel, _)).Times(numberOfEnvironmentFactors);
+  EXPECT_CALL(*snpVectorMock1, recode(ALL_RISK)).Times(numberOfEnvironmentFactors - 1);
   EXPECT_CALL(*snpVectorMock2, applyStatisticModel(statisticModel, _)).Times(1);
 
-  EXPECT_CALL(*bedReaderMock, readSNP(Eq(*(*snpStore)[numberOfSNPs - 1]))).Times(1).WillRepeatedly(
-      Return(snpVectorMock1));
-  EXPECT_CALL(*bedReaderMock, readSNP(Eq(*(*snpStore)[numberOfSNPs - 2]))).Times(1).WillRepeatedly(
-      Return(snpVectorMock2));
+  for(int i = 0; i < numberOfContingencyTables; ++i){
+    ContingencyTableMock * contingencyTableMock = contingencyTableVector[i];
 
-  ASSERT_TRUE(dataHandler.next());
+    EXPECT_CALL(*contingencyTableFactoryMock, constructContingencyTable(_, _)).Times(1).InSequence(
+        contingencyTableSequence).WillOnce(Return(contingencyTableMock));
+    EXPECT_CALL(*contingencyTableMock, getTable()).Times(1).InSequence(contingencyTableSequence).WillOnce(
+        ReturnRef(contingencyTable_Table));
+    EXPECT_CALL(*contingencyTableMock, Die()).InSequence(contingencyTableSequence);
+  }
+
+  EXPECT_CALL(*bedReaderMock, readSNP(_)).Times(1).InSequence(readSequence).WillOnce(Return(pair1));
+  EXPECT_CALL(*bedReaderMock, readSNP(_)).Times(1).InSequence(readSequence).WillOnce(Return(pair2));
+
+  ASSERT_EQ(CALCULATE, dataHandler.next());
 
   EXPECT_EQ(*(*environmentInformation)[0], dataHandler.getCurrentEnvironmentFactor());
-
-  EXPECT_CALL(*snpVectorMock1, getAssociatedSNP()).Times(1).WillRepeatedly(ReturnRef(*(*snpStore)[numberOfSNPs - 1]));
   EXPECT_EQ(*(*snpStore)[numberOfSNPs - 1], dataHandler.getCurrentSNP());
 
   EXPECT_EQ(ALL_RISK, dataHandler.getRecode());
 
-  const Container::EnvironmentVector& envVector1 = dataHandler.getEnvironmentVector();
-  EXPECT_EQ(environmentVectorMock, &envVector1);
-
-  const Container::SNPVector& snpVector1 = dataHandler.getSNPVector();
-  EXPECT_EQ(snpVectorMock1, &snpVector1);
-
-  const Container::InteractionVector& interactionVector1 = dataHandler.getInteractionVector();
-  EXPECT_EQ(interactionVectorMock, &interactionVector1);
-
   for(int i = 1; i < numberOfEnvironmentFactors; ++i){
-    ASSERT_TRUE(dataHandler.next());
+    ASSERT_EQ(CALCULATE, dataHandler.next());
     EXPECT_EQ(*(*environmentInformation)[i], dataHandler.getCurrentEnvironmentFactor());
   }
 
   //Next snp
   dataHandler.currentRecode = SNP_PROTECT;
-  ASSERT_TRUE(dataHandler.next());
+  ASSERT_EQ(CALCULATE, dataHandler.next());
 
   EXPECT_EQ(ALL_RISK, dataHandler.getRecode());
   EXPECT_EQ(*(*environmentInformation)[0], dataHandler.getCurrentEnvironmentFactor());
-
-  EXPECT_CALL(*snpVectorMock2, getAssociatedSNP()).Times(1).WillRepeatedly(ReturnRef(*(*snpStore)[numberOfSNPs - 2]));
   EXPECT_EQ(*(*snpStore)[numberOfSNPs - 2], dataHandler.getCurrentSNP());
 
   delete envData;
   delete snpData;
   delete interactionData;
 }
-
-//TODO next snp include false
 
 TEST_F(DataHandlerTest, Recode) {
 #ifdef CPU
@@ -230,6 +262,9 @@ TEST_F(DataHandlerTest, Recode) {
 #endif
 
   const StatisticModel statisticModel = ADDITIVE;
+  EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(statisticModel));
+  EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
+
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock, *environmentInformation,
       *dataQueue, environmentVectorMock, interactionVectorMock);
   dataHandler.state = dataHandler.INITIALISED;
@@ -262,5 +297,11 @@ TEST_F(DataHandlerTest, Recode) {
 
   delete interactionData;
 }
+
+//TODO next snp include false
+
+//TODO test private snp include
+
+//TODO test table include
 
 } /* namespace CuEira */

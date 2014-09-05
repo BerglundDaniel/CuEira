@@ -16,10 +16,12 @@ public:
   }
 
   virtual ~ContingencyTableMock() {
-
+    Die();
   }
 
   MOCK_CONST_METHOD0(getTable, const std::vector<int>&());
+  MOCK_METHOD0(Die, void());
+
 };
 
 } /* namespace CuEira */

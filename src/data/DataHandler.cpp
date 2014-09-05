@@ -28,6 +28,7 @@ DataHandler::~DataHandler() {
   delete snpVector;
   delete environmentVector;
   delete contingencyTable;
+  delete alleleStatistics;
 }
 
 const SNP& DataHandler::getCurrentSNP() const {
@@ -36,7 +37,7 @@ const SNP& DataHandler::getCurrentSNP() const {
     throw InvalidState("Before using the getCurrentSNP use next() at least once.");
   }
 #endif
-  return snpVector->getAssociatedSNP();
+  return *currentSNP;
 }
 
 const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
@@ -57,7 +58,9 @@ const AlleleStatistics& DataHandler::getAlleleStatistics() const {
 }
 
 DataHandlerState DataHandler::next() {
+  currentRecode = ALL_RISK;
   if(currentEnvironmentFactorPos == environmentInformation->size() - 1){ //Check if we were at the last EnvironmentFactor so should start with next snp
+    delete currentSNP;
     currentSNP = dataQueue->next();
     if(currentSNP == nullptr){
       return DONE;
@@ -87,18 +90,19 @@ DataHandlerState DataHandler::next() {
 
   const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
   environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
-
   interactionVector->recode(*snpVector);
 
   delete contingencyTable;
   contingencyTable = contingencyTableFactory->constructContingencyTable(*snpVector, *environmentVector);
 
   setSNPInclude(*currentSNP, *contingencyTable);
+  if(!currentSNP->shouldInclude()){
+    return SKIP;
+  }
 
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 
-  currentRecode = ALL_RISK;
   return CALCULATE;
 }
 
@@ -107,7 +111,6 @@ bool DataHandler::readSNP(SNP& nextSnp) {
   delete alleleStatistics;
 
   std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = bedReader->readSNP(nextSnp);
-
   alleleStatistics = pair->first;
   snpVector = pair->second;
 

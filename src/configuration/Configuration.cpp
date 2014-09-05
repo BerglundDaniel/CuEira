@@ -175,7 +175,7 @@ StatisticModel Configuration::getStatisticModel() const {
 }
 
 int Configuration::getCellCountThreshold() const {
-  return 5; //FIXME set as option
+  return 10; //FIXME set as option
 }
 
 } /* namespace CuEira */

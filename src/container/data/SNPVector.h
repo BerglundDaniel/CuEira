@@ -55,6 +55,9 @@ public:
   virtual void recode(Recode recode);
   virtual void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
 
+protected:
+  SNPVector(SNP& snp); //For the mock
+
 private:
   void recodeAllRisk();
   void recodeSNPProtective();

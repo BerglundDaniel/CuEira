@@ -70,9 +70,8 @@ Container::EnvironmentVectorMock* ConstructorHelpers::constructEnvironmentVector
 Container::SNPVectorMock* ConstructorHelpers::constructSNPVectorMock() {
   SNP snp(Id("test_snp1"), "allele1", "allele2", 1);
   snp.setRiskAllele(ALLELE_ONE);
-  std::vector<int>* originalSNPData = new std::vector<int>(0);
 
-  return new Container::SNPVectorMock(snp, originalSNPData);
+  return new Container::SNPVectorMock(snp);
 }
 
 EnvironmentFactorHandlerMock* ConstructorHelpers::constructEnvironmentFactorHandlerMock() {

@@ -18,6 +18,12 @@ SNPVector::SNPVector(SNP& snp, GeneticModel geneticModel, const std::vector<int>
   doRecode();
 }
 
+SNPVector::SNPVector(SNP& snp) :
+    snp(snp), numberOfIndividualsToInclude(0), originalSNPData(nullptr), originalGeneticModel(DOMINANT), currentGeneticModel(
+        DOMINANT), currentRecode(ALL_RISK), originalRiskAllele(ALLELE_ONE), modifiedSNPData(nullptr) {
+
+}
+
 SNPVector::~SNPVector() {
   delete modifiedSNPData;
   delete originalSNPData;

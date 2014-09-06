@@ -27,29 +27,8 @@ Statistics* GpuModelHandler::calculateModel() {
   logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
   logisticRegressionConfiguration.setInteraction(*interactionData);
 
-  std::cerr << "Model" << std::endl;
-  std::cerr << currentSNP->getId().getString() << " " << currentEnvironmentFactor->getId().getString() << std::endl;
-  for(int i = 0; i < snpData->getNumberOfRows(); ++i){
-    std::cerr << (*snpData)(i);
-  }
-  std::cerr << std::endl;
-
-  for(int i = 0; i < snpData->getNumberOfRows(); ++i){
-    std::cerr << (*environmentData)(i);
-  }
-  std::cerr << std::endl;
-
-  for(int i = 0; i < snpData->getNumberOfRows(); ++i){
-    std::cerr << (*interactionData)(i);
-  }
-  std::cerr << std::endl;
-
   LogisticRegression::LogisticRegressionResult* logisticRegressionResult = logisticRegression->calculate();
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
-
-  std::cerr << "LR numiter " << logisticRegressionResult->getNumberOfIterations() << std::endl;
-  const Container::HostVector& b = logisticRegressionResult->getBeta();
-  std::cerr << "LR beta " << b(0) << " " << b(1) << " " << b(2) << " " << b(3) << std::endl;
 
   Recode recode = logisticRegressionResult->calculateRecode();
   if(recode != ALL_RISK){

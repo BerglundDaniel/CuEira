@@ -72,18 +72,11 @@ LogisticRegressionResult* LogisticRegression::calculate() {
     deviceToHost->transferMatrix(informationMatrixDevice, informationMatrixHost->getMemoryPointer());
     deviceToHost->transferVector(scoresDevice, scoresHost->getMemoryPointer());
     kernelWrapper->syncStream();
-    std::cerr << "score h " << (*scoresHost)(0) << " " << (*scoresHost)(1) << " " << (*scoresHost)(2) << " "
-        << (*scoresHost)(3) << std::endl;
-    std::cerr << "infomat h " << (*informationMatrixHost)(0, 0) << " " << (*informationMatrixHost)(0, 1) << " "
-        << (*informationMatrixHost)(1, 0) << " " << (*informationMatrixHost)(1, 1) << std::endl;
 
     invertInformationMatrix(*informationMatrixHost, *inverseInformationMatrixHost, *uSVD, *sigma, *vtSVD,
         *workMatrixMxMHost);
 
     calculateNewBeta(*inverseInformationMatrixHost, *scoresHost, *betaCoefficentsHost);
-
-    std::cerr << "beta h " << (*betaCoefficentsHost)(0) << " " << (*betaCoefficentsHost)(1) << " "
-        << (*betaCoefficentsHost)(2) << " " << (*betaCoefficentsHost)(3) << std::endl;
 
     calculateDifference(*betaCoefficentsHost, *betaCoefficentsOldHost, diffSumHost);
 

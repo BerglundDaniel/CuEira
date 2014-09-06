@@ -81,7 +81,7 @@ TEST_F(SNPVectorFactoryTest, ConstructSNPVector) {
   (*recodedSNPData)[5] = 1;
 
   SNPVector* snpVector = snpVectorFactory.constructSNPVector(snp, snpData);
-  EXPECT__EQ(geneticModel, snpVector->originalGeneticModel);
+  EXPECT_EQ(geneticModel, snpVector->originalGeneticModel);
   EXPECT_EQ(ALLELE_ONE, snpVector->originalRiskAllele);
   EXPECT_EQ(ALLELE_ONE, snp.getRiskAllele());
   EXPECT_EQ(snp, snpVector->getAssociatedSNP());
@@ -93,7 +93,7 @@ TEST_F(SNPVectorFactoryTest, ConstructSNPVector) {
   ASSERT_EQ(numberOfIndividuals, recodedData.getNumberOfRows());
 
   for(int i = 0; i < numberOfIndividuals; ++i){
-    EXPECT_EQ((*originalSNPData)[i], (orgData)[i]);
+    EXPECT_EQ((*snpData)[i], (orgData)[i]);
     EXPECT_EQ((*recodedSNPData)[i], (recodedData)(i));
   }
 

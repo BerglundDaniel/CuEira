@@ -5,11 +5,23 @@ namespace Container {
 
 DeviceMatrix::DeviceMatrix(int numberOfRows, int numberOfColumns) :
     numberOfRows(numberOfRows), numberOfColumns(numberOfColumns), matrixDevice(new PRECISION()), subview(false) {
+  if(numberOfRows < 0 || numberOfColumns < 0){
+    std::ostringstream os;
+    os << "Number of rows and columns for DeviceMatrix must be > 0" << std::endl;
+    const std::string& tmp = os.str();
+    throw DimensionMismatch(tmp.c_str());
+  }
   CuEira::CUDA::allocateDeviceMemory((void**) &matrixDevice, numberOfRows * numberOfColumns);
 }
 
 DeviceMatrix::DeviceMatrix(int numberOfRows, int numberOfColumns, PRECISION* matrixDevice) :
     numberOfRows(numberOfRows), numberOfColumns(numberOfColumns), matrixDevice(matrixDevice), subview(true) {
+  if(numberOfRows < 0 || numberOfColumns < 0){
+    std::ostringstream os;
+    os << "Number of rows and columns for DeviceMatrix must be > 0" << std::endl;
+    const std::string& tmp = os.str();
+    throw DimensionMismatch(tmp.c_str());
+  }
 
 }
 

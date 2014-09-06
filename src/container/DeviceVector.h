@@ -1,6 +1,7 @@
 #ifndef DEVICEVECTOR_H_
 #define DEVICEVECTOR_H_
 
+#include <DimensionMismatch.h>
 #include <CudaAdapter.cu>
 
 namespace CuEira {

@@ -1,6 +1,7 @@
 #ifndef DEVICEMATRIX_H_
 #define DEVICEMATRIX_H_
 
+#include <DimensionMismatch.h>
 #include <CudaAdapter.cu>
 #include <DeviceVector.h>
 

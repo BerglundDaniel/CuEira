@@ -6,10 +6,7 @@ namespace Container {
 HostMatrix::HostMatrix(unsigned int numberOfRows, unsigned int numberOfColumns, PRECISION* hostMatrix) :
     numberOfRows(numberOfRows), numberOfColumns(numberOfColumns), hostMatrix(hostMatrix) {
   if(numberOfRows < 0 || numberOfColumns < 0){
-    std::ostringstream os;
-    os << "Number of rows and columns for HostMatrix must be > 0" << std::endl;
-    const std::string& tmp = os.str();
-    throw DimensionMismatch(tmp.c_str());
+    throw DimensionMismatch("Number of rows and columns for HostMatrix must be > 0");
   }
 }
 

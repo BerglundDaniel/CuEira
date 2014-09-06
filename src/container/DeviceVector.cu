@@ -6,10 +6,7 @@ namespace Container {
 DeviceVector::DeviceVector(int numberOfRows) :
     numberOfRows(numberOfRows), numberOfColumns(1), subview(false), vectorDevice(new PRECISION()) {
   if(numberOfRows < 0){
-    std::ostringstream os;
-    os << "Number of rows for DeviceVector must be > 0" << std::endl;
-    const std::string& tmp = os.str();
-    throw DimensionMismatch(tmp.c_str());
+    throw DimensionMismatch("Number of rows for DeviceVector must be > 0");
   }
   CuEira::CUDA::allocateDeviceMemory((void**) &vectorDevice, numberOfRows * numberOfColumns);
 }
@@ -17,10 +14,7 @@ DeviceVector::DeviceVector(int numberOfRows) :
 DeviceVector::DeviceVector(int numberOfRows, PRECISION* vectorDevice) :
     numberOfRows(numberOfRows), numberOfColumns(1), subview(true), vectorDevice(vectorDevice) {
   if(numberOfRows < 0){
-    std::ostringstream os;
-    os << "Number of rows for DeviceVector must be > 0" << std::endl;
-    const std::string& tmp = os.str();
-    throw DimensionMismatch(tmp.c_str());
+    throw DimensionMismatch("Number of rows for DeviceVector must be > 0");
   }
 }
 

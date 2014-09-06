@@ -1,6 +1,7 @@
 #ifndef HOSTMATRIX_H_
 #define HOSTMATRIX_H_
 
+#include <DimensionMismatch.h>
 #include <HostVector.h>
 
 namespace CuEira {

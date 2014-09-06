@@ -1,6 +1,8 @@
 #ifndef HOSTVECTOR_H_
 #define HOSTVECTOR_H_
 
+#include <DimensionMismatch.h>
+
 namespace CuEira {
 namespace Container {
 

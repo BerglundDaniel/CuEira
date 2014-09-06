@@ -96,7 +96,6 @@ TEST_F(LogLikelihoodPartsTest, KernelSmallVector) {
   Container::DeviceVector* probabilitesDeviceVector = hostToDeviceStream1.transferVector(hostVectorProbabilites);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
   kernelWrapper.logLikelihoodParts(*outcomesDeviceVector, *probabilitesDeviceVector, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);

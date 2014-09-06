@@ -43,19 +43,18 @@ int main(int argc, char* argv[]) {
 #endif
 
   Configuration configuration(argc, argv);
-  std::cerr << "m1" << std::endl;
   FileIO::DataFilesReaderFactory dataFilesReaderFactory;
   FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
-  std::cerr << "m2" << std::endl;
+
   PersonHandler* personHandler = dataFilesReader->readPersonInformation();
-  std::cerr << "m2_1" << std::endl;
+
   EnvironmentFactorHandler* environmentFactorHandler = dataFilesReader->readEnvironmentFactorInformation(
       *personHandler);
-  std::cerr << "m3" << std::endl;
+
   std::vector<SNP*>* snpInformation = dataFilesReader->readSNPInformation();
   const int numberOfSNPs = snpInformation->size();
   const int numberOfIndividualsToInclude = environmentFactorHandler->getNumberOfIndividualsToInclude();
-  std::cerr << "m4" << std::endl;
+
   Container::HostMatrix* covariates = nullptr;
   std::vector<std::string>* covariatesNames = nullptr;
   int numberOfCovariates = 0;
@@ -68,45 +67,38 @@ int main(int argc, char* argv[]) {
 
     numberOfCovariates = covariates->getNumberOfColumns();
   }
-  std::cerr << "m5" << std::endl;
+
   Container::SNPVectorFactory snpVectorFactory(configuration);
   StatisticsFactory statisticsFactory;
   AlleleStatisticsFactory alleleStatisticsFactory;
   ContingencyTableFactory contingencyTableFactory(personHandler->getOutcomes());
+  DataHandlerFactory dataHandlerFactory(configuration, contingencyTableFactory);
 
-  std::cerr << "m6" << std::endl;
   FileIO::BedReader bedReader(configuration, snpVectorFactory, alleleStatisticsFactory, *personHandler, numberOfSNPs);
 
   Task::DataQueue* dataQueue = new Task::DataQueue(snpInformation);
-  std::cerr << "m7" << std::endl;
-  //FIXME this part to factory for DataHandler
-  Container::EnvironmentVector* environmentVector = new Container::EnvironmentVector(*environmentFactorHandler);
-  Container::InteractionVector* interactionVector = new Container::InteractionVector(*environmentVector);
-  DataHandler* dataHandler = new DataHandler(configuration, bedReader, contingencyTableFactory,
-      environmentFactorHandler->getHeaders(), *dataQueue, environmentVector, interactionVector);
+
+  DataHandler* dataHandler = dataHandlerFactory.constructDataHandler(bedReader, environmentFactorHandler, *dataQueue);
 
 #ifdef CPU
   //Model::ModelHandler* modelHandler = new Model::CpuModelHandler();
   Model::ModelHandler* modelHandler=nullptr;
 #else
   //GPU
-  std::cerr << "m8" << std::endl;
   cudaStream_t cudaStream;
   cublasHandle_t cublasHandle;
   CUDA::handleCublasStatus(cublasCreate(&cublasHandle), "Failed to create cublas handle:");
   CUDA::handleCudaStatus(cudaStreamCreate(&cudaStream), "Failed to create cudaStream:");
   CUDA::handleCublasStatus(cublasSetStream(cublasHandle, cudaStream), "Failed to set cuda stream:");
 
-  std::cerr << "m9" << std::endl;
   CUDA::HostToDevice hostToDevice(cudaStream);
   CUDA::DeviceToHost deviceToHost(cudaStream);
   Container::DeviceVector* deviceOutcomes = hostToDevice.transferVector(&(personHandler->getOutcomes()));
   CUDA::handleCudaStatus(cudaGetLastError(), "Error transferring outcomes to device in main: ");
-  std::cerr << "m10" << std::endl;
   CUDA::KernelWrapper kernelWrapper(cudaStream, cublasHandle);
 
   Model::LogisticRegression::LogisticRegressionConfiguration* logisticRegressionConfiguration = nullptr;
-  std::cerr << "m11" << std::endl;
+
   if(configuration.covariateFileSpecified()){
     logisticRegressionConfiguration = new Model::LogisticRegression::LogisticRegressionConfiguration(configuration,
         hostToDevice, *deviceOutcomes, kernelWrapper, *covariates);
@@ -114,7 +106,7 @@ int main(int argc, char* argv[]) {
     logisticRegressionConfiguration = new Model::LogisticRegression::LogisticRegressionConfiguration(configuration,
         hostToDevice, *deviceOutcomes, kernelWrapper);
   }
-  std::cerr << "m12" << std::endl;
+
   Model::LogisticRegression::LogisticRegression* logisticRegression = new Model::LogisticRegression::LogisticRegression(
       logisticRegressionConfiguration, hostToDevice, deviceToHost);
   Model::ModelHandler* modelHandler = new Model::GpuModelHandler(statisticsFactory, dataHandler,
@@ -122,7 +114,7 @@ int main(int argc, char* argv[]) {
 
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with initialisation in main: ");
 #endif
-  std::cerr << "m13" << std::endl;
+
   std::cout
       << "snp_id,risk_allele,minor,major,env_id,ap,reri,OR_snp,OR_snp_L,OR_snp_H,OR_env,OR_env_L,OR_env_H,OR_inter,OR_inter_L,OR_inter_H,";
 

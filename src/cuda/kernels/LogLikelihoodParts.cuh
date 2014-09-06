@@ -15,10 +15,10 @@ namespace Kernel {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-__global__ void LogLikelihoodParts(const PRECISION* outcomes, const PRECISION* probabilites, PRECISION* result) {
+__global__ void LogLikelihoodParts(const PRECISION* outcomes, const PRECISION* probabilites, PRECISION* result, const int length) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if(threadId < numberOfRowsDeviceConstant){
+  if(threadId < length){
 #ifdef DOUBLEPRECISION
     result[threadId]=outcomes[threadId]*log(probabilites[threadId])+(1-outcomes[threadId])*log(1-probabilites[threadId]);
 #else

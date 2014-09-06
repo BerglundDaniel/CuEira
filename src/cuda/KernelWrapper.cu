@@ -1,8 +1,5 @@
 #include "KernelWrapper.h"
 
-__constant__ int numberOfRowsDeviceConstant;
-__constant__ int numberOfPredictorsDeviceConstant;
-
 #include <LogisticTransform.cuh>
 #include <ElementWiseAbsoluteDifference.cuh>
 #include <LogLikelihoodParts.cuh>
@@ -37,7 +34,7 @@ void KernelWrapper::logisticTransform(const DeviceVector& logitVector, DeviceVec
 #endif
 
   const int numberOfBlocks = std::ceil(((double) logitVector.getNumberOfRows()) / numberOfThreadsPerBlock);
-  Kernel::LogisticTransform<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(logitVector.getMemoryPointer(), probabilites.getMemoryPointer());
+  Kernel::LogisticTransform<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(logitVector.getMemoryPointer(), probabilites.getMemoryPointer(), logitVector.getNumberOfRows());
 }
 
 void KernelWrapper::elementWiseDivision(const DeviceVector& numeratorVector, const DeviceVector& denomitorVector,
@@ -54,7 +51,7 @@ void KernelWrapper::elementWiseDivision(const DeviceVector& numeratorVector, con
 
   const int numberOfBlocks = std::ceil(((double) numeratorVector.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::ElementWiseDivision<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(numeratorVector.getMemoryPointer(), denomitorVector.getMemoryPointer(),
-      result.getMemoryPointer());
+      result.getMemoryPointer(), numeratorVector.getNumberOfRows());
 }
 
 void KernelWrapper::elementWiseAddition(const DeviceVector& vector1, const DeviceVector& vector2,
@@ -70,7 +67,7 @@ void KernelWrapper::elementWiseAddition(const DeviceVector& vector1, const Devic
 #endif
 
   const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
-  Kernel::ElementWiseAddition<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
+  Kernel::ElementWiseAddition<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer(), vector1.getNumberOfRows());
 }
 
 void KernelWrapper::elementWiseMultiplication(const DeviceVector& vector1, const DeviceVector& vector2,
@@ -86,7 +83,7 @@ void KernelWrapper::elementWiseMultiplication(const DeviceVector& vector1, const
 #endif
 
   const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
-  Kernel::ElementWiseMultiplication<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
+  Kernel::ElementWiseMultiplication<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer(), vector1.getNumberOfRows());
 }
 
 void KernelWrapper::logLikelihoodParts(const DeviceVector& outcomesVector, const DeviceVector& probabilites,
@@ -103,7 +100,7 @@ void KernelWrapper::logLikelihoodParts(const DeviceVector& outcomesVector, const
 
   const int numberOfBlocks = std::ceil(((double) outcomesVector.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::LogLikelihoodParts<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(outcomesVector.getMemoryPointer(), probabilites.getMemoryPointer(),
-      result.getMemoryPointer());
+      result.getMemoryPointer(), outcomesVector.getNumberOfRows());
 }
 
 void KernelWrapper::elementWiseAbsoluteDifference(const DeviceVector& vector1, const DeviceVector& vector2,
@@ -119,7 +116,7 @@ void KernelWrapper::elementWiseAbsoluteDifference(const DeviceVector& vector1, c
 #endif
 
   const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
-  Kernel::ElementWiseAbsoluteDifference<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
+  Kernel::ElementWiseAbsoluteDifference<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer(), vector1.getNumberOfRows());
 }
 
 void KernelWrapper::copyVector(const DeviceVector& vectorFrom, DeviceVector& vectorTo) const {
@@ -155,7 +152,7 @@ void KernelWrapper::probabilitesMultiplyProbabilites(const DeviceVector& probabi
 #endif
 
   const int numberOfBlocks = std::ceil(((double) probabilitesDevice.getNumberOfRows()) / numberOfThreadsPerBlock);
-  Kernel::VectorMultiply1MinusVector<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(probabilitesDevice.getMemoryPointer(), result.getMemoryPointer());
+  Kernel::VectorMultiply1MinusVector<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(probabilitesDevice.getMemoryPointer(), result.getMemoryPointer(), probabilitesDevice.getNumberOfRows());
 }
 
 void KernelWrapper::elementWiseDifference(const DeviceVector& vector1, const DeviceVector& vector2,
@@ -171,7 +168,7 @@ void KernelWrapper::elementWiseDifference(const DeviceVector& vector1, const Dev
 #endif
 
   const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
-  Kernel::ElementWiseDifference<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
+  Kernel::ElementWiseDifference<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer(), vector1.getNumberOfRows());
 }
 
 void KernelWrapper::matrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
@@ -280,16 +277,6 @@ void KernelWrapper::sumResultToHost(const DeviceVector& vector, const DeviceVect
   cublasSdot(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, oneVector.getMemoryPointer(), 1,
       sumHost);
 #endif
-}
-
-void KernelWrapper::setSymbolNumberOfRows(int numberOfRows) const {
-  cudaMemcpyToSymbol(numberOfRowsDeviceConstant, &numberOfRows, sizeof(int));
-  handleCudaStatus(cudaGetLastError(), "Error in memcopy to symbol numberOfRows : ");
-}
-
-void KernelWrapper::setSymbolNumberOfPredictors(int numberOfPredictors) const {
-  cudaMemcpyToSymbol(numberOfPredictorsDeviceConstant, &numberOfPredictors, sizeof(int));
-  handleCudaStatus(cudaGetLastError(), "Error in memcopy to symbol numberOfPredictors : ");
 }
 
 } /* namespace CUDA */

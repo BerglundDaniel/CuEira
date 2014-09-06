@@ -79,7 +79,6 @@ TEST_F(LogisticTransformTest, KernelSmallVector) {
   Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
   Container::DeviceVector* probDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
   kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
@@ -144,7 +143,6 @@ TEST_F(LogisticTransformTest, KernelLargeVector) {
   Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
   Container::DeviceVector* probDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
   kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
@@ -181,7 +179,6 @@ TEST_F(LogisticTransformTest, KernelHugeVector) {
   Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
   Container::DeviceVector* probDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
   kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);

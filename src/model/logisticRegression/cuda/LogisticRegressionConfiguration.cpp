@@ -16,9 +16,6 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
         new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), betaCoefficentsDefaultHost(
         new PinnedHostVector(numberOfPredictors)) {
 
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfPredictors);
-
   kernelWrapper.syncStream();
   transferIntercept();
 
@@ -39,9 +36,6 @@ LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configura
         new DeviceMatrix(numberOfPredictors, numberOfPredictors)), workMatrixNxMDevice(
         new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), betaCoefficentsDefaultHost(
         new PinnedHostVector(numberOfPredictors)) {
-
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfPredictors);
 
   kernelWrapper.syncStream();
   transferIntercept();

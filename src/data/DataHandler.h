@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
 
+#include <Configuration.h>
 #include <SNPVector.h>
 #include <InteractionVector.h>
 #include <EnvironmentVector.h>
@@ -25,6 +26,8 @@
 #include <ContingencyTableFactory.h>
 #include <Configuration.h>
 #include <AlleleStatistics.h>
+#include <EnvironmentVector.h>
+#include <InteractionVector.h>
 
 namespace CuEira {
 class DataHandlerTest;

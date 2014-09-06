@@ -14,10 +14,10 @@ namespace Kernel {
  * This is ...
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
- */__global__ void VectorMultiply1MinusVector(const PRECISION* vector, PRECISION* result) {
+ */__global__ void VectorMultiply1MinusVector(const PRECISION* vector, PRECISION* result, const int length) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if(threadId < numberOfRowsDeviceConstant){
+  if(threadId < length){
     result[threadId] = vector[threadId] * (1 - vector[threadId]);
   } /* if threadId < numberOfPredictors */
 }

@@ -81,7 +81,6 @@ TEST_F(ElementWiseDivisionTest, KernelSmallVector) {
   Container::DeviceVector* denomitorDeviceVector = hostToDeviceStream1.transferVector(hostVectorDenomitor);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfRows);
   kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);

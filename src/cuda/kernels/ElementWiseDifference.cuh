@@ -14,10 +14,10 @@ namespace Kernel {
  * This is ...
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
- */__global__ void ElementWiseDifference(const PRECISION* vector1, const PRECISION* vector2, PRECISION* result) {
+ */__global__ void ElementWiseDifference(const PRECISION* vector1, const PRECISION* vector2, PRECISION* result, const int length) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if(threadId < numberOfRowsDeviceConstant){
+  if(threadId < length){
     result[threadId] = vector1[threadId] - vector2[threadId];
   } /* if threadId < numberOfPredictors */
 }

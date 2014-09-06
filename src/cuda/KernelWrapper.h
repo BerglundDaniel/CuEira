@@ -37,7 +37,7 @@ public:
   void logisticTransform(const DeviceVector& logitVector, DeviceVector& probabilites) const;
 
   /**
-   * Divideds each element in numeratorVector with its corresponding element in denomitorVector. Assumes both have length numberOfPredictors.
+   * Divides each element in numeratorVector with its corresponding element in denomitorVector. Assumes both have length numberOfPredictors.
    */
   void elementWiseDivision(const DeviceVector& numeratorVector, const DeviceVector& denomitorVector,
       DeviceVector& result) const;
@@ -111,16 +111,6 @@ public:
   inline void syncStream() const {
     cudaStreamSynchronize(cudaStream);
   }
-
-  /**
-   * Set the device symbol
-   */
-  void setSymbolNumberOfRows(int numberOfRows) const;
-
-  /**
-   * Set the device symbol
-   */
-  void setSymbolNumberOfPredictors(int numberOfPredictors) const;
 
 private:
   const cublasHandle_t& cublasHandle;

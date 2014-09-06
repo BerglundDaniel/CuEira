@@ -15,10 +15,10 @@ namespace Kernel {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-__global__ void ElementWiseDivision(const PRECISION* numeratorVector, const PRECISION* denomitorVector, PRECISION* result) {
+__global__ void ElementWiseDivision(const PRECISION* numeratorVector, const PRECISION* denomitorVector, PRECISION* result, const int length) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if(threadId < numberOfPredictorsDeviceConstant){
+  if(threadId < length){
     result[threadId]=numeratorVector[threadId]/denomitorVector[threadId];
   } /* if threadId < numberOfPredictors */
 }

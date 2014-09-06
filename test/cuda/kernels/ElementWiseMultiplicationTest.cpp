@@ -81,7 +81,6 @@ TEST_F(ElementWiseMultiplicationTest, KernelSmallVector) {
   Container::DeviceVector* deviceVector2 = hostToDeviceStream1.transferVector(hostVector2);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
   kernelWrapper.elementWiseMultiplication(*deviceVector1, *deviceVector2, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);

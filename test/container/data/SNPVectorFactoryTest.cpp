@@ -62,6 +62,7 @@ TEST_F(SNPVectorFactoryTest, ConstructSNPVector) {
   SNPVectorFactory snpVectorFactory(configMock);
 
   SNP snp(Id("snp1"), "a1", "a2", 1);
+  snp.setRiskAllele(ALLELE_ONE);
   ASSERT_TRUE(snp.shouldInclude());
 
   std::vector<int>* snpData = new std::vector<int>(numberOfIndividuals);

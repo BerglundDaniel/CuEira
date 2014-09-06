@@ -81,7 +81,6 @@ TEST_F(ElementWiseAdditionTest, KernelSmallVector) {
   Container::DeviceVector* deviceVector2 = hostToDeviceStream1.transferVector(hostVector2);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfRows);
   kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);

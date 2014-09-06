@@ -67,8 +67,6 @@ void KernelWrapperTest::TearDown() {
 TEST_F(KernelWrapperTest, ColumnByColumnMatrixVectorElementWiseMultiply) {
   const int numberOfRows = 3;
   const int numberOfColumns = 2;
-  kernelWrapper.setSymbolNumberOfRows(numberOfRows);
-  kernelWrapper.setSymbolNumberOfPredictors(numberOfColumns);
 
   PinnedHostMatrix matrix(numberOfRows, numberOfColumns);
   PinnedHostVector vector(numberOfRows);

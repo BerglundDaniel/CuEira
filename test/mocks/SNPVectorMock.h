@@ -16,7 +16,7 @@ namespace Container {
 
 class SNPVectorMock: public SNPVector {
 public:
-  SNPVectorMock(SNP& snp,) :
+  SNPVectorMock(SNP& snp) :
       SNPVector(snp) {
 
   }

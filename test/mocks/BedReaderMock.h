@@ -25,7 +25,7 @@ public:
 
   }
 
-  MOCK_CONST_METHOD1(readSNP, std::pair<const AlleleStatistics*, Container::SNPVector*>*(SNP&));
+  MOCK_METHOD1(readSNP, std::pair<const AlleleStatistics*, Container::SNPVector*>*(SNP&));
 
 };
 

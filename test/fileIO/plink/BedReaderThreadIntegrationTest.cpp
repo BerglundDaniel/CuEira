@@ -37,9 +37,9 @@ namespace CuEira {
 
 namespace CuEira_Test {
 
-void threadBedReaderTest(const FileIO::BedReader* bedReader, SNP* snp, std::vector<Container::SNPVector*>* snpVectors,
+void threadBedReaderTest(FileIO::BedReader* bedReader, SNP* snp, std::vector<Container::SNPVector*>* snpVectors,
     const int numberOfReads) {
-
+std::cerr << "start " << std::this_thread::get_id() << std::endl;
   for(int i = 0; i < numberOfReads; ++i){
     std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = bedReader->readSNP(*snp);
 
@@ -86,7 +86,7 @@ void BedReaderThreadIntegrationTest::SetUp() {
       Return(std::string(CuEira_BUILD_DIR) + std::string("/test_env.txt")));
 
   EXPECT_CALL(configMock, getBedFilePath()).Times(AtLeast(1)).WillRepeatedly(
-      Return(std::string(CuEira_BUILD_DIR) + std::string("/test_bed.txt")));
+      Return(std::string(CuEira_BUILD_DIR) + std::string("/test.bed")));
 
   EXPECT_CALL(configMock, getEnvironmentIndividualIdColumnName()).Times(AtLeast(1)).WillRepeatedly(Return("indid"));
   EXPECT_CALL(configMock, getEnvironmentDelimiter()).Times(AtLeast(1)).WillRepeatedly(Return("\t "));

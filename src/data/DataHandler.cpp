@@ -2,7 +2,7 @@
 
 namespace CuEira {
 
-DataHandler::DataHandler(const Configuration& configuration, const FileIO::BedReader& bedReader,
+DataHandler::DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
     const ContingencyTableFactory& contingencyTableFactory,
     const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
     Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector) :

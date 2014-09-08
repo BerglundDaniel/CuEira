@@ -41,7 +41,7 @@ public:
       const int numberOfSNPs);
   virtual ~BedReader();
 
-  virtual std::pair<const AlleleStatistics*, Container::SNPVector*>* readSNP(SNP& snp) const;
+  virtual std::pair<const AlleleStatistics*, Container::SNPVector*>* readSNP(SNP& snp);
 
 protected:
   explicit BedReader(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
@@ -56,8 +56,8 @@ private:
    * Get the bit at position in the byte, position in range 0-7
    */
   bool getBit(unsigned char byte, int position) const;
-  void closeBedFile(std::ifstream& bedFile) const;
-  void openBedFile(std::ifstream& bedFile) const;
+  void closeBedFile(std::ifstream& bedFile);
+  void openBedFile(std::ifstream& bedFile);
 
   void setSNPRiskAllele(SNP& snp, const AlleleStatistics& alleleStatistics) const;
   void setSNPInclude(SNP& snp, const AlleleStatistics& alleleStatistics) const;
@@ -67,13 +67,15 @@ private:
   const AlleleStatisticsFactory& alleleStatisticsFactory;
   const PersonHandler& personHandler;
   Mode mode;
-  const static int readBufferSizeMaxSNPMAJOR = 100000; //10kb
-  const static int headerSize = 3;
   const int numberOfSNPs;
   const int numberOfIndividualsToInclude;
   const int numberOfIndividualsTotal;
   const std::string bedFileStr;
   const double minorAlleleFrequencyThreshold;
+  int numberOfBitsPerRow;
+  int numberOfBytesPerRow;
+  int numberOfUninterestingBitsAtEnd;
+  const static int headerSize = 3;
 };
 
 } /* namespace FileIO */

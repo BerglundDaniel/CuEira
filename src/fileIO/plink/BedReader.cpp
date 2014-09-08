@@ -53,13 +53,24 @@ BedReader::BedReader(const Configuration& configuration, const Container::SNPVec
   }
 
   closeBedFile(bedFile);
+
+  if(mode == SNPMAJOR){
+    numberOfBitsPerRow = numberOfIndividualsTotal * 2;
+    //Each individuals genotype is stored as 2 bits, there are no incomplete bytes so we have to round the number up
+    numberOfBytesPerRow = std::ceil(((double) numberOfBitsPerRow) / 8);
+
+    //The number of bits at the start of the last byte(due to the reversing of the bytes) that we don't care about
+    numberOfUninterestingBitsAtEnd = (8 * numberOfBytesPerRow) - numberOfBitsPerRow;
+  }else{
+    throw FileReaderException("Individual major mode is not implemented yet.");
+  }
 }
 
 BedReader::BedReader(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
     const AlleleStatisticsFactory& alleleStatisticsFactory, const PersonHandler& personHandler) :
     numberOfSNPs(0), numberOfIndividualsTotal(0), numberOfIndividualsToInclude(0), configuration(configuration), personHandler(
         personHandler), snpVectorFactory(snpVectorFactory), alleleStatisticsFactory(alleleStatisticsFactory), minorAlleleFrequencyThreshold(
-        0) {
+        0), numberOfBitsPerRow(0), numberOfBytesPerRow(0), numberOfUninterestingBitsAtEnd(0) {
 
 }
 
@@ -67,7 +78,7 @@ BedReader::~BedReader() {
 
 }
 
-std::pair<const AlleleStatistics*, Container::SNPVector*>* BedReader::readSNP(SNP& snp) const {
+std::pair<const AlleleStatistics*, Container::SNPVector*>* BedReader::readSNP(SNP& snp) {
   std::ifstream bedFile;
   int numberOfAlleleOneCase = 0;
   int numberOfAlleleTwoCase = 0;
@@ -81,126 +92,103 @@ std::pair<const AlleleStatistics*, Container::SNPVector*>* BedReader::readSNP(SN
   //Initialise vector
   std::vector<int>* snpDataOriginal = new std::vector<int>(numberOfIndividualsToInclude);
 
-  openBedFile(bedFile);
-
   //Read depending on the mode
   if(mode == SNPMAJOR){
-    const int numberOfBitsPerRow = numberOfIndividualsTotal * 2;
-    //Each individuals genotype is stored as 2 bits, there are no incomplete bytes so we have to round the number up
-    const int numberOfBytesPerRow = std::ceil(((double) numberOfBitsPerRow) / 8);
-    int readBufferSize; //Number of bytes to read per read
+    int readBufferSize; //Number of bytes to read per read //TODO REMOVE to numberOfBytesPerRow
 
-    if(numberOfBytesPerRow < readBufferSizeMaxSNPMAJOR){
-      readBufferSize = numberOfBytesPerRow;
-    }else{
-      readBufferSize = readBufferSizeMaxSNPMAJOR;
+    char buffer[numberOfBytesPerRow];
+    long int seekPos = headerSize + numberOfBytesPerRow * snpPos;
+
+    openBedFile(bedFile);
+    bedFile.seekg(seekPos);
+    bedFile.read(buffer, numberOfBytesPerRow);
+    if(!bedFile){
+      std::ostringstream os;
+      os << "Problem reading SNP " << snp.getId().getString() << " from bed file " << bedFileStr << std::endl;
+      const std::string& tmp = os.str();
+      throw FileReaderException(tmp.c_str());
     }
 
-    //Number of reads we have to do to read all the info for the SNP
-    const int numberOfReads = std::ceil(((double) numberOfBytesPerRow) / readBufferSize);
+    closeBedFile(bedFile);
 
-    //The number of bits at the start(due to the reversing of the bytes) of the last byte that we don't care about
-    const int numberOfUninterestingBitsAtEnd = (8 * numberOfBytesPerRow) - numberOfBitsPerRow;
+    //Go through all the bytes in this read
+    for(int byteNumber = 0; byteNumber < numberOfBytesPerRow; ++byteNumber){
+      char currentByte = buffer[byteNumber];
 
-    //Read the file until we read all the info for this SNP
-    for(int readNumber = 1; readNumber <= numberOfReads; ++readNumber){
-
-      //We have to fix the buffersize if it's the lastread and if we couldn't read the whole row at once
-      if(readNumber == numberOfReads && readNumber != 1){
-        readBufferSize = numberOfBytesPerRow - readBufferSize * (numberOfReads - 1);
+      int numberOfBitPairsPerByte;
+      if(byteNumber == (numberOfBytesPerRow - 1)){ //Are we at the last byte
+        numberOfBitPairsPerByte = (8 - numberOfUninterestingBitsAtEnd) / 2;
+      }else{
+        numberOfBitPairsPerByte = 4;
       }
 
-      char buffer[readBufferSize];
-      long int seekPos = headerSize + numberOfBytesPerRow * snpPos + readBufferSize * (readNumber - 1);
+      //Go through all the pairs of bit in the byte
+      for(int bitPairNumber = 0; bitPairNumber < numberOfBitPairsPerByte; ++bitPairNumber){
+        //It's in reverse due to plinks format that has the bits in each byte in reverse
+        int posInByte = 2 * bitPairNumber;
+        bool firstBit = getBit(currentByte, posInByte);
+        bool secondBit = getBit(currentByte, posInByte + 1);
 
-      bedFile.seekg(seekPos);
-      bedFile.read(buffer, readBufferSize);
-      if(!bedFile){
-        std::ostringstream os;
-        os << "Problem reading SNP " << snp.getId().getString() << " from bed file " << bedFileStr << std::endl;
-        const std::string& tmp = os.str();
-        throw FileReaderException(tmp.c_str());
-      }
+        //Which person does this information belong to?
+        int personRowFileNumber = byteNumber * 4 + bitPairNumber;
 
-      //Go through all the bytes in this read
-      for(int byteNumber = 0; byteNumber < readBufferSize; ++byteNumber){
-        char currentByte = buffer[byteNumber];
+        const Person& person = personHandler.getPersonFromRowAll(personRowFileNumber);
 
-        int numberOfBitPairsPerByte;
-        if(readNumber == numberOfReads && byteNumber == (readBufferSize - 1)){ //Are we at the last byte in the last read?
-          numberOfBitPairsPerByte = (8 - numberOfUninterestingBitsAtEnd) / 2;
-        }else{
-          numberOfBitPairsPerByte = 4;
-        }
+        if(person.getInclude()){ //If the person shouldn't be included we will skip it
+          Phenotype phenotype = person.getPhenotype();
+          int currentPersonRow = personHandler.getRowIncludeFromPerson(person);
 
-        //Go through all the pairs of bit in the byte
-        for(int bitPairNumber = 0; bitPairNumber < numberOfBitPairsPerByte; ++bitPairNumber){
-          //It's in reverse due to plinks format that has the bits in each byte in reverse
-          int posInByte = 2 * bitPairNumber;
-          bool firstBit = getBit(currentByte, posInByte);
-          bool secondBit = getBit(currentByte, posInByte + 1);
+          //If we are missing the genotype for at least one individual(that should be included) we excluded the SNP
+          if(firstBit && !secondBit){
+            missingData = true;
+            (*snpDataOriginal)[currentPersonRow] = -1;
+          }else{
+            //Store the genotype as 0,1,2 until we can recode it. We have to know the risk allele before we can recode.
+            //Also increase the counters for the alleles if it is a case.
+            if(!firstBit && !secondBit){
+              //Homozygote primary
+              (*snpDataOriginal)[currentPersonRow] = 0;
+              numberOfAlleleOneAll += 2;
 
-          //Which person does this information belong to?
-          int personRowFileNumber = (readNumber - 1) * readBufferSize + byteNumber * 4 + bitPairNumber;
-
-          const Person& person = personHandler.getPersonFromRowAll(personRowFileNumber);
-
-          if(person.getInclude()){ //If the person shouldn't be included we will skip it
-            Phenotype phenotype = person.getPhenotype();
-            int currentPersonRow = personHandler.getRowIncludeFromPerson(person);
-
-            //If we are missing the genotype for at least one individual(that should be included) we excluded the SNP
-            if(firstBit && !secondBit){
-              missingData = true;
-              (*snpDataOriginal)[currentPersonRow] = -1;
-            }else{
-              //Store the genotype as 0,1,2 until we can recode it. We have to know the risk allele before we can recode.
-              //Also increase the counters for the alleles if it is a case.
-              if(!firstBit && !secondBit){
-                //Homozygote primary
-                (*snpDataOriginal)[currentPersonRow] = 0;
-                numberOfAlleleOneAll += 2;
-
-                if(phenotype == AFFECTED){
-                  numberOfAlleleOneCase += 2;
-                }else{
-                  numberOfAlleleOneControl += 2;
-                }
-              }else if(!firstBit && secondBit){
-                //Hetrozygote
-                (*snpDataOriginal)[currentPersonRow] = 1;
-                numberOfAlleleOneAll++;
-                numberOfAlleleTwoAll++;
-
-                if(phenotype == AFFECTED){
-                  numberOfAlleleOneCase++;
-                  numberOfAlleleTwoCase++;
-                }else{
-                  numberOfAlleleOneControl++;
-                  numberOfAlleleTwoControl++;
-                }
-              }else if(firstBit && secondBit){
-                //Homozygote secondary
-                (*snpDataOriginal)[currentPersonRow] = 2;
-                numberOfAlleleTwoAll += 2;
-
-                if(phenotype == AFFECTED){
-                  numberOfAlleleTwoCase += 2;
-                }else{
-                  numberOfAlleleTwoControl += 2;
-                }
+              if(phenotype == AFFECTED){
+                numberOfAlleleOneCase += 2;
+              }else{
+                numberOfAlleleOneControl += 2;
               }
-            }/* if check missing */
-          }/* if person include */
+            }else if(!firstBit && secondBit){
+              //Hetrozygote
+              (*snpDataOriginal)[currentPersonRow] = 1;
+              numberOfAlleleOneAll++;
+              numberOfAlleleTwoAll++;
 
-        }/* for bitPairNumber */
+              if(phenotype == AFFECTED){
+                numberOfAlleleOneCase++;
+                numberOfAlleleTwoCase++;
+              }else{
+                numberOfAlleleOneControl++;
+                numberOfAlleleTwoControl++;
+              }
+            }else if(firstBit && secondBit){
+              //Homozygote secondary
+              (*snpDataOriginal)[currentPersonRow] = 2;
+              numberOfAlleleTwoAll += 2;
 
-      }/* for byteNumber */
+              if(phenotype == AFFECTED){
+                numberOfAlleleTwoCase += 2;
+              }else{
+                numberOfAlleleTwoControl += 2;
+              }
+            }
+          }/* if check missing */
+        }/* if person include */
 
-    }/* for readNumber */
+      }/* for bitPairNumber */
+
+    }/* for byteNumber */
 
   }else if(mode == INDIVIDUALMAJOR){
     //TODO
+    delete snpDataOriginal;
     throw FileReaderException("Individual major mode is not implemented yet.");
   }else{
     std::ostringstream os;
@@ -208,8 +196,6 @@ std::pair<const AlleleStatistics*, Container::SNPVector*>* BedReader::readSNP(SN
     const std::string& tmp = os.str();
     throw FileReaderException(tmp.c_str());
   }
-
-  closeBedFile(bedFile);
 
   std::vector<int>* numberOfAlleles = new std::vector<int>(6);
 
@@ -245,7 +231,7 @@ bool BedReader::getBit(unsigned char byte, int position) const {
   return (byte >> position) & 0x1; //Shift the byte to the right so we have bit at the position as the last bit and then use bitwise and with 00000001
 }
 
-void BedReader::openBedFile(std::ifstream& bedFile) const {
+void BedReader::openBedFile(std::ifstream& bedFile) {
   bedFile.open(bedFileStr, std::ifstream::binary);
   if(!bedFile){
     std::ostringstream os;
@@ -255,7 +241,7 @@ void BedReader::openBedFile(std::ifstream& bedFile) const {
   }
 }
 
-void BedReader::closeBedFile(std::ifstream& bedFile) const {
+void BedReader::closeBedFile(std::ifstream& bedFile) {
   if(bedFile.is_open()){
     bedFile.close();
   }

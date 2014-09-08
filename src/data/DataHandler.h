@@ -40,7 +40,7 @@ class DataHandlerTest;
 class DataHandler {
   friend DataHandlerTest;FRIEND_TEST(DataHandlerTest, Next);FRIEND_TEST(DataHandlerTest, Recode);
 public:
-  DataHandler(const Configuration& configuration, const FileIO::BedReader& bedReader,
+  DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
       const ContingencyTableFactory& contingencyTableFactory,
       const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
       Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector);
@@ -76,7 +76,7 @@ private:
   const ContingencyTableFactory* contingencyTableFactory;
   Task::DataQueue* dataQueue;
   const StatisticModel statisticModel;
-  const FileIO::BedReader* bedReader;
+  FileIO::BedReader* bedReader;
   const std::vector<const EnvironmentFactor*>* environmentInformation;
   Container::EnvironmentVector* environmentVector;
   Container::SNPVector* snpVector;

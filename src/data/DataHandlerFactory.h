@@ -24,7 +24,7 @@ public:
   DataHandlerFactory(const Configuration& configuration, const ContingencyTableFactory& contingencyTableFactory);
   virtual ~DataHandlerFactory();
 
-  virtual DataHandler* constructDataHandler(const FileIO::BedReader& bedReader,
+  virtual DataHandler* constructDataHandler(FileIO::BedReader& bedReader,
       const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue) const;
 
 private:

@@ -67,7 +67,7 @@ inline void handleCudaStatus(cudaError_t error, std::string message) {
  */
 inline void handleCublasStatus(cublasStatus_t status, std::string message) {
   if(status != CUBLAS_STATUS_SUCCESS){
-    message.append(cublasGetErrorString(status)); //FIXME
+    message.append(cublasGetErrorString(status));
     throw CublasException(message.c_str());
   }
 }

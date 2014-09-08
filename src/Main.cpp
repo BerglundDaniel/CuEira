@@ -20,6 +20,7 @@
 #include <DataHandlerState.h>
 #include <ContingencyTableFactory.h>
 #include <AlleleStatisticsFactory.h>
+#include <DataHandlerFactory.h>
 
 #ifdef CPU
 //#include <CpuModelHandler.h>
@@ -78,7 +79,7 @@ int main(int argc, char* argv[]) {
 
   Task::DataQueue* dataQueue = new Task::DataQueue(snpInformation);
 
-  DataHandler* dataHandler = dataHandlerFactory.constructDataHandler(bedReader, environmentFactorHandler, *dataQueue);
+  DataHandler* dataHandler = dataHandlerFactory.constructDataHandler(bedReader, *environmentFactorHandler, *dataQueue);
 
 #ifdef CPU
   //Model::ModelHandler* modelHandler = new Model::CpuModelHandler();

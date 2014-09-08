@@ -12,5 +12,6 @@ set(TEST_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/CudaAdapterTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TransferTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/KernelWrapperTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/DeviceTest.cpp
   PARENT_SCOPE
 )

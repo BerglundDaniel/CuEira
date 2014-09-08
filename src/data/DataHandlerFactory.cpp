@@ -14,7 +14,7 @@ DataHandlerFactory::~DataHandlerFactory() {
 
 DataHandler* DataHandlerFactory::constructDataHandler(const FileIO::BedReader& bedReader,
     const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue) const {
-  Container::EnvironmentVector* environmentVector = new Container::EnvironmentVector(*environmentFactorHandler);
+  Container::EnvironmentVector* environmentVector = new Container::EnvironmentVector(environmentFactorHandler);
   Container::InteractionVector* interactionVector = new Container::InteractionVector(*environmentVector);
 
   return new DataHandler(configuration, bedReader, contingencyTableFactory, environmentFactorHandler.getHeaders(),

@@ -192,6 +192,7 @@ TEST_F(BedReaderTest, ReadSnp0) {
   delete numberOfAlleles;
   delete originalSNPData;
 }
+
 TEST_F(BedReaderTest, ReadSnp1) {
   int j = 0;
   int includePos = 0;

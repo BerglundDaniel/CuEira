@@ -42,7 +42,6 @@ void DeviceTest::TearDown() {
 TEST_F(DeviceTest, SetGetDeviceSimple) {
   Device device(0);
 
-  ASSERT_FALSE(device.isActive());
   device.setActiveDevice();
   ASSERT_TRUE(device.isActive());
 }

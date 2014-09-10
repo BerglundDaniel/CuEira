@@ -7,6 +7,7 @@
 #include <CudaAdapter.cu>
 #include <CudaException.h>
 #include <DeviceVector.h>
+#include <InvalidState.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -18,12 +19,13 @@ namespace CUDA {
  */
 class Device {
 public:
-  Device(int deviceNumber, const Container::DeviceVector* outcomes);
+  Device(int deviceNumber);
   virtual ~Device();
 
   virtual bool isActive() const;
   virtual bool setActiveDevice() const;
 
+  virtual const void setOutcomes(const Container::DeviceVector* outcomes);
   virtual const Container::DeviceVector& getOutcomes() const;
 
 private:

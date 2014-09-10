@@ -3,8 +3,8 @@
 namespace CuEira {
 namespace CUDA {
 
-Device::Device(int deviceNumber, const Container::DeviceVector* outcomes) :
-    deviceNumber(deviceNumber), outcomes(outcomes) {
+Device::Device(int deviceNumber) :
+    deviceNumber(deviceNumber), outcomes(nullptr) {
 
 }
 
@@ -31,6 +31,10 @@ bool Device::setActiveDevice() const {
   }else{
     return false;
   }
+}
+
+const void Device::setOutcomes(const Container::DeviceVector* outcomes) {
+  this->outcomes = outcomes;
 }
 
 const Container::DeviceVector& Device::getOutcomes() const {

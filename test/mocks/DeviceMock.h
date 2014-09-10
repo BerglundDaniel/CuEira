@@ -12,7 +12,7 @@ namespace CUDA {
 class DeviceMock: public Device {
 public:
   DeviceMock() :
-  Device(0, nullptr){
+  Device(0){
 
   }
 

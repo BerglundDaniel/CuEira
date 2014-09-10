@@ -21,15 +21,19 @@ namespace CuEira {
  */
 class DataHandlerFactory {
 public:
-  DataHandlerFactory(const Configuration& configuration, const ContingencyTableFactory& contingencyTableFactory);
+  DataHandlerFactory(const Configuration& configuration, const ContingencyTableFactory& contingencyTableFactory,
+      FileIO::BedReader& bedReader, const EnvironmentFactorHandler& environmentFactorHandler,
+      Task::DataQueue& dataQueue);
   virtual ~DataHandlerFactory();
 
-  virtual DataHandler* constructDataHandler(FileIO::BedReader& bedReader,
-      const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue) const;
+  virtual DataHandler* constructDataHandler() const;
 
 private:
   const Configuration& configuration;
   const ContingencyTableFactory& contingencyTableFactory;
+  FileIO::BedReader& bedReader;
+  const EnvironmentFactorHandler& environmentFactorHandler;
+  Task::DataQueue& dataQueue;
 };
 
 } /* namespace CuEira */

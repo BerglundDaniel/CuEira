@@ -13,5 +13,7 @@ set(TEST_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/TransferTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/KernelWrapperTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DeviceTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/StreamTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/StreamFactoryTest.cpp
   PARENT_SCOPE
 )

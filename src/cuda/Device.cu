@@ -3,13 +3,13 @@
 namespace CuEira {
 namespace CUDA {
 
-Device::Device(int deviceNumber) :
-    deviceNumber(deviceNumber) {
+Device::Device(int deviceNumber, const Container::DeviceVector* outcomes) :
+    deviceNumber(deviceNumber), outcomes(outcomes) {
 
 }
 
 Device::~Device() {
-
+  delete outcomes;
 }
 
 bool Device::isActive() const {
@@ -31,6 +31,10 @@ bool Device::setActiveDevice() const {
   }else{
     return false;
   }
+}
+
+const Container::DeviceVector& Device::getOutcomes() const {
+  return *outcomes;
 }
 
 } /* namespace CUDA */

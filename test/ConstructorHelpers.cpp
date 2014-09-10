@@ -121,6 +121,17 @@ ContingencyTableFactoryMock* ConstructorHelpers::constructContingencyTableFactor
   return new ContingencyTableFactoryMock(outcomes);
 }
 
+CUDA::StreamMock* ConstructorHelpers::constructStreamMock() {
+  cudaStream_t* cudaStream = new cudaStream_t();
+  cublasHandle_t* cublasHandle = new cublasHandle_t();
+
+  handleCublasStatus(cublasCreate(cublasHandle), "Failed to create new cublas handle:");
+  handleCudaStatus(cudaStreamCreate(cudaStream), "Failed to create new cuda stream:");
+  handleCublasStatus(cublasSetStream(*cublasHandle, *cudaStream), "Failed to set cuda stream for cublas handle:");
+
+  return new CUDA::StreamMock(DeviceMock(), cudaStream, cublasHandle);
+}
+
 }
 /* namespace CuEira_Test */
 } /* namespace CuEira */

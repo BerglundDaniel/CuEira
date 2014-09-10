@@ -5,6 +5,8 @@
 #include <string>
 #include <stdlib.h>
 #include <time.h>
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -26,6 +28,9 @@
 #include <SNPVectorFactoryMock.h>
 #include <ContingencyTableFactoryMock.h>
 #include <AlleleStatisticsFactoryMock.h>
+#include <StreamMock.h>
+#include <DeviceMock.h>
+#include <CudaAdapter.cu>
 
 #ifdef CPU
 #include <lapackpp/gmd.h>
@@ -61,6 +66,7 @@ public:
   FileIO::BedReaderMock* constructBedReaderMock();
   Container::SNPVectorFactoryMock* constructSNPVectorFactoryMock();
   ContingencyTableFactoryMock* constructContingencyTableFactoryMock();
+  CUDA::StreamMock* constructStreamMock();
 
 private:
 

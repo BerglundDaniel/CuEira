@@ -40,7 +40,7 @@ void DeviceTest::TearDown() {
 }
 
 TEST_F(DeviceTest, SetGetDeviceSimple) {
-  Device device(0);
+  Device device(0, nullptr);
 
   device.setActiveDevice();
   ASSERT_TRUE(device.isActive());
@@ -54,8 +54,8 @@ TEST_F(DeviceTest, SetGetDeviceMult) {
     return;
   }
 
-  Device device0(0);
-  Device device1(1);
+  Device device0(0, nullptr);
+  Device device1(1, nullptr);
 
   device1.setActiveDevice();
   ASSERT_TRUE(device1.isActive());
@@ -64,6 +64,15 @@ TEST_F(DeviceTest, SetGetDeviceMult) {
   device0.setActiveDevice();
   ASSERT_TRUE(device0.isActive());
   ASSERT_FALSE(device1.isActive());
+}
+
+TEST_F(DeviceTest, GetOutcomes) {
+  const int size = 5;
+  Container::DeviceVector* outcomesDevice = new Container::DeviceVector(size);
+
+  Device device(0, outcomesDevice);
+
+  EXPECT_EQ(outcomesDevice, &device.getOutcomes());
 }
 
 }

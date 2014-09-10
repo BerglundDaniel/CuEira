@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 
-//#include <Stream.h>
+#include <Stream.h>
 #include <CudaAdapter.cu>
 #include <CudaException.h>
 #include <DeviceVector.h>
@@ -19,15 +19,16 @@ namespace CUDA {
  */
 class Device {
 public:
-  Device(int deviceNumber);
+  Device(int deviceNumber, const Container::DeviceVector* outcomes);
   virtual ~Device();
 
   virtual bool isActive() const;
   virtual bool setActiveDevice() const;
 
-  //virtual Container::DeviceVector& getOutcomes() const;
+  virtual const Container::DeviceVector& getOutcomes() const;
 
 private:
+  const Container::DeviceVector* outcomes;
   const int deviceNumber;
 };
 

@@ -3,8 +3,8 @@ project (CuEira)
 enable_testing()
 
 #The version number
-set (CuEira_VERSION_MAJOR 1)
-set (CuEira_VERSION_MINOR 0)
+set (CuEira_VERSION_MAJOR 0)
+set (CuEira_VERSION_MINOR 1)
 
 #Set various things
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")

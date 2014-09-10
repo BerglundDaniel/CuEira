@@ -39,7 +39,7 @@ namespace CuEira_Test {
 
 void threadBedReaderTest(FileIO::BedReader* bedReader, SNP* snp, std::vector<Container::SNPVector*>* snpVectors,
     const int numberOfReads) {
-std::cerr << "start " << std::this_thread::get_id() << std::endl;
+
   for(int i = 0; i < numberOfReads; ++i){
     std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = bedReader->readSNP(*snp);
 

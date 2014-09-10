@@ -53,7 +53,7 @@ TEST_F(StreamTest, GetCuda) {
   Stream stream(deviceMock, cudaStream, cublasHandle);
 
   EXPECT_EQ(cudaStream, &stream.getCudaStream());
-  EXPECT_EQ(cublasHandler, &stream.getCublasHandle());
+  EXPECT_EQ(cublasHandle, &stream.getCublasHandle());
 }
 
 TEST_F(StreamTest, GetDevice) {

@@ -4,7 +4,6 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 
-#include <Stream.h>
 #include <CudaAdapter.cu>
 #include <CudaException.h>
 #include <DeviceVector.h>

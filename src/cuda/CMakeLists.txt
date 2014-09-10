@@ -7,8 +7,18 @@ set(INCLUDE_DIRECTORIES
   PARENT_SCOPE
 )
 
+if(NOT ${CPU})
+  set(GPU_LOCAL_SOURCE
+    ${CMAKE_CURRENT_SOURCE_DIR}/Device.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Stream.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/StreamFactory.cpp
+  )
+endif()
+
+
 set(SOURCE
   ${SOURCE}
+  ${GPU_LOCAL_SOURCE}
   PARENT_SCOPE
 )
 
@@ -16,7 +26,5 @@ set(GPU_SOURCE
   ${GPU_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/CudaAdapter.cu
   ${CMAKE_CURRENT_SOURCE_DIR}/KernelWrapper.cu
-  ${CMAKE_CURRENT_SOURCE_DIR}/Device.cu
-  ${CMAKE_CURRENT_SOURCE_DIR}/Stream.cu
   PARENT_SCOPE
 )

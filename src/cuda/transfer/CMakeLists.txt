@@ -4,14 +4,20 @@ set(INCLUDE_DIRECTORIES
   PARENT_SCOPE
 )
 
+if(NOT ${CPU})
+  set(GPU_LOCAL_SOURCE
+    ${CMAKE_CURRENT_SOURCE_DIR}/DeviceToHost.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/HostToDevice.cpp
+  )
+endif()
+
 set(SOURCE
   ${SOURCE}
+  ${GPU_LOCAL_SOURCE}
   PARENT_SCOPE
 )
 
 set(GPU_SOURCE
   ${GPU_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/DeviceToHost.cu
-  ${CMAKE_CURRENT_SOURCE_DIR}/HostToDevice.cu
   PARENT_SCOPE
 )

@@ -47,7 +47,7 @@ TEST_F(StreamFactoryTest, ConstructStream) {
 
   Stream* stream = streamFactory.constructStream(deviceMock);
 
-  ASSERT_EQ(deviceMock, stream->getAssociatedDevice());
+  ASSERT_EQ(&deviceMock, &stream->getAssociatedDevice());
 
   delete stream;
 }

@@ -97,19 +97,22 @@ TEST_F(EnvironmentFactorHandlerTest, Data) {
 
   EnvironmentFactorHandler environmentFactorHandler(dataMatrix, environmentFactors);
 
-  const Container::HostVector& env1Data = environmentFactorHandler.getData(*(*environmentFactors)[0]);
-  ASSERT_EQ(numberOfIndividuals, env1Data.getNumberOfRows());
+  const Container::HostVector* env1Data = environmentFactorHandler.getData(*(*environmentFactors)[0]);
+  ASSERT_EQ(numberOfIndividuals, env1Data->getNumberOfRows());
 
   for(int i = 0; i < numberOfIndividuals; ++i){
-    EXPECT_EQ((*dataMatrix)(i, 0), env1Data(i));
+    EXPECT_EQ((*dataMatrix)(i, 0), (*env1Data)(i));
   }
 
-  const Container::HostVector& env2Data = environmentFactorHandler.getData(*(*environmentFactors)[1]);
-  ASSERT_EQ(numberOfIndividuals, env2Data.getNumberOfRows());
+  const Container::HostVector* env2Data = environmentFactorHandler.getData(*(*environmentFactors)[1]);
+  ASSERT_EQ(numberOfIndividuals, env2Data->getNumberOfRows());
 
   for(int i = 0; i < numberOfIndividuals; ++i){
-    EXPECT_EQ((*dataMatrix)(i, 1), env2Data(i));
+    EXPECT_EQ((*dataMatrix)(i, 1), (*env2Data)(i));
   }
+
+  delete env1Data;
+  delete env2Data;
 }
 
 } /* namespace CuEira */

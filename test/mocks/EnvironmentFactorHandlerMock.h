@@ -24,7 +24,7 @@ public:
 
   MOCK_CONST_METHOD0(getHeaders, const std::vector<const EnvironmentFactor*>&());
   MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());
-  MOCK_CONST_METHOD1(getData, const Container::HostVector& (const EnvironmentFactor&));
+  MOCK_CONST_METHOD1(getData, const Container::HostVector* (const EnvironmentFactor&));
 };
 
 } /* namespace CuEira */

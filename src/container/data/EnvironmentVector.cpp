@@ -22,6 +22,7 @@ EnvironmentVector::EnvironmentVector() :
 
 EnvironmentVector::~EnvironmentVector() {
   delete recodedData;
+  delete originalData;
 }
 
 void EnvironmentVector::switchEnvironmentFactor(const EnvironmentFactor& environmentFactor) {
@@ -32,7 +33,8 @@ void EnvironmentVector::switchEnvironmentFactor(const EnvironmentFactor& environ
 #endif
 
   this->environmentFactor = &environmentFactor;
-  originalData = &environmentHandler->getData(environmentFactor);
+  delete originalData;
+  originalData = environmentHandler->getData(environmentFactor);
 
   currentRecode = ALL_RISK;
   recodeAllRisk();

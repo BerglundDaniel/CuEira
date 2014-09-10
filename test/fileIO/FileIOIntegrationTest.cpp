@@ -191,10 +191,10 @@ TEST_F(FileIOIntegrationTest, ReadEnvironment) {
   Id id("env1");
   EnvironmentFactor envFactor(id);
 
-  const Container::HostVector& envData = environmentFactorHandler->getData(envFactor);
+  const Container::HostVector* envData = environmentFactorHandler->getData(envFactor);
   const std::vector<const EnvironmentFactor*>& envInfo = environmentFactorHandler->getHeaders();
 
-  ASSERT_EQ(numberOfIndividualsToInclude, envData.getNumberOfRows());
+  ASSERT_EQ(numberOfIndividualsToInclude, envData->getNumberOfRows());
   ASSERT_EQ(2, envInfo.size());
 
   ASSERT_EQ(BINARY, envInfo[0]->getVariableType());
@@ -203,16 +203,17 @@ TEST_F(FileIOIntegrationTest, ReadEnvironment) {
   EXPECT_EQ(Id("env1"), envInfo[0]->getId());
   EXPECT_EQ(Id("env2"), envInfo[1]->getId());
 
-  EXPECT_EQ(1, envData(0));
-  EXPECT_EQ(1, envData(1));
-  EXPECT_EQ(0, envData(2));
-  EXPECT_EQ(0, envData(3));
-  EXPECT_EQ(1, envData(4));
-  EXPECT_EQ(1, envData(5));
-  EXPECT_EQ(1, envData(6));
-  EXPECT_EQ(1, envData(7));
-  EXPECT_EQ(0, envData(8));
+  EXPECT_EQ(1, (*envData)(0));
+  EXPECT_EQ(1, (*envData)(1));
+  EXPECT_EQ(0, (*envData)(2));
+  EXPECT_EQ(0, (*envData)(3));
+  EXPECT_EQ(1, (*envData)(4));
+  EXPECT_EQ(1, (*envData)(5));
+  EXPECT_EQ(1, (*envData)(6));
+  EXPECT_EQ(1, (*envData)(7));
+  EXPECT_EQ(0, (*envData)(8));
 
+  delete envData;
   delete dataFilesReader;
   delete personHandler;
   delete environmentFactorHandler;

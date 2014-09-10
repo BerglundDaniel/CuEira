@@ -22,7 +22,9 @@ public:
   virtual ~EnvironmentFactorHandler();
 
   virtual const std::vector<const EnvironmentFactor*>& getHeaders() const;
-  virtual const Container::HostVector& getData(const EnvironmentFactor& environmentFactor) const;
+
+  //This vector needs to be deleted, but it wont free the memory of the matrix since its a subpart of the whole matrix
+  virtual const Container::HostVector* getData(const EnvironmentFactor& environmentFactor) const;
   virtual int getNumberOfIndividualsToInclude() const;
 
 private:

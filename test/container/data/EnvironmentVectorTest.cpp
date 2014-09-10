@@ -53,17 +53,28 @@ protected:
 
 EnvironmentVectorTest::EnvironmentVectorTest() :
     numberOfIndividuals(6), environmentFactorHandlerMock(constructorHelpers.constructEnvironmentFactorHandlerMock()), startFactor(
-        Id("startFactor")), binaryFactor(Id("binaryFactor")),
-#ifdef CPU
-        orgData(new LapackppHostVector(new LaVectorDouble(numberOfIndividuals))),
-        binaryData(new LapackppHostVector(new LaVectorDouble(numberOfIndividuals)))
-#else
-        orgData(new PinnedHostVector(numberOfIndividuals)), binaryData(new PinnedHostVector(numberOfIndividuals))
-#endif
-{
+        Id("startFactor")), binaryFactor(Id("binaryFactor")), orgData(nullptr), binaryData(nullptr)
 
+{
   startFactor.setVariableType(OTHER);
   binaryFactor.setVariableType(BINARY);
+}
+
+EnvironmentVectorTest::~EnvironmentVectorTest() {
+  delete environmentFactorHandlerMock;
+}
+
+void EnvironmentVectorTest::SetUp() {
+  EXPECT_CALL(*environmentFactorHandlerMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
+      Return(numberOfIndividuals));
+
+#ifdef CPU
+  orgData = new LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
+  binaryData = new LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
+#else
+  orgData = new PinnedHostVector(numberOfIndividuals);
+  binaryData = new PinnedHostVector(numberOfIndividuals);
+#endif
 
   for(int i = 0; i < numberOfIndividuals; ++i){
     (*orgData)(i) = i;
@@ -76,19 +87,9 @@ EnvironmentVectorTest::EnvironmentVectorTest() :
   }
 }
 
-EnvironmentVectorTest::~EnvironmentVectorTest() {
-  delete environmentFactorHandlerMock;
+void EnvironmentVectorTest::TearDown() {
   delete orgData;
   delete binaryData;
-}
-
-void EnvironmentVectorTest::SetUp() {
-  EXPECT_CALL(*environmentFactorHandlerMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
-      Return(numberOfIndividuals));
-}
-
-void EnvironmentVectorTest::TearDown() {
-
 }
 
 #ifdef DEBUG
@@ -118,7 +119,7 @@ TEST_F(EnvironmentVectorTest, ConstructAndGetException){
 TEST_F(EnvironmentVectorTest, ConstructAndGet) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(Return(orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
@@ -129,15 +130,17 @@ TEST_F(EnvironmentVectorTest, ConstructAndGet) {
   for(int i = 0; i < numberOfIndividuals; ++i){
     EXPECT_EQ((*orgData)(i), recodedData(i));
   }
+
+  orgData = nullptr;
 }
 
 TEST_F(EnvironmentVectorTest, Switch) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(Return(orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(ReturnRef(*binaryData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(Return(binaryData));
   environmentVector.switchEnvironmentFactor(binaryFactor);
 
   ASSERT_EQ(binaryFactor, environmentVector.getCurrentEnvironmentFactor());
@@ -147,12 +150,15 @@ TEST_F(EnvironmentVectorTest, Switch) {
   for(int i = 0; i < numberOfIndividuals; ++i){
     EXPECT_EQ((*binaryData)(i), recodedData(i));
   }
+
+  orgData = nullptr;
+  binaryData = nullptr;
 }
 
 TEST_F(EnvironmentVectorTest, RecodeNonBinary) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(Return(orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
@@ -201,6 +207,8 @@ TEST_F(EnvironmentVectorTest, RecodeNonBinary) {
   for(int i = 0; i < numberOfIndividuals; ++i){
     EXPECT_EQ((*orgData)(i) * -1, (*recodedData)(i));
   }
+
+  orgData = nullptr;
 }
 
 TEST_F(EnvironmentVectorTest, RecodeBinary) {
@@ -220,7 +228,7 @@ TEST_F(EnvironmentVectorTest, RecodeBinary) {
 
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(ReturnRef(*binaryData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(Return(binaryData));
   environmentVector.switchEnvironmentFactor(binaryFactor);
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
 
@@ -270,12 +278,13 @@ TEST_F(EnvironmentVectorTest, RecodeBinary) {
   }
 
   delete binaryDataInvert;
+  binaryData = nullptr;
 }
 
 TEST_F(EnvironmentVectorTest, StatisticModel) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(Return(orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
   Container::HostVector* interactionVector;
@@ -299,7 +308,7 @@ TEST_F(EnvironmentVectorTest, StatisticModel) {
     EXPECT_EQ((*orgData)(i), (*recodedData)(i));
   }
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(ReturnRef(*binaryData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(Return(binaryData));
   environmentVector.switchEnvironmentFactor(binaryFactor);
   environmentVector.applyStatisticModel(ADDITIVE, *interactionVector);
 
@@ -313,12 +322,14 @@ TEST_F(EnvironmentVectorTest, StatisticModel) {
   }
 
   delete interactionVector;
+  orgData = nullptr;
+  binaryData = nullptr;
 }
 
 TEST_F(EnvironmentVectorTest, RecodeDifferentOrder) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(ReturnRef(*orgData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(Return(orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
@@ -338,6 +349,8 @@ TEST_F(EnvironmentVectorTest, RecodeDifferentOrder) {
   for(int i = 0; i < numberOfIndividuals; ++i){
     EXPECT_EQ((*orgData)(i) * -1, (*recodedData)(i));
   }
+
+  orgData = nullptr;
 }
 
 } /* namespace Container */

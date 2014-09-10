@@ -118,24 +118,26 @@ TEST_F(EnvironmentCSVReaderTest, ReadAndGetData) {
   EnvironmentFactorHandler* envFactorHandler = envCSVReader.readEnvironmentFactorInformation(personHandlerMock);
   const std::vector<const EnvironmentFactor*>& envInfo = envFactorHandler->getHeaders();
 
-  const Container::HostVector& dataVector1 = envFactorHandler->getData(*envInfo[0]);
+  const Container::HostVector* dataVector1 = envFactorHandler->getData(*envInfo[0]);
 
-  ASSERT_EQ(numberOfIndividualsToInclude, dataVector1.getNumberOfRows());
+  ASSERT_EQ(numberOfIndividualsToInclude, dataVector1->getNumberOfRows());
   ASSERT_EQ(BINARY, envInfo[0]->getVariableType());
 
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    ASSERT_EQ(column1[i], dataVector1(i));
+    ASSERT_EQ(column1[i], (*dataVector1)(i));
   }
 
-  const Container::HostVector& dataVector2 = envFactorHandler->getData(*envInfo[1]);
+  const Container::HostVector* dataVector2 = envFactorHandler->getData(*envInfo[1]);
 
-  ASSERT_EQ(numberOfIndividualsToInclude, dataVector2.getNumberOfRows());
+  ASSERT_EQ(numberOfIndividualsToInclude, dataVector2->getNumberOfRows());
   ASSERT_EQ(OTHER, envInfo[1]->getVariableType());
 
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    ASSERT_EQ(column2[i], dataVector2(i));
+    ASSERT_EQ(column2[i], (*dataVector2)(i));
   }
 
+  delete dataVector1;
+  delete dataVector2;
   delete envFactorHandler;
 }
 

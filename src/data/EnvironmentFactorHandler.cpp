@@ -5,8 +5,7 @@ namespace CuEira {
 EnvironmentFactorHandler::EnvironmentFactorHandler(Container::HostMatrix* dataMatrix,
     std::vector<EnvironmentFactor*>* environmentFactors) :
     dataMatrix(dataMatrix), environmentFactors(environmentFactors), numberOfColumns(environmentFactors->size()), numberOfIndividualsToInclude(
-        dataMatrix->getNumberOfRows()), constEnvironmentFactors(environmentFactors->size())
-{
+        dataMatrix->getNumberOfRows()), constEnvironmentFactors(environmentFactors->size()) {
 
   if(dataMatrix->getNumberOfColumns() != environmentFactors->size()){
     std::ostringstream os;
@@ -58,10 +57,10 @@ const std::vector<const EnvironmentFactor*>& EnvironmentFactorHandler::getHeader
   return constEnvironmentFactors;
 }
 
-const Container::HostVector& EnvironmentFactorHandler::getData(const EnvironmentFactor& environmentFactor) const {
+const Container::HostVector* EnvironmentFactorHandler::getData(const EnvironmentFactor& environmentFactor) const {
   for(int i = 0; i < numberOfColumns; ++i){
     if(*(*environmentFactors)[i] == environmentFactor){
-      const Container::HostVector& vector = *((*dataMatrix)(i)); //FIXME memory leak
+      const Container::HostVector* vector = (*dataMatrix)(i);
       return vector;
     } // if
   } // for i

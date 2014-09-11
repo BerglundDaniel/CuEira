@@ -7,6 +7,7 @@
 #include <Stream.h>
 #include <Device.h>
 #include <CudaAdapter.cu>
+#include <CudaException.h>
 
 namespace CuEira {
 namespace CUDA {

@@ -12,6 +12,9 @@ StreamFactory::~StreamFactory() {
 }
 
 Stream* StreamFactory::constructStream(const Device& device) const {
+  if(!device.isActive()){
+    throw new CudaException("Device provided to StreamFactory is not currently active.");
+  }
   cudaStream_t* cudaStream = new cudaStream_t();
   cublasHandle_t* cublasHandle = new cublasHandle_t();
 

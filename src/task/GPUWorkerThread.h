@@ -10,6 +10,15 @@
 #include <HostVector.h>
 #include <HostMatrix.h>
 #include <DataHandler.h>
+#include <Stream.h>
+#include <LogisticRegressionConfiguration.h>
+#include <LogisticRegression.h>
+#include <GpuModelHandler.h>
+#include <SNP.h>
+#include <DataHandlerState.h>
+#include <HostToDevice.h>
+#include <DeviceToHost.h>
+#include <Statistics.h>
 
 namespace CuEira {
 namespace CUDA {

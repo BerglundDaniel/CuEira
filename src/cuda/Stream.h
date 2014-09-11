@@ -25,6 +25,13 @@ public:
   virtual const cublasHandle_t& getCublasHandle() const;
   virtual const Device& getAssociatedDevice() const;
 
+  /**
+   * Sync the stream
+   */
+  inline void syncStream() const {
+    cudaStreamSynchronize(cudaStream);
+  }
+
 private:
   const Device& device;
   cudaStream_t* cudaStream;

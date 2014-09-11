@@ -36,6 +36,9 @@
 #include <CudaException.h>
 #include <GPUWorkerThread.h>
 #include <Device.h>
+#include <CudaException.h>
+#include <Stream.h>
+#include <StreamFactory.h>
 #endif
 
 /**
@@ -52,19 +55,49 @@ int main(int argc, char* argv[]) {
   Configuration configuration(argc, argv);
   FileIO::DataFilesReaderFactory dataFilesReaderFactory;
   Container::SNPVectorFactory snpVectorFactory(configuration);
-  StatisticsFactory statisticsFactory;
   AlleleStatisticsFactory alleleStatisticsFactory;
 
   FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
 
   PersonHandler* personHandler = dataFilesReader->readPersonInformation();
+  const int numberOfIndividualsToInclude = personHandler->getNumberOfIndividualsToInclude();
+  const Container::HostVector& outcomes = personHandler->getOutcomes();
+
+#ifndef CPU
+  const int numberOfDevices;
+  const int numberOfStreams = 1; //configuration.getNumberOfStreams();
+  const int numberOfThreads = numberOfDevices * numberOfStreams;
+  cudaGetDeviceCount(&numberOfDevices);
+  CUDA::StreamFactory* streamFactory = new StreamFactory();
+
+  if(numberOfDevices == 0){
+    throw new CudaException("No cuda devices found.");
+  }
+  std::cerr << "Calculating using " << numberOfDevices << " with " << numberOfStreams << " each." << std::endl;
+
+  std::vector<CUDA::Device*> devices(numberOfDevices);
+  std::vector<std::thread*> workers(numberOfThreads);
+  std::vector<CUDA::Stream*>* outcomeTransferStreams = new std::vector<CUDA::Stream*>(numberOfDevices);
+
+  for(int deviceNumber = 0; deviceNumber < numberOfDevices; ++deviceNumber){
+    CUDA::Device* device = new CUDA::Device(deviceNumber);
+    devices[deviceNumber] = device;
+
+    device->setActiveDevice();
+    CUDA::Stream* stream = streamFactory->constructStream(*device);
+    (*outcomeTransferStreams)[deviceNumber] = stream;
+
+    CUDA::HostToDevice hostToDevice(stream->getCudaStream());
+
+    device->setOutcomes(hostToDevice.transferVector(&outcomes));
+  }
+#endif
+
   EnvironmentFactorHandler* environmentFactorHandler = dataFilesReader->readEnvironmentFactorInformation(
       *personHandler);
   std::vector<SNP*>* snpInformation = dataFilesReader->readSNPInformation();
 
   const int numberOfSNPs = snpInformation->size();
-  const int numberOfIndividualsToInclude = personHandler->getNumberOfIndividualsToInclude();
-  const Container::HostVector& outcomes = personHandler->getOutcomes();
 
   ContingencyTableFactory contingencyTableFactory(outcomes);
   DataHandlerFactory dataHandlerFactory(configuration, contingencyTableFactory, bedReader, *environmentFactorHandler,
@@ -87,35 +120,38 @@ int main(int argc, char* argv[]) {
     numberOfCovariates = covariates->getNumberOfColumns();
   }
 
+  //PRINT HEADER TODO
+  std::cout
+      << "snp_id,risk_allele,minor,major,env_id,ap,reri,OR_snp,OR_snp_L,OR_snp_H,OR_env,OR_env_L,OR_env_H,OR_inter,OR_inter_L,OR_inter_H,";
+
+  for(int i = 0; i < numberOfCovariates; ++i){
+    std::cout << (*covariatesNames)[i] << "_cov_OR," << (*covariatesNames)[i] << "_cov_OR_L," << (*covariatesNames)[i]
+        << "_cov_OR_H,";
+  }
+
+  std::cout << "recode";
+  std::cout << std::endl;
+
 #ifdef CPU
   //TODO
   //Model::ModelHandler* modelHandler = new Model::CpuModelHandler();
 #else
   //GPU
-  const int numberOfDevices;
-  const int numberOfStreams = configuration.getNumberOfStreams();
-  const int numberOfThreads = numberOfDevices * numberOfStreams;
-  cudaGetDeviceCount(&numberOfDevices);
-
-  if(numberOfDevices == 0){
-    throw new CudaException("No cuda devices found.");
-  }
-  std::cerr << "Calculating using " << numberOfDevices << " with " << numberOfStreams << " each." << std::endl;
-
-  std::vector<CUDA::Device*> devices(numberOfDevices);
-  std::vector<std::thread*> workers(numberOfThreads);
-
   for(int deviceNumber = 0; deviceNumber < numberOfDevices; ++deviceNumber){
-    CUDA::Device* device = new CUDA::Device(deviceNumber);
-    devices[deviceNumber] = device;
+    CUDA::Device* device = devices[deviceNumber];
+    device->setActiveDevice();
+    CUDA::Stream* outcomeTransfeStream = (*outcomeTransferStreams)[deviceNumber];
+    outcomeTransfeStream->syncStream();
+    delete outcomeTransfeStream;
 
     //Start threads
     for(int streamNumber = 0; streamNumber < numberOfStreams; ++streamNumber){
       //TODO fix covariates
-      std::thread* thread = new std::thread(GPUWorkerThread, &configuration, device, dataHandlerFactory, bedReader,
-          outcomes);
+      std::thread* thread = new std::thread(CuEira::CUDA::GPUWorkerThread, &configuration, device, dataHandlerFactory,
+          bedReader, outcomes);
     }
   }
+  delete outcomeTransferStreams;
 
   for(int threadNumber = 0; threadNumber < numberOfThreads; ++threadNumber){
     workers[threadNumber]->join();
@@ -129,6 +165,10 @@ int main(int argc, char* argv[]) {
     delete devices[deviceNumber];
   }
 
+#endif
+
+#ifndef CPU
+  delete streamFactory;
 #endif
 
   delete bedReader;

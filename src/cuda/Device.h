@@ -25,12 +25,13 @@ public:
   virtual bool isActive() const;
   virtual bool setActiveDevice() const;
 
-  virtual const void setOutcomes(const Container::DeviceVector* outcomes);
+  virtual void setOutcomes(const Container::DeviceVector* outcomes);
   virtual const Container::DeviceVector& getOutcomes() const;
 
 private:
   const Container::DeviceVector* outcomes;
   const int deviceNumber;
+  bool outcomesSet;
 };
 
 } /* namespace CUDA */

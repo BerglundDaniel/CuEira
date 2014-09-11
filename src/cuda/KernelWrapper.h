@@ -106,7 +106,7 @@ public:
   void sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector, PRECISION* sumHost) const;
 
   /**
-   * Syncs the associated stream
+   * Syncs the associated stream //FIXME remove this stuff or such
    */
   inline void syncStream() const {
     cudaStreamSynchronize(cudaStream);

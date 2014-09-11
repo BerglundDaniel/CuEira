@@ -64,11 +64,11 @@ int main(int argc, char* argv[]) {
   const Container::HostVector& outcomes = personHandler->getOutcomes();
 
 #ifndef CPU
-  const int numberOfDevices;
+  int numberOfDevices;
   const int numberOfStreams = 1; //configuration.getNumberOfStreams();
   const int numberOfThreads = numberOfDevices * numberOfStreams;
   cudaGetDeviceCount(&numberOfDevices);
-  CUDA::StreamFactory* streamFactory = new StreamFactory();
+  CUDA::StreamFactory* streamFactory = new CUDA::StreamFactory();
 
   if(numberOfDevices == 0){
     throw new CudaException("No cuda devices found.");
@@ -99,13 +99,13 @@ int main(int argc, char* argv[]) {
 
   const int numberOfSNPs = snpInformation->size();
 
-  ContingencyTableFactory contingencyTableFactory(outcomes);
-  DataHandlerFactory dataHandlerFactory(configuration, contingencyTableFactory, bedReader, *environmentFactorHandler,
-      *dataQueue);
-
   FileIO::BedReader* bedReader = new FileIO::BedReader(configuration, snpVectorFactory, alleleStatisticsFactory,
       *personHandler, numberOfSNPs);
   Task::DataQueue* dataQueue = new Task::DataQueue(snpInformation);
+
+  ContingencyTableFactory contingencyTableFactory(outcomes);
+  DataHandlerFactory* dataHandlerFactory=new DataHandlerFactory(configuration, contingencyTableFactory, *bedReader, *environmentFactorHandler,
+      *dataQueue);
 
   Container::HostMatrix* covariates = nullptr;
   std::vector<std::string>* covariatesNames = nullptr;
@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
     for(int streamNumber = 0; streamNumber < numberOfStreams; ++streamNumber){
       //TODO fix covariates
       std::thread* thread = new std::thread(CuEira::CUDA::GPUWorkerThread, &configuration, device, dataHandlerFactory,
-          bedReader, outcomes);
+          bedReader);
     }
   }
   delete outcomeTransferStreams;
@@ -178,6 +178,7 @@ int main(int argc, char* argv[]) {
   delete dataQueue;
   delete covariates;
   delete covariatesNames;
+  delete dataHandlerFactory;
 
   std::cerr << "Done" << std::endl;
 

@@ -151,6 +151,8 @@ TEST_F(DataHandlerTest, ConstructAndGetException){
   EXPECT_THROW(dataHandler.getSNPVector(), InvalidState);
   EXPECT_THROW(dataHandler.getInteractionVector(), InvalidState);
   EXPECT_THROW(dataHandler.getRecode(), InvalidState);
+  EXPECT_THROW(dataHandler.getContingencyTable(), InvalidState);
+  EXPECT_THROW(dataHandler.getAlleleStatistics(), InvalidState);
   EXPECT_THROW(dataHandler.recode(ALL_RISK), InvalidState);
   EXPECT_THROW(dataHandler.recode(SNP_PROTECT), InvalidState);
   EXPECT_THROW(dataHandler.recode(ENVIRONMENT_PROTECT), InvalidState);

@@ -1,6 +1,8 @@
 #ifndef GPUWORKERTHREAD_H_
 #define GPUWORKERTHREAD_H_
 
+#include <thread>
+
 #include <Configuration.h>
 #include <Device.h>
 #include <DataHandlerFactory.h>
@@ -19,6 +21,9 @@
 #include <HostToDevice.h>
 #include <DeviceToHost.h>
 #include <Statistics.h>
+#include <StreamFactory.h>
+#include <KernelWrapperFactory.h>
+#include <KernelWrapper.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -32,8 +37,7 @@ namespace CUDA {
  * Thread to do work on GPU
  */
 void GPUWorkerThread(const Configuration* configuration, const Device* device,
-    const DataHandlerFactory* dataHandlerFactory, const FileIO::BedReader* bedReader,
-    const Container::HostVector* outcomes);
+    const DataHandlerFactory* dataHandlerFactory, const FileIO::BedReader* bedReader);
 
 } /* namespace CUDA */
 } /* namespace CuEira */

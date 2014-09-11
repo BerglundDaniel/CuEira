@@ -50,10 +50,20 @@ const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
 }
 
 const ContingencyTable& DataHandler::getContingencyTable() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using the getContingencyTable use next() at least once.");
+  }
+#endif
   return *contingencyTable;
 }
 
 const AlleleStatistics& DataHandler::getAlleleStatistics() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using the getAlleleStatistics use next() at least once.");
+  }
+#endif
   return *alleleStatistics;
 }
 

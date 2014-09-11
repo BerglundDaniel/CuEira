@@ -45,6 +45,8 @@ TEST_F(StreamFactoryTest, ConstructStream) {
   StreamFactory streamFactory;
   DeviceMock deviceMock;
 
+  EXPECT_CALL(deviceMock, isActive()).Times(1).WillRepeatedly(Return(true));
+
   Stream* stream = streamFactory.constructStream(deviceMock);
 
   ASSERT_EQ(&deviceMock, &stream->getAssociatedDevice());

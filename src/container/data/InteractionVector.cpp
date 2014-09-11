@@ -16,7 +16,7 @@ InteractionVector::InteractionVector(const EnvironmentVector& environmentVector)
 }
 
 InteractionVector::InteractionVector() :
-    interactionVector(nullptr) {
+    interactionVector(nullptr), numberOfIndividualsToInclude(0), state(NOT_INITIALISED), environmentVector(nullptr) {
 
 }
 

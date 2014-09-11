@@ -4,8 +4,7 @@ namespace CuEira {
 namespace CUDA {
 
 void GPUWorkerThread(const Configuration* configuration, const Device* device,
-    const DataHandlerFactory* dataHandlerFactory, const FileIO::BedReader* bedReader,
-    const Container::HostVector* outcomes) {
+    const DataHandlerFactory* dataHandlerFactory, const FileIO::BedReader* bedReader) {
 
   DataHandler* dataHandler = dataHandlerFactory->constructDataHandler();
   device->setActiveDevice();
@@ -35,7 +34,7 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
   Model::ModelHandler* modelHandler = new Model::GpuModelHandler(statisticsFactory, dataHandler,
       *logisticRegressionConfiguration, logisticRegression);
   CUDA::handleCudaStatus(cudaGetLastError(),
-      "Error with initialisation in GPUWorkerThread " << std::this_thread::get_id() << " : ");
+      "Error with initialisation in GPUWorkerThread " << std::this_thread::get_id() << " : "); //FIXME
 
   DataHandlerState dataHandlerState = modelHandler->next();
   while(dataHandlerState != DONE){
@@ -49,7 +48,7 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
       Statistics* statistics = modelHandler->calculateModel();
 
       CUDA::handleCudaStatus(cudaGetLastError(),
-          "Error with ModelHandler in GPUWorkerThread " << std::this_thread::get_id() << " : ");
+          "Error with ModelHandler in GPUWorkerThread " << std::this_thread::get_id() << " : "); //FIXME
 
       const Container::SNPVector& snpVector = modelHandler->getSNPVector();
 

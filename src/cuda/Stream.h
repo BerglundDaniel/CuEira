@@ -29,7 +29,7 @@ public:
    * Sync the stream
    */
   inline void syncStream() const {
-    cudaStreamSynchronize(cudaStream);
+    cudaStreamSynchronize(*cudaStream);
   }
 
 private:

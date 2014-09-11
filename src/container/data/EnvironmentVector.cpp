@@ -16,7 +16,8 @@ EnvironmentVector::EnvironmentVector(const EnvironmentFactorHandler& environment
 }
 
 EnvironmentVector::EnvironmentVector() :
-    recodedData(nullptr) {
+    recodedData(nullptr), originalData(nullptr), numberOfIndividualsToInclude(0), currentRecode(ALL_RISK), environmentHandler(
+        nullptr), state(NOT_INITIALISED), environmentFactor(nullptr) {
 
 }
 

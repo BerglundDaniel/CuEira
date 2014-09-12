@@ -104,8 +104,8 @@ int main(int argc, char* argv[]) {
   Task::DataQueue* dataQueue = new Task::DataQueue(snpInformation);
 
   ContingencyTableFactory contingencyTableFactory(outcomes);
-  DataHandlerFactory* dataHandlerFactory=new DataHandlerFactory(configuration, contingencyTableFactory, *bedReader, *environmentFactorHandler,
-      *dataQueue);
+  DataHandlerFactory* dataHandlerFactory = new DataHandlerFactory(configuration, contingencyTableFactory, *bedReader,
+      *environmentFactorHandler, *dataQueue);
 
   Container::HostMatrix* covariates = nullptr;
   std::vector<std::string>* covariatesNames = nullptr;
@@ -149,6 +149,7 @@ int main(int argc, char* argv[]) {
       //TODO fix covariates
       std::thread* thread = new std::thread(CuEira::CUDA::GPUWorkerThread, &configuration, device, dataHandlerFactory,
           bedReader);
+      workers[deviceNumber * numberOfStreams + streamNumber] = thread;
     }
   }
   delete outcomeTransferStreams;

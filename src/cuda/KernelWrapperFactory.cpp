@@ -11,7 +11,7 @@ KernelWrapperFactory::~KernelWrapperFactory() {
 
 }
 
-KernelWrapper* KernelWrapperFactory::constructKernelWrapper(Stream stream) const {
+KernelWrapper* KernelWrapperFactory::constructKernelWrapper(const Stream& stream) const {
   return new KernelWrapper(stream.getCudaStream(), stream.getCublasHandle());
 }
 

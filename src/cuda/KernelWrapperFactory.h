@@ -20,7 +20,7 @@ public:
   KernelWrapperFactory();
   virtual ~KernelWrapperFactory();
 
-  virtual KernelWrapper* constructKernelWrapper(Stream stream) const;
+  virtual KernelWrapper* constructKernelWrapper(const Stream& stream) const;
 };
 
 } /* namespace CUDA */

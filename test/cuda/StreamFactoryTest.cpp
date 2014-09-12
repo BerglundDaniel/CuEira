@@ -9,6 +9,8 @@
 #include <Stream.h>
 #include <StreamFactory.h>
 
+using testing::Return;
+
 namespace CuEira {
 namespace CUDA {
 

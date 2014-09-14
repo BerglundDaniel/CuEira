@@ -69,7 +69,7 @@ endif(${PRECISION} MATCHES double)
 #Find required libraries
 MESSAGE( STATUS "Checking packages:" )
 
-find_package( Boost 1.54 COMPONENTS program_options REQUIRED )
+find_package( Boost 1.54 COMPONENTS program_options filesystem REQUIRED )
 include_directories( ${Boost_INCLUDE_DIR} )
 
 #if boost 1.55 and intel, print warning TODO

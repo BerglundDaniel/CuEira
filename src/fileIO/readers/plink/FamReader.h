@@ -47,6 +47,7 @@ private:
 
   const Configuration& configuration;
   const std::string famFileStr;
+  const PhenotypeCoding phenotypeCoding;
 };
 
 } /* namespace FileIO */

@@ -4,7 +4,8 @@ namespace CuEira {
 namespace FileIO {
 
 FamReader::FamReader(const Configuration& configuration) :
-    configuration(configuration), famFileStr(configuration.getFamFilePath()) {
+    configuration(configuration), famFileStr(configuration.getFamFilePath()), phenotypeCoding(
+        configuration.getPhenotypeCoding()) {
 
 }
 
@@ -64,11 +65,12 @@ Phenotype FamReader::stringToPhenotype(std::string phenotypeString) const {
   long int phenotypeInt = strtol(phenotypeString.c_str(), &temp, 0);
   if(*temp != '\0'){ //Check if there was an error with strtol
     std::ostringstream os;
-    os << "Problem with string to int conversion of phenotype in fam file " << famFileStr << " of string " << phenotypeString << std::endl;
+    os << "Problem with string to int conversion of phenotype in fam file " << famFileStr << " of string "
+        << phenotypeString << std::endl;
     const std::string& tmp = os.str();
     throw FileReaderException(tmp.c_str());
   }
-  if(configuration.getPhenotypeCoding() == ONE_TWO_CODING){
+  if(phenotypeCoding == ONE_TWO_CODING){
     if(phenotypeInt == 2){
       return (AFFECTED);
     }else if(phenotypeInt == 1){
@@ -81,7 +83,7 @@ Phenotype FamReader::stringToPhenotype(std::string phenotypeString) const {
       const std::string& tmp = os.str();
       throw FileReaderException(tmp.c_str());
     }
-  }else if(configuration.getPhenotypeCoding() == ZERO_ONE_CODING){
+  }else if(phenotypeCoding == ZERO_ONE_CODING){
     if(phenotypeInt == 1){
       return (AFFECTED);
     }else if(phenotypeInt == 0){

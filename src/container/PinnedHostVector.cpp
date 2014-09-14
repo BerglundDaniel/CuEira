@@ -4,7 +4,7 @@ namespace CuEira {
 namespace Container {
 
 PinnedHostVector::PinnedHostVector(unsigned int numberOfRows) :
-    HostVector(numberOfRows, false, new PRECISION()) {
+    HostVector(numberOfRows, false, nullptr) {
   CuEira::CUDA::allocateHostPinnedMemory((void**) &hostVector, numberOfRows);
 }
 

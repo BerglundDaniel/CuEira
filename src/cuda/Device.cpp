@@ -13,14 +13,15 @@ Device::~Device() {
 }
 
 bool Device::isActive() const {
-  int* activeDeviceNumber = new int(-1);
-  cudaGetDevice(activeDeviceNumber);
+  int activeDeviceNumber;
+  cudaGetDevice(&activeDeviceNumber);
 
-  if(*activeDeviceNumber == deviceNumber){
+  if(activeDeviceNumber == deviceNumber){
     return true;
   }else{
     return false;
   }
+
 }
 
 bool Device::setActiveDevice() const {

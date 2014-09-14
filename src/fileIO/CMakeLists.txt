@@ -1,5 +1,5 @@
 add_subdirectory(writers)
-add_subdirectory(reader)
+add_subdirectory(readers)
 
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}

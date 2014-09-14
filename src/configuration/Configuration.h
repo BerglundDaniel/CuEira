@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 #include <GeneticModel.h>
 #include <PhenotypeCoding.h>

@@ -4,7 +4,7 @@ namespace CuEira {
 namespace Container {
 
 DeviceMatrix::DeviceMatrix(int numberOfRows, int numberOfColumns) :
-    numberOfRows(numberOfRows), numberOfColumns(numberOfColumns), matrixDevice(new PRECISION()), subview(false) {
+    numberOfRows(numberOfRows), numberOfColumns(numberOfColumns), matrixDevice(nullptr), subview(false) {
   if(numberOfRows < 0 || numberOfColumns < 0){
     throw DimensionMismatch("Number of rows and columns for DeviceMatrix must be > 0");
   }

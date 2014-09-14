@@ -40,6 +40,10 @@ Configuration::Configuration(int argc, char* argv[]) {
     std::exit(EXIT_SUCCESS);
   }
 
+  if(boost::filesystem::exists(optionsMap["output"].as<std::string>())){
+    throw std::invalid_argument("Output file already exist");
+  }
+
   if(optionsMap.count("covariate_file")){
     if(!optionsMap.count("covariate_file")){
       throw std::invalid_argument(

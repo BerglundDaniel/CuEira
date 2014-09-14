@@ -4,7 +4,7 @@ namespace CuEira {
 namespace Container {
 
 DeviceVector::DeviceVector(int numberOfRows) :
-    numberOfRows(numberOfRows), numberOfColumns(1), subview(false), vectorDevice(new PRECISION()) {
+    numberOfRows(numberOfRows), numberOfColumns(1), subview(false), vectorDevice(nullptr) {
   if(numberOfRows < 0){
     throw DimensionMismatch("Number of rows for DeviceVector must be > 0");
   }

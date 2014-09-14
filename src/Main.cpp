@@ -59,17 +59,17 @@ int main(int argc, char* argv[]) {
   AlleleStatisticsFactory alleleStatisticsFactory;
 
   FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
-  FileIO::ResultWriter* resultWriter = new FileIO::ResultWrtier(configuration);
+  FileIO::ResultWriter* resultWriter = new FileIO::ResultWriter(configuration);
 
   PersonHandler* personHandler = dataFilesReader->readPersonInformation();
   const int numberOfIndividualsToInclude = personHandler->getNumberOfIndividualsToInclude();
   const Container::HostVector& outcomes = personHandler->getOutcomes();
 
 #ifndef CPU
-  int numberOfDevices = 1;
+  int numberOfDevices = -1;
   const int numberOfStreams = configuration.getNumberOfStreams();
   const int numberOfThreads = numberOfDevices * numberOfStreams;
-  //cudaGetDeviceCount(&numberOfDevices);
+  cudaGetDeviceCount(&numberOfDevices);
   CUDA::StreamFactory* streamFactory = new CUDA::StreamFactory();
 
   if(numberOfDevices == 0){

@@ -44,11 +44,11 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
     if(dataHandlerState == SKIP){
       resultWriter->writePartialResult(snp, envFactor);
     }else{
-      Statistics* statistics = modelHandler->calculateModel(snp, envFactor, *statistics, modelHandler->getSNPVector());
+      Statistics* statistics = modelHandler->calculateModel();
 
       CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in GPUWorkerThread "); // << std::this_thread::get_id() << " : "); //FIXME
 
-      resultWriter->writeFullResult();
+      resultWriter->writeFullResult(snp, envFactor, *statistics, modelHandler->getSNPVector());
 
       delete statistics;
     } //else

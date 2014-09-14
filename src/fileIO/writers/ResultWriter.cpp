@@ -17,7 +17,7 @@ void ResultWriter::writeFullResult(const SNP& snp, const EnvironmentFactor& envi
   openFile();
 
   //TODO need to add allele freqs and such
-  std::cout << snp << "," << environmentFactor << "," << statistics << "," << snpVector << std::endl;
+  outputStream << snp << "," << environmentFactor << "," << statistics << "," << snpVector << std::endl;
 
   closeFile();
 }
@@ -27,7 +27,7 @@ void ResultWriter::writePartialResult(const SNP& snp, const EnvironmentFactor& e
 
   //TODO need to add allele freqs and such
   //TODO add reason for skip
-  std::cout << snp << "," << environmentFactor << std::endl;
+  outputStream << snp << "," << environmentFactor << std::endl;
 
   closeFile();
 }
@@ -52,7 +52,7 @@ void ResultWriter::printHeader() {
 
 void ResultWriter::openFile() {
   fileLock.lock();
-  outputStream.open(bedFileStr, std::ifstream::binary);
+  outputStream.open(outputFileName, std::ofstream::out);
   if(!outputStream){
     fileLock.unlock();
     std::ostringstream os;

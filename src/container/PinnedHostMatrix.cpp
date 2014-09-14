@@ -4,7 +4,7 @@ namespace CuEira {
 namespace Container {
 
 PinnedHostMatrix::PinnedHostMatrix(unsigned int numberOfRows, unsigned int numberOfColumns) :
-    HostMatrix(numberOfRows, numberOfColumns, new PRECISION()) {
+    HostMatrix(numberOfRows, numberOfColumns, nullptr) {
   CuEira::CUDA::allocateHostPinnedMemory((void**) &hostMatrix, numberOfRows * numberOfColumns);
 }
 

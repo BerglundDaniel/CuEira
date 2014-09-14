@@ -24,6 +24,11 @@ public:
   bool operator<(const Id& otherId) const;
   bool operator==(const Id& otherId) const;
 
+  Id(const Id&) = delete;
+  Id(Id&&) = delete;
+  Id& operator=(const Id&) = delete;
+  Id& operator=(Id&&) = delete;
+
 private:
   std::string id;
 };

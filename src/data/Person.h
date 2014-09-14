@@ -38,6 +38,11 @@ public:
   bool operator<(const Person& otherPerson) const;
   bool operator==(const Person& otherPerson) const;
 
+  Person(const Person&) = delete;
+  Person(Person&&) = delete;
+  Person& operator=(const Person&) = delete;
+  Person& operator=(Person&&) = delete;
+
 protected:
   explicit Person(Id id, Sex sex, Phenotype phenotype, bool include);
 

@@ -28,6 +28,11 @@ public:
 
   virtual DataHandler* constructDataHandler() const;
 
+  DataHandlerFactory(const DataHandlerFactory&) = delete;
+  DataHandlerFactory(DataHandlerFactory&&) = delete;
+  DataHandlerFactory& operator=(const DataHandlerFactory&) = delete;
+  DataHandlerFactory& operator=(DataHandlerFactory&&) = delete;
+
 private:
   const Configuration& configuration;
   const ContingencyTableFactory& contingencyTableFactory;

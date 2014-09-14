@@ -26,14 +26,14 @@ const Person& PersonHandler::createPerson(Id id, Sex sex, Phenotype phenotype, i
   }
 
   bool include = shouldPersonBeIncluded(id, sex, phenotype);
-  Person person(id, sex, phenotype, include);
+  Person* person=new Person(id, sex, phenotype, include);
 
-  idToPerson.insert(std::pair<Id, Person>(person.getId(), person));
-  rowToPersonAll.insert(std::pair<int, Person>(rowAll, person));
+  idToPerson.insert(std::pair<Id, Person&>(person->getId(), *person));
+  rowToPersonAll.insert(std::pair<int, Person&>(rowAll, *person));
 
   if(include){
-    rowToPersonInclude.insert(std::pair<int, Person>(numberOfIndividualsToInclude, person));
-    personToRowInclude.insert(std::pair<Person, int>(person, numberOfIndividualsToInclude));
+    rowToPersonInclude.insert(std::pair<int, Person&>(numberOfIndividualsToInclude, *person));
+    personToRowInclude.insert(std::pair<Person&, int>(*person, numberOfIndividualsToInclude));
 
     numberOfIndividualsToInclude++;
   }else{
@@ -41,7 +41,7 @@ const Person& PersonHandler::createPerson(Id id, Sex sex, Phenotype phenotype, i
   }
   numberOfIndividualsTotal++;
 
-  return idToPerson.at(id);
+  return *person;
 }
 
 int PersonHandler::getNumberOfIndividualsTotal() const {

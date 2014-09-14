@@ -9,6 +9,7 @@ if(NOT ${CPU})
     ${GPU_SOURCE}
     ${CMAKE_CURRENT_SOURCE_DIR}/DeviceToHost.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/HostToDevice.cpp
+    PARENT_SCOPE
   )
 endif()
 

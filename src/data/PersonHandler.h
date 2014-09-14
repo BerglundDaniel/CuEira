@@ -43,15 +43,20 @@ public:
   virtual const Container::HostVector& getOutcomes() const;
   virtual void createOutcomes();
 
+  PersonHandler(const PersonHandler&) = delete;
+  PersonHandler(PersonHandler&&) = delete;
+  PersonHandler& operator=(const PersonHandler&) = delete;
+  PersonHandler& operator=(PersonHandler&&) = delete;
+
 private:
   bool shouldPersonBeIncluded(Id id, Sex sex, Phenotype phenotype) const;
 
   int numberOfIndividualsTotal;
   int numberOfIndividualsToInclude;
-  std::map<int, Person> rowToPersonAll;
-  std::map<int, Person> rowToPersonInclude;
-  std::map<Id, Person> idToPerson;
-  std::map<Person, int> personToRowInclude;
+  std::map<int, Person&> rowToPersonAll;
+  std::map<int, Person&> rowToPersonInclude;
+  std::map<Id, Person&> idToPerson;
+  std::map<Person&, int> personToRowInclude;
   bool outcomesCreated;
   Container::HostVector* outcomes;
 };

@@ -99,6 +99,7 @@ TEST_F(FileIOIntegrationTest, ReadSNPInfo) {
   EXPECT_CALL(configMock, covariateFileSpecified()).Times(1).WillRepeatedly(Return(false));
 
   EXPECT_CALL(configMock, excludeSNPsWithNegativePosition()).Times(AtLeast(1)).WillRepeatedly(Return(true));
+  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ZERO_ONE_CODING));
 
   DataFilesReaderFactory dataFilesReaderFactory;
   DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configMock);

@@ -63,6 +63,7 @@ TEST_F(DataFilesReaderFactoryTest, ConstructWithCov) {
       Return(std::string(CuEira_BUILD_DIR) + std::string("/test_cov.txt")));
   EXPECT_CALL(configMock, getCovariateIndividualIdColumnName()).Times(1).WillRepeatedly(Return("indid"));
   EXPECT_CALL(configMock, getCovariateDelimiter()).Times(1).WillRepeatedly(Return("\t "));
+  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ZERO_ONE_CODING));
 
   DataFilesReaderFactory dataFilesReaderFactory;
   DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configMock);
@@ -72,7 +73,6 @@ TEST_F(DataFilesReaderFactoryTest, ConstructWithCov) {
 
 TEST_F(DataFilesReaderFactoryTest, ConstructWithoutCov) {
   EXPECT_CALL(configMock, covariateFileSpecified()).Times(1).WillRepeatedly(Return(false));
-
   EXPECT_CALL(configMock, getPhenotypeCoding()).Times(AtLeast(1)).WillRepeatedly(Return(ONE_TWO_CODING));
 
   DataFilesReaderFactory dataFilesReaderFactory;

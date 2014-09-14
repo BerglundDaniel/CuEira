@@ -38,7 +38,9 @@ class DataHandlerTest;
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class DataHandler {
-  friend DataHandlerTest;FRIEND_TEST(DataHandlerTest, Next);FRIEND_TEST(DataHandlerTest, Recode);
+  friend DataHandlerTest;
+  FRIEND_TEST(DataHandlerTest, Next);
+  FRIEND_TEST(DataHandlerTest, Recode);
 public:
   DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
       const ContingencyTableFactory& contingencyTableFactory,
@@ -59,6 +61,11 @@ public:
   virtual const Container::SNPVector& getSNPVector() const;
   virtual const Container::InteractionVector& getInteractionVector() const;
   virtual const Container::EnvironmentVector& getEnvironmentVector() const;
+
+  DataHandler(const DataHandler&) = delete;
+  DataHandler(DataHandler&&) = delete;
+  DataHandler& operator=(const DataHandler&) = delete;
+  DataHandler& operator=(DataHandler&&) = delete;
 
 protected:
   DataHandler(const Configuration& configuration); //For the mock

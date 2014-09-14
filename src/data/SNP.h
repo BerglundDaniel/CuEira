@@ -39,6 +39,11 @@ public:
   bool operator<(const SNP& otherSNP) const;
   bool operator==(const SNP& otherSNP) const;
 
+  SNP(const SNP&) = delete;
+  SNP(SNP&&) = delete;
+  SNP& operator=(const SNP&) = delete;
+  SNP& operator=(SNP&&) = delete;
+
 private:
   Id id;
   std::vector<SNPIncludeExclude>* includeExcludeVector;

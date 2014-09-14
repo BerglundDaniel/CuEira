@@ -27,6 +27,11 @@ public:
   virtual const Container::HostVector* getData(const EnvironmentFactor& environmentFactor) const;
   virtual int getNumberOfIndividualsToInclude() const;
 
+  EnvironmentFactorHandler(const EnvironmentFactorHandler&) = delete;
+  EnvironmentFactorHandler(EnvironmentFactorHandler&&) = delete;
+  EnvironmentFactorHandler& operator=(const EnvironmentFactorHandler&) = delete;
+  EnvironmentFactorHandler& operator=(EnvironmentFactorHandler&&) = delete;
+
 private:
   Container::HostMatrix* dataMatrix;
   std::vector<EnvironmentFactor*>* environmentFactors;

@@ -8,6 +8,7 @@ if(NOT ${CPU})
   set(GPU_SOURCE
     ${GPU_SOURCE}
     ${CMAKE_CURRENT_SOURCE_DIR}/GPUWorkerThread.cpp
+    PARENT_SCOPE
   )
 endif()
 

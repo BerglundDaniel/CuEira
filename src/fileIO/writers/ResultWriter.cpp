@@ -52,7 +52,7 @@ void ResultWriter::printHeader() {
 
 void ResultWriter::openFile() {
   fileLock.lock();
-  outputStream.open(outputFileName, std::ofstream::out);
+  outputStream.open(outputFileName, std::ofstream::ios_base::app);
   if(!outputStream){
     fileLock.unlock();
     std::ostringstream os;

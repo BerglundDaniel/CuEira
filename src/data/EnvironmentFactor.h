@@ -27,6 +27,11 @@ public:
   bool operator<(const EnvironmentFactor& otherEnvironmentFactor) const;
   bool operator==(const EnvironmentFactor& otherEnvironmentFactor) const;
 
+  EnvironmentFactor(const EnvironmentFactor&) = delete;
+  EnvironmentFactor(EnvironmentFactor&&) = delete;
+  EnvironmentFactor& operator=(const EnvironmentFactor&) = delete;
+  EnvironmentFactor& operator=(EnvironmentFactor&&) = delete;
+
 private:
   bool shouldEnvironmentFactorBeIncluded() const;
 

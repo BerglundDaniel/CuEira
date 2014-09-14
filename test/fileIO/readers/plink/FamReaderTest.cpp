@@ -46,7 +46,6 @@ FamReaderTest::FamReaderTest() :
 
   EXPECT_CALL(configMock, getFamFilePath()).Times(1).WillRepeatedly(
       Return(std::string(CuEira_BUILD_DIR) + std::string("/test.fam")));
-  EXPECT_CALL(configMock, getPhenotypeCoding()).WillRepeatedly(Return(ONE_TWO_CODING));
 }
 
 FamReaderTest::~FamReaderTest() {
@@ -62,6 +61,7 @@ void FamReaderTest::TearDown() {
 }
 
 TEST_F(FamReaderTest, ReadFile) {
+  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ONE_TWO_CODING));
   CuEira::FileIO::FamReader famReader(configMock);
   PersonHandler* personHandler = famReader.readPersonInformation();
 
@@ -87,6 +87,7 @@ TEST_F(FamReaderTest, ReadFile) {
 }
 
 TEST_F(FamReaderTest, StringToSex) {
+  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ONE_TWO_CODING));
   CuEira::FileIO::FamReader famReader(configMock);
 
   Sex sex = famReader.stringToSex("1");
@@ -100,12 +101,14 @@ TEST_F(FamReaderTest, StringToSex) {
 }
 
 TEST_F(FamReaderTest, StringToSexException) {
+  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ONE_TWO_CODING));
   CuEira::FileIO::FamReader famReader(configMock);
 
   ASSERT_THROW(famReader.stringToSex("asdf"), FileReaderException);
 }
 
 TEST_F(FamReaderTest, StringToPhenotypeOneTwoCoding) {
+  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ONE_TWO_CODING));
   CuEira::FileIO::FamReader famReader(configMock);
 
   Phenotype phenotype = famReader.stringToPhenotype("2");
@@ -119,8 +122,8 @@ TEST_F(FamReaderTest, StringToPhenotypeOneTwoCoding) {
 }
 
 TEST_F(FamReaderTest, StringToPhenotypeZeroOneCoding) {
+  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ZERO_ONE_CODING));
   CuEira::FileIO::FamReader famReader(configMock);
-  EXPECT_CALL(configMock, getPhenotypeCoding()).WillRepeatedly(Return(ZERO_ONE_CODING));
 
   Phenotype phenotype = famReader.stringToPhenotype("1");
   ASSERT_EQ(AFFECTED, phenotype);
@@ -133,6 +136,7 @@ TEST_F(FamReaderTest, StringToPhenotypeZeroOneCoding) {
 }
 
 TEST_F(FamReaderTest, StringToPhenotypeOneTwoCodingException) {
+  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ONE_TWO_CODING));
   CuEira::FileIO::FamReader famReader(configMock);
 
   ASSERT_THROW(famReader.stringToPhenotype("-3"), FileReaderException);
@@ -140,8 +144,8 @@ TEST_F(FamReaderTest, StringToPhenotypeOneTwoCodingException) {
 }
 
 TEST_F(FamReaderTest, StringToPhenotypeZeroOneCodingException) {
+  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ZERO_ONE_CODING));
   CuEira::FileIO::FamReader famReader(configMock);
-  EXPECT_CALL(configMock, getPhenotypeCoding()).WillRepeatedly(Return(ZERO_ONE_CODING));
 
   ASSERT_THROW(famReader.stringToPhenotype("-3"), FileReaderException);
   ASSERT_THROW(famReader.stringToPhenotype("notAnInt"), FileReaderException);

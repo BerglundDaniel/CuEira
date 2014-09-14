@@ -29,6 +29,11 @@ public:
   PRECISION* getMemoryPointer();
   const PRECISION* getMemoryPointer() const;
 
+  HostMatrix(const HostMatrix&) = delete;
+  HostMatrix(HostMatrix&&) = delete;
+  HostMatrix& operator=(const HostMatrix&) = delete;
+  HostMatrix& operator=(HostMatrix&&) = delete;
+
 protected:
   PRECISION* hostMatrix;
   const unsigned int numberOfRows;

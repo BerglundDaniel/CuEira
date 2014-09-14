@@ -27,6 +27,11 @@ public:
   virtual const std::vector<int>& getAlleleNumbers() const;
   virtual const std::vector<double>& getAlleleFrequencies() const;
 
+  AlleleStatistics(const AlleleStatistics&) = delete;
+  AlleleStatistics(AlleleStatistics&&) = delete;
+  AlleleStatistics& operator=(const AlleleStatistics&) = delete;
+  AlleleStatistics& operator=(AlleleStatistics&&) = delete;
+
 private:
   const std::vector<int>* numberOfAlleles;
   const std::vector<double>* alleleFrequencies;

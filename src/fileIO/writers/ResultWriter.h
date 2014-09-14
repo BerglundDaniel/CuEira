@@ -29,6 +29,11 @@ public:
   void writeFullResult(const SNP& snp, const EnvironmentFactor& environmentFactor, const Statistics& statistics, const Container::SNPVector& snpVector);
   void writePartialResult(const SNP& snp, const EnvironmentFactor& environmentFactor);
 
+  ResultWriter(const ResultWriter&) = delete;
+  ResultWriter(ResultWriter&&) = delete;
+  ResultWriter& operator=(const ResultWriter&) = delete;
+  ResultWriter& operator=(ResultWriter&&) = delete;
+
 private:
   void printHeader();
   void openFile();

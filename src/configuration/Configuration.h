@@ -135,6 +135,11 @@ public:
    */
   virtual StatisticModel getStatisticModel() const;
 
+  Configuration(const Configuration&) = delete;
+  Configuration(Configuration&&) = delete;
+  Configuration& operator=(const Configuration&) = delete;
+  Configuration& operator=(Configuration&&) = delete;
+
 protected:
   Configuration(); //Used for the mock of this class
 

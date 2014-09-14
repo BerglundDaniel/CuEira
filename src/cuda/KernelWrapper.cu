@@ -12,8 +12,9 @@
 namespace CuEira {
 namespace CUDA {
 
-KernelWrapper::KernelWrapper(const cudaStream_t& cudaStream, const cublasHandle_t& cublasHandle) :
-    cudaStream(cudaStream), cublasHandle(cublasHandle), constOne(new PRECISION(1)), constZero(new PRECISION(0)) {
+KernelWrapper::KernelWrapper(const Stream& stream) :
+    stream(stream), cudaStream(stream.getCudaStream()), cublasHandle(stream.getCublasHandle()), constOne(
+        new PRECISION(1)), constZero(new PRECISION(0)) {
 
 }
 

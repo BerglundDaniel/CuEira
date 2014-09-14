@@ -17,6 +17,9 @@
 #include <PinnedHostVector.h>
 #include <DeviceToHost.h>
 #include <HostToDevice.h>
+#include <Device.h>
+#include <Stream.h>
+#include <StreamFactory.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -34,25 +37,21 @@ protected:
   virtual void SetUp();
   virtual void TearDown();
 
-  cublasStatus_t cublasStatus;
-  cudaStream_t stream1;
-  cublasHandle_t cublasHandle;
+  Device device;
+  StreamFactory streamFactory;
+  Stream* stream;
   HostToDevice hostToDeviceStream1;
   DeviceToHost deviceToHostStream1;
 };
 
 TransferTest::TransferTest() :
-    cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(HostToDevice(stream1)), deviceToHostStream1(
-        DeviceToHost(stream1)) {
+    device(0), streamFactory(), stream(streamFactory.constructStream(device)), hostToDeviceStream1(*stream), deviceToHostStream1(
+        *stream) {
 
-  handleCublasStatus(cublasStatus, "Failed to create cublas handle:");
-  handleCudaStatus(cudaStreamCreate(&stream1), "Failed to create cuda stream 1:");
-  handleCublasStatus(cublasSetStream(cublasHandle, stream1), "Failed to set cuda stream:");
 }
 
 TransferTest::~TransferTest() {
-  handleCublasStatus(cublasDestroy(cublasHandle), "Failed to destroy cublas handle:");
-  handleCudaStatus(cudaStreamDestroy(stream1), "Failed to destroy cuda stream 1:");
+  delete stream;
 }
 
 void TransferTest::SetUp() {
@@ -73,7 +72,7 @@ TEST_F(TransferTest, TransferVector) {
 
   Container::DeviceVector* deviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
   Container::HostVector* hostVectorTo = deviceToHostStream1.transferVector(deviceVector);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
   handleCudaStatus(cudaGetLastError(), "Error when transferring vector in test: ");
 
   ASSERT_EQ(numberOfRows, hostVectorTo->getNumberOfRows());
@@ -101,7 +100,7 @@ TEST_F(TransferTest, TransferMatrix) {
 
   Container::DeviceMatrix* deviceMatrix = hostToDeviceStream1.transferMatrix(hostMatrixFrom);
   Container::HostMatrix* hostMatrixTo = deviceToHostStream1.transferMatrix(deviceMatrix);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
   handleCudaStatus(cudaGetLastError(), "Error when transferring matrix in test: ");
 
   ASSERT_EQ(numberOfRows, hostMatrixTo->getNumberOfRows());
@@ -139,7 +138,7 @@ TEST_F(TransferTest, TransferVectorCustomPointDevice) {
   Container::DeviceMatrix* deviceMatrixBig = hostToDeviceStream1.transferMatrix(hostMatrixBig);
   PRECISION* vectorPos = deviceMatrixBig->getMemoryPointer() + 3;
   hostToDeviceStream1.transferVector(hostVectorFrom, vectorPos);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
   handleCudaStatus(cudaGetLastError(), "Error when transferring to device in TransferTest: ");
 
   Container::DeviceVector* deviceVector = new Container::DeviceVector(numberOfRows, vectorPos);
@@ -184,7 +183,7 @@ TEST_F(TransferTest, TransferMatrixCustomPointDevice) {
   Container::DeviceMatrix* deviceMatrixBig = hostToDeviceStream1.transferMatrix(hostMatrixBig);
   PRECISION* matrixPos = deviceMatrixBig->getMemoryPointer() + 3;
   hostToDeviceStream1.transferMatrix(hostMatrixFrom, matrixPos);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
   handleCudaStatus(cudaGetLastError(), "Error when transferring to device in TransferTest: ");
 
   Container::DeviceMatrix* deviceMatrix = new Container::DeviceMatrix(numberOfRows, numberOfColumns, matrixPos);
@@ -227,7 +226,7 @@ TEST_F(TransferTest, TransferVectorCustomPointHost) {
   }
 
   Container::DeviceVector* deviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
   handleCudaStatus(cudaGetLastError(), "Error when transferring to device in TransferTest: ");
 
   int offset = 2;
@@ -273,7 +272,7 @@ TEST_F(TransferTest, TransferMatrixCustomPointHost) {
   }
 
   Container::DeviceMatrix* deviceMatrix = hostToDeviceStream1.transferMatrix(hostMatrixFrom);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
   handleCudaStatus(cudaGetLastError(), "Error when transferring to device in TransferTest: ");
 
   int offset = 3;

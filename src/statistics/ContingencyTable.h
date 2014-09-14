@@ -27,6 +27,11 @@ public:
 
   virtual const std::vector<int>& getTable() const;
 
+  ContingencyTable(const ContingencyTable&) = delete;
+  ContingencyTable(ContingencyTable&&) = delete;
+  ContingencyTable& operator=(const ContingencyTable&) = delete;
+  ContingencyTable& operator=(ContingencyTable&&) = delete;
+
 private:
   const std::vector<int>* tableCellNumbers;
 };

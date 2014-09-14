@@ -3,14 +3,13 @@
 namespace CuEira {
 namespace CUDA {
 
-HostToDevice::HostToDevice(const cudaStream_t& cudaStream) :
-    cudaStream(&cudaStream) {
+HostToDevice::HostToDevice(const Stream& stream) :
+    cudaStream(&stream.getCudaStream()) {
 
 }
 
 HostToDevice::HostToDevice() :
-    cudaStream(new cudaStream_t()) {
-  delete cudaStream; //To prevent memory leaks. This constructor is just for mocking
+    cudaStream(nullptr) {
 }
 
 HostToDevice::~HostToDevice() {
@@ -53,7 +52,8 @@ void HostToDevice::transferMatrix(const HostMatrix* matrixHost, PRECISION* devic
 
   handleCublasStatus(
       cublasSetMatrixAsync(numberOfRows, numberOfColumns, sizeof(PRECISION), hostMatrixPointer, numberOfRows,
-          deviceMemoryPosition, numberOfRows, *cudaStream), "Error when transferring matrix from host to device point: ");
+          deviceMemoryPosition, numberOfRows, *cudaStream),
+      "Error when transferring matrix from host to device point: ");
 }
 
 void HostToDevice::transferVector(const HostVector* vectorHost, PRECISION* deviceMemoryPosition) const {

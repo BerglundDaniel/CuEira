@@ -28,6 +28,11 @@ public:
   virtual void setOutcomes(const Container::DeviceVector* outcomes);
   virtual const Container::DeviceVector& getOutcomes() const;
 
+  Device(const Device&) = delete;
+  Device(Device&&) = delete;
+  Device& operator=(const Device&) = delete;
+  Device& operator=(Device&&) = delete;
+
 private:
   const Container::DeviceVector* outcomes;
   const int deviceNumber;

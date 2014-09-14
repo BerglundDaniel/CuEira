@@ -31,6 +31,11 @@ public:
   virtual int getNumberOfIndividualsToInclude() const;
   virtual const Container::HostVector& getRecodedData() const;
 
+  InteractionVector(const InteractionVector&) = delete;
+  InteractionVector(InteractionVector&&) = delete;
+  InteractionVector& operator=(const InteractionVector&) = delete;
+  InteractionVector& operator=(InteractionVector&&) = delete;
+
 protected:
   InteractionVector();
 

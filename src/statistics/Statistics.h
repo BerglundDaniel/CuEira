@@ -30,6 +30,11 @@ public:
   const std::vector<double>& getOddsRatiosLow() const;
   const std::vector<double>& getOddsRatiosHigh() const;
 
+  Statistics(const Statistics&) = delete;
+  Statistics(Statistics&&) = delete;
+  Statistics& operator=(const Statistics&) = delete;
+  Statistics& operator=(Statistics&&) = delete;
+
 private:
   std::vector<double>* calculateStandardError(const Container::HostMatrix& covarianceMatrix) const;
   double calculateReri(const std::vector<double>& oddsRatios) const;

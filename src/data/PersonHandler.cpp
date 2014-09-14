@@ -85,17 +85,17 @@ const Person& PersonHandler::getPersonFromRowInclude(int row) const {
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return rowToPersonInclude.at(row);
+  return *rowToPersonInclude.at(row);
 }
 
 int PersonHandler::getRowIncludeFromPerson(const Person& person) const {
-  if(personToRowInclude.count(person) <= 0){
+  if(personToRowInclude.count(&person) <= 0){
     std::ostringstream os;
     os << "Person not included: " << person.getId().getString() << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return personToRowInclude.at(person);
+  return personToRowInclude.at(&person);
 }
 
 bool PersonHandler::shouldPersonBeIncluded(Id id, Sex sex, Phenotype phenotype) const {
@@ -117,7 +117,6 @@ void PersonHandler::createOutcomes() {
   if(!outcomesCreated){
     outcomesCreated = true;
     int rowNumber = -1;
-    Phenotype phenotype;
 #ifdef CPU
     outcomes = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude));
 #else
@@ -127,7 +126,7 @@ void PersonHandler::createOutcomes() {
     for(std::map<Person*, int>::iterator personIter = personToRowInclude.begin();
         personIter != personToRowInclude.end(); ++personIter){
       rowNumber = personIter->second;
-      phenoType = personIter->first->getPhenotype();
+      Phenotype phenoType = personIter->first->getPhenotype();
 
       if(phenotype == UNAFFECTED){
         (*outcomes)(rowNumber) = 0;

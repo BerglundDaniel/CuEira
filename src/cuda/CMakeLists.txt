@@ -13,7 +13,6 @@ if(NOT ${CPU})
     ${CMAKE_CURRENT_SOURCE_DIR}/Device.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Stream.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/StreamFactory.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/KernelWrapperFactory.cpp
     PARENT_SCOPE
   )
 endif()

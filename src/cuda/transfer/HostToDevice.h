@@ -9,6 +9,7 @@
 #include <DeviceMatrix.h>
 #include <HostVector.h>
 #include <HostMatrix.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -25,7 +26,7 @@ public:
   /**
    * Constructor for the class. Takes the stream the transfers should be executed on. A cublas handle as to be initiated before any calls to the functions.
    */
-  HostToDevice(const cudaStream_t& cudaStream);
+  HostToDevice(const Stream& stream);
   virtual ~HostToDevice();
 
   /**
@@ -51,6 +52,7 @@ public:
    * enough space to fit the vector after the point specified.
    */
   virtual void transferVector(const HostVector* vectorHost, PRECISION* deviceMemoryPosition) const;
+
 protected:
   HostToDevice(); //For the mock object
 

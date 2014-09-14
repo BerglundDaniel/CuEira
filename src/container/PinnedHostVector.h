@@ -25,6 +25,11 @@ public:
   virtual PRECISION& operator()(unsigned int index);
   virtual const PRECISION& operator()(unsigned int index) const;
 
+  PinnedHostVector(const PinnedHostVector&) = delete;
+  PinnedHostVector(PinnedHostVector&&) = delete;
+  PinnedHostVector& operator=(const PinnedHostVector&) = delete;
+  PinnedHostVector& operator=(PinnedHostVector&&) = delete;
+
 protected:
   PinnedHostVector(unsigned int numberOfRows, PRECISION* hostVector, bool subview);
 };

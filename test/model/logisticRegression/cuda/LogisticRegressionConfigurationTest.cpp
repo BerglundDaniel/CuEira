@@ -18,6 +18,9 @@
 #include <Configuration.h>
 #include <ConfigurationMock.h>
 #include <KernelWrapper.h>
+#include <Device.h>
+#include <Stream.h>
+#include <StreamFactory.h>
 
 using testing::Return;
 using testing::_;
@@ -50,9 +53,9 @@ protected:
   const int numberOfPredictorsNoCov;
   const int numberOfPredictorsWithCov;
 
-  cublasStatus_t cublasStatus;
-  cudaStream_t stream1;
-  cublasHandle_t cublasHandle;
+  Device device;
+  StreamFactory streamFactory;
+  Stream* stream;
   HostToDevice hostToDeviceStream1;
   DeviceToHost deviceToHostStream1;
   HostToDeviceMock hostToDeviceMock;
@@ -66,16 +69,11 @@ protected:
 };
 
 LogisticRegressionConfigurationTest::LogisticRegressionConfigurationTest() :
-    convergenceThreshold(10e-5), numberOfMaxLRIterations(500), numberOfRows(10), numberOfCov(3), numberOfPredictorsNoCov(
+    device(0), streamFactory(), stream(streamFactory.constructStream(device)), hostToDeviceStream1(*stream), deviceToHostStream1(
+        *stream), convergenceThreshold(10e-5), numberOfMaxLRIterations(500), numberOfRows(10), numberOfCov(3), numberOfPredictorsNoCov(
         4), numberOfPredictorsWithCov(numberOfPredictorsNoCov + numberOfCov), outcomes(numberOfRows), covariates(
-        numberOfRows, numberOfCov), cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(
-        HostToDevice(stream1)), deviceToHostStream1(DeviceToHost(stream1)), snpData(numberOfRows), environmentData(
-        numberOfRows), interactionVector(numberOfRows), kernelWrapper(stream1, cublasHandle) {
-
-  handleCublasStatus(cublasStatus, "Failed to create cublas handle:");
-  handleCudaStatus(cudaGetLastError(), "Error with LR config test setup: ");
-  handleCudaStatus(cudaStreamCreate(&stream1), "Failed to create cuda stream 1:");
-  handleCublasStatus(cublasSetStream(cublasHandle, stream1), "Failed to set cuda stream:");
+        numberOfRows, numberOfCov), snpData(numberOfRows), environmentData(numberOfRows), interactionVector(
+        numberOfRows), kernelWrapper(*stream) {
 
   EXPECT_CALL(configMock, getLRConvergenceThreshold()).Times(AtLeast(0)).WillRepeatedly(Return(convergenceThreshold));
   EXPECT_CALL(configMock, getNumberOfMaxLRIterations()).Times(AtLeast(0)).WillRepeatedly(
@@ -97,8 +95,7 @@ LogisticRegressionConfigurationTest::LogisticRegressionConfigurationTest() :
 }
 
 LogisticRegressionConfigurationTest::~LogisticRegressionConfigurationTest() {
-  handleCudaStatus(cudaStreamDestroy(stream1), "Failed to destroy cuda stream 1:");
-  handleCublasStatus(cublasDestroy(cublasHandle), "Failed to destroy cublas handle:");
+  delete stream;
 }
 
 void LogisticRegressionConfigurationTest::SetUp() {
@@ -115,7 +112,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorWithMock) {
   EXPECT_CALL(hostToDeviceMock, transferVector(_,_)).Times(1);
 
   LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceMock, *outcomeDeviceVector, kernelWrapper);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
@@ -138,7 +135,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorCovWithMock) {
 
   LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceMock, *outcomeDeviceVector, kernelWrapper,
       covariates);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
   handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
@@ -155,7 +152,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorCovWithMock) {
 
 TEST_F(LogisticRegressionConfigurationTest, ConstructorNoMock) {
   DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(&outcomes);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
 
   LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper);
   cudaStreamSynchronize(stream1);
@@ -191,7 +188,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorNoMock) {
 
 TEST_F(LogisticRegressionConfigurationTest, ConstructorCovNoMock) {
   DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(&outcomes);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
 
   LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper,
       covariates);
@@ -235,7 +232,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorCovNoMock) {
 
 TEST_F(LogisticRegressionConfigurationTest, GetSNPEnvInteract) {
   DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(&outcomes);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
 
   LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper);
   cudaStreamSynchronize(stream1);
@@ -296,7 +293,7 @@ TEST_F(LogisticRegressionConfigurationTest, GetSNPEnvInteract) {
 
 TEST_F(LogisticRegressionConfigurationTest, CovGetSNPEnvInteract) {
   DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(&outcomes);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
 
   LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper,
       covariates);

@@ -10,15 +10,14 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
   device->setActiveDevice();
   CUDA::handleCudaStatus(cudaGetLastError(), "Error before initialisation in GPUWorkerThread "); //<< std::this_thread::get_id() << " : "); //FIXME
 
-  KernelWrapperFactory kernelWrapperFactory;
   StreamFactory streamFactory;
   StatisticsFactory statisticsFactory;
   const Container::DeviceVector& deviceOutcomes = device->getOutcomes();
 
   Stream* stream = streamFactory.constructStream(*device);
-  KernelWrapper* kernelWrapper = kernelWrapperFactory.constructKernelWrapper(*stream);
-  HostToDevice hostToDevice(stream->getCudaStream()); //FIXME
-  DeviceToHost deviceToHost(stream->getCudaStream()); //FIXME
+  KernelWrapper* kernelWrapper = new KernelWrapper(*stream);
+  HostToDevice hostToDevice(*stream);
+  DeviceToHost deviceToHost(*stream);
 
   Model::LogisticRegression::LogisticRegressionConfiguration* logisticRegressionConfiguration = nullptr;
 

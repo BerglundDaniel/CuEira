@@ -32,6 +32,11 @@ public:
     cudaStreamSynchronize(*cudaStream);
   }
 
+  Stream(const Stream&) = delete;
+  Stream(Stream&&) = delete;
+  Stream& operator=(const Stream&) = delete;
+  Stream& operator=(Stream&&) = delete;
+
 private:
   const Device& device;
   cudaStream_t* cudaStream;

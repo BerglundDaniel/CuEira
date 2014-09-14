@@ -3,8 +3,8 @@
 namespace CuEira {
 namespace CUDA {
 
-DeviceToHost::DeviceToHost(const cudaStream_t& cudaStream) :
-    cudaStream(cudaStream) {
+DeviceToHost::DeviceToHost(const Stream& stream) :
+    cudaStream(stream.getCudaStream()) {
 
 }
 

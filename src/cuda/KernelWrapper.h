@@ -11,6 +11,7 @@
 #include <DeviceVector.h>
 #include <DeviceMatrix.h>
 #include <CudaException.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -28,7 +29,7 @@ public:
    * Constructor for the class. Takes the stream the transfers should be executed on. Some functions requires that a cublas context has been created.
    * All of them assumes a cuda context exists for the stream.
    */
-  KernelWrapper(const cudaStream_t& cudaStream, const cublasHandle_t& cublasHandle);
+  KernelWrapper(const Stream& stream);
   virtual ~KernelWrapper();
 
   /**
@@ -106,13 +107,14 @@ public:
   void sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector, PRECISION* sumHost) const;
 
   /**
-   * Syncs the associated stream //FIXME remove this stuff or such
+   * Syncs the associated stream
    */
   inline void syncStream() const {
-    cudaStreamSynchronize(cudaStream);
+    stream.syncStream();
   }
 
 private:
+  const Stream& stream;
   const cublasHandle_t& cublasHandle;
   const cudaStream_t& cudaStream;
   static const int numberOfThreadsPerBlock = 256;

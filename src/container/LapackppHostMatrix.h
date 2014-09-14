@@ -29,6 +29,12 @@ public:
   virtual const HostVector* operator()(unsigned int column) const;
   virtual double& operator()(unsigned int row, unsigned int column);
   virtual const double& operator()(unsigned int row, unsigned int column) const;
+
+  LapackppHostMatrix(const LapackppHostMatrix&) = delete;
+  LapackppHostMatrix(LapackppHostMatrix&&) = delete;
+  LapackppHostMatrix& operator=(const LapackppHostMatrix&) = delete;
+  LapackppHostMatrix& operator=(LapackppHostMatrix&&) = delete;
+
 private:
   LaGenMatDouble* lapackppContainer;
 };

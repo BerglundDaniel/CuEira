@@ -27,6 +27,11 @@ public:
   __device__ __host__ PRECISION* getMemoryPointer();
   __device__ __host__ const PRECISION* getMemoryPointer() const;
 
+  DeviceVector(const DeviceVector&) = delete;
+  DeviceVector(DeviceVector&&) = delete;
+  DeviceVector& operator=(const DeviceVector&) = delete;
+  DeviceVector& operator=(DeviceVector&&) = delete;
+
 private:
   const int numberOfRows;
   const int numberOfColumns;

@@ -28,6 +28,11 @@ public:
   virtual double& operator()(unsigned int index);
   virtual const double& operator()(unsigned int index) const;
 
+  LapackppHostVector(const LapackppHostVector&) = delete;
+  LapackppHostVector(LapackppHostVector&&) = delete;
+  LapackppHostVector& operator=(const LapackppHostVector&) = delete;
+  LapackppHostVector& operator=(LapackppHostVector&&) = delete;
+
 protected:
   LapackppHostVector(LaVectorDouble* lapackppContainer, bool subview);
 

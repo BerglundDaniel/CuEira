@@ -24,6 +24,11 @@ public:
   PRECISION* getMemoryPointer();
   const PRECISION* getMemoryPointer() const;
 
+  HostVector(const HostVector&) = delete;
+  HostVector(HostVector&&) = delete;
+  HostVector& operator=(const HostVector&) = delete;
+  HostVector& operator=(HostVector&&) = delete;
+
 protected:
   PRECISION* hostVector;
   const unsigned int numberOfRows;

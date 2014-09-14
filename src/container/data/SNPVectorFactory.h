@@ -46,6 +46,11 @@ public:
 
   virtual SNPVector* constructSNPVector(SNP& snp, const std::vector<int>* originalSNPData) const;
 
+  SNPVectorFactory(const SNPVectorFactory&) = delete;
+  SNPVectorFactory(SNPVectorFactory&&) = delete;
+  SNPVectorFactory& operator=(const SNPVectorFactory&) = delete;
+  SNPVectorFactory& operator=(SNPVectorFactory&&) = delete;
+
 private:
   const Configuration& configuration;
   const GeneticModel geneticModel;

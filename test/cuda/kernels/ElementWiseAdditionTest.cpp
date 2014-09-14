@@ -18,6 +18,9 @@
 #include <PinnedHostVector.h>
 #include <DeviceToHost.h>
 #include <HostToDevice.h>
+#include <Device.h>
+#include <Stream.h>
+#include <StreamFactory.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -34,26 +37,21 @@ protected:
   virtual void SetUp();
   virtual void TearDown();
 
-  cublasStatus_t cublasStatus;
-  cudaStream_t stream1;
-  cublasHandle_t cublasHandle;
+  Device device;
+  StreamFactory streamFactory;
+  Stream* stream;
   HostToDevice hostToDeviceStream1;
   DeviceToHost deviceToHostStream1;
   KernelWrapper kernelWrapper;
 };
 
 ElementWiseAdditionTest::ElementWiseAdditionTest() :
-    cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(HostToDevice(stream1)), deviceToHostStream1(
-        DeviceToHost(stream1)), kernelWrapper(stream1, cublasHandle) {
-
-  handleCublasStatus(cublasStatus, "Failed to create cublas handle:");
-  handleCudaStatus(cudaStreamCreate(&stream1), "Failed to create cuda stream 1:");
-  handleCublasStatus(cublasSetStream(cublasHandle, stream1), "Failed to set cuda stream:");
+    device(0), streamFactory(), stream(streamFactory.constructStream(device)), hostToDeviceStream1(*stream), deviceToHostStream1(
+        *stream), kernelWrapper(*stream) {
 }
 
 ElementWiseAdditionTest::~ElementWiseAdditionTest() {
-  handleCublasStatus(cublasDestroy(cublasHandle), "Failed to destroy cublas handle:");
-  handleCudaStatus(cudaStreamDestroy(stream1), "Failed to destroy cuda stream 1:");
+  delete stream;
 }
 
 void ElementWiseAdditionTest::SetUp() {
@@ -84,7 +82,7 @@ TEST_F(ElementWiseAdditionTest, KernelSmallVector) {
   kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
   handleCudaStatus(cudaGetLastError(), "Error in ElementWiseAdditionTest: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
@@ -109,8 +107,7 @@ TEST_F(ElementWiseAdditionTest, KernelException) {
   Container::DeviceVector* deviceVector2 = new Container::DeviceVector(numberOfRows);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
-      CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
 
   delete deviceVector1;
   delete deviceVector2;
@@ -120,8 +117,7 @@ TEST_F(ElementWiseAdditionTest, KernelException) {
   deviceVector2 = new Container::DeviceVector(numberOfRows + 1);
   resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
-      CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
 
   delete deviceVector1;
   delete deviceVector2;
@@ -131,8 +127,7 @@ TEST_F(ElementWiseAdditionTest, KernelException) {
   deviceVector2 = new Container::DeviceVector(numberOfRows);
   resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
 
-  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
-      CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
 
   delete deviceVector1;
   delete deviceVector2;
@@ -142,8 +137,7 @@ TEST_F(ElementWiseAdditionTest, KernelException) {
   deviceVector2 = new Container::DeviceVector(numberOfRows + 1);
   resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
 
-  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
-      CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
 
   delete deviceVector1;
   delete deviceVector2;
@@ -153,8 +147,7 @@ TEST_F(ElementWiseAdditionTest, KernelException) {
   deviceVector2 = new Container::DeviceVector(numberOfRows);
   resultDeviceVector = new Container::DeviceVector(numberOfRows + 1);
 
-  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
-      CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
 
   delete deviceVector1;
   delete deviceVector2;
@@ -164,8 +157,7 @@ TEST_F(ElementWiseAdditionTest, KernelException) {
   deviceVector2 = new Container::DeviceVector(numberOfRows - 1);
   resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
-  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector),
-      CudaException);
+  EXPECT_THROW(kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector), CudaException);
 
   delete deviceVector1;
   delete deviceVector2;

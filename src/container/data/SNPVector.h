@@ -55,6 +55,11 @@ public:
   virtual void recode(Recode recode);
   virtual void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
 
+  SNPVector(const SNPVector&) = delete;
+  SNPVector(SNPVector&&) = delete;
+  SNPVector& operator=(const SNPVector&) = delete;
+  SNPVector& operator=(SNPVector&&) = delete;
+
 protected:
   SNPVector(SNP& snp); //For the mock
 

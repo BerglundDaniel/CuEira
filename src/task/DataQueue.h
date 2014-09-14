@@ -26,6 +26,11 @@ public:
 
   SNP* next();
 
+  DataQueue(const DataQueue&) = delete;
+  DataQueue(DataQueue&&) = delete;
+  DataQueue& operator=(const DataQueue&) = delete;
+  DataQueue& operator=(DataQueue&&) = delete;
+
 private:
   std::vector<SNP*>* snpQueue;
   std::mutex mutex;

@@ -45,6 +45,11 @@ public:
   virtual void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
   virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
+  EnvironmentVector(const EnvironmentVector&) = delete;
+  EnvironmentVector(EnvironmentVector&&) = delete;
+  EnvironmentVector& operator=(const EnvironmentVector&) = delete;
+  EnvironmentVector& operator=(EnvironmentVector&&) = delete;
+
 protected:
   EnvironmentVector(); //For the mock
 

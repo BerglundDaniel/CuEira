@@ -18,6 +18,9 @@
 #include <PinnedHostVector.h>
 #include <DeviceToHost.h>
 #include <HostToDevice.h>
+#include <Device.h>
+#include <Stream.h>
+#include <StreamFactory.h>
 
 using ::testing::Ge;
 using ::testing::Le;
@@ -37,26 +40,22 @@ protected:
   virtual void SetUp();
   virtual void TearDown();
 
-  cublasStatus_t cublasStatus;
-  cudaStream_t stream1;
-  cublasHandle_t cublasHandle;
+  Device device;
+  StreamFactory streamFactory;
+  Stream* stream;
   HostToDevice hostToDeviceStream1;
   DeviceToHost deviceToHostStream1;
   KernelWrapper kernelWrapper;
 };
 
 LogLikelihoodPartsTest::LogLikelihoodPartsTest() :
-    cublasStatus(cublasCreate(&cublasHandle)), hostToDeviceStream1(HostToDevice(stream1)), deviceToHostStream1(
-        DeviceToHost(stream1)), kernelWrapper(stream1, cublasHandle) {
+    device(0), streamFactory(), stream(streamFactory.constructStream(device)), hostToDeviceStream1(*stream), deviceToHostStream1(
+        *stream), kernelWrapper(*stream) {
 
-  handleCublasStatus(cublasStatus, "Failed to create cublas handle:");
-  handleCudaStatus(cudaStreamCreate(&stream1), "Failed to create cuda stream 1:");
-  handleCublasStatus(cublasSetStream(cublasHandle, stream1), "Failed to set cuda stream:");
 }
 
 LogLikelihoodPartsTest::~LogLikelihoodPartsTest() {
-  handleCublasStatus(cublasDestroy(cublasHandle), "Failed to destroy cublas handle:");
-  handleCudaStatus(cudaStreamDestroy(stream1), "Failed to destroy cuda stream 1:");
+  delete stream;
 }
 
 void LogLikelihoodPartsTest::SetUp() {
@@ -99,7 +98,7 @@ TEST_F(LogLikelihoodPartsTest, KernelSmallVector) {
   kernelWrapper.logLikelihoodParts(*outcomesDeviceVector, *probabilitesDeviceVector, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
-  cudaStreamSynchronize(stream1);
+  cudaStreamSynchronize (stream1);
   handleCudaStatus(cudaGetLastError(), "Error in ElemtWiseDivisionTest: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());

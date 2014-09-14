@@ -27,6 +27,11 @@ public:
   virtual const HostVector* operator()(unsigned int column) const;
   virtual PRECISION& operator()(unsigned int row, unsigned int column);
   virtual const PRECISION& operator()(unsigned int row, unsigned int column) const;
+
+  PinnedHostMatrix(const PinnedHostMatrix&) = delete;
+  PinnedHostMatrix(PinnedHostMatrix&&) = delete;
+  PinnedHostMatrix& operator=(const PinnedHostMatrix&) = delete;
+  PinnedHostMatrix& operator=(PinnedHostMatrix&&) = delete;
 };
 
 } /* namespace Container */

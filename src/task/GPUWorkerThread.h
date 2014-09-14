@@ -21,7 +21,6 @@
 #include <DeviceToHost.h>
 #include <Statistics.h>
 #include <StreamFactory.h>
-#include <KernelWrapperFactory.h>
 #include <KernelWrapper.h>
 #include <ResultWriter.h>
 

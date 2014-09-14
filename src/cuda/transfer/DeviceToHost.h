@@ -11,6 +11,7 @@
 #include <HostMatrix.h>
 #include <PinnedHostVector.h>
 #include <PinnedHostMatrix.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -27,7 +28,7 @@ public:
   /**
    * Constructor for the class. Takes the stream the transfers should be executed on. A cublas handle as to be initiated before any calls to the functions.
    */
-  DeviceToHost(const cudaStream_t& cudaStream);
+  DeviceToHost(const Stream& stream);
   virtual ~DeviceToHost();
 
   /**

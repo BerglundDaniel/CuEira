@@ -1,6 +1,3 @@
-add_subdirectory(writers)
-add_subdirectory(reader)
-
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -9,5 +6,6 @@ set(INCLUDE_DIRECTORIES
 
 set(SOURCE
   ${SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/ResultWriter.cpp
   PARENT_SCOPE
 )

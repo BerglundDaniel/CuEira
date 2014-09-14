@@ -6,7 +6,6 @@
 #include <Configuration.h>
 #include <Device.h>
 #include <DataHandlerFactory.h>
-#include <BedReader.h>
 #include <DeviceVector.h>
 #include <DeviceMatrix.h>
 #include <HostVector.h>
@@ -24,6 +23,7 @@
 #include <StreamFactory.h>
 #include <KernelWrapperFactory.h>
 #include <KernelWrapper.h>
+#include <ResultWriter.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -37,7 +37,7 @@ namespace CUDA {
  * Thread to do work on GPU
  */
 void GPUWorkerThread(const Configuration* configuration, const Device* device,
-    const DataHandlerFactory* dataHandlerFactory, const FileIO::BedReader* bedReader);
+    const DataHandlerFactory* dataHandlerFactory, FileIO::ResultWriter* resultWriter);
 
 } /* namespace CUDA */
 } /* namespace CuEira */

@@ -22,6 +22,7 @@
 #include <ContingencyTableFactory.h>
 #include <AlleleStatisticsFactory.h>
 #include <DataHandlerFactory.h>
+#include <ResultWriter.h>
 
 #ifdef CPU
 //#include <CpuModelHandler.h>
@@ -58,16 +59,17 @@ int main(int argc, char* argv[]) {
   AlleleStatisticsFactory alleleStatisticsFactory;
 
   FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
+  FileIO::ResultWriter* resultWriter = new FileIO::ResultWrtier(configuration);
 
   PersonHandler* personHandler = dataFilesReader->readPersonInformation();
   const int numberOfIndividualsToInclude = personHandler->getNumberOfIndividualsToInclude();
   const Container::HostVector& outcomes = personHandler->getOutcomes();
 
 #ifndef CPU
-  int numberOfDevices;
-  const int numberOfStreams = 1; //configuration.getNumberOfStreams();
+  int numberOfDevices = 1;
+  const int numberOfStreams = configuration.getNumberOfStreams();
   const int numberOfThreads = numberOfDevices * numberOfStreams;
-  cudaGetDeviceCount(&numberOfDevices);
+  //cudaGetDeviceCount(&numberOfDevices);
   CUDA::StreamFactory* streamFactory = new CUDA::StreamFactory();
 
   if(numberOfDevices == 0){
@@ -109,7 +111,6 @@ int main(int argc, char* argv[]) {
 
   Container::HostMatrix* covariates = nullptr;
   std::vector<std::string>* covariatesNames = nullptr;
-  int numberOfCovariates = 0;
   if(configuration.covariateFileSpecified()){
     std::pair<Container::HostMatrix*, std::vector<std::string>*>* covPair = dataFilesReader->readCovariates(
         *personHandler);
@@ -117,20 +118,7 @@ int main(int argc, char* argv[]) {
     covariatesNames = covPair->second;
     delete covPair;
 
-    numberOfCovariates = covariates->getNumberOfColumns();
   }
-
-  //PRINT HEADER TODO
-  std::cout
-      << "snp_id,risk_allele,minor,major,env_id,ap,reri,OR_snp,OR_snp_L,OR_snp_H,OR_env,OR_env_L,OR_env_H,OR_inter,OR_inter_L,OR_inter_H,";
-
-  for(int i = 0; i < numberOfCovariates; ++i){
-    std::cout << (*covariatesNames)[i] << "_cov_OR," << (*covariatesNames)[i] << "_cov_OR_L," << (*covariatesNames)[i]
-        << "_cov_OR_H,";
-  }
-
-  std::cout << "recode";
-  std::cout << std::endl;
 
 #ifdef CPU
   //TODO
@@ -148,7 +136,7 @@ int main(int argc, char* argv[]) {
     for(int streamNumber = 0; streamNumber < numberOfStreams; ++streamNumber){
       //TODO fix covariates
       std::thread* thread = new std::thread(CuEira::CUDA::GPUWorkerThread, &configuration, device, dataHandlerFactory,
-          bedReader);
+          resultWriter);
       workers[deviceNumber * numberOfStreams + streamNumber] = thread;
     }
   }
@@ -172,6 +160,7 @@ int main(int argc, char* argv[]) {
   delete streamFactory;
 #endif
 
+  delete resultWriter;
   delete bedReader;
   delete dataFilesReader;
   delete personHandler;

@@ -73,8 +73,8 @@ bool SNP::operator==(const SNP& otherSNP) const {
 }
 
 std::ostream & operator<<(std::ostream& os, const SNP& snp) {
-  //Print the id
-  os << snp.id.getString() << ",";
+  //Print the id and the position number
+  os << snp.id.getString() << "," << snp.position << ",";
 
   if(snp.riskAlleleHasBeenSet){
     //Print the risk allele name

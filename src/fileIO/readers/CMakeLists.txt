@@ -1,0 +1,16 @@
+add_subdirectory(plink)
+
+set(INCLUDE_DIRECTORIES
+  ${INCLUDE_DIRECTORIES}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PARENT_SCOPE
+)
+
+set(SOURCE
+  ${SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/CSVReader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentCSVReader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/DataFilesReader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/DataFilesReaderFactory.cpp
+  PARENT_SCOPE
+)

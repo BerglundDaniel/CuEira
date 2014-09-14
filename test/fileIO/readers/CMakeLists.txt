@@ -1,0 +1,18 @@
+add_subdirectory(plink)
+
+set(TEST_INCLUDE_DIRECTORIES
+  ${TEST_INCLUDE_DIRECTORIES}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PARENT_SCOPE
+)
+
+set(TEST_SOURCE
+  ${TEST_SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/CSVReaderTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentCSVReaderTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/FileIOIntegrationTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/DataFilesReaderFactoryTest.cpp
+  PARENT_SCOPE
+)
+
+

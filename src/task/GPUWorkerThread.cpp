@@ -4,12 +4,11 @@ namespace CuEira {
 namespace CUDA {
 
 void GPUWorkerThread(const Configuration* configuration, const Device* device,
-    const DataHandlerFactory* dataHandlerFactory, const FileIO::BedReader* bedReader) {
+    const DataHandlerFactory* dataHandlerFactory, FileIO::ResultWriter* resultWriter) {
 
   DataHandler* dataHandler = dataHandlerFactory->constructDataHandler();
   device->setActiveDevice();
-  CUDA::handleCudaStatus(cudaGetLastError(),
-      "Error before initialisation in GPUWorkerThread "); //<< std::this_thread::get_id() << " : "); //FIXME
+  CUDA::handleCudaStatus(cudaGetLastError(), "Error before initialisation in GPUWorkerThread "); //<< std::this_thread::get_id() << " : "); //FIXME
 
   KernelWrapperFactory kernelWrapperFactory;
   StreamFactory streamFactory;
@@ -35,8 +34,7 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
       logisticRegressionConfiguration, hostToDevice, deviceToHost);
   Model::ModelHandler* modelHandler = new Model::GpuModelHandler(statisticsFactory, dataHandler,
       *logisticRegressionConfiguration, logisticRegression);
-  CUDA::handleCudaStatus(cudaGetLastError(),
-      "Error with initialisation in GPUWorkerThread ");// << std::this_thread::get_id() << " : "); //FIXME
+  CUDA::handleCudaStatus(cudaGetLastError(), "Error with initialisation in GPUWorkerThread "); // << std::this_thread::get_id() << " : "); //FIXME
 
   DataHandlerState dataHandlerState = modelHandler->next();
   while(dataHandlerState != DONE){
@@ -44,17 +42,13 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
     const EnvironmentFactor& envFactor = modelHandler->getCurrentEnvironmentFactor();
 
     if(dataHandlerState == SKIP){
-      //TODO need to add allele freqs and such
-      std::cout << snp << "," << envFactor << std::endl;
+      resultWriter->writePartialResult(snp, envFactor);
     }else{
-      Statistics* statistics = modelHandler->calculateModel();
+      Statistics* statistics = modelHandler->calculateModel(snp, envFactor, *statistics, modelHandler->getSNPVector());
 
-      CUDA::handleCudaStatus(cudaGetLastError(),
-          "Error with ModelHandler in GPUWorkerThread ");// << std::this_thread::get_id() << " : "); //FIXME
+      CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in GPUWorkerThread "); // << std::this_thread::get_id() << " : "); //FIXME
 
-      const Container::SNPVector& snpVector = modelHandler->getSNPVector();
-
-      std::cout << snp << "," << envFactor << "," << *statistics << "," << snpVector << std::endl;
+      resultWriter->writeFullResult();
 
       delete statistics;
     } //else

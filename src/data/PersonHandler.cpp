@@ -9,6 +9,12 @@ PersonHandler::PersonHandler() :
 
 PersonHandler::~PersonHandler() {
   delete outcomes;
+
+  //Delete all persons
+  for(std::map<int, Person*>::iterator personIter = rowToPersonAll.begin(); personIter != rowToPersonAll.end();
+      ++personIter){
+    delete personIter->second;
+  }
 }
 
 const Person& PersonHandler::createPerson(Id id, Sex sex, Phenotype phenotype, int rowAll) {
@@ -26,14 +32,14 @@ const Person& PersonHandler::createPerson(Id id, Sex sex, Phenotype phenotype, i
   }
 
   bool include = shouldPersonBeIncluded(id, sex, phenotype);
-  Person* person=new Person(id, sex, phenotype, include);
+  Person* person = new Person(id, sex, phenotype, include);
 
-  idToPerson.insert(std::pair<Id, Person&>(person->getId(), *person));
-  rowToPersonAll.insert(std::pair<int, Person&>(rowAll, *person));
+  idToPerson.insert(std::pair<Id, Person*>(person->getId(), person));
+  rowToPersonAll.insert(std::pair<int, Person*>(rowAll, person));
 
   if(include){
-    rowToPersonInclude.insert(std::pair<int, Person&>(numberOfIndividualsToInclude, *person));
-    personToRowInclude.insert(std::pair<Person&, int>(*person, numberOfIndividualsToInclude));
+    rowToPersonInclude.insert(std::pair<int, Person*>(numberOfIndividualsToInclude, person));
+    personToRowInclude.insert(std::pair<Person*, int>(person, numberOfIndividualsToInclude));
 
     numberOfIndividualsToInclude++;
   }else{
@@ -59,7 +65,7 @@ const Person& PersonHandler::getPersonFromId(Id id) const {
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return idToPerson.at(id);
+  return *idToPerson.at(id);
 }
 
 const Person& PersonHandler::getPersonFromRowAll(int row) const {
@@ -69,7 +75,7 @@ const Person& PersonHandler::getPersonFromRowAll(int row) const {
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return rowToPersonAll.at(row);
+  return *rowToPersonAll.at(row);
 }
 
 const Person& PersonHandler::getPersonFromRowInclude(int row) const {
@@ -110,23 +116,30 @@ const Container::HostVector& PersonHandler::getOutcomes() const {
 void PersonHandler::createOutcomes() {
   if(!outcomesCreated){
     outcomesCreated = true;
-
+    int rowNumber = -1;
+    Phenotype phenotype;
 #ifdef CPU
     outcomes = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude));
 #else
     outcomes = new Container::PinnedHostVector(numberOfIndividualsToInclude);
 #endif
 
-    for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-      Phenotype phenotype = getPersonFromRowInclude(i).getPhenotype();
+    for(std::map<Person*, int>::iterator personIter = personToRowInclude.begin();
+        personIter != personToRowInclude.end(); ++personIter){
+      rowNumber = personIter->second;
+      phenoType = personIter->first->getPhenotype();
+
       if(phenotype == UNAFFECTED){
-        (*outcomes)(i) = 0;
+        (*outcomes)(rowNumber) = 0;
       }else if(phenotype == AFFECTED){
-        (*outcomes)(i) = 1;
-      }else{
+        (*outcomes)(rowNumber) = 1;
+      }
+#ifdef DEBUG
+      else{
         throw InvalidState("Unknown phenotype in PersonHandler.");
       }
-    }/* for numberOfIndividualsToInclude */
+#endif
+    }
 
   } /* if outcomesCreated */
 }

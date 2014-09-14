@@ -12,7 +12,8 @@ if(${CPU})
     ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostMatrix.cpp
   )
 else()
-  set(GPU_LOCAL_SOURCE
+  set(GPU_SOURCE
+    ${GPU_SOURCE}
     ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostVector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostMatrix.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/DeviceVector.cpp
@@ -24,7 +25,6 @@ endif(${CPU})
 set(SOURCE
   ${SOURCE}
   ${CPU_SOURCE}
-  ${GPU_LOCAL_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/HostVector.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/HostMatrix.cpp
   PARENT_SCOPE

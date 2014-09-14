@@ -15,6 +15,11 @@ set(GPU_SOURCE
   PARENT_SCOPE
 )
 
+set(GPU_NVCC_SOURCE
+  ${GPU_NCC_SOURCE}
+  PARENT_SCOPE
+)
+
 set(SOURCE
   ${SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionResult.cpp

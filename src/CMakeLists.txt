@@ -25,6 +25,10 @@ set(SOURCE
   ${SOURCE}
 )
 
+set(GPU_NVCC_SOURCE
+  ${GPU_NVCC_SOURCE}
+)
+
 set(GPU_SOURCE
   ${GPU_SOURCE}
 )
@@ -32,6 +36,7 @@ set(GPU_SOURCE
 include_directories(${INCLUDE_DIRECTORIES})
 
 add_library(${CUEIRA_LIB} SHARED ${SOURCE})
+add_library(${CUEIRA_GPU_NVCC_LIB} SHARED ${SOURCE})
 if(NOT ${CPU})
-  cuda_add_library(${CUEIRA_GPU_LIB} SHARED ${GPU_SOURCE})
+  cuda_add_library(${CUEIRA_GPU_NVCC_LIB} SHARED ${GPU_SOURCE})
 endif(NOT ${CPU})

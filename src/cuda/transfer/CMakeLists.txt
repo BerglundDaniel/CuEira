@@ -5,7 +5,8 @@ set(INCLUDE_DIRECTORIES
 )
 
 if(NOT ${CPU})
-  set(GPU_LOCAL_SOURCE
+  set(GPU_SOURCE
+    ${GPU_SOURCE}
     ${CMAKE_CURRENT_SOURCE_DIR}/DeviceToHost.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/HostToDevice.cpp
   )
@@ -13,11 +14,5 @@ endif()
 
 set(SOURCE
   ${SOURCE}
-  ${GPU_LOCAL_SOURCE}
-  PARENT_SCOPE
-)
-
-set(GPU_SOURCE
-  ${GPU_SOURCE}
   PARENT_SCOPE
 )

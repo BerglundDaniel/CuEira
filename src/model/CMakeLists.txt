@@ -18,6 +18,11 @@ else()
   )
 endif()
 
+set(GPU_NVCC_SOURCE
+  ${GPU_NCC_SOURCE}
+  PARENT_SCOPE
+)
+
 set(SOURCE
   ${SOURCE}
   ${CPU_SOURCE}

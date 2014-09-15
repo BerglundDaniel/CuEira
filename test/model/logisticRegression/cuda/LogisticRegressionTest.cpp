@@ -96,7 +96,7 @@ TEST_F(LogisticRegressionTest, calcuateProbabilites) {
   PinnedHostVector outcomesLRConfig(numberOfRows);
 
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
@@ -178,7 +178,7 @@ TEST_F(LogisticRegressionTest, calculateScores) {
   PinnedHostVector outcomesLRConfig(numberOfRows);
 
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
@@ -274,7 +274,7 @@ TEST_F(LogisticRegressionTest, calculateInformationMatrix) {
   PinnedHostVector outcomesLRConfig(numberOfRows);
 
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
@@ -380,7 +380,7 @@ TEST_F(LogisticRegressionTest, invertInformationMatrix) {
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateLogLikelihood: ");
 
   LogisticRegression logisticRegression(lrConfig, hostToDeviceStream1, deviceToHostStream1);
@@ -480,7 +480,7 @@ TEST_F(LogisticRegressionTest, calculateNewBeta) {
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateLogLikelihood: ");
 
   LogisticRegression logisticRegression(lrConfig, hostToDeviceStream1, deviceToHostStream1);
@@ -542,7 +542,7 @@ TEST_F(LogisticRegressionTest, calculateDifference) {
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateLogLikelihood: ");
 
   LogisticRegression logisticRegression(lrConfig, hostToDeviceStream1, deviceToHostStream1);
@@ -587,7 +587,7 @@ TEST_F(LogisticRegressionTest, calculateLogLikelihood) {
   PinnedHostVector outcomesLRConfig(numberOfRows);
 
   DeviceVector* outcomeDeviceLRConfig = hostToDeviceStream1.transferVector(&outcomesLRConfig);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
@@ -713,7 +713,7 @@ TEST_F(LogisticRegressionTest, SmallTestNoCov) {
   correctBeta[3] = 0.0867;
 
   DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(&outcomes);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceVector, kernelWrapper);
@@ -801,7 +801,7 @@ TEST_F(LogisticRegressionTest, SmallTestNoCovIntOnly) {
   correctBeta[3] = 0.9337;
 
   DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(&outcomes);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceVector, kernelWrapper);

@@ -152,7 +152,7 @@ TEST_F(LogisticRegressionConfigurationTest, ConstructorCovWithMock) {
 
 TEST_F(LogisticRegressionConfigurationTest, ConstructorNoMock) {
   DeviceVector* outcomeDeviceVector = hostToDeviceStream1.transferVector(&outcomes);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
 
   LogisticRegressionConfiguration lrConfig(configMock, hostToDeviceStream1, *outcomeDeviceVector, kernelWrapper);
   stream->syncStream();

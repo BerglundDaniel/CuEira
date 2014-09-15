@@ -111,7 +111,7 @@ TEST_F(PersonHandlerTest, Getters) {
   int numberOfIndividualsNotInclude = 4;
   int notInclude[4] = {0, 3, 5, 8};
   int j = 0;
-  std::vector<Person*> personVector(numberOfIndividuals);
+  std::vector<const Person&> personVector(numberOfIndividuals);
 
   for(int i = 0; i < numberOfIndividuals; ++i){
     Person* person;
@@ -121,34 +121,33 @@ TEST_F(PersonHandlerTest, Getters) {
     }else{
       person = constructorHelpers.constructPersonInclude(i);
     }
-    personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
-    personVector[i] = person;
+    const Person& person2 = personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
+    delete person;
+    personVector[i] = &person2;
   }
 
   int rowInclude = 0;
   j = 0;
   for(int i = 0; i < numberOfIndividuals; ++i){
-    Person* person = personVector[i];
+    const Person& person = personVector[i];
 
     //Id to person
-    ASSERT_EQ(*person, personHandler.getPersonFromId(person->getId()));
+    ASSERT_EQ(person, personHandler.getPersonFromId(person.getId()));
 
     //Plink row to person
-    ASSERT_EQ(*person, personHandler.getPersonFromRowAll(i));
+    ASSERT_EQ(person, personHandler.getPersonFromRowAll(i));
 
     if(i == notInclude[j]){
       j++;
     }else{
       //Row include to person
-      ASSERT_EQ(*person, personHandler.getPersonFromRowInclude(rowInclude));
+      ASSERT_EQ(person, personHandler.getPersonFromRowInclude(rowInclude));
 
       //Person to row include
-      ASSERT_EQ(rowInclude, personHandler.getRowIncludeFromPerson(*person));
+      ASSERT_EQ(rowInclude, personHandler.getRowIncludeFromPerson(person));
 
       rowInclude++;
     }
-
-    delete person;
   }
 }
 

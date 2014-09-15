@@ -56,7 +56,7 @@ private:
   std::map<int, Person*> rowToPersonAll;
   std::map<int, Person*> rowToPersonInclude;
   std::map<Id, Person*> idToPerson;
-  std::map<Person*, int> personToRowInclude;
+  std::map<const Person*, int> personToRowInclude;
   bool outcomesCreated;
   Container::HostVector* outcomes;
 };

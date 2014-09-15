@@ -98,7 +98,7 @@ TEST_F(LogLikelihoodPartsTest, KernelSmallVector) {
   kernelWrapper.logLikelihoodParts(*outcomesDeviceVector, *probabilitesDeviceVector, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in ElemtWiseDivisionTest: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());

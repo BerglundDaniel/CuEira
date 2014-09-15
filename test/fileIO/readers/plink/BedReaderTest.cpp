@@ -31,6 +31,7 @@ using testing::ReturnRef;
 using testing::Eq;
 using testing::SaveArg;
 using testing::DoAll;
+using testing::ByRef;
 
 namespace CuEira {
 namespace FileIO {
@@ -130,7 +131,7 @@ TEST_F(BedReaderTest, ReadSnp0) {
   for(int i = 0; i < numberOfIndividualsTotal; ++i){
     Person* person = persons[i];
     EXPECT_CALL(personHandlerMock, getPersonFromRowAll(i)).WillRepeatedly(ReturnRef(*person));
-    EXPECT_CALL(personHandlerMock, getRowIncludeFromPerson(Eq(*person))).WillRepeatedly(Return(includePosArr[i]));
+    EXPECT_CALL(personHandlerMock, getRowIncludeFromPerson(Eq(ByRef(*person)))).WillRepeatedly(Return(includePosArr[i]));
   }
 
   CuEira::FileIO::BedReader bedReader(configMock, *snpVectorFactoryMock, *alleleStatisticsFactoryMock,
@@ -219,7 +220,7 @@ TEST_F(BedReaderTest, ReadSnp1) {
   for(int i = 0; i < numberOfIndividualsTotal; ++i){
     Person* person = persons[i];
     EXPECT_CALL(personHandlerMock, getPersonFromRowAll(i)).WillRepeatedly(ReturnRef(*person));
-    EXPECT_CALL(personHandlerMock, getRowIncludeFromPerson(Eq(*person))).WillRepeatedly(Return(includePosArr[i]));
+    EXPECT_CALL(personHandlerMock, getRowIncludeFromPerson(Eq(ByRef(*person)))).WillRepeatedly(Return(includePosArr[i]));
   }
 
   CuEira::FileIO::BedReader bedReader(configMock, *snpVectorFactoryMock, *alleleStatisticsFactoryMock,

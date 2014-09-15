@@ -100,7 +100,7 @@ TEST_F(LogisticRegressionTest, calcuateProbabilites) {
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calcuateProbabilites: ");
 
   LogisticRegression logisticRegression(lrConfig, hostToDeviceStream1, deviceToHostStream1);
@@ -129,17 +129,17 @@ TEST_F(LogisticRegressionTest, calcuateProbabilites) {
   DeviceVector* probabilitesDevice = new DeviceVector(numberOfRows);
   DeviceVector* workVectorNx1Device = new DeviceVector(numberOfRows);
 
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with setup in calcuateProbabilites: ");
 
   logisticRegression.calcuateProbabilites(*predictorsDevice, *betaCoefficentsDevice, *probabilitesDevice,
       *workVectorNx1Device);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with calcuateProbabilites in calcuateProbabilites: ");
 
   HostVector* probHost = deviceToHostStream1.transferVector(probabilitesDevice);
 
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with transfer back in calcuateProbabilites: ");
   ASSERT_EQ(numberOfRows, probHost->getNumberOfRows());
 
@@ -182,7 +182,7 @@ TEST_F(LogisticRegressionTest, calculateScores) {
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateScores: ");
 
   LogisticRegression logisticRegression(lrConfig, hostToDeviceStream1, deviceToHostStream1);
@@ -223,17 +223,17 @@ TEST_F(LogisticRegressionTest, calculateScores) {
   DeviceVector* probabilitesDevice = hostToDeviceStream1.transferVector(&probHost);
   DeviceVector* scoresDevice = new DeviceVector(numberOfPredictors);
 
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with setup in calculateScores: ");
 
   logisticRegression.calculateScores(*predictorsDevice, *outcomesDevice, *probabilitesDevice, *scoresDevice,
       *workVectorNx1Device);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with calcuateProbabilites in calculateScores: ");
 
   HostVector* scoreHost = deviceToHostStream1.transferVector(scoresDevice);
 
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with transfer back in calculateScores: ");
   ASSERT_EQ(numberOfPredictors, scoreHost->getNumberOfRows());
 
@@ -278,7 +278,7 @@ TEST_F(LogisticRegressionTest, calculateInformationMatrix) {
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateInformationMatrix: ");
 
   LogisticRegression logisticRegression(lrConfig, hostToDeviceStream1, deviceToHostStream1);
@@ -311,12 +311,12 @@ TEST_F(LogisticRegressionTest, calculateInformationMatrix) {
 
   logisticRegression.calculateInformationMatrix(*predictorsDevice, *probabilitesDevice, *workVectorNx1Device,
       *informationMatrixDevice, *workMatrixNxMDevice);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with calcuateProbabilites in calculateInformationMatrix: ");
 
   HostMatrix* infoMatHost = deviceToHostStream1.transferMatrix(informationMatrixDevice);
 
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with transfer back in calculateInformationMatrix: ");
   ASSERT_EQ(numberOfPredictors, infoMatHost->getNumberOfRows());
   ASSERT_EQ(numberOfPredictors, infoMatHost->getNumberOfColumns());
@@ -591,7 +591,7 @@ TEST_F(LogisticRegressionTest, calculateLogLikelihood) {
 
   LogisticRegressionConfiguration* lrConfig = new LogisticRegressionConfiguration(configMock, hostToDeviceStream1,
       *outcomeDeviceLRConfig, kernelWrapper);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with LR config in calculateLogLikelihood: ");
 
   LogisticRegression logisticRegression(lrConfig, hostToDeviceStream1, deviceToHostStream1);
@@ -634,7 +634,7 @@ TEST_F(LogisticRegressionTest, calculateLogLikelihood) {
 
   logisticRegression.calculateLogLikelihood(*outcomesDevice, *oneVectorDevice, *probabilitesDevice,
       *workVectorNx1Device, logLikelihood);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with calcuateProbabilites in calculateLogLikelihood: ");
 
   x = -3.18397427;
@@ -720,7 +720,7 @@ TEST_F(LogisticRegressionTest, SmallTestNoCov) {
   lrConfig->setSNP(snpData);
   lrConfig->setEnvironmentFactor(environmentData);
   lrConfig->setInteraction(interactionVector);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
   LogisticRegression logisticRegression(lrConfig, hostToDeviceStream1, deviceToHostStream1);
@@ -808,7 +808,7 @@ TEST_F(LogisticRegressionTest, SmallTestNoCovIntOnly) {
   lrConfig->setSNP(snpData);
   lrConfig->setEnvironmentFactor(environmentData);
   lrConfig->setInteraction(interactionVector);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with LR config in test: ");
 
   LogisticRegression logisticRegression(lrConfig, hostToDeviceStream1, deviceToHostStream1);

@@ -82,7 +82,7 @@ TEST_F(ElementWiseAdditionTest, KernelSmallVector) {
   kernelWrapper.elementWiseAddition(*deviceVector1, *deviceVector2, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in ElementWiseAdditionTest: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());

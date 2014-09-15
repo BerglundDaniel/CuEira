@@ -80,7 +80,7 @@ TEST_F(LogisticTransformTest, KernelSmallVector) {
   kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in LogisticTransform test: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
@@ -144,7 +144,7 @@ TEST_F(LogisticTransformTest, KernelLargeVector) {
   kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in LogisticTransform test: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());
@@ -180,7 +180,7 @@ TEST_F(LogisticTransformTest, KernelHugeVector) {
   kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
-  cudaStreamSynchronize(stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in LogisticTransform test: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());

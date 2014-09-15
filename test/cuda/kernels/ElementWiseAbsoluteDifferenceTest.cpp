@@ -81,7 +81,7 @@ TEST_F(ElementWiseAbsoluteDifferenceTest, KernelSmallVector) {
   kernelWrapper.elementWiseAbsoluteDifference(*deviceVector1, *deviceVector2, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in ElementWiseAbsoluteDifferenceTest: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());

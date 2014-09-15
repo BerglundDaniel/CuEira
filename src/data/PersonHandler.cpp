@@ -117,16 +117,17 @@ void PersonHandler::createOutcomes() {
   if(!outcomesCreated){
     outcomesCreated = true;
     int rowNumber = -1;
+    Phenotype phenotype;
 #ifdef CPU
     outcomes = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude));
 #else
     outcomes = new Container::PinnedHostVector(numberOfIndividualsToInclude);
 #endif
 
-    for(std::map<Person*, int>::iterator personIter = personToRowInclude.begin();
+    for(std::map<const Person*, int>::iterator personIter = personToRowInclude.begin();
         personIter != personToRowInclude.end(); ++personIter){
       rowNumber = personIter->second;
-      Phenotype phenoType = personIter->first->getPhenotype();
+      phenotype = personIter->first->getPhenotype();
 
       if(phenotype == UNAFFECTED){
         (*outcomes)(rowNumber) = 0;

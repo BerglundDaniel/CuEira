@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
     CUDA::Stream* stream = streamFactory->constructStream(*device);
     (*outcomeTransferStreams)[deviceNumber] = stream;
 
-    CUDA::HostToDevice hostToDevice(stream->getCudaStream());
+    CUDA::HostToDevice hostToDevice(*stream);
 
     device->setOutcomes(hostToDevice.transferVector(&outcomes));
   }

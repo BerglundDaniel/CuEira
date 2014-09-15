@@ -72,7 +72,7 @@ TEST_F(TransferTest, TransferVector) {
 
   Container::DeviceVector* deviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
   Container::HostVector* hostVectorTo = deviceToHostStream1.transferVector(deviceVector);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error when transferring vector in test: ");
 
   ASSERT_EQ(numberOfRows, hostVectorTo->getNumberOfRows());
@@ -100,7 +100,7 @@ TEST_F(TransferTest, TransferMatrix) {
 
   Container::DeviceMatrix* deviceMatrix = hostToDeviceStream1.transferMatrix(hostMatrixFrom);
   Container::HostMatrix* hostMatrixTo = deviceToHostStream1.transferMatrix(deviceMatrix);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error when transferring matrix in test: ");
 
   ASSERT_EQ(numberOfRows, hostMatrixTo->getNumberOfRows());
@@ -138,7 +138,7 @@ TEST_F(TransferTest, TransferVectorCustomPointDevice) {
   Container::DeviceMatrix* deviceMatrixBig = hostToDeviceStream1.transferMatrix(hostMatrixBig);
   PRECISION* vectorPos = deviceMatrixBig->getMemoryPointer() + 3;
   hostToDeviceStream1.transferVector(hostVectorFrom, vectorPos);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error when transferring to device in TransferTest: ");
 
   Container::DeviceVector* deviceVector = new Container::DeviceVector(numberOfRows, vectorPos);
@@ -183,7 +183,7 @@ TEST_F(TransferTest, TransferMatrixCustomPointDevice) {
   Container::DeviceMatrix* deviceMatrixBig = hostToDeviceStream1.transferMatrix(hostMatrixBig);
   PRECISION* matrixPos = deviceMatrixBig->getMemoryPointer() + 3;
   hostToDeviceStream1.transferMatrix(hostMatrixFrom, matrixPos);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error when transferring to device in TransferTest: ");
 
   Container::DeviceMatrix* deviceMatrix = new Container::DeviceMatrix(numberOfRows, numberOfColumns, matrixPos);
@@ -226,7 +226,7 @@ TEST_F(TransferTest, TransferVectorCustomPointHost) {
   }
 
   Container::DeviceVector* deviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error when transferring to device in TransferTest: ");
 
   int offset = 2;
@@ -272,7 +272,7 @@ TEST_F(TransferTest, TransferMatrixCustomPointHost) {
   }
 
   Container::DeviceMatrix* deviceMatrix = hostToDeviceStream1.transferMatrix(hostMatrixFrom);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error when transferring to device in TransferTest: ");
 
   int offset = 3;

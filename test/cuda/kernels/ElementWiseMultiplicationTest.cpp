@@ -82,7 +82,7 @@ TEST_F(ElementWiseMultiplicationTest, KernelSmallVector) {
   kernelWrapper.elementWiseMultiplication(*deviceVector1, *deviceVector2, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in ElemtWiseDivisionTest: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());

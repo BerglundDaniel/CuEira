@@ -30,6 +30,7 @@ using testing::ReturnRef;
 using testing::Eq;
 using testing::Ge;
 using testing::Le;
+using testing::ByRef;
 
 namespace CuEira {
 namespace FileIO {
@@ -105,7 +106,8 @@ void CSVReaderTest::SetUp() {
     Id* id = ids[i];
     Person* person = persons[i];
     EXPECT_CALL(personHandlerMock, getPersonFromId(Eq(*id))).WillRepeatedly(ReturnRef(*person));
-    EXPECT_CALL(personHandlerMock, getRowIncludeFromPerson(Eq(*person))).WillRepeatedly(Return(includePosArr[i]));
+    EXPECT_CALL(personHandlerMock, getRowIncludeFromPerson(Eq(ByRef(*person)))).WillRepeatedly(
+        Return(includePosArr[i]));
   }
 }
 

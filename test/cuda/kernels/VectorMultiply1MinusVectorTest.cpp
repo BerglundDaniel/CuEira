@@ -77,7 +77,7 @@ TEST_F(VectorMultiply1MinusVectorTest, KernelSmallVector) {
   kernelWrapper.probabilitesMultiplyProbabilites(*deviceVector1, *resultDeviceVector);
 
   Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
-  cudaStreamSynchronize (stream1);
+  stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in VectorMultiply1MinusVectorTest: ");
 
   ASSERT_EQ(numberOfRows, resultHostVector->getNumberOfRows());

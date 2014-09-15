@@ -26,6 +26,8 @@
 using testing::Return;
 using testing::AtLeast;
 using testing::ReturnRef;
+using testing::Eq;
+using testing::ByRef;
 
 namespace CuEira {
 namespace Container {
@@ -119,7 +121,7 @@ TEST_F(EnvironmentVectorTest, ConstructAndGetException){
 TEST_F(EnvironmentVectorTest, ConstructAndGet) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(Return(orgData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(Eq(ByRef(startFactor)))).Times(1).WillRepeatedly(Return(orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
@@ -137,10 +139,10 @@ TEST_F(EnvironmentVectorTest, ConstructAndGet) {
 TEST_F(EnvironmentVectorTest, Switch) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(Return(orgData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(Eq(ByRef(startFactor)))).Times(1).WillRepeatedly(Return(orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(Return(binaryData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(Eq(ByRef(binaryFactor)))).Times(1).WillRepeatedly(Return(binaryData));
   environmentVector.switchEnvironmentFactor(binaryFactor);
 
   ASSERT_EQ(binaryFactor, environmentVector.getCurrentEnvironmentFactor());
@@ -158,7 +160,7 @@ TEST_F(EnvironmentVectorTest, Switch) {
 TEST_F(EnvironmentVectorTest, RecodeNonBinary) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(Return(orgData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(Eq(ByRef(startFactor)))).Times(1).WillRepeatedly(Return(orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
@@ -228,7 +230,7 @@ TEST_F(EnvironmentVectorTest, RecodeBinary) {
 
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(Return(binaryData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(Eq(ByRef(binaryFactor)))).Times(1).WillRepeatedly(Return(binaryData));
   environmentVector.switchEnvironmentFactor(binaryFactor);
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);
 
@@ -284,7 +286,7 @@ TEST_F(EnvironmentVectorTest, RecodeBinary) {
 TEST_F(EnvironmentVectorTest, StatisticModel) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(Return(orgData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(Eq(ByRef(startFactor)))).Times(1).WillRepeatedly(Return(orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
   Container::HostVector* interactionVector;
@@ -308,7 +310,7 @@ TEST_F(EnvironmentVectorTest, StatisticModel) {
     EXPECT_EQ((*orgData)(i), (*recodedData)(i));
   }
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(binaryFactor)).Times(1).WillRepeatedly(Return(binaryData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(Eq(ByRef(binaryFactor)))).Times(1).WillRepeatedly(Return(binaryData));
   environmentVector.switchEnvironmentFactor(binaryFactor);
   environmentVector.applyStatisticModel(ADDITIVE, *interactionVector);
 
@@ -329,7 +331,7 @@ TEST_F(EnvironmentVectorTest, StatisticModel) {
 TEST_F(EnvironmentVectorTest, RecodeDifferentOrder) {
   EnvironmentVector environmentVector(*environmentFactorHandlerMock);
 
-  EXPECT_CALL(*environmentFactorHandlerMock, getData(startFactor)).Times(1).WillRepeatedly(Return(orgData));
+  EXPECT_CALL(*environmentFactorHandlerMock, getData(Eq(ByRef(startFactor)))).Times(1).WillRepeatedly(Return(orgData));
   environmentVector.switchEnvironmentFactor(startFactor);
 
   ASSERT_EQ(ALL_RISK, environmentVector.currentRecode);

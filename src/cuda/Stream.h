@@ -32,10 +32,12 @@ public:
     cudaStreamSynchronize(*cudaStream);
   }
 
+#ifndef __CUDACC__
   Stream(const Stream&) = delete;
   Stream(Stream&&) = delete;
   Stream& operator=(const Stream&) = delete;
   Stream& operator=(Stream&&) = delete;
+#endif
 
 private:
   const Device& device;

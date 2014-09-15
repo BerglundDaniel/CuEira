@@ -28,10 +28,12 @@ public:
   virtual void setOutcomes(const Container::DeviceVector* outcomes);
   virtual const Container::DeviceVector& getOutcomes() const;
 
+#ifndef __CUDACC__
   Device(const Device&) = delete;
   Device(Device&&) = delete;
   Device& operator=(const Device&) = delete;
   Device& operator=(Device&&) = delete;
+#endif
 
 private:
   const Container::DeviceVector* outcomes;

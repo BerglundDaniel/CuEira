@@ -27,10 +27,12 @@ public:
   __device__ __host__ PRECISION* getMemoryPointer();
   __device__ __host__ const PRECISION* getMemoryPointer() const;
 
+#ifndef __CUDACC__
   DeviceVector(const DeviceVector&) = delete;
   DeviceVector(DeviceVector&&) = delete;
   DeviceVector& operator=(const DeviceVector&) = delete;
   DeviceVector& operator=(DeviceVector&&) = delete;
+#endif
 
 private:
   const int numberOfRows;

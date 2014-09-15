@@ -32,10 +32,12 @@ public:
   __device__ __host__ PRECISION* getMemoryPointer();
   __device__ __host__ const PRECISION* getMemoryPointer() const;
 
+#ifndef __CUDACC__
   DeviceMatrix(const DeviceMatrix&) = delete;
   DeviceMatrix(DeviceMatrix&&) = delete;
   DeviceMatrix& operator=(const DeviceMatrix&) = delete;
   DeviceMatrix& operator=(DeviceMatrix&&) = delete;
+#endif
 
 private:
   const bool subview;

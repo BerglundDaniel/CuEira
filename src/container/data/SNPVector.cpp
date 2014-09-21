@@ -152,12 +152,5 @@ void SNPVector::applyStatisticModel(StatisticModel statisticModel, const HostVec
   return;
 }
 
-std::ostream& operator<<(std::ostream& os, const Container::SNPVector& snpVector) {
-  //Print recode
-  os << snpVector.currentRecode;
-
-  return os;
-}
-
 } /* namespace Container */
 } /* namespace CuEira */

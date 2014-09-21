@@ -20,7 +20,6 @@ public:
   virtual ~EnvironmentFactor();
 
   Id getId() const;
-  bool getInclude() const;
   void setVariableType(VariableType variableType);
   VariableType getVariableType() const;
 
@@ -33,10 +32,7 @@ public:
   EnvironmentFactor& operator=(EnvironmentFactor&&) = delete;
 
 private:
-  bool shouldEnvironmentFactorBeIncluded() const;
-
   Id id;
-  bool include;
   VariableType variableType;
 };
 

@@ -12,7 +12,7 @@ CpuModelHandler::~CpuModelHandler() {
   delete covariates;
 }
 
-Statistics* CpuModelHandler::calculateModel() {
+InteractionStatistics* CpuModelHandler::calculateModel() {
   //TODO calc modlel
 
   const Container::HostVector& betaCoefficents; //FIXME
@@ -38,7 +38,7 @@ Statistics* CpuModelHandler::calculateModel() {
     //Calculate again
   }
 
-  return new Statistics(betaCoefficents, standardError);
+  return new InteractionStatistics(betaCoefficents, standardError);
 }
 
 } /* namespace Model */

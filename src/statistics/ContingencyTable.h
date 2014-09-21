@@ -1,6 +1,7 @@
 #ifndef CONTINGENCYTABLE_H_
 #define CONTINGENCYTABLE_H_
 
+#include <ostream>
 #include <vector>
 
 #define SNP0_ENV0_CONTROL_POSITION 0
@@ -21,6 +22,7 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class ContingencyTable {
+  friend std::ostream& operator<<(std::ostream& os, const ContingencyTable& contingencyTable);
 public:
   ContingencyTable(const std::vector<int>* tableCellNumbers);
   virtual ~ContingencyTable();
@@ -31,6 +33,9 @@ public:
   ContingencyTable(ContingencyTable&&) = delete;
   ContingencyTable& operator=(const ContingencyTable&) = delete;
   ContingencyTable& operator=(ContingencyTable&&) = delete;
+
+protected:
+  virtual void toOstream(std::ostream& os) const;
 
 private:
   const std::vector<int>* tableCellNumbers;

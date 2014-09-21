@@ -1,8 +1,9 @@
-#include "Statistics.h"
+#include "InteractionStatistics.h"
 
 namespace CuEira {
 
-Statistics::Statistics(const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult) :
+InteractionStatistics::InteractionStatistics(
+    const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult) :
     logisticRegressionResult(logisticRegressionResult), betaCoefficents(logisticRegressionResult->getBeta()), standardError(
         calculateStandardError(logisticRegressionResult->getInverseInformationMatrix())), ap(
         calculateAp(reri, betaCoefficents(3))), reri(calculateReri(*oddsRatios)), oddsRatios(
@@ -11,7 +12,7 @@ Statistics::Statistics(const Model::LogisticRegression::LogisticRegressionResult
 
 }
 
-Statistics::~Statistics() {
+InteractionStatistics::~InteractionStatistics() {
   delete logisticRegressionResult;
   delete standardError;
   delete oddsRatios;
@@ -19,35 +20,36 @@ Statistics::~Statistics() {
   delete oddsRatiosHigh;
 }
 
-double Statistics::getReri() const {
+double InteractionStatistics::getReri() const {
   return reri;
 }
 
-double Statistics::getAp() const {
+double InteractionStatistics::getAp() const {
   return ap;
 }
 
-const std::vector<double>& Statistics::getOddsRatios() const {
+const std::vector<double>& InteractionStatistics::getOddsRatios() const {
   return *oddsRatios;
 }
 
-const std::vector<double>& Statistics::getOddsRatiosLow() const {
+const std::vector<double>& InteractionStatistics::getOddsRatiosLow() const {
   return *oddsRatiosLow;
 }
 
-const std::vector<double>& Statistics::getOddsRatiosHigh() const {
+const std::vector<double>& InteractionStatistics::getOddsRatiosHigh() const {
   return *oddsRatiosHigh;
 }
 
-double Statistics::calculateReri(const std::vector<double>& oddsRatios) const {
+double InteractionStatistics::calculateReri(const std::vector<double>& oddsRatios) const {
   return oddsRatios[2] - oddsRatios[0] - oddsRatios[1] + 1;
 }
 
-double Statistics::calculateAp(double reri, PRECISION interactionBeta) const {
+double InteractionStatistics::calculateAp(double reri, PRECISION interactionBeta) const {
   return reri / interactionBeta;
 }
 
-std::vector<double>* Statistics::calculateStandardError(const Container::HostMatrix& covarianceMatrix) const {
+std::vector<double>* InteractionStatistics::calculateStandardError(
+    const Container::HostMatrix& covarianceMatrix) const {
   const int size = covarianceMatrix.getNumberOfRows(); //Symmetrical matrix
   std::vector<double>* standardError = new std::vector<double>(size);
 
@@ -58,7 +60,7 @@ std::vector<double>* Statistics::calculateStandardError(const Container::HostMat
   return standardError;
 }
 
-std::vector<double>* Statistics::calculateOddsRatios(const Container::HostVector& betaCoefficents) const {
+std::vector<double>* InteractionStatistics::calculateOddsRatios(const Container::HostVector& betaCoefficents) const {
   const int size = betaCoefficents.getNumberOfRows() - 1; //Skipping the intercept
   std::vector<double>* oddsRatios = new std::vector<double>(size);
 
@@ -69,7 +71,7 @@ std::vector<double>* Statistics::calculateOddsRatios(const Container::HostVector
   return oddsRatios;
 }
 
-std::vector<double>* Statistics::calculateOddsRatiosLow(const Container::HostVector& betaCoefficents,
+std::vector<double>* InteractionStatistics::calculateOddsRatiosLow(const Container::HostVector& betaCoefficents,
     const std::vector<double>& standardError) const {
 
   const int size = betaCoefficents.getNumberOfRows() - 1; //Skipping the intercept
@@ -82,7 +84,7 @@ std::vector<double>* Statistics::calculateOddsRatiosLow(const Container::HostVec
   return oddsRatiosLow;
 }
 
-std::vector<double>* Statistics::calculateOddsRatiosHigh(const Container::HostVector& betaCoefficents,
+std::vector<double>* InteractionStatistics::calculateOddsRatiosHigh(const Container::HostVector& betaCoefficents,
     const std::vector<double>& standardError) const {
 
   const int size = betaCoefficents.getNumberOfRows() - 1; //Skipping the intercept
@@ -95,22 +97,23 @@ std::vector<double>* Statistics::calculateOddsRatiosHigh(const Container::HostVe
   return oddsRatiosHigh;
 }
 
-std::ostream & operator<<(std::ostream& os, const Statistics& statistics) {
+void InteractionStatistics::toOstream(std::ostream& os) const {
   //Print AP
-  os << statistics.ap << ",";
+  os << ap << ",";
 
   //Print RERIR
-  os << statistics.reri << ",";
+  os << reri << ",";
 
   //Print ORs including covariates if any
-  const int size = statistics.betaCoefficents.getNumberOfRows() - 1; //Skipping the intercept
+  const int size = betaCoefficents.getNumberOfRows() - 1; //Skipping the intercept
   for(int i = 0; i < size - 1; ++i){
-    os << (*(statistics.oddsRatios))[i] << "," << (*(statistics.oddsRatiosLow))[i] << ","
-        << (*(statistics.oddsRatiosHigh))[i] << ",";
+    os << (*(oddsRatios))[i] << "," << (*(oddsRatiosLow))[i] << "," << (*(oddsRatiosHigh))[i] << ",";
   }
-  os << (*(statistics.oddsRatios))[size - 1] << "," << (*(statistics.oddsRatiosLow))[size - 1] << ","
-      << (*(statistics.oddsRatiosHigh))[size - 1];
+  os << (*(oddsRatios))[size - 1] << "," << (*(oddsRatiosLow))[size - 1] << "," << (*(oddsRatiosHigh))[size - 1];
+}
 
+std::ostream & operator<<(std::ostream& os, const InteractionStatistics& statistics) {
+  statistics.toOstream(os);
   return os;
 }
 

@@ -3,9 +3,9 @@
 namespace CuEira {
 namespace Model {
 
-ModelHandler::ModelHandler(const StatisticsFactory& statisticsFactory, DataHandler* dataHandler) :
-    statisticsFactory(statisticsFactory), dataHandler(dataHandler), snpData(nullptr), environmentData(nullptr), interactionData(
-        nullptr), currentSNP(nullptr), currentEnvironmentFactor(nullptr), oldSNP(nullptr), oldEnvironmentFactor(
+ModelHandler::ModelHandler(const CombinedResultsFactory& combinedResultsFactory, DataHandler* dataHandler) :
+    combinedResultsFactory(combinedResultsFactory), dataHandler(dataHandler), snpData(nullptr), environmentData(
+        nullptr), interactionData(nullptr), currentSNP(nullptr), currentEnvironmentFactor(nullptr), oldSNP(nullptr), oldEnvironmentFactor(
         nullptr), state(NOT_INITIALISED) {
 
 }
@@ -14,10 +14,11 @@ ModelHandler::~ModelHandler() {
   delete dataHandler;
 }
 
-DataHandlerState ModelHandler::next() {
-  DataHandlerState dataHandlerState = dataHandler->next();
-  if(dataHandlerState == DONE){
-    return DONE;
+ModelInformation* ModelHandler::next() {
+  ModelInformation* modelInformation = dataHandler->next();
+  ModelState modelState = modelInformation->getModelState();
+  if(modelState == DONE){
+    return modelInformation;
   }
 
 #ifdef DEBUG
@@ -34,18 +35,18 @@ DataHandlerState ModelHandler::next() {
   currentSNP = &dataHandler->getCurrentSNP();
   currentEnvironmentFactor = &dataHandler->getCurrentEnvironmentFactor();
 
-  if(dataHandlerState == SKIP){
+  if(modelState == SKIP){
     snpData = nullptr;
     environmentData = nullptr;
     interactionData = nullptr;
 
-    return SKIP;
+    return modelInformation;
   }else{
     snpData = &dataHandler->getSNPVector().getRecodedData();
     environmentData = &dataHandler->getEnvironmentVector().getRecodedData();
     interactionData = &dataHandler->getInteractionVector().getRecodedData();
 
-    return dataHandlerState;
+    return modelInformation;
   }
 }
 

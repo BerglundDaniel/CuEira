@@ -7,11 +7,9 @@
 #include <sstream>
 
 #include <Configuration.h>
-#include <Statistics.h>
-#include <SNP.h>
-#include <EnvironmentFactor.h>
 #include <FileReaderException.h>
-#include <SNPVector.h>
+#include <ModelInformation.h>
+#include <CombinedResults.h>
 
 namespace CuEira {
 namespace FileIO {
@@ -26,8 +24,8 @@ public:
   ResultWriter(const Configuration& configuration);
   virtual ~ResultWriter();
 
-  void writeFullResult(const SNP& snp, const EnvironmentFactor& environmentFactor, const Statistics& statistics, const Container::SNPVector& snpVector);
-  void writePartialResult(const SNP& snp, const EnvironmentFactor& environmentFactor);
+  void writeFullResult(const Model::ModelInformation* modelInformation, const Model::CombinedResults* combinedResults);
+  void writePartialResult(const Model::ModelInformation* modelInformation);
 
   ResultWriter(const ResultWriter&) = delete;
   ResultWriter(ResultWriter&&) = delete;

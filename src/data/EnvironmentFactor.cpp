@@ -3,7 +3,7 @@
 namespace CuEira {
 
 EnvironmentFactor::EnvironmentFactor(Id id) :
-    id(id), include(shouldEnvironmentFactorBeIncluded()), variableType(OTHER) {
+    id(id), variableType(OTHER) {
 
 }
 
@@ -13,14 +13,6 @@ EnvironmentFactor::~EnvironmentFactor() {
 
 Id EnvironmentFactor::getId() const {
   return id;
-}
-
-bool EnvironmentFactor::getInclude() const {
-  return include;
-}
-
-bool EnvironmentFactor::shouldEnvironmentFactorBeIncluded() const {
-  return true;
 }
 
 void EnvironmentFactor::setVariableType(VariableType variableType) {

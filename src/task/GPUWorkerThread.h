@@ -16,13 +16,16 @@
 #include <LogisticRegression.h>
 #include <GpuModelHandler.h>
 #include <SNP.h>
-#include <DataHandlerState.h>
+#include <ModelState.h>
 #include <HostToDevice.h>
 #include <DeviceToHost.h>
-#include <Statistics.h>
+#include <InteractionStatistics.h>
 #include <StreamFactory.h>
 #include <KernelWrapper.h>
 #include <ResultWriter.h>
+#include <ModelInformation.h>
+#include <CombinedResults.h>
+#include <CombinedResultsFactory.h>
 
 namespace CuEira {
 namespace CUDA {

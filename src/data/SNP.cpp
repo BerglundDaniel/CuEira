@@ -76,6 +76,14 @@ std::ostream & operator<<(std::ostream& os, const SNP& snp) {
   //Print the id and the position number
   os << snp.id.getString() << "," << snp.position << ",";
 
+  //Print exclusion reason
+  const int size = snp.includeExcludeVector->size();
+  for(int i = 0; i < size; ++i){
+    os << (*snp.includeExcludeVector)[i]; //FIXME this should be a string or such not a number
+  }
+
+  os << ",";
+
   if(snp.riskAlleleHasBeenSet){
     //Print the risk allele name
     if(snp.riskAllele == ALLELE_ONE){

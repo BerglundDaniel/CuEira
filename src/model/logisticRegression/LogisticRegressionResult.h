@@ -4,6 +4,7 @@
 #include <HostVector.h>
 #include <HostMatrix.h>
 #include <Recode.h>
+#include <ModelResult.h>
 
 namespace CuEira {
 namespace Model {
@@ -14,7 +15,7 @@ namespace LogisticRegression {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class LogisticRegressionResult {
+class LogisticRegressionResult: public ModelResult {
 public:
   /**
    * Constructor for the class, when the destructor runs it will delete the pointers.

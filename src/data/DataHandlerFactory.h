@@ -11,6 +11,7 @@
 #include <EnvironmentFactorHandler.h>
 #include <EnvironmentVector.h>
 #include <InteractionVector.h>
+#include <ModelInformationFactory.h>
 
 namespace CuEira {
 
@@ -21,9 +22,10 @@ namespace CuEira {
  */
 class DataHandlerFactory {
 public:
-  DataHandlerFactory(const Configuration& configuration, const ContingencyTableFactory& contingencyTableFactory,
-      FileIO::BedReader& bedReader, const EnvironmentFactorHandler& environmentFactorHandler,
-      Task::DataQueue& dataQueue);
+  DataHandlerFactory(const Configuration& configuration, FileIO::BedReader& bedReader,
+      const ContingencyTableFactory& contingencyTableFactory,
+      const Model::ModelInformationFactory& modelInformationFactory,
+      const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue);
   virtual ~DataHandlerFactory();
 
   virtual DataHandler* constructDataHandler() const;
@@ -35,8 +37,9 @@ public:
 
 private:
   const Configuration& configuration;
-  const ContingencyTableFactory& contingencyTableFactory;
   FileIO::BedReader& bedReader;
+  const ContingencyTableFactory& contingencyTableFactory;
+  const Model::ModelInformationFactory& modelInformationFactory;
   const EnvironmentFactorHandler& environmentFactorHandler;
   Task::DataQueue& dataQueue;
 };

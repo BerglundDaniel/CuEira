@@ -126,7 +126,7 @@ TEST_F(PersonHandlerTest, Getters) {
   int rowInclude = 0;
   j = 0;
   for(int i = 0; i < numberOfIndividuals; ++i){
-    const Person& person = personVector[i];
+    const Person& person = *personVector[i];
 
     //Id to person
     ASSERT_EQ(person, personHandler.getPersonFromId(person.getId()));
@@ -189,7 +189,7 @@ TEST_F(PersonHandlerTest, GetOutcomesException) {
   int numberOfIndividualsNotInclude = 4;
   int notInclude[4] = {1, 2, 5, 7};
   int j = 0;
-  std::vector<Person*> personVector(numberOfIndividuals);
+  std::vector<const Person*> personVector(numberOfIndividuals);
 
   for(int i = 0; i < numberOfIndividuals; ++i){
     Person* person;
@@ -212,7 +212,7 @@ TEST_F(PersonHandlerTest, CreateAndGetOutcomes) {
   int numberOfIndividualsNotInclude = 4;
   int notInclude[4] = {1, 2, 5, 7};
   int j = 0;
-  std::vector<Person*> personVector(numberOfIndividuals);
+  std::vector<const Person*> personVector(numberOfIndividuals);
 
   for(int i = 0; i < numberOfIndividuals; ++i){
     Person* person;

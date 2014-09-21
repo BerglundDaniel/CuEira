@@ -2,11 +2,12 @@
 
 namespace CuEira {
 
-DataHandlerFactory::DataHandlerFactory(const Configuration& configuration,
-    const ContingencyTableFactory& contingencyTableFactory, FileIO::BedReader& bedReader,
+DataHandlerFactory::DataHandlerFactory(const Configuration& configuration, FileIO::BedReader& bedReader,
+    const ContingencyTableFactory& contingencyTableFactory,
+    const Model::ModelInformationFactory& modelInformationFactory,
     const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue) :
     configuration(configuration), contingencyTableFactory(contingencyTableFactory), bedReader(bedReader), environmentFactorHandler(
-        environmentFactorHandler), dataQueue(dataQueue) {
+        environmentFactorHandler), dataQueue(dataQueue), modelInformationFactory(modelInformationFactory) {
 
 }
 
@@ -18,8 +19,8 @@ DataHandler* DataHandlerFactory::constructDataHandler() const {
   Container::EnvironmentVector* environmentVector = new Container::EnvironmentVector(environmentFactorHandler);
   Container::InteractionVector* interactionVector = new Container::InteractionVector(*environmentVector);
 
-  return new DataHandler(configuration, bedReader, contingencyTableFactory, environmentFactorHandler.getHeaders(),
-      dataQueue, environmentVector, interactionVector);
+  return new DataHandler(configuration, bedReader, contingencyTableFactory, modelInformationFactory,
+      environmentFactorHandler.getHeaders(), dataQueue, environmentVector, interactionVector);
 }
 
 } /* namespace CuEira */

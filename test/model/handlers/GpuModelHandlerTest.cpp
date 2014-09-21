@@ -48,7 +48,7 @@ protected:
   LogisticRegression::LogisticRegressionMock* logisticRegressionMock;
   LogisticRegression::LogisticRegressionConfigurationMock* logisticRegressionConfigurationMock;
   LogisticRegression::LogisticRegressionResultMock* logisticRegressionResultMock;
-  StatisticsFactoryMock* statisticsFactoryMock;
+  InteractionStatisticsFactoryMock* statisticsFactoryMock;
   const int numberOfRows;
   const int numberOfPredictors;
 };
@@ -68,7 +68,7 @@ void GpuModelHandlerTest::SetUp() {
   logisticRegressionMock = new LogisticRegression::LogisticRegressionMock();
   logisticRegressionConfigurationMock = new LogisticRegression::LogisticRegressionConfigurationMock();
   logisticRegressionResultMock = new LogisticRegression::LogisticRegressionResultMock();
-  statisticsFactoryMock = new StatisticsFactoryMock();
+  statisticsFactoryMock = new InteractionStatisticsFactoryMock();
 
   EXPECT_CALL(*logisticRegressionConfigurationMock, getNumberOfRows()).Times(1).WillRepeatedly(Return(numberOfRows));
   EXPECT_CALL(*logisticRegressionConfigurationMock, getNumberOfPredictors()).Times(1).WillRepeatedly(

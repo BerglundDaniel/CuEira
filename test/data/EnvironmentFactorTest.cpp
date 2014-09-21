@@ -43,7 +43,6 @@ TEST_F(EnvironmentFactorTest, Getters) {
   Id id1("env1");
   EnvironmentFactor envFactor1(id1);
   EXPECT_EQ(id1, envFactor1.getId());
-  EXPECT_TRUE(envFactor1.getInclude());
 
   envFactor1.setVariableType(OTHER);
   EXPECT_EQ(OTHER, envFactor1.getVariableType());

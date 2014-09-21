@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <gmock/gmock.h>
+#include <ostream>
 
 #include <ContingencyTable.h>
 
@@ -21,6 +22,8 @@ public:
 
   MOCK_CONST_METHOD0(getTable, const std::vector<int>&());
   MOCK_METHOD0(Die, void());
+
+  MOCK_CONST_METHOD1(toOstream, void(std::ostream& os));
 
 };
 

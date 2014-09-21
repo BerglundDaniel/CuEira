@@ -11,7 +11,7 @@
 #include <SNPVector.h>
 #include <InteractionVector.h>
 #include <EnvironmentVector.h>
-#include <DataHandlerState.h>
+#include <ModelInformation.h>
 
 namespace CuEira {
 
@@ -33,7 +33,7 @@ public:
   MOCK_CONST_METHOD0(getInteractionVector, const Container::InteractionVector&());
   MOCK_CONST_METHOD0(getEnvironmentVector, const Container::EnvironmentVector&());
 
-  MOCK_METHOD0(next, DataHandlerState());
+  MOCK_METHOD0(next, Model::ModelInformation*());
   MOCK_METHOD1(recode, void(Recode));
 };
 

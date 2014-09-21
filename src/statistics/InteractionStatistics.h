@@ -1,5 +1,5 @@
-#ifndef STATISTICS_H_
-#define STATISTICS_H_
+#ifndef INTERACTIONSTATISTICS_H_
+#define INTERACTIONSTATISTICS_H_
 
 #include <vector>
 #include <math.h>
@@ -18,11 +18,11 @@ namespace CuEira {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class Statistics {
-  friend std::ostream& operator<<(std::ostream& os, const Statistics& statistics);
+class InteractionStatistics {
+  friend std::ostream& operator<<(std::ostream& os, const InteractionStatistics& statistics);
 public:
-  Statistics(const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult);
-  virtual ~Statistics();
+  InteractionStatistics(const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult);
+  virtual ~InteractionStatistics();
 
   double getReri() const;
   double getAp() const;
@@ -30,10 +30,13 @@ public:
   const std::vector<double>& getOddsRatiosLow() const;
   const std::vector<double>& getOddsRatiosHigh() const;
 
-  Statistics(const Statistics&) = delete;
-  Statistics(Statistics&&) = delete;
-  Statistics& operator=(const Statistics&) = delete;
-  Statistics& operator=(Statistics&&) = delete;
+  InteractionStatistics(const InteractionStatistics&) = delete;
+  InteractionStatistics(InteractionStatistics&&) = delete;
+  InteractionStatistics& operator=(const InteractionStatistics&) = delete;
+  InteractionStatistics& operator=(InteractionStatistics&&) = delete;
+
+protected:
+  virtual void toOstream(std::ostream& os) const;
 
 private:
   std::vector<double>* calculateStandardError(const Container::HostMatrix& covarianceMatrix) const;
@@ -57,4 +60,4 @@ private:
 
 } /* namespace CuEira */
 
-#endif /* STATISTICS_H_ */
+#endif /* INTERACTIONSTATISTICS_H_ */

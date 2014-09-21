@@ -14,6 +14,7 @@
 #include <HostToDevice.h>
 #include <PinnedHostVector.h>
 #include <KernelWrapper.h>
+#include <ModelConfiguration.h>
 
 namespace CuEira {
 namespace Model {
@@ -27,7 +28,7 @@ using namespace CuEira::CUDA;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class LogisticRegressionConfiguration {
+class LogisticRegressionConfiguration: public ModelConfiguration {
 public:
   /**
    * This

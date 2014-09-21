@@ -6,8 +6,8 @@ set(INCLUDE_DIRECTORIES
 
 set(SOURCE
   ${SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Statistics.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/StatisticsFactory.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/InteractionStatistics.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/InteractionStatisticsFactory.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/AlleleStatistics.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/AlleleStatisticsFactory.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ContingencyTable.cpp

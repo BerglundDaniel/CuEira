@@ -5,39 +5,35 @@ namespace FileIO {
 
 ResultWriter::ResultWriter(const Configuration& configuration) :
     configuration(configuration), outputFileName(configuration.getOutputFilePath()) {
+  openFile();
   printHeader();
 }
 
 ResultWriter::~ResultWriter() {
-
-}
-
-void ResultWriter::writeFullResult(const SNP& snp, const EnvironmentFactor& environmentFactor,
-    const Statistics& statistics, const Container::SNPVector& snpVector) {
-  openFile();
-
-  //TODO need to add allele freqs and such
-  outputStream << snp << "," << environmentFactor << "," << statistics << "," << snpVector << std::endl;
-
   closeFile();
 }
 
-void ResultWriter::writePartialResult(const SNP& snp, const EnvironmentFactor& environmentFactor) {
-  openFile();
+void ResultWriter::writeFullResult(const Model::ModelInformation* modelInformation,
+    const Model::CombinedResults* combinedResults) {
+  fileLock.lock();
+  outputStream << *modelInformation << "," << *combinedResults << std::endl;
+  fileLock.unlock();
 
-  //TODO need to add allele freqs and such
-  //TODO add reason for skip
-  outputStream << snp << "," << environmentFactor << std::endl;
+  delete modelInformation;
+  delete combinedResults;
+}
 
-  closeFile();
+void ResultWriter::writePartialResult(const Model::ModelInformation* modelInformation) {
+  fileLock.lock();
+  outputStream << *modelInformation << std::endl;
+  fileLock.unlock();
+
+  delete modelInformation;
 }
 
 void ResultWriter::printHeader() {
-  openFile();
-
-  //FIXME
   outputStream
-      << "snp_id,pos,risk_allele,minor,major,env_id,ap,reri,OR_snp,OR_snp_L,OR_snp_H,OR_env,OR_env_L,OR_env_H,OR_inter,OR_inter_L,OR_inter_H,";
+      << "snp_id,pos,skip,risk_allele,minor,major,env_id,ap,reri,OR_snp,OR_snp_L,OR_snp_H,OR_env,OR_env_L,OR_env_H,OR_inter,OR_inter_L,OR_inter_H,";
 
   /*
    for(int i = 0; i < numberOfCovariates; ++i){
@@ -46,15 +42,11 @@ void ResultWriter::printHeader() {
    }*/
 
   outputStream << "recode" << std::endl;
-
-  closeFile();
 }
 
 void ResultWriter::openFile() {
-  fileLock.lock();
   outputStream.open(outputFileName, std::ofstream::ios_base::app);
   if(!outputStream){
-    fileLock.unlock();
     std::ostringstream os;
     os << "Problem opening output file " << outputFileName << std::endl;
     const std::string& tmp = os.str();
@@ -65,7 +57,6 @@ void ResultWriter::openFile() {
 void ResultWriter::closeFile() {
   if(outputStream.is_open()){
     outputStream.close();
-    fileLock.unlock();
   }
   if(!outputStream){
     std::ostringstream os;

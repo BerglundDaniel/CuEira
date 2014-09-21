@@ -9,7 +9,7 @@ Configuration::Configuration(int argc, char* argv[]) {
   options::options_description description("Program usage:");
   description.add_options()("help,h", "Produce help message.")
   //("seed", options::value<int>()->default_value(1), "Set the seed. Default 1")
-  ("model,m", options::value<std::string>()->default_value("dominant"),
+  ("model,g", options::value<std::string>()->default_value("dominant"),
       "The genetic model type to use(ie dominant or recessive). Default: dominant.")("binary,b",
       options::value<std::string>()->required(), "Name of file in plink binary format")("environment_file,e",
       options::value<std::string>()->required(), "Set the csv file with the environmental variables.")(

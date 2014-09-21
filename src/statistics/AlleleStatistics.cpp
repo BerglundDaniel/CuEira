@@ -21,23 +21,22 @@ const std::vector<double>& AlleleStatistics::getAlleleFrequencies() const {
   return *alleleFrequencies;
 }
 
-std::ostream& operator<<(std::ostream& os, const AlleleStatistics& alleleStatistics) {
+void AlleleStatistics::toOstream(std::ostream& os) const {
   ///Print allele numbers
-  os << (*(alleleStatistics.numberOfAlleles))[ALLELE_ONE_CASE_POSITION] << ","
-      << (*(alleleStatistics.numberOfAlleles))[ALLELE_TWO_CASE_POSITION] << ","
-      << (*(alleleStatistics.numberOfAlleles))[ALLELE_ONE_CONTROL_POSITION] << ","
-      << (*(alleleStatistics.numberOfAlleles))[ALLELE_TWO_CONTROL_POSITION] << ","
-      << (*(alleleStatistics.numberOfAlleles))[ALLELE_ONE_ALL_POSITION] << ","
-      << (*(alleleStatistics.numberOfAlleles))[ALLELE_TWO_ALL_POSITION] << ",";
+  os << (*(numberOfAlleles))[ALLELE_ONE_CASE_POSITION] << "," << (*(numberOfAlleles))[ALLELE_TWO_CASE_POSITION] << ","
+      << (*(numberOfAlleles))[ALLELE_ONE_CONTROL_POSITION] << "," << (*(numberOfAlleles))[ALLELE_TWO_CONTROL_POSITION]
+      << "," << (*(numberOfAlleles))[ALLELE_ONE_ALL_POSITION] << "," << (*(numberOfAlleles))[ALLELE_TWO_ALL_POSITION]
+      << ",";
 
   //Print allele frequencies
-  os << (*(alleleStatistics.alleleFrequencies))[ALLELE_ONE_CASE_POSITION] << ","
-      << (*(alleleStatistics.alleleFrequencies))[ALLELE_TWO_CASE_POSITION] << ","
-      << (*(alleleStatistics.alleleFrequencies))[ALLELE_ONE_CONTROL_POSITION] << ","
-      << (*(alleleStatistics.alleleFrequencies))[ALLELE_TWO_CONTROL_POSITION] << ","
-      << (*(alleleStatistics.alleleFrequencies))[ALLELE_ONE_ALL_POSITION] << ","
-      << (*(alleleStatistics.alleleFrequencies))[ALLELE_TWO_ALL_POSITION];
+  os << (*(alleleFrequencies))[ALLELE_ONE_CASE_POSITION] << "," << (*(alleleFrequencies))[ALLELE_TWO_CASE_POSITION]
+      << "," << (*(alleleFrequencies))[ALLELE_ONE_CONTROL_POSITION] << ","
+      << (*(alleleFrequencies))[ALLELE_TWO_CONTROL_POSITION] << "," << (*(alleleFrequencies))[ALLELE_ONE_ALL_POSITION]
+      << "," << (*(alleleFrequencies))[ALLELE_TWO_ALL_POSITION];
+}
 
+std::ostream& operator<<(std::ostream& os, const AlleleStatistics& alleleStatistics) {
+  alleleStatistics.toOstream(os);
   return os;
 }
 

@@ -8,10 +8,11 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
 
   DataHandler* dataHandler = dataHandlerFactory->constructDataHandler();
   device->setActiveDevice();
-  CUDA::handleCudaStatus(cudaGetLastError(), "Error before initialisation in GPUWorkerThread "); //<< std::this_thread::get_id() << " : "); //FIXME
+  CUDA::handleCudaStatus(cudaGetLastError(), "Error before initialisation in GPUWorkerThread ");
 
   StreamFactory streamFactory;
-  StatisticsFactory statisticsFactory;
+  InteractionStatisticsFactory interactionStatisticsFactory;
+  Model::CombinedResultsFactory combinedResultsFactory(interactionStatisticsFactory);
   const Container::DeviceVector& deviceOutcomes = device->getOutcomes();
 
   Stream* stream = streamFactory.constructStream(*device);
@@ -31,28 +32,24 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
 
   Model::LogisticRegression::LogisticRegression* logisticRegression = new Model::LogisticRegression::LogisticRegression(
       logisticRegressionConfiguration, hostToDevice, deviceToHost);
-  Model::ModelHandler* modelHandler = new Model::GpuModelHandler(statisticsFactory, dataHandler,
+  Model::ModelHandler* modelHandler = new Model::GpuModelHandler(combinedResultsFactory, dataHandler,
       *logisticRegressionConfiguration, logisticRegression);
-  CUDA::handleCudaStatus(cudaGetLastError(), "Error with initialisation in GPUWorkerThread "); // << std::this_thread::get_id() << " : "); //FIXME
+  CUDA::handleCudaStatus(cudaGetLastError(), "Error with initialisation in GPUWorkerThread ");
 
-  DataHandlerState dataHandlerState = modelHandler->next();
-  while(dataHandlerState != DONE){
-    const SNP& snp = modelHandler->getCurrentSNP();
-    const EnvironmentFactor& envFactor = modelHandler->getCurrentEnvironmentFactor();
+  Model::ModelInformation* modelInformation = modelHandler->next();
+  while(modelInformation->getModelState() != DONE){
 
-    if(dataHandlerState == SKIP){
-      resultWriter->writePartialResult(snp, envFactor);
+    if(modelInformation->getModelState() == SKIP){
+      resultWriter->writePartialResult(modelInformation);
     }else{
-      Statistics* statistics = modelHandler->calculateModel();
+      Model::CombinedResults* combinedResults = modelHandler->calculateModel();
 
-      CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in GPUWorkerThread "); // << std::this_thread::get_id() << " : "); //FIXME
+      CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in GPUWorkerThread ");
 
-      resultWriter->writeFullResult(snp, envFactor, *statistics, modelHandler->getSNPVector());
-
-      delete statistics;
+      resultWriter->writeFullResult(modelInformation, combinedResults);
     } //else
 
-    dataHandlerState = modelHandler->next();
+    modelInformation = modelHandler->next();
   }
 
   delete stream;

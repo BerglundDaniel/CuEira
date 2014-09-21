@@ -4,14 +4,15 @@ namespace CuEira {
 
 DataHandler::DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
     const ContingencyTableFactory& contingencyTableFactory,
+    const Model::ModelInformationFactory& modelInformationFactory,
     const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
     Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector) :
     configuration(configuration), currentRecode(ALL_RISK), dataQueue(&dataQueue), statisticModel(
         configuration.getStatisticModel()), bedReader(&bedReader), interactionVector(interactionVector), snpVector(
         nullptr), environmentVector(environmentVector), environmentInformation(&environmentInformation), currentEnvironmentFactorPos(
         environmentInformation.size() - 1), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(
-        &contingencyTableFactory), currentSNP(nullptr), cellCountThreshold(configuration.getCellCountThreshold()), alleleStatistics(
-        nullptr) {
+        &contingencyTableFactory), modelInformationFactory(&modelInformationFactory), currentSNP(nullptr), cellCountThreshold(
+        configuration.getCellCountThreshold()), alleleStatistics(nullptr) {
 
 }
 
@@ -19,7 +20,8 @@ DataHandler::DataHandler(const Configuration& configuration) :
     configuration(configuration), currentRecode(ALL_RISK), dataQueue(nullptr), statisticModel(ADDITIVE), bedReader(
         nullptr), interactionVector(nullptr), snpVector(nullptr), environmentVector(nullptr), environmentInformation(
         nullptr), currentEnvironmentFactorPos(0), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(
-        nullptr), currentSNP(nullptr), alleleStatistics(nullptr), cellCountThreshold(0) {
+        nullptr), currentSNP(nullptr), alleleStatistics(nullptr), cellCountThreshold(0), modelInformationFactory(
+        nullptr) {
 
 }
 
@@ -67,18 +69,35 @@ const AlleleStatistics& DataHandler::getAlleleStatistics() const {
   return *alleleStatistics;
 }
 
-DataHandlerState DataHandler::next() {
+Model::ModelInformation* DataHandler::next() {
   currentRecode = ALL_RISK;
+
+  delete contingencyTable;
+
+  contingencyTable = nullptr;
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    state = INITIALISED;
+  }
+#endif
+
   if(currentEnvironmentFactorPos == environmentInformation->size() - 1){ //Check if we were at the last EnvironmentFactor so should start with next snp
     delete currentSNP;
+    delete snpVector;
+    delete alleleStatistics;
+    currentSNP = nullptr;
+    snpVector = nullptr;
+    alleleStatistics = nullptr;
+
     currentSNP = dataQueue->next();
     if(currentSNP == nullptr){
-      return DONE;
+      return modelInformationFactory->constructModelInformation(DONE);
     }
 
     bool include = readSNP(*currentSNP);
     if(!include){
-      return SKIP;
+      return modelInformationFactory->constructModelInformation(SKIP, *currentSNP, *(*environmentInformation)[0],
+          *alleleStatistics);
     }
     currentEnvironmentFactorPos = 0;
   }else{
@@ -92,34 +111,26 @@ DataHandlerState DataHandler::next() {
     snpVector->recode(ALL_RISK);
   }
 
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    state = INITIALISED;
-  }
-#endif
-
   const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
   environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
   interactionVector->recode(*snpVector);
 
-  delete contingencyTable;
   contingencyTable = contingencyTableFactory->constructContingencyTable(*snpVector, *environmentVector);
 
   setSNPInclude(*currentSNP, *contingencyTable);
   if(!currentSNP->shouldInclude()){
-    return SKIP;
+    return modelInformationFactory->constructModelInformation(SKIP, *currentSNP, *nextEnvironmentFactor,
+        *alleleStatistics, *contingencyTable);
   }
 
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 
-  return CALCULATE;
+  return modelInformationFactory->constructModelInformation(CALCULATE, *currentSNP, *nextEnvironmentFactor,
+      *alleleStatistics, *contingencyTable);
 }
 
 bool DataHandler::readSNP(SNP& nextSnp) {
-  delete snpVector;
-  delete alleleStatistics;
-
   std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = bedReader->readSNP(nextSnp);
   alleleStatistics = pair->first;
   snpVector = pair->second;

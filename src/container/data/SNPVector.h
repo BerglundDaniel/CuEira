@@ -31,7 +31,6 @@ class SNPVectorFactoryTest;
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class SNPVector {
-  friend std::ostream& operator<<(std::ostream& os, const Container::SNPVector& snpVector);
   friend SNPVectorTest;
   friend SNPVectorFactoryTest;
   FRIEND_TEST(SNPVectorTest, DoRecodeDominantAlleleOne);

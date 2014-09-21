@@ -3,10 +3,10 @@
 namespace CuEira {
 namespace Model {
 
-GpuModelHandler::GpuModelHandler(const StatisticsFactory& statisticsFactory, DataHandler* dataHandler,
+GpuModelHandler::GpuModelHandler(const CombinedResultsFactory& combinedResultsFactory, DataHandler* dataHandler,
     LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration,
     LogisticRegression::LogisticRegression* logisticRegression) :
-    ModelHandler(statisticsFactory, dataHandler), logisticRegressionConfiguration(logisticRegressionConfiguration), logisticRegression(
+    ModelHandler(combinedResultsFactory, dataHandler), logisticRegressionConfiguration(logisticRegressionConfiguration), logisticRegression(
         logisticRegression), numberOfRows(logisticRegressionConfiguration.getNumberOfRows()), numberOfPredictors(
         logisticRegressionConfiguration.getNumberOfPredictors()) {
 
@@ -16,7 +16,7 @@ GpuModelHandler::~GpuModelHandler() {
   delete logisticRegression;
 }
 
-Statistics* GpuModelHandler::calculateModel() {
+CombinedResults* GpuModelHandler::calculateModel() {
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
     throw InvalidState("Must run next() on ModelHandler before calculateModel().");
@@ -44,7 +44,7 @@ Statistics* GpuModelHandler::calculateModel() {
     CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
   }
 
-  return statisticsFactory.constructStatistics(logisticRegressionResult);
+  return combinedResultsFactory.constructCombinedResults(logisticRegressionResult, recode);
 }
 
 } /* namespace Model */

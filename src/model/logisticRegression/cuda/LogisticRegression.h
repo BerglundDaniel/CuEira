@@ -16,6 +16,8 @@
 #include <DeviceToHost.h>
 #include <MKLWrapper.h>
 #include <LogisticRegressionResult.h>
+#include <ModelResult.h>
+#include <Model.h>
 
 namespace CuEira {
 namespace Model {
@@ -30,7 +32,7 @@ using namespace CuEira::CUDA;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class LogisticRegression {
+class LogisticRegression: public Model::Model {
   friend LogisticRegressionTest;
   FRIEND_TEST(LogisticRegressionTest, calcuateProbabilites);
   FRIEND_TEST(LogisticRegressionTest, calculateScores);

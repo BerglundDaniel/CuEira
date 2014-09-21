@@ -21,13 +21,14 @@
 #include <EnvironmentFactor.h>
 #include <EnvironmentFactorHandler.h>
 #include <DataQueue.h>
-#include <DataHandlerState.h>
 #include <ContingencyTable.h>
 #include <ContingencyTableFactory.h>
 #include <Configuration.h>
 #include <AlleleStatistics.h>
 #include <EnvironmentVector.h>
 #include <InteractionVector.h>
+#include <ModelInformation.h>
+#include <ModelInformationFactory.h>
 
 namespace CuEira {
 class DataHandlerTest;
@@ -39,11 +40,10 @@ class DataHandlerTest;
  */
 class DataHandler {
   friend DataHandlerTest;
-  FRIEND_TEST(DataHandlerTest, Next);
   FRIEND_TEST(DataHandlerTest, Recode);
 public:
   DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
-      const ContingencyTableFactory& contingencyTableFactory,
+      const ContingencyTableFactory& contingencyTableFactory, const Model::ModelInformationFactory& modelInformationFactory,
       const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
       Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector);
   virtual ~DataHandler();
@@ -53,7 +53,7 @@ public:
   virtual const ContingencyTable& getContingencyTable() const;
   virtual const AlleleStatistics& getAlleleStatistics() const;
 
-  virtual DataHandlerState next();
+  virtual Model::ModelInformation* next();
 
   virtual Recode getRecode() const;
   virtual void recode(Recode recode);
@@ -81,6 +81,7 @@ private:
   const Configuration& configuration;
   State state;
   const ContingencyTableFactory* contingencyTableFactory;
+  const Model::ModelInformationFactory* modelInformationFactory;
   Task::DataQueue* dataQueue;
   const StatisticModel statisticModel;
   FileIO::BedReader* bedReader;

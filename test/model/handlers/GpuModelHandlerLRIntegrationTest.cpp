@@ -76,7 +76,7 @@ TEST_F(GpuModelHandlerLRIntegrationTest, 2Env_2SNP) {
 
   CUDA::HostToDevice hostToDevice(cudaStream);
   CUDA::DeviceToHost deviceToHost(cudaStream);
-  StatisticsFactory StatisticsFactory;
+  InteractionStatisticsFactory StatisticsFactory;
   CUDA::KernelWrapper kernelWrapper(cudaStream, cublasHandle);
 
   Container::PinnedHostVector hostOutcomes(numberOfIndividuals);
@@ -158,7 +158,7 @@ TEST_F(GpuModelHandlerLRIntegrationTest, 2Env_2SNP) {
       logisticRegressionMock);
 
   while(gpuModelHandler.next()){
-    Statistics* statistics = gpuModelHandler.calculateModel();
+    InteractionStatistics* statistics = gpuModelHandler.calculateModel();
     const Container::SNPVector& snpVector = gpuModelHandler.getSNPVector();
     const SNP& snp = gpuModelHandler.getCurrentSNP();
     const EnvironmentFactor& envFactor = gpuModelHandler.getCurrentEnvironmentFactor();

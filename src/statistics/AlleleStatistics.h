@@ -32,6 +32,9 @@ public:
   AlleleStatistics& operator=(const AlleleStatistics&) = delete;
   AlleleStatistics& operator=(AlleleStatistics&&) = delete;
 
+protected:
+  virtual void toOstream(std::ostream& os) const;
+
 private:
   const std::vector<int>* numberOfAlleles;
   const std::vector<double>* alleleFrequencies;

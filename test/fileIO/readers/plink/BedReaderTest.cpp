@@ -617,14 +617,6 @@ TEST_F(BedReaderTest, ReadSnp1) {
  EXPECT_FALSE(snp.getInclude());
  }
 
-
-
-
-
-
-
-
-
  */
 }
 /* namespace FileIO */

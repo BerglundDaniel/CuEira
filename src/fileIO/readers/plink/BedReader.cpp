@@ -259,6 +259,14 @@ void BedReader::setSNPRiskAllele(SNP& snp, const AlleleStatistics& alleleStatist
   //Check which allele is most frequent in cases
   RiskAllele riskAllele;
   /*
+   if((alleleFrequencies[ALLELE_ONE_CASE_POSITION] - alleleFrequencies[ALLELE_ONE_CONTROL_POSITION]) > 0){
+   riskAllele = ALLELE_ONE;
+   }else{
+   riskAllele = ALLELE_TWO;
+   }
+   */
+  /*
+   * old way
    if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] == alleleFrequencies[ALLELE_TWO_CASE_POSITION]){
    if(alleleFrequencies[ALLELE_ONE_CONTROL_POSITION] == alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
    riskAllele = ALLELE_ONE;

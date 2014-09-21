@@ -11,14 +11,11 @@
 #include <HostVector.h>
 #include <PersonHandler.h>
 #include <EnvironmentFactor.h>
-#include <Statistics.h>
 #include <Recode.h>
 #include <DataHandler.h>
 #include <ModelHandler.h>
 #include <EnvironmentVector.h>
 #include <InteractionVector.h>
-#include <StatisticsFactory.h>
-#include <DataHandlerState.h>
 #include <ContingencyTableFactory.h>
 #include <AlleleStatisticsFactory.h>
 #include <DataHandlerFactory.h>
@@ -57,6 +54,7 @@ int main(int argc, char* argv[]) {
   FileIO::DataFilesReaderFactory dataFilesReaderFactory;
   Container::SNPVectorFactory snpVectorFactory(configuration);
   AlleleStatisticsFactory alleleStatisticsFactory;
+  Model::ModelInformationFactory modelInformationFactory;
 
   FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
   FileIO::ResultWriter* resultWriter = new FileIO::ResultWriter(configuration);
@@ -67,16 +65,16 @@ int main(int argc, char* argv[]) {
 
 #ifndef CPU
   int numberOfDevices = -1;
+  cudaGetDeviceCount(&numberOfDevices);
   const int numberOfStreams = configuration.getNumberOfStreams();
   const int numberOfThreads = numberOfDevices * numberOfStreams;
-  cudaGetDeviceCount(&numberOfDevices);
-  CUDA::StreamFactory* streamFactory = new CUDA::StreamFactory();
 
   if(numberOfDevices == 0){
     throw new CudaException("No cuda devices found.");
   }
   std::cerr << "Calculating using " << numberOfDevices << " with " << numberOfStreams << " each." << std::endl;
 
+  CUDA::StreamFactory* streamFactory = new CUDA::StreamFactory();
   std::vector<CUDA::Device*> devices(numberOfDevices);
   std::vector<std::thread*> workers(numberOfThreads);
   std::vector<CUDA::Stream*>* outcomeTransferStreams = new std::vector<CUDA::Stream*>(numberOfDevices);
@@ -106,8 +104,8 @@ int main(int argc, char* argv[]) {
   Task::DataQueue* dataQueue = new Task::DataQueue(snpInformation);
 
   ContingencyTableFactory contingencyTableFactory(outcomes);
-  DataHandlerFactory* dataHandlerFactory = new DataHandlerFactory(configuration, contingencyTableFactory, *bedReader,
-      *environmentFactorHandler, *dataQueue);
+  DataHandlerFactory* dataHandlerFactory = new DataHandlerFactory(configuration, *bedReader, contingencyTableFactory,
+      modelInformationFactory, *environmentFactorHandler, *dataQueue);
 
   Container::HostMatrix* covariates = nullptr;
   std::vector<std::string>* covariatesNames = nullptr;

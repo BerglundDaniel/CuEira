@@ -3,7 +3,7 @@
 
 #include <ModelHandler.h>
 #include <DataHandler.h>
-#include <Statistics.h>
+#include <InteractionStatistics.h>
 #include <Recode.h>
 #include <HostMatrix.h>
 #include <HostVector.h>
@@ -14,7 +14,11 @@
 #include <PinnedHostVector.h>
 #include <InvalidState.h>
 #include <LogisticRegressionResult.h>
-#include <StatisticsFactory.h>
+#include <CombinedResultsFactory.h>
+#include <CombinedResults.h>
+#include <ModelResult.h>
+#include <ModelInformation.h>
+#include <Model.h>
 
 namespace CuEira {
 namespace Model {
@@ -26,12 +30,12 @@ namespace Model {
  */
 class GpuModelHandler: public ModelHandler {
 public:
-  GpuModelHandler(const StatisticsFactory& statisticsFactory, DataHandler* dataHandler,
+  GpuModelHandler(const CombinedResultsFactory& combinedResultsFactory, DataHandler* dataHandler,
       LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration,
       LogisticRegression::LogisticRegression* logisticRegression);
   virtual ~GpuModelHandler();
 
-  virtual Statistics* calculateModel();
+  virtual CombinedResults* calculateModel();
 
 protected:
   LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration;

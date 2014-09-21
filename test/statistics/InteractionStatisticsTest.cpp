@@ -4,7 +4,7 @@
 #include <sstream>
 #include <math.h>
 
-#include <Statistics.h>
+#include <InteractionStatistics.h>
 #include <HostVector.h>
 #include <HostMatrix.h>
 #include <LogisticRegressionResultMock.h>
@@ -31,10 +31,10 @@ namespace CuEira_Test {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class StatisticsTest: public ::testing::Test {
+class InteractionStatisticsTest: public ::testing::Test {
 protected:
-  StatisticsTest();
-  virtual ~StatisticsTest();
+  InteractionStatisticsTest();
+  virtual ~InteractionStatisticsTest();
   virtual void SetUp();
   virtual void TearDown();
 
@@ -50,7 +50,7 @@ protected:
 
 };
 
-StatisticsTest::StatisticsTest() :
+InteractionStatisticsTest::InteractionStatisticsTest() :
     numberOfPredictors(4), logisticRegressionResultMock(nullptr), oddsRatios(numberOfPredictors), oddsRatiosLow(
         numberOfPredictors), oddsRatiosHigh(numberOfPredictors),
 #ifdef CPU
@@ -78,13 +78,13 @@ StatisticsTest::StatisticsTest() :
   }
 }
 
-StatisticsTest::~StatisticsTest() {
+InteractionStatisticsTest::~InteractionStatisticsTest() {
   //Don't need to LogisticRegressionResult since Statistics class will do that.
   delete inverseInfoMat;
   delete beta;
 }
 
-void StatisticsTest::SetUp() {
+void InteractionStatisticsTest::SetUp() {
   logisticRegressionResultMock = new Model::LogisticRegression::LogisticRegressionResultMock();
 
   EXPECT_CALL(*logisticRegressionResultMock, getBeta()).Times(1).WillRepeatedly(ReturnRef(*beta));
@@ -92,12 +92,12 @@ void StatisticsTest::SetUp() {
       ReturnRef(*inverseInfoMat));
 }
 
-void StatisticsTest::TearDown() {
+void InteractionStatisticsTest::TearDown() {
 
 }
 
-TEST_F(StatisticsTest, Reri) {
-  Statistics statistics(logisticRegressionResultMock);
+TEST_F(InteractionStatisticsTest, Reri) {
+  InteractionStatistics statistics(logisticRegressionResultMock);
   double e = 1e-5;
 
   double reri = oddsRatios[2] - oddsRatios[1] - oddsRatios[0] + 1;
@@ -109,8 +109,8 @@ TEST_F(StatisticsTest, Reri) {
   EXPECT_THAT(statReri, Le(h));
 }
 
-TEST_F(StatisticsTest, Ap) {
-  Statistics statistics(logisticRegressionResultMock);
+TEST_F(InteractionStatisticsTest, Ap) {
+  InteractionStatistics statistics(logisticRegressionResultMock);
   double e = 1e-5;
 
   double reri = statistics.getReri();
@@ -124,8 +124,8 @@ TEST_F(StatisticsTest, Ap) {
   EXPECT_THAT(statAp, Le(h));
 }
 
-TEST_F(StatisticsTest, OddsRatios) {
-  Statistics statistics(logisticRegressionResultMock);
+TEST_F(InteractionStatisticsTest, OddsRatios) {
+  InteractionStatistics statistics(logisticRegressionResultMock);
 
   std::vector<double> oddsRatiosStat = statistics.getOddsRatios();
 
@@ -139,8 +139,8 @@ TEST_F(StatisticsTest, OddsRatios) {
   }
 }
 
-TEST_F(StatisticsTest, OddsRatiosLowAndHigh) {
-  Statistics statistics(logisticRegressionResultMock);
+TEST_F(InteractionStatisticsTest, OddsRatiosLowAndHigh) {
+  InteractionStatistics statistics(logisticRegressionResultMock);
 
   std::vector<double> oddsRatiosLowStat = statistics.getOddsRatiosLow();
   std::vector<double> oddsRatiosHighStat = statistics.getOddsRatiosHigh();

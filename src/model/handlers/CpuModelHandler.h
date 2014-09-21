@@ -3,7 +3,7 @@
 
 #include <ModelHandler.h>
 #include <DataHandler.h>
-#include <Statistics.h>
+#include <InteractionStatistics.h>
 #include <Recode.h>
 #include <HostMatrix.h>
 #include <HostVector.h>
@@ -25,7 +25,7 @@ public:
   CpuModelHandler(DataHandler* dataHandler, Container::HostMatrix* covariates);
   virtual ~CpuModelHandler();
 
-  virtual Statistics* calculateModel();
+  virtual InteractionStatistics* calculateModel();
 
 protected:
   Container::HostMatrix* covariates;

@@ -13,7 +13,7 @@ CombinedResults::~CombinedResults() {
 }
 
 void CombinedResults::toOstream(std::ostream& os) const {
-  os << interactionStatistics << "," << recode;
+  os << *interactionStatistics << "," << recode;
 }
 
 std::ostream & operator<<(std::ostream& os, const CombinedResults& combinedResults) {

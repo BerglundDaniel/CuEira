@@ -19,15 +19,15 @@ set(CUEIRA_GPU_NVCC_LIB CuEira_NVCC_GPU)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(Boost_USE_STATIC_LIBS off) 
 set(Boost_USE_MULTITHREADED off)
-set(MKL_MULTI_THREADED on) #FIXME this is not used
 
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" on) #FIXME Change to off later
 set(PRECISION single) #single or double
 #set(TARGET_ARCHITECTURE fermi) #fermi or kepler
 option(CPU "Use CPU only" off)
-option(CLUSTER "Use cluster" off) #FIXME not implemented
+option(CLUSTER "Use cluster" off) #TODO not implemented
 option(ENABLE_MKL "Enable MKL flag" on)
+option(PROFILE "Profile" on)
 
 #Set things based on options
 if(${VERBOSE})
@@ -39,6 +39,10 @@ if(${CPU})
   set (PRECISION double)
   add_definitions(-DCPU=1)
 endif(${CPU})
+  
+if(PROFILE)
+  add_definitions(-DPROFILE=1)
+endif()
 
 if(${CLUSTER})
   add_definitions(-DCLUSTER=1)

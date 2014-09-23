@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <vector>
 #include <thread>
+#include <boost/chrono/chrono_io.hpp>
 
 #include <Configuration.h>
 #include <DataFilesReaderFactory.h>
@@ -49,6 +50,7 @@ int main(int argc, char* argv[]) {
 #ifdef DEBUG
   std::cerr << "WARNING CuEira was compiled in debug mode, this can affect performance." << std::endl;
 #endif
+  boost::chrono::system_clock::time_point startPoint = boost::chrono::steady_clock::now();
 
   Configuration configuration(argc, argv);
   FileIO::DataFilesReaderFactory dataFilesReaderFactory;
@@ -118,6 +120,10 @@ int main(int argc, char* argv[]) {
 
   }
 
+#ifdef PROFILE
+  std::cerr << "Time for initialisation: " << "" << " unit here" << std::endl;
+#endif
+
 #ifdef CPU
   //TODO
   //Model::ModelHandler* modelHandler = new Model::CpuModelHandler();
@@ -154,6 +160,10 @@ int main(int argc, char* argv[]) {
 
 #endif
 
+#ifdef PROFILE
+  std::cerr << "Time for calculations: " << "" << " unit here" << std::endl;
+#endif
+
 #ifndef CPU
   delete streamFactory;
 #endif
@@ -168,6 +178,13 @@ int main(int argc, char* argv[]) {
   delete covariatesNames;
   delete dataHandlerFactory;
 
-  std::cerr << "Done" << std::endl;
+#ifdef PROFILE
+  std::cerr << "Time for cleanup: " << "" << " unit here" << std::endl;
+#endif
+
+  boost::chrono::duration<double> sec = boost::chrono::system_clock::now() - start;
+  std::cout << "f() took " << sec.count() << " seconds" << std::endl;
+
+  std::cerr << "Complete, time elapsed is " << "" << " unit here." << std::endl;
 
 }

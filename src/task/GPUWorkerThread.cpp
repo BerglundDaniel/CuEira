@@ -5,7 +5,9 @@ namespace CUDA {
 
 void GPUWorkerThread(const Configuration* configuration, const Device* device,
     const DataHandlerFactory* dataHandlerFactory, FileIO::ResultWriter* resultWriter) {
-
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point startPoint = boost::chrono::system_clock::now();
+#endif
   DataHandler* dataHandler = dataHandlerFactory->constructDataHandler();
   device->setActiveDevice();
   CUDA::handleCudaStatus(cudaGetLastError(), "Error before initialisation in GPUWorkerThread ");
@@ -56,6 +58,12 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
   delete kernelWrapper;
   delete modelHandler;
 
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point stopPoint = boost::chrono::system_clock::now();
+  boost::chrono::duration<double> diffThreadSec = stopPoint - startPoint;
+
+  std::cerr << "Time for thread " << std::this_thread::get_id() << ": " << diffThreadSec << std::endl;
+#endif
 }
 
 } /* namespace CUDA */

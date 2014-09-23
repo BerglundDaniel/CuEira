@@ -60,8 +60,17 @@ int main(int argc, char* argv[]) {
 
   FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configuration);
   FileIO::ResultWriter* resultWriter = new FileIO::ResultWriter(configuration);
-
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforePersonHandlerPoint = boost::chrono::system_clock::now();
+#endif
   PersonHandler* personHandler = dataFilesReader->readPersonInformation();
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterPersonHandlerPoint = boost::chrono::system_clock::now();
+  boost::chrono::duration<double> diffPersonHandlerSec = afterPersonHandlerPoint - beforePersonHandlerPoint;
+
+  std::cerr << "Time for reading personal data: " << diffPersonHandlerSec << std::endl;
+#endif
+
   const int numberOfIndividualsToInclude = personHandler->getNumberOfIndividualsToInclude();
   const Container::HostVector& outcomes = personHandler->getOutcomes();
 
@@ -95,9 +104,24 @@ int main(int argc, char* argv[]) {
   }
 #endif
 
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeEnvFactorPoint = boost::chrono::system_clock::now();
+#endif
   EnvironmentFactorHandler* environmentFactorHandler = dataFilesReader->readEnvironmentFactorInformation(
       *personHandler);
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterEnvFactorPoint = boost::chrono::system_clock::now();
+  boost::chrono::duration<double> diffEnvSec = afterEnvFactorPoint - beforeEnvFactorPoint;
+
+  std::cerr << "Time for reading environment information: " << diffEnvSec << std::endl;
+#endif
   std::vector<SNP*>* snpInformation = dataFilesReader->readSNPInformation();
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterSNPPoint = boost::chrono::system_clock::now();
+  boost::chrono::duration<double> diffSnpSec = afterSNPPoint - afterEnvFactorPoint;
+
+  std::cerr << "Time for reading snp information: " << diffSnpSec << std::endl;
+#endif
 
   const int numberOfSNPs = snpInformation->size();
 
@@ -112,8 +136,17 @@ int main(int argc, char* argv[]) {
   Container::HostMatrix* covariates = nullptr;
   std::vector<std::string>* covariatesNames = nullptr;
   if(configuration.covariateFileSpecified()){
+#ifdef PROFILE
+    boost::chrono::system_clock::time_point beforeCovPoint = boost::chrono::system_clock::now();
+#endif
     std::pair<Container::HostMatrix*, std::vector<std::string>*>* covPair = dataFilesReader->readCovariates(
         *personHandler);
+#ifdef PROFILE
+    boost::chrono::system_clock::time_point afterCovPoint = boost::chrono::system_clock::now();
+    boost::chrono::duration<double> diffCovSec = afterCovPoint - beforeCovPoint;
+
+    std::cerr << "Time for reading covariates: " << diffCovSec << std::endl;
+#endif
     covariates = covPair->first;
     covariatesNames = covPair->second;
     delete covPair;

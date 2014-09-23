@@ -26,6 +26,9 @@
 #include <ModelInformation.h>
 #include <CombinedResults.h>
 #include <CombinedResultsFactory.h>
+#ifdef PROFILE
+#include <boost/chrono/chrono_io.hpp>
+#endif
 
 namespace CuEira {
 namespace CUDA {

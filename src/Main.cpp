@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
   boost::chrono::system_clock::time_point afterInitPoint = boost::chrono::system_clock::now();
   boost::chrono::duration<double> diffInitSec = afterInitPoint - startPoint;
 
-  std::cerr << "Time for initialisation: " << diffInitSec.count() << " seconds" << std::endl;
+  std::cerr << "Time for initialisation: " << diffInitSec << std::endl;
 #endif
 
 #ifdef CPU
@@ -167,7 +167,7 @@ int main(int argc, char* argv[]) {
   boost::chrono::system_clock::time_point afterCalcPoint = boost::chrono::system_clock::now();
   boost::chrono::duration<double> diffCalcSec = afterCalcPoint - afterInitPoint;
 
-  std::cerr << "Time for calculations: " << diffCalcSec.count() << " seconds" << std::endl;
+  std::cerr << "Time for calculations: " << diffCalcSec << std::endl;
 #endif
 
 #ifndef CPU
@@ -188,10 +188,10 @@ int main(int argc, char* argv[]) {
 
 #ifdef PROFILE
   boost::chrono::duration<double> diffCleanupSec = endPoint - afterCalcPoint;
-  std::cerr << "Time for cleanup: " << diffCleanupSec.count() << " seconds" << std::endl;
+  std::cerr << "Time for cleanup: " << diffCleanupSec  << std::endl;
 #endif
 
   boost::chrono::duration<double> diffSec = endPoint - startPoint;
-  std::cerr << "Complete, time elapsed is " << diffSec.count() << " unit here." << std::endl;
+  std::cerr << "Complete, time elapsed is " << diffSec << std::endl;
 
 }

@@ -46,7 +46,7 @@ private:
   std::string outputFileName;
   std::mutex fileLock;
 #ifdef PROFILE
-  boost::chrono::duration<double> timeWaitTotalLock;
+  boost::chrono::duration<long long, boost::nano> timeWaitTotalLock;
 #endif
 };
 

@@ -13,7 +13,7 @@ ResultWriter::~ResultWriter() {
   closeFile();
 
 #ifdef PROFILE
-  std::cerr << "Time spent waiting at locks: " << timeWaitTotalLock << " seconds" << std::endl;
+  std::cerr << "ResultWriter, time spent waiting at locks: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeWaitTotalLock)<< std::endl;
 #endif
 }
 

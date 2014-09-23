@@ -11,6 +11,10 @@
 #include <SNP.h>
 #include <InvalidState.h>
 
+#ifdef PROFILE
+#include <boost/chrono/chrono_io.hpp>
+#endif
+
 namespace CuEira {
 namespace Task {
 
@@ -34,6 +38,10 @@ public:
 private:
   std::vector<SNP*>* snpQueue;
   std::mutex mutex;
+
+#ifdef PROFILE
+  boost::chrono::duration<long long, boost::nano> timeWaitTotalLock;
+#endif
 };
 
 } /* namespace Task */

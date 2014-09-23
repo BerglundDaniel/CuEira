@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 #ifdef DEBUG
   std::cerr << "WARNING CuEira was compiled in debug mode, this can affect performance." << std::endl;
 #endif
-  boost::chrono::system_clock::time_point startPoint = boost::chrono::steady_clock::now();
+  boost::chrono::system_clock::time_point startPoint = boost::chrono::system_clock::now();
 
   Configuration configuration(argc, argv);
   FileIO::DataFilesReaderFactory dataFilesReaderFactory;
@@ -121,7 +121,10 @@ int main(int argc, char* argv[]) {
   }
 
 #ifdef PROFILE
-  std::cerr << "Time for initialisation: " << "" << " unit here" << std::endl;
+  boost::chrono::system_clock::time_point afterInitPoint = boost::chrono::system_clock::now();
+  boost::chrono::duration<double> diffInitSec = afterInitPoint - startPoint;
+
+  std::cerr << "Time for initialisation: " << diffInitSec.count() << " seconds" << std::endl;
 #endif
 
 #ifdef CPU
@@ -161,7 +164,10 @@ int main(int argc, char* argv[]) {
 #endif
 
 #ifdef PROFILE
-  std::cerr << "Time for calculations: " << "" << " unit here" << std::endl;
+  boost::chrono::system_clock::time_point afterCalcPoint = boost::chrono::system_clock::now();
+  boost::chrono::duration<double> diffCalcSec = afterCalcPoint - afterInitPoint;
+
+  std::cerr << "Time for calculations: " << diffCalcSec.count() << " seconds" << std::endl;
 #endif
 
 #ifndef CPU
@@ -178,13 +184,14 @@ int main(int argc, char* argv[]) {
   delete covariatesNames;
   delete dataHandlerFactory;
 
+  boost::chrono::system_clock::time_point endPoint = boost::chrono::system_clock::now();
+
 #ifdef PROFILE
-  std::cerr << "Time for cleanup: " << "" << " unit here" << std::endl;
+  boost::chrono::duration<double> diffCleanupSec = endPoint - afterCalcPoint;
+  std::cerr << "Time for cleanup: " << diffCleanupSec.count() << " seconds" << std::endl;
 #endif
 
-  boost::chrono::duration<double> sec = boost::chrono::system_clock::now() - start;
-  std::cout << "f() took " << sec.count() << " seconds" << std::endl;
-
-  std::cerr << "Complete, time elapsed is " << "" << " unit here." << std::endl;
+  boost::chrono::duration<double> diffSec = endPoint - startPoint;
+  std::cerr << "Complete, time elapsed is " << diffSec.count() << " unit here." << std::endl;
 
 }

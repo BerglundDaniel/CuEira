@@ -11,6 +11,10 @@
 #include <ModelInformation.h>
 #include <CombinedResults.h>
 
+#ifdef PROFILE
+#include <boost/chrono/chrono_io.hpp>
+#endif
+
 namespace CuEira {
 namespace FileIO {
 
@@ -41,6 +45,9 @@ private:
   std::ofstream outputStream;
   std::string outputFileName;
   std::mutex fileLock;
+#ifdef PROFILE
+  boost::chrono::duration<double> timeWaitTotalLock;
+#endif
 };
 
 } /* namespace FileIO */

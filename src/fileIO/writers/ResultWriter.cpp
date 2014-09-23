@@ -11,11 +11,22 @@ ResultWriter::ResultWriter(const Configuration& configuration) :
 
 ResultWriter::~ResultWriter() {
   closeFile();
+
+#ifdef PROFILE
+  std::cerr << "Time spent waiting at locks: " << timeWaitTotalLock << " seconds" << std::endl;
+#endif
 }
 
 void ResultWriter::writeFullResult(const Model::ModelInformation* modelInformation,
     const Model::CombinedResults* combinedResults) {
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeLock = boost::chrono::system_clock::now();
+#endif
   fileLock.lock();
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterLock = boost::chrono::system_clock::now();
+  timeWaitTotalLock+=afterLock - beforeLock;
+#endif
   outputStream << *modelInformation << "," << *combinedResults << std::endl;
   fileLock.unlock();
 
@@ -24,7 +35,14 @@ void ResultWriter::writeFullResult(const Model::ModelInformation* modelInformati
 }
 
 void ResultWriter::writePartialResult(const Model::ModelInformation* modelInformation) {
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeLock = boost::chrono::system_clock::now();
+#endif
   fileLock.lock();
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterLock = boost::chrono::system_clock::now();
+  timeWaitTotalLock+=afterLock - beforeLock;
+#endif
   outputStream << *modelInformation << std::endl;
   fileLock.unlock();
 

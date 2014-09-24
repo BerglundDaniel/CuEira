@@ -16,7 +16,7 @@
 #include <LogisticRegression.h>
 #include <GpuModelHandler.h>
 #include <SNP.h>
-#include <ModelState.h>
+#include <DataHandlerState.h>
 #include <HostToDevice.h>
 #include <DeviceToHost.h>
 #include <InteractionStatistics.h>

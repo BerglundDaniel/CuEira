@@ -44,7 +44,7 @@ void ResultWriterTest::TearDown() {
 
 }
 
-TEST_F(ResultWriterTest, ReadSNPInfo) {
+TEST_F(ResultWriterTest, Write) {
 
 }
 

@@ -24,6 +24,7 @@
 #include <ContingencyTable.h>
 #include <ContingencyTableFactory.h>
 #include <Configuration.h>
+#include <DataHandlerState.h>
 #include <AlleleStatistics.h>
 #include <EnvironmentVector.h>
 #include <InteractionVector.h>
@@ -48,15 +49,15 @@ public:
       Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector);
   virtual ~DataHandler();
 
-  virtual const SNP& getCurrentSNP() const;
-  virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
-  virtual const ContingencyTable& getContingencyTable() const;
-  virtual const AlleleStatistics& getAlleleStatistics() const;
-
-  virtual Model::ModelInformation* next();
+  virtual DataHandlerState next();
 
   virtual Recode getRecode() const;
   virtual void recode(Recode recode);
+
+  virtual const Model::ModelInformation& getCurrentModelInformation() const;
+
+  virtual const SNP& getCurrentSNP() const;
+  virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
   virtual const Container::SNPVector& getSNPVector() const;
   virtual const Container::InteractionVector& getInteractionVector() const;
@@ -89,11 +90,13 @@ private:
   Container::EnvironmentVector* environmentVector;
   Container::SNPVector* snpVector;
   Container::InteractionVector* interactionVector;
+  const Model::ModelInformation* modelInformation;
   const ContingencyTable* contingencyTable;
   const AlleleStatistics* alleleStatistics;
   Recode currentRecode;
   int currentEnvironmentFactorPos;
   SNP* currentSNP;
+  const EnvironmentFactor* currentEnvironmentFactor;
   const int cellCountThreshold;
 };
 

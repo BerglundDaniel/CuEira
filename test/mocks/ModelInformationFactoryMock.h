@@ -24,9 +24,8 @@ public:
 
   }
 
-  MOCK_CONST_METHOD1(constructModelInformation, ModelInformation*(ModelState));
-  MOCK_CONST_METHOD4(constructModelInformation, ModelInformation*(ModelState, const SNP&, const EnvironmentFactor&, const AlleleStatistics&));
-  MOCK_CONST_METHOD5(constructModelInformation, ModelInformation*(ModelState, const SNP&, const EnvironmentFactor&, const AlleleStatistics&, const ContingencyTable&));
+  MOCK_CONST_METHOD3(constructModelInformation, ModelInformation*(const SNP&, const EnvironmentFactor&, const AlleleStatistics&));
+  MOCK_CONST_METHOD4(constructModelInformation, ModelInformation*(const SNP&, const EnvironmentFactor&, const AlleleStatistics&, const ContingencyTable&));
 };
 
 } /* namespace Model */

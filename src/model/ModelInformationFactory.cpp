@@ -11,27 +11,15 @@ ModelInformationFactory::~ModelInformationFactory() {
 
 }
 
-ModelInformation* ModelInformationFactory::constructModelInformation(ModelState modelState) const {
-  return new ModelInformation(modelState, "");
-}
-
-ModelInformation* ModelInformationFactory::constructModelInformation(ModelState modelState, const SNP& snp,
+ModelInformation* ModelInformationFactory::constructModelInformation(const SNP& snp,
     const EnvironmentFactor& environmentFactor, const AlleleStatistics& alleleStatistics) const {
-
-  std::ostringstream informationStream;
-  informationStream << snp << "," << environmentFactor << "," << alleleStatistics;
-
-  return new ModelInformation(modelState, informationStream.str());
+  return new ModelInformation(snp, environmentFactor, alleleStatistics);
 }
 
-ModelInformation* ModelInformationFactory::constructModelInformation(ModelState modelState, const SNP& snp,
+ModelInformation* ModelInformationFactory::constructModelInformation(const SNP& snp,
     const EnvironmentFactor& environmentFactor, const AlleleStatistics& alleleStatistics,
     const ContingencyTable& contingencyTable) const {
-
-  std::ostringstream informationStream;
-  informationStream << snp << "," << environmentFactor << "," << alleleStatistics << "," << contingencyTable;
-
-  return new ModelInformation(modelState, informationStream.str());
+  return new ModelInformationWithTable(snp, environmentFactor, alleleStatistics, contingencyTable);
 }
 
 } /* namespace Model */

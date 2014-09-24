@@ -38,20 +38,22 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
       *logisticRegressionConfiguration, logisticRegression);
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with initialisation in GPUWorkerThread ");
 
-  Model::ModelInformation* modelInformation = modelHandler->next();
-  while(modelInformation->getModelState() != DONE){
+  DataHandlerState dataHandlerState = modelHandler->next();
+  while(dataHandlerState != DONE){
 
-    if(modelInformation->getModelState() == SKIP){
+    if(dataHandlerState == SKIP){
+      const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation();
       resultWriter->writePartialResult(modelInformation);
     }else{
       Model::CombinedResults* combinedResults = modelHandler->calculateModel();
+      const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation();
 
       CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in GPUWorkerThread ");
 
       resultWriter->writeFullResult(modelInformation, combinedResults);
     } //else
 
-    modelInformation = modelHandler->next();
+    dataHandlerState = modelHandler->next();
   }
 
   delete stream;

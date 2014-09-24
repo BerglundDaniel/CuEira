@@ -38,6 +38,10 @@ PersonHandler* FamReader::readPersonInformation() const {
     throw FileReaderException(tmp.c_str());
   }
 
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeReadFilePoint = boost::chrono::system_clock::now();
+#endif
+
   //Read file
   while(std::getline(famFile, line)){
     std::vector<std::string> lineSplit;
@@ -55,7 +59,19 @@ PersonHandler* FamReader::readPersonInformation() const {
 
   famFile.close();
 
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeOutcomesPoint = boost::chrono::system_clock::now();
+  boost::chrono::duration<double> diffReadFileSec = beforeOutcomesPoint - beforeReadFilePoint;
+
+  std::cerr << "Time for FamReader to read file: " << diffReadFileSec << std::endl;
+#endif
   personHandler->createOutcomes();
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterOutcomesPoint = boost::chrono::system_clock::now();
+  boost::chrono::duration<double> diffOutcomesSec = afterOutcomesPoint - beforeOutcomesPoint;
+
+  std::cerr << "Time for FamReader to create outcomes: " << diffOutcomesSec << std::endl;
+#endif
 
   return personHandler;
 }

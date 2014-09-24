@@ -17,7 +17,7 @@ ResultWriter::~ResultWriter() {
 #endif
 }
 
-void ResultWriter::writeFullResult(const Model::ModelInformation* modelInformation,
+void ResultWriter::writeFullResult(const Model::ModelInformation& modelInformation,
     const Model::CombinedResults* combinedResults) {
 #ifdef PROFILE
   boost::chrono::system_clock::time_point beforeLock = boost::chrono::system_clock::now();
@@ -27,14 +27,13 @@ void ResultWriter::writeFullResult(const Model::ModelInformation* modelInformati
   boost::chrono::system_clock::time_point afterLock = boost::chrono::system_clock::now();
   timeWaitTotalLock+=afterLock - beforeLock;
 #endif
-  outputStream << *modelInformation << "," << *combinedResults << std::endl;
+  outputStream << modelInformation << "," << *combinedResults << std::endl;
   fileLock.unlock();
 
-  delete modelInformation;
   delete combinedResults;
 }
 
-void ResultWriter::writePartialResult(const Model::ModelInformation* modelInformation) {
+void ResultWriter::writePartialResult(const Model::ModelInformation& modelInformation) {
 #ifdef PROFILE
   boost::chrono::system_clock::time_point beforeLock = boost::chrono::system_clock::now();
 #endif
@@ -43,10 +42,8 @@ void ResultWriter::writePartialResult(const Model::ModelInformation* modelInform
   boost::chrono::system_clock::time_point afterLock = boost::chrono::system_clock::now();
   timeWaitTotalLock+=afterLock - beforeLock;
 #endif
-  outputStream << *modelInformation << std::endl;
+  outputStream << modelInformation << std::endl;
   fileLock.unlock();
-
-  delete modelInformation;
 }
 
 void ResultWriter::printHeader() {

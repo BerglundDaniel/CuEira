@@ -3,8 +3,9 @@
 namespace CuEira {
 namespace Model {
 
-ModelInformation::ModelInformation(ModelState modelState, std::string information) :
-    modelState(modelState), information(information) {
+ModelInformation::ModelInformation(const SNP& snp, const EnvironmentFactor& environmentFactor,
+    const AlleleStatistics& alleleStatistics) :
+    snp(&snp), environmentFactor(&environmentFactor), alleleStatistics(&alleleStatistics) {
 
 }
 
@@ -12,12 +13,13 @@ ModelInformation::~ModelInformation() {
 
 }
 
-ModelState ModelInformation::getModelState() const {
-  return modelState;
+ModelInformation::ModelInformation() :
+    snp(nullptr), environmentFactor(nullptr), alleleStatistics(nullptr) {
+
 }
 
 void ModelInformation::toOstream(std::ostream& os) const {
-  os << information;
+  os << *snp << "," << *environmentFactor << "," << *alleleStatistics;
 }
 
 std::ostream & operator<<(std::ostream& os, const ModelInformation& modelInformation) {

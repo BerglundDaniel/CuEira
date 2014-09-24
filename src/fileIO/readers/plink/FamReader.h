@@ -18,6 +18,10 @@
 #include <Configuration.h>
 #include <FileReaderException.h>
 
+#ifdef PROFILE
+#include <boost/chrono/chrono_io.hpp>
+#endif
+
 namespace CuEira {
 namespace FileIO {
 class FamReaderTest;

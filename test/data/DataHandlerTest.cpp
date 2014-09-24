@@ -29,11 +29,12 @@
 #include <ConfigurationMock.h>
 #include <ContingencyTableMock.h>
 #include <ContingencyTableFactoryMock.h>
-#include <ModelState.h>
+#include <DataHandlerState.h>
 #include <AlleleStatisticsMock.h>
 #include <ModelInformation.h>
 #include <ModelInformationMock.h>
 #include <ModelInformationFactoryMock.h>
+#include <DataHandlerState.h>
 
 #ifdef CPU
 #include <lapackpp/lavd.h>
@@ -86,30 +87,14 @@ protected:
 DataHandlerTest::DataHandlerTest() :
     numberOfSNPs(2), numberOfEnvironmentFactors(3), numberOfIndividuals(5), constructorHelpers(), bedReaderMock(
         constructorHelpers.constructBedReaderMock()), snpQueue(nullptr), dataQueue(nullptr), environmentInformation(
-        new std::vector<const EnvironmentFactor*>(numberOfEnvironmentFactors)), environmentStore(
-        new std::vector<EnvironmentFactor*>(numberOfEnvironmentFactors)), snpStore(nullptr), environmentVectorMock(
-        nullptr), interactionVectorMock(nullptr), configurationMock(new ConfigurationMock()), contingencyTableFactoryMock(
+        nullptr), environmentStore(nullptr), snpStore(nullptr), environmentVectorMock(nullptr), interactionVectorMock(
+        nullptr), configurationMock(new ConfigurationMock()), contingencyTableFactoryMock(
         constructorHelpers.constructContingencyTableFactoryMock()), modelInformationFactoryMock(
         new Model::ModelInformationFactoryMock) {
-
-  for(int i = 0; i < numberOfEnvironmentFactors; ++i){
-    std::ostringstream os;
-    os << "env" << i;
-    Id id(os.str());
-    EnvironmentFactor* env = new EnvironmentFactor(id);
-    (*environmentInformation)[i] = env;
-    (*environmentStore)[i] = env;
-  }
 
 }
 
 DataHandlerTest::~DataHandlerTest() {
-  for(int i = 0; i < numberOfEnvironmentFactors; ++i){
-    delete (*environmentStore)[i];
-  }
-
-  delete environmentInformation;
-  delete environmentStore;
   delete bedReaderMock;
   delete configurationMock;
   delete contingencyTableFactoryMock;
@@ -120,6 +105,18 @@ void DataHandlerTest::SetUp() {
   environmentVectorMock = constructorHelpers.constructEnvironmentVectorMock();
 
   interactionVectorMock = new Container::InteractionVectorMock();
+
+  environmentInformation = new std::vector<const EnvironmentFactor*>(numberOfEnvironmentFactors);
+  environmentStore = new std::vector<EnvironmentFactor*>(numberOfEnvironmentFactors);
+
+  for(int i = 0; i < numberOfEnvironmentFactors; ++i){
+    std::ostringstream os;
+    os << "env" << i;
+    Id id(os.str());
+    EnvironmentFactor* env = new EnvironmentFactor(id);
+    (*environmentInformation)[i] = env;
+    (*environmentStore)[i] = env;
+  }
 
   snpQueue = new std::vector<SNP*>(numberOfSNPs);
   snpStore = new std::vector<SNP*>(numberOfSNPs);
@@ -144,8 +141,14 @@ void DataHandlerTest::TearDown() {
     snp = dataQueue->next();
   }
 
+  for(int i = 0; i < numberOfEnvironmentFactors; ++i){
+    delete (*environmentStore)[i];
+  }
+
   delete snpStore;
   delete dataQueue;
+  delete environmentInformation;
+  delete environmentStore;
 }
 
 #ifdef DEBUG
@@ -244,10 +247,10 @@ TEST_F(DataHandlerTest, Next) {
     Model::ModelInformationMock* modelInformationMock = modelInformationVector[i];
 
     if(i < numberOfEnvironmentFactors){
-      EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(CALCULATE,Eq(ByRef(*(*snpStore)[0])),Eq(ByRef(*(*environmentStore)[i])),_,_)).Times(
+      EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(Eq(ByRef(*(*snpStore)[0])),Eq(ByRef(*(*environmentStore)[i])),_,_)).Times(
           1).InSequence(modelInformationSequence).WillOnce(Return(modelInformationMock));
     }else{
-      EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(CALCULATE,Eq(ByRef(*(*snpStore)[1])),Eq(ByRef(*(*environmentStore)[i-numberOfEnvironmentFactors])),_,_)).Times(
+      EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(Eq(ByRef(*(*snpStore)[1])),Eq(ByRef(*(*environmentStore)[i-numberOfEnvironmentFactors])),_,_)).Times(
           1).InSequence(modelInformationSequence).WillOnce(Return(modelInformationMock));
     }
   }
@@ -257,52 +260,54 @@ TEST_F(DataHandlerTest, Next) {
   EXPECT_CALL(*bedReaderMock, readSNP(Eq(ByRef(*(*snpStore)[1])))).Times(1).InSequence(readSequence).WillOnce(
       Return(pair2));
 
-  Model::ModelInformation* modelInformation = dataHandler.next();
-  EXPECT_EQ(modelInformationVector[0], modelInformation);
-  delete modelInformation;
+  DataHandlerState state = dataHandler.next();
+  const Model::ModelInformation& modelInformation = dataHandler.getCurrentModelInformation();
+  EXPECT_EQ(CALCULATE, state);
+  EXPECT_EQ(modelInformationVector[0], &modelInformation);
 
   EXPECT_EQ(*(*environmentInformation)[0], dataHandler.getCurrentEnvironmentFactor());
   EXPECT_EQ(*(*snpStore)[0], dataHandler.getCurrentSNP());
   EXPECT_EQ(ALL_RISK, dataHandler.getRecode());
 
   for(int i = 1; i < numberOfEnvironmentFactors; ++i){
-    modelInformation = dataHandler.next();
-    EXPECT_EQ(*(*environmentInformation)[i], dataHandler.getCurrentEnvironmentFactor());
-    EXPECT_EQ(modelInformationVector[i], modelInformation);
+    state = dataHandler.next();
+    const Model::ModelInformation& modelInformation2 = dataHandler.getCurrentModelInformation();
 
-    delete modelInformation;
+    EXPECT_EQ(CALCULATE, state);
+    EXPECT_EQ(*(*environmentInformation)[i], dataHandler.getCurrentEnvironmentFactor());
+    EXPECT_EQ(modelInformationVector[i], &modelInformation2);
   }
 
   //Next snp
   for(int i = 0; i < numberOfEnvironmentFactors; ++i){
-    modelInformation = dataHandler.next();
+    state = dataHandler.next();
+    const Model::ModelInformation& modelInformation2 = dataHandler.getCurrentModelInformation();
+
+    EXPECT_EQ(CALCULATE, state);
     EXPECT_EQ(ALL_RISK, dataHandler.getRecode());
     EXPECT_EQ(*(*environmentInformation)[i], dataHandler.getCurrentEnvironmentFactor());
     EXPECT_EQ(*(*snpStore)[1], dataHandler.getCurrentSNP());
-    EXPECT_EQ(modelInformationVector[numberOfEnvironmentFactors + i], modelInformation);
+    EXPECT_EQ(modelInformationVector[numberOfEnvironmentFactors + i], &modelInformation2);
 
-    delete modelInformation;
   }
 
   //Next done
-  Model::ModelInformation* modelInformationDoneMock = new Model::ModelInformationMock();
-  EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(DONE)).Times(1).InSequence(
-      modelInformationSequence).WillOnce(Return(modelInformationDoneMock));
-  modelInformation = dataHandler.next();
-  EXPECT_EQ(modelInformationDoneMock, modelInformation);
-  delete modelInformation;
+  state = dataHandler.next();
+  EXPECT_EQ(DONE, state);
 
   delete envData;
   delete snpData;
   delete interactionData;
 }
 
-TEST_F(DataHandlerTest, Recode) {
+TEST_F(DataHandlerTest, RecodeEnvNotBinary) {
 #ifdef CPU
   Container::HostVector* interactionData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
 #else
   Container::HostVector* interactionData = new Container::PinnedHostVector(numberOfIndividuals);
 #endif
+
+  Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();
 
   const StatisticModel statisticModel = ADDITIVE;
   EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(statisticModel));
@@ -310,9 +315,11 @@ TEST_F(DataHandlerTest, Recode) {
 
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock,
       *modelInformationFactoryMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
-  dataHandler.state = dataHandler.INITIALISED;
 
-  Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();
+  //Set some things so it behaves like it has been initialised
+  dataHandler.state = dataHandler.INITIALISED;
+  (*environmentInformation)[0]->setVariableType(OTHER);
+  dataHandler.currentEnvironmentFactor = (*environmentInformation)[0];
   dataHandler.snpVector = snpVectorMock;
 
   const int numberOfRecode = 4;
@@ -327,6 +334,66 @@ TEST_F(DataHandlerTest, Recode) {
   EXPECT_CALL(*interactionVectorMock, recode(_)).Times(numberOfRecode);
   EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(numberOfRecode * 2).WillRepeatedly(
       ReturnRef(*interactionData));
+
+  for(int i = 0; i < numberOfRecode; ++i){
+    Recode recode = recodes[i];
+
+    EXPECT_CALL(*snpVectorMock, recode(Eq(recode))).Times(1);
+    EXPECT_CALL(*environmentVectorMock, recode(Eq(recode))).Times(1);
+
+    dataHandler.recode(recode);
+    EXPECT_EQ(recode, dataHandler.getRecode());
+  }
+
+  delete interactionData;
+}
+
+TEST_F(DataHandlerTest, RecodeEnvBinary) {
+#ifdef CPU
+  Container::HostVector* interactionData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
+#else
+  Container::HostVector* interactionData = new Container::PinnedHostVector(numberOfIndividuals);
+#endif
+  Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();
+  Sequence contingencyTableSequence;
+  Sequence modelInformationSequence;
+
+  const StatisticModel statisticModel = ADDITIVE;
+  EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(statisticModel));
+  EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
+
+  DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock,
+      *modelInformationFactoryMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
+
+  //Set some things so it behaves like it has been initialised
+  dataHandler.state = dataHandler.INITIALISED;
+  (*environmentInformation)[0]->setVariableType(BINARY);
+  dataHandler.currentEnvironmentFactor = (*environmentInformation)[0];
+  dataHandler.currentSNP = dataQueue->next();
+  dataHandler.snpVector = snpVectorMock;
+
+  const int numberOfRecode = 4;
+  Recode recodes[] = {SNP_PROTECT, ENVIRONMENT_PROTECT, INTERACTION_PROTECT, ALL_RISK};
+
+  //Nothing should change
+  dataHandler.recode(ALL_RISK);
+  EXPECT_EQ(ALL_RISK, dataHandler.getRecode());
+
+  EXPECT_CALL(*snpVectorMock, applyStatisticModel(statisticModel, _)).Times(numberOfRecode);
+  EXPECT_CALL(*environmentVectorMock, applyStatisticModel(statisticModel, _)).Times(numberOfRecode);
+  EXPECT_CALL(*interactionVectorMock, recode(_)).Times(numberOfRecode);
+  EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(numberOfRecode * 2).WillRepeatedly(
+      ReturnRef(*interactionData));
+
+  for(int i = 0; i < numberOfRecode; ++i){
+    Model::ModelInformationMock* modelInformationMock = new Model::ModelInformationMock();
+    ContingencyTableMock* contingencyTableMock = new ContingencyTableMock();
+
+    EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(Eq(ByRef(*(*snpStore)[0])), Eq(ByRef(*(*environmentStore)[0])),_,_)).Times(
+        1).InSequence(modelInformationSequence).WillOnce(Return(modelInformationMock));
+    EXPECT_CALL(*contingencyTableFactoryMock, constructContingencyTable(_, _)).Times(1).InSequence(
+        contingencyTableSequence).WillOnce(Return(contingencyTableMock));
+  }
 
   for(int i = 0; i < numberOfRecode; ++i){
     Recode recode = recodes[i];
@@ -361,12 +428,12 @@ TEST_F(DataHandlerTest, ReadSNPIncludeFalse) {
   EXPECT_CALL(*bedReaderMock, readSNP(Eq(ByRef(*(*snpStore)[0])))).Times(1).WillOnce(Return(pair1));
 
   Model::ModelInformation* modelInformationSkipMock = new Model::ModelInformationMock();
-  EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(SKIP,Eq(ByRef(*(*snpStore)[0])),Eq(ByRef(*(*environmentStore)[0])),_)).Times(
+  EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(Eq(ByRef(*(*snpStore)[0])),Eq(ByRef(*(*environmentStore)[0])),_)).Times(
       1).WillOnce(Return(modelInformationSkipMock));
-  Model::ModelInformation* modelInformation = dataHandler.next();
-  EXPECT_EQ(modelInformationSkipMock, modelInformation);
-
-  delete modelInformation;
+  DataHandlerState state = dataHandler.next();
+  const Model::ModelInformation& modelInformation = dataHandler.getCurrentModelInformation();
+  EXPECT_EQ(SKIP, state);
+  EXPECT_EQ(modelInformationSkipMock, &modelInformation);
 }
 
 TEST_F(DataHandlerTest, ContingencyTableIncludeFalse) {
@@ -402,12 +469,12 @@ TEST_F(DataHandlerTest, ContingencyTableIncludeFalse) {
   EXPECT_CALL(*contingencyTable, getTable()).Times(1).WillOnce(ReturnRef(contingencyTable_Table));
 
   Model::ModelInformation* modelInformationSkipMock = new Model::ModelInformationMock();
-  EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(SKIP,Eq(ByRef(*(*snpStore)[0])),Eq(ByRef(*(*environmentStore)[0])),_,_)).Times(
+  EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(Eq(ByRef(*(*snpStore)[0])),Eq(ByRef(*(*environmentStore)[0])),_,_)).Times(
       1).WillOnce(Return(modelInformationSkipMock));
-  Model::ModelInformation* modelInformation = dataHandler.next();
-  EXPECT_EQ(modelInformationSkipMock, modelInformation);
-
-  delete modelInformation;
+  DataHandlerState state = dataHandler.next();
+  const Model::ModelInformation& modelInformation = dataHandler.getCurrentModelInformation();
+  EXPECT_EQ(SKIP, state);
+  EXPECT_EQ(modelInformationSkipMock, &modelInformation);
 }
 
 } /* namespace CuEira */

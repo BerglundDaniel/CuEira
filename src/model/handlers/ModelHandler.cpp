@@ -50,6 +50,10 @@ ModelInformation* ModelHandler::next() {
   }
 }
 
+const ModelInformation& ModelHandler::getCurrentModelInformation() const{
+ return dataHandler->getCurrentModelInformation();
+}
+
 const SNP& ModelHandler::getCurrentSNP() const {
   return dataHandler->getCurrentSNP();
 }

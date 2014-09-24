@@ -10,7 +10,6 @@
 #include <HostVector.h>
 #include <SNP.h>
 #include <EnvironmentFactor.h>
-#include <ModelState.h>
 #include <CombinedResults.h>
 #include <CombinedResultsFactory.h>
 #include <ModelResult.h>
@@ -37,6 +36,7 @@ public:
   virtual ModelInformation* next();
   virtual CombinedResults* calculateModel()=0;
 
+  virtual const ModelInformation getCurrentModelInformation() const;
   virtual const SNP& getCurrentSNP() const;
   virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 

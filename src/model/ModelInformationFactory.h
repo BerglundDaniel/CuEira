@@ -4,11 +4,11 @@
 #include <ostream>
 
 #include <ModelInformation.h>
-#include <ModelState.h>
 #include <SNP.h>
 #include <EnvironmentFactor.h>
 #include <AlleleStatistics.h>
 #include <ContingencyTable.h>
+#include <ModelInformationWithTable.h>
 
 namespace CuEira {
 namespace Model {
@@ -23,14 +23,11 @@ public:
   ModelInformationFactory();
   virtual ~ModelInformationFactory();
 
-  virtual ModelInformation* constructModelInformation(ModelState modelState) const;
+  virtual ModelInformation* constructModelInformation(const SNP& snp, const EnvironmentFactor& environmentFactor,
+      const AlleleStatistics& alleleStatistics) const;
 
-  virtual ModelInformation* constructModelInformation(ModelState modelState, const SNP& snp,
-      const EnvironmentFactor& environmentFactor, const AlleleStatistics& alleleStatistics) const;
-
-  virtual ModelInformation* constructModelInformation(ModelState modelState, const SNP& snp,
-      const EnvironmentFactor& environmentFactor, const AlleleStatistics& alleleStatistics,
-      const ContingencyTable& contingencyTable) const;
+  virtual ModelInformation* constructModelInformation(const SNP& snp, const EnvironmentFactor& environmentFactor,
+      const AlleleStatistics& alleleStatistics, const ContingencyTable& contingencyTable) const;
 };
 
 } /* namespace Model */

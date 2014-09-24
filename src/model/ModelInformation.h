@@ -3,7 +3,9 @@
 
 #include <string>
 
-#include <ModelState.h>
+#include <SNP.h>
+#include <EnvironmentFactor.h>
+#include <AlleleStatistics.h>
 
 namespace CuEira {
 namespace Model {
@@ -16,10 +18,14 @@ namespace Model {
 class ModelInformation {
   friend std::ostream& operator<<(std::ostream& os, const ModelInformation& modelInformation);
 public:
-  explicit ModelInformation(ModelState modelState, std::string information);
+  explicit ModelInformation(const SNP& snp, const EnvironmentFactor& environmentFactor,
+      const AlleleStatistics& alleleStatistics);
   virtual ~ModelInformation();
 
-  virtual ModelState getModelState() const;
+  virtual const SNP& getSNP() const;
+  virtual const EnvironmentFactor& getEnvironmentFactor() const;
+  virtual const ContingencyTable& getContingencyTable() const;
+  virtual const AlleleStatistics& getAlleleStatistics() const;
 
   ModelInformation(const ModelInformation&) = delete;
   ModelInformation(ModelInformation&&) = delete;
@@ -27,11 +33,13 @@ public:
   ModelInformation& operator=(ModelInformation&&) = delete;
 
 protected:
+  explicit ModelInformation(); //For the mock
   virtual void toOstream(std::ostream& os) const;
 
 private:
-  ModelState modelState;
-  std::string information;
+  const SNP* snp;
+  const EnvironmentFactor* environmentFactor;
+  const AlleleStatistics* alleleStatistics;
 };
 
 } /* namespace Model */

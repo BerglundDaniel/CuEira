@@ -9,7 +9,6 @@ set(TEST_INCLUDE_DIRECTORIES
 
 set(TEST_SOURCE
   ${TEST_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelInformationTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelInformationFactoryTest.cpp
   PARENT_SCOPE
 )

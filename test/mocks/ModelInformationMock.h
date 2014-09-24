@@ -13,15 +13,13 @@ namespace Model {
 class ModelInformationMock: public ModelInformation {
 public:
   ModelInformationMock() :
-      ModelInformation(DONE, "") {
+      ModelInformation() {
 
   }
 
   virtual ~ModelInformationMock() {
 
   }
-
-  MOCK_CONST_METHOD0(getModelState, ModelState());
 
   MOCK_CONST_METHOD1(toOstream, void(std::ostream& os));
 };

@@ -28,8 +28,8 @@ public:
   ResultWriter(const Configuration& configuration);
   virtual ~ResultWriter();
 
-  void writeFullResult(const Model::ModelInformation* modelInformation, const Model::CombinedResults* combinedResults);
-  void writePartialResult(const Model::ModelInformation* modelInformation);
+  void writeFullResult(const Model::ModelInformation& modelInformation, const Model::CombinedResults* combinedResults);
+  void writePartialResult(const Model::ModelInformation& modelInformation);
 
   ResultWriter(const ResultWriter&) = delete;
   ResultWriter(ResultWriter&&) = delete;

@@ -12,7 +12,8 @@ DataHandler::DataHandler(const Configuration& configuration, FileIO::BedReader& 
         nullptr), environmentVector(environmentVector), environmentInformation(&environmentInformation), currentEnvironmentFactorPos(
         environmentInformation.size() - 1), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(
         &contingencyTableFactory), modelInformationFactory(&modelInformationFactory), currentSNP(nullptr), cellCountThreshold(
-        configuration.getCellCountThreshold()), alleleStatistics(nullptr) {
+        configuration.getCellCountThreshold()), alleleStatistics(nullptr), modelInformation(nullptr), currentEnvironmentFactor(
+        nullptr) {
 
 }
 
@@ -21,7 +22,7 @@ DataHandler::DataHandler(const Configuration& configuration) :
         nullptr), interactionVector(nullptr), snpVector(nullptr), environmentVector(nullptr), environmentInformation(
         nullptr), currentEnvironmentFactorPos(0), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(
         nullptr), currentSNP(nullptr), alleleStatistics(nullptr), cellCountThreshold(0), modelInformationFactory(
-        nullptr) {
+        nullptr), modelInformation(nullptr), currentEnvironmentFactor(nullptr) {
 
 }
 
@@ -31,50 +32,18 @@ DataHandler::~DataHandler() {
   delete environmentVector;
   delete contingencyTable;
   delete alleleStatistics;
+  delete modelInformation;
+  delete currentSNP;
 }
 
-const SNP& DataHandler::getCurrentSNP() const {
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    throw InvalidState("Before using the getCurrentSNP use next() at least once.");
-  }
-#endif
-  return *currentSNP;
-}
-
-const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    throw InvalidState("Before using the getCurrentEnvironmentFactor use next() at least once.");
-  }
-#endif
-  return *(*environmentInformation)[currentEnvironmentFactorPos];
-}
-
-const ContingencyTable& DataHandler::getContingencyTable() const {
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    throw InvalidState("Before using the getContingencyTable use next() at least once.");
-  }
-#endif
-  return *contingencyTable;
-}
-
-const AlleleStatistics& DataHandler::getAlleleStatistics() const {
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    throw InvalidState("Before using the getAlleleStatistics use next() at least once.");
-  }
-#endif
-  return *alleleStatistics;
-}
-
-Model::ModelInformation* DataHandler::next() {
+DataHandlerState DataHandler::next() {
   currentRecode = ALL_RISK;
 
   delete contingencyTable;
+  delete modelInformation;
 
   contingencyTable = nullptr;
+  modelInformation = nullptr;
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
     state = INITIALISED;
@@ -91,43 +60,48 @@ Model::ModelInformation* DataHandler::next() {
 
     currentSNP = dataQueue->next();
     if(currentSNP == nullptr){
-      return modelInformationFactory->constructModelInformation(DONE);
+      return DONE;
     }
 
     bool include = readSNP(*currentSNP);
     if(!include){
-      return modelInformationFactory->constructModelInformation(SKIP, *currentSNP, *(*environmentInformation)[0],
+      modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *(*environmentInformation)[0],
           *alleleStatistics);
+      return SKIP;
     }
     currentEnvironmentFactorPos = 0;
   }else{
-#ifdef DEBUG
-    if(state == NOT_INITIALISED){
-      throw InvalidState("This shouldn't happen in DataHandler.");
-    }
-#endif
-
     currentEnvironmentFactorPos++;
     snpVector->recode(ALL_RISK);
   }
 
-  const EnvironmentFactor* nextEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
-  environmentVector->switchEnvironmentFactor(*nextEnvironmentFactor);
+  currentEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
+  environmentVector->switchEnvironmentFactor(*currentEnvironmentFactor);
   interactionVector->recode(*snpVector);
 
-  contingencyTable = contingencyTableFactory->constructContingencyTable(*snpVector, *environmentVector);
+  if(currentEnvironmentFactor->getVariableType() == BINARY){
+    contingencyTable = contingencyTableFactory->constructContingencyTable(*snpVector, *environmentVector);
 
-  setSNPInclude(*currentSNP, *contingencyTable);
-  if(!currentSNP->shouldInclude()){
-    return modelInformationFactory->constructModelInformation(SKIP, *currentSNP, *nextEnvironmentFactor,
-        *alleleStatistics, *contingencyTable);
+    setSNPInclude(*currentSNP, *contingencyTable);
+    if(!currentSNP->shouldInclude()){
+      modelInformation = modelInformationFactory->constructModelInformation(SKIP, *currentSNP,
+          *currentEnvironmentFactor, *alleleStatistics, *contingencyTable);
+      return SKIP;
+    }
   }
 
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 
-  return modelInformationFactory->constructModelInformation(CALCULATE, *currentSNP, *nextEnvironmentFactor,
-      *alleleStatistics, *contingencyTable);
+  if(currentEnvironmentFactor->getVariableType() == BINARY){
+    modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
+        *alleleStatistics, *contingencyTable);
+  }else{
+    modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
+        *alleleStatistics);
+  }
+
+  return CALCULATE;
 }
 
 bool DataHandler::readSNP(SNP& nextSnp) {
@@ -137,16 +111,6 @@ bool DataHandler::readSNP(SNP& nextSnp) {
 
   delete pair;
   return nextSnp.shouldInclude();
-}
-
-Recode DataHandler::getRecode() const {
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    throw InvalidState("Before using the getter run next() at least once.");
-  }
-#endif
-
-  return currentRecode;
 }
 
 void DataHandler::recode(Recode recode) {
@@ -170,8 +134,54 @@ void DataHandler::recode(Recode recode) {
   environmentVector->recode(recode);
   interactionVector->recode(*snpVector);
 
+  if(currentEnvironmentFactor->getVariableType() == BINARY){
+    delete contingencyTable;
+    delete modelInformation;
+    contingencyTable = contingencyTableFactory->constructContingencyTable(*snpVector, *environmentVector);
+
+    modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
+        *alleleStatistics, *contingencyTable);
+  }
+
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
+}
+
+Recode DataHandler::getRecode() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using the getter run next() at least once.");
+  }
+#endif
+
+  return currentRecode;
+}
+
+const Model::ModelInformation& DataHandler::getCurrentModelInformation() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using getModelInformation run next() at least once.");
+  }
+#endif
+  return *modelInformation;
+}
+
+const SNP& DataHandler::getCurrentSNP() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using the getCurrentSNP use next() at least once.");
+  }
+#endif
+  return *currentSNP;
+}
+
+const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using the getCurrentEnvironmentFactor use next() at least once.");
+  }
+#endif
+  return *(*environmentInformation)[currentEnvironmentFactorPos];
 }
 
 const Container::SNPVector& DataHandler::getSNPVector() const {

@@ -5,7 +5,6 @@
 #include <ostream>
 
 #include <ModelInformation.h>
-#include <ModelState.h>
 #include <ModelInformationFactory.h>
 #include <SNP.h>
 #include <EnvironmentFactor.h>
@@ -50,15 +49,6 @@ void ModelInformationFactoryTest::TearDown() {
 
 }
 
-TEST_F(ModelInformationFactoryTest, ConstructModelInformationState) {
-  ModelInformationFactory modelInformationFactory;
-
-  ModelInformation* modelInformation = modelInformationFactory.constructModelInformation(DONE);
-  EXPECT_EQ(DONE, modelInformation->getModelState());
-
-  delete modelInformation;
-}
-
 TEST_F(ModelInformationFactoryTest, ConstructModelInformationNotTable) {
   ModelInformationFactory modelInformationFactory;
 
@@ -74,7 +64,6 @@ TEST_F(ModelInformationFactoryTest, ConstructModelInformationNotTable) {
 
   ModelInformation* modelInformation = modelInformationFactory.constructModelInformation(DONE, snp, environmentFactor,
       alleleStatistics);
-  EXPECT_EQ(DONE, modelInformation->getModelState());
 
   std::ostringstream osModelInformation;
   osModelInformation << *modelInformation;
@@ -98,10 +87,8 @@ TEST_F(ModelInformationFactoryTest, ConstructModelInformationAll) {
   std::ostringstream result;
   result << snp << "," << environmentFactor << "," << alleleStatistics << "," << contingencyTable;
 
-
   ModelInformation* modelInformation = modelInformationFactory.constructModelInformation(DONE, snp, environmentFactor,
       alleleStatistics, contingencyTable);
-  EXPECT_EQ(DONE, modelInformation->getModelState());
 
   std::ostringstream osModelInformation;
   osModelInformation << *modelInformation;

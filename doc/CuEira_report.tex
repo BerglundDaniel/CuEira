@@ -69,9 +69,9 @@
 \fi
 \makeatother
 
-\title{CuEira, gene-environment interaction analysis on GPU}
+\title{CuEira, Gene-Environment Interaction Analysis on GPU}
 \author{Daniel Berglund}
-\date{April 2014}
+\date{October 2014}
 
 \begin{document}
 \maketitle
@@ -120,7 +120,7 @@ The DNA is spread over chromosomes, each chromosome comes in a pair that can hav
 SNPs are variations in the genome where a single nucleotide is different between individuals in a population\cite{fareed_snp}
 
 \section{Genome-wide association studies}
-One type of study to find links between genetic markers and diseases is genome-wide association studies(GWAS). The markers are usually the SNPs mentioned above. Classically GWAS does not consider interactions between the genetic markers or with environmental factors. The environmental factors can be various things such as smoking, physical activity and so on.  Investigating gene-gene interactions recently has become more common\cite{cordell_detect_review}, however gene-environment interactions are still an uncommon in studies\cite{gene_enviroment_2013}. Interactions between genes and environmental factors are considered to be important for complex diseases such as cancer and autoimmune diseases.\cite{cordell_detect_review, gene_enviroment_2013, geira, ra_smoking}\\
+One type of study to find links between genetic markers and diseases is genome-wide association studies(GWAS). The markers are usually the SNPs mentioned above. Classically GWAS does not consider interactions between the genetic markers or with environmental factors. The environmental factors can be various things such as smoking, physical activity and so on.  Investigating gene-gene interactions recently has become more common\cite{cordell_detect_review}, however gene-environment interactions are still an uncommon in studies\cite{gene_enviroment_2013}. Interactions between genes and environmental factors are considered to be important for complex diseases such as cancer and autoimmune diseases\cite{cordell_detect_review, gene_enviroment_2013, geira, ra_smoking}. A complex disease develops due to a combination of factors, not a single gene or environmental factor\cite{rothman1998modern}.\\
 \\
 GWAS usually have either cohort or case-control study design. In cohort study a sample of a population is followed and over time some individuals will develop the disease of interest. In case-control studies two groups are compared with each other to find risk factors. One group consists of individuals with the disease and the other of individuals that are similar to the cases but who do not have the disease.\cite{rothman1998modern,mann_observational}\\
 \\
@@ -133,12 +133,12 @@ There are several ways to define interaction. The overall goal is usually to det
 \begin{equation}
 f(x,y)=ax+by+cxy+d
 \end{equation}
-c is the product term that represents multiplicative interaction between variables x and y. Statistical interaction is often referred to as just interaction which can make it a bit confusing.\cite{geira,rothman1998modern}\\
+$c$ is the product term that represents multiplicative interaction between variables x and y. Statistical interaction is often referred to as just interaction which can make it a bit confusing.\cite{geira,rothman1998modern}\\
 \\
-\emph{Additive} interaction is a bit broader than multiplicative interaction. It is that the effect from the interaction is larger than the sum of the separate effects. It implies biological interaction as defined by Rothman, which is sometimes called \emph{causal interdependence} or \emph{causal interaction}
+\emph{Additive} interaction is a bit broader than multiplicative interaction. It is that the effect from the interaction is larger than the sum of the separate effects. It implies biological interaction as defined by Rothman, which is sometimes called \emph{causal interdependence} or \emph{causal interaction}. A more precise definition can be found in section \ref{additive}
 
 \section{GEIRA and JEIRA}
-\emph{GEIRA} is a tool for analysing gene-environment interaction. It uses logistic regression and causal interaction\cite{geira}. \emph{JEIRA} is a parallelised implementation of GEIRA.
+\emph{GEIRA} is a tool for analysing gene-environment interaction. It uses logistic regression and causal interaction\cite{geira}. \emph{JEIRA} is a parallelised implementation of GEIRA\cite{uvehag_master_thesis}.
 
 %TODO something about GEISA
 %TODO graph or such of development?
@@ -161,7 +161,7 @@ Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie
 %TODO +vart placera?
 An allele itself doesn't contain the information if it is harmful or not so to
 
-The \emph(risk allele) is
+The \emph{risk allele} is
 
 
 SNPs are commonly binary variables with either dominant or recessive models. The case where the risk would occur given the genetic model is coded as 1 and absence is coded as 0. Co-dominant model can also be used and in that case when an individual has the risk allele in both positions is coded as 2, when only one is present is coded as 1 and absence is 0 as before. The fact that it's a binary variable is used in a lot of algorithms because it simplifies things.\\
@@ -174,7 +174,7 @@ SNPs are commonly binary variables with either dominant or recessive models. The
 %TODO bit better intro
 This section will introduce the statistics and some of the algorithms used to search for interaction. The focus is on logistic regression but some other methods are briefly examined.\\
 \\
-There are a lot of algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned. They can be roughly classified into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}\\
+There are a lot of algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned. They can be roughly classified into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}.	\\
 \\
 Environmental factors can be of any type which creates problems in various ways\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variable to be binary or have other problems since they weren't designed for environmental interaction.\cite{gene_enviroment_2013}\\
 \\
@@ -204,45 +204,99 @@ It is not uncommon to test a lot of hypothesis on the same data and in the case 
 Bonferroni correction is the simplest method and viewed as a conservative way to correct for this problem. It simply divides the p-value threshold that a test passes by the number of hypothesis. However the number of hypothesis made is not always clear. With a two-stage analysis, is the number of hypothesis the number of tests done in both stages combined, the number made in the first stage or the second stage?\cite{bonferroni_multiple}
 
 \subsection{Contingency Tables}
-A contingency table is a matrix used to describe categorical data. Each cell contains the frequency of occurrences with a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 3 table. From this table we can for instance see that 171 persons that got the placebo had a non-fatal attack. Contingency tables are the basis for various statistical tests to model the data. Contingency tables can be used directly for tests like chi square.\cite{agresti_categorical}
+A contingency table is a matrix used to describe categorical data. Each cell contains the frequency of occurrences with a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 2 table. From this table we can for instance see that 688 smokers got lung cancer. Contingency tables are the basis for various statistical tests to model the data.\cite{agresti_categorical}
 
 \begin{table}[h]
-\begin{tabular}{ l c c c }
+\begin{tabular}{ l c c }
   \hline
-  & Fatal Attack & Non-fatal Attack & No Attack\\
+  & Lung cancer & No lung cancer\\
   \hline
-  Placebo & 18 & 171 & 10 845 \\
-  Aspirin & 5 & 99 & 10 933 \\
+  Smoker & 688 & 650 \\
+  Non smoker & 21 & 59 \\
   \hline  
 \end{tabular}
-\caption{Contingency table describing the outcome of a medical study, from \cite{agresti_categorical}}
+\caption{Contingency table describing the outcome of a study, from \cite{agresti_categorical}, page 42}
 \label{table:contingency_table}
 \end{table}
 
-\subsection{Logistic Regression}
-One way to model the contingency tables is by using logistic regression. Logistic regression is a type of linear regression model for classification that models a latent probability for the outcomes. The outcomes are binary, however the method can be extended to multiple outcomes. In this work we will only consider them as binary. Logistic regression transforms the probability by using the \emph{logit} transformation. The logit transformation with probability \emph{p} is \cite{agresti_categorical}
+\subsubsection{Relative Risk and Odds Ratio}
+From a contingency table it is possible to calculate some useful measures such as the risk of getting the outcome based on exposure. The risk for a row i in the table will be referred to as $\pi_i$. For table \ref{table:contingency_table} the risks $\pi_1$ and $\pi_2$ is
 
 \begin{equation}
-log(\frac{p}{1-p})
+\pi_1=\frac{688}{688+650}=0.51
 \end{equation}
 
-%picture of logit transformation graph
-
-The probability with a set of predictor variables \emph{X} is $\pi(X)=P(Y=1)$. The linear regression model with n predictors $X=(x_1,x_2,....,x_n)$ and by using the logit transformation is then\cite{agresti_categorical}
 \begin{equation}
-logit[\pi(X)]=\alpha+\beta_1 x_1+\beta_2 x_2+...+\beta_n x_n
+\pi_2=\frac{21}{21+59}=0.36
+\end{equation}
+
+To compare different risks, for instance between smokers and non smokers, the ratio of the risks is used\cite{agresti_categorical}. It is called \emph{relative} risk(RR) is defined as\cite{agresti_categorical} 
+
+\begin{equation}
+RR=\frac{\pi_1}{\pi_2}
+\end{equation}
+
+So for the table \ref{table:contingency_table} the relative risk of getting lung cancer based on exposure to smoking is
+
+\begin{equation}
+RR=\frac{0.52}{0.36}=1.96
+\end{equation}
+
+This means that the risk of getting lung cancer for a smoker is almost twice as high for a non smoker in this data.\\
+\\
+Another useful measure is \emph{odds} and \emph{odds ratio}(OR). The odds is\cite{agresti_categorical} 
+
+\begin{equation}\label{eq:odds}
+\Omega=\frac{\pi}{1-\pi}
+\end{equation}
+
+The odds are non-negative and $\Omega>1$ when the outcome is more likely than not\cite{agresti_categorical}. So for $\pi=0.75$ the odds is $\Omega=\frac{0.75}{1-0.75}=3$. This means that the outcome is 3 times more likely than not. OR can be used as an approximation of RR in case control studies because RR can not be estimated in that type of studies\cite{or_mislead}. Cohort studies on the other hand can give estimates of RR. FIXME cite\cite{}. OR is the ratio of the odds just as RR is the ratio of the risks\cite{agresti_categorical}.
+
+\begin{equation}\label{eq:odds_ratio}
+\theta=\frac{\Omega_1}{\Omega_2}
+\end{equation}
+
+In the case when the outcome is an disease or similar variables with odds ratio below one are called \emph{protective} and when it is above one it is a \emph{risk factor}\cite{recoding_2011}.
+
+\subsection{Logistic Regression}
+One way to model the contingency tables is by using \emph{logistic regression}. Logistic regression is a type of linear regression model for classification that models a latent probability for the outcomes. The outcomes are binary, however the method can be extended to multiple outcomes. In this work we will only consider them as binary. Logistic regression transforms the probability by using the \emph{logit} transformation. The logit transformation with probability $\pi$ is \cite{agresti_categorical}
+
+\begin{equation}\label{eq:logit}
+log(\frac{\pi}{1-\pi})
+\end{equation}
+
+%TODO picture of logit transformation graph
+
+The probability with a set of predictor variables \emph{X} is $\pi(X)=P(Y=1)$. The linear regression model with n predictors $X=(x_1,x_2,....,x_n)$, coefficients $\beta=(\beta_1, \beta_2,....,\beta_n)$ and by using the logit transformation is then\cite{agresti_categorical}
+\begin{equation}\label{eq:logit_lr}
+logit[\pi(X)]=\alpha+\beta X
 \end{equation}
 
 By moving the logit to the right side of the equation we get the model of the probability\cite{agresti_categorical}
 \begin{equation}
-\pi(X)=\frac{exp(\alpha+\beta_1 x_1+\beta_2 x_2+...+\beta_n x_n)}{1+exp(\alpha+\beta_1 x_1+\beta_2 x_2+...+\beta_n x_n}
+\pi(X)=\frac{e^{\alpha+\beta X}}{1+e^{\alpha+\beta X}}
 \end{equation}
 
-Finding the coefficients are done in a similar way as other linear regression models since they all are generalized linear models. It's done using  maximum likelihood(ML), often via Newtons method.\cite{agresti_categorical}
+The logit, equation \ref{eq:logit}, also happens to be the log of the odds(equation \ref{eq:odds})\cite{agresti_categorical}. By exponentiating both sides of equation \ref{eq:logit_lr} it shows that the odds is \cite{agresti_categorical}
 
-It's an iterative method which means it is slow compared to non iterative methods. Logistic regression as most other methods for interaction assumes independence between the variables.
+\begin{equation}
+e^{logit[\pi(X)]}=\frac{\pi(X)}{1-\pi(X)}=e^{\alpha+\beta X}=\Omega
+\end{equation}
+
+This means that $\exp{\beta}$ is the odds ratio since the odds increase by $\exp{\beta}$ for each unit increase of $X$\cite{agresti_categorical}. It can also been seen by taking the ratio of the odds using equation \ref{eq:odds_ratio} and  with $X=x+1$ and $X=x$
+
+\begin{equation}
+\theta=\frac{e^{\alpha+\beta (x+1)}}{e^{\alpha+\beta x}}=e^{\alpha+\beta (x+1)-\alpha-\beta x}=e^{\beta}
+\end{equation}
+
+Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models \cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. Below is pseudo code for the algorithm\cite{uvehag_master_thesis}.
+
+\begin{lstlisting}
+
+\end{lstlisting}
 
 \subsubsection{Mathematical Definition of Interaction for LR}
+\label{additive}
 %TODO fix headline?
 
 
@@ -263,18 +317,9 @@ However there is a problem when both variables are non binary. Because LR models
 However in gene-environment interaction the SNP variable is binary unless co-dominant model is used. This means that the coding isn't a problem for non binary environmental variables.
 
 \subsubsection{Statistic Measures for interaction}
-There are various statistical measures of interest that we can calculate from the logistic regression model.\\
-\\
-Odds ratio(OR) describes the change in odds between different levels of exposure. If the OR is 2 that means that the risk is doubled for each increase by one unit. In the binary case it simplifies to the increased odds when exposed versus not exposed since there is only two levels.\\
-\\
-An odds ratio of one means the the odds and therefore the odds is the same whether the level of the variable. An odds ratio below one means that the odds of being affected gets lower as the variable increases and if the odds ratio is above one it means that the odds is increased. In the case when the outcome is an disease or similar variables with odds ratio below one are called \emph{protective} and when it is above one it is a \emph{risk factor}.
+Intro here
 
-Relative risk(RR)
-\begin{equation}
-RR=\frac{p_{event\:when\:exposed}}{p_{event\:when\:not\:exposed}}
-\end{equation}
-
-RR can not be estimated in case control since it requires the prevalence in whole population which you need cohort studies to find. In case control studies it is approximate with OR.
+In case-control studies OR is used as an approximation of RR to calculate these measures.
 
 Relative  excess risk due to interaction(RERI) is
 \begin{equation}
@@ -302,9 +347,13 @@ ln(SI)=ln(RR_{11}-1)-ln(RR_{10}+RR_{01}-2)
 Lack of interaction shows in the values by
 AP=0
 SI=1
+\cite{recoding_2011}
 
 \subsubsection{Recoding of Protective Effects}
-The measures for interaction RERI, AP and SI mentioned above are developed for risk factors, i.e. $OR>1$, which can cause problems if the factor is protective. This can be solved by \emph{recoding}. It switches the %TODO
+The measures for interaction RERI, AP and SI mentioned above are developed for risk factors, i.e. $OR>1$, which causes problems if the factor is protective. This can be solved by \emph{recoding}. It switches the %TODO
+That makes sure that none of the ORs will be below 1.\\
+\\
+This means that there is three types of recoding, when we recode the SNP(10), environment(01) and both(11). It's important to keep track of which is used to prevent confusion with the risk allele and how to compare the results with other methods and studies.
 
 \cite{recoding_2011}
 
@@ -367,7 +416,7 @@ Decision tree figure here %TODO
 
 \clearpage
 \section{Computer Architecture} %Possible needs to be split in smaller sections
-INTRO HERE why bla bla
+intro here why bla bla
 
 Most computers today have a multi-core architecture, e.g. their CPUs have multiple cores.
 
@@ -385,7 +434,7 @@ It was first used in EDVAC which was one of the first stored program computers\c
 
 some text here about von neaumann architecture
 
-For HPC it is easiest to think about the architecture as three main parts, data storage, processor and the memory. More text here\cite{intro_hpc}
+For the purpose in this thesis it is easiest to think about the architecture as three main parts, data storage, processor and the memory.
 
 \subsection{CPU}
 Central processing unit(CPU) is \cite{introduction_hpc_hager}
@@ -400,7 +449,7 @@ branch prediction
 
 %TODO instruction level paralism
 
-\subsection{Caching and and other CPU optimizations}
+\subsection{Caching and CPU Optimizations}
 %TODO
 The CPU optimization that is most important to know for programmers is caching because it affect the way the code has to be written and the difference between using it correctly and not is huge.
 The CPU also fetches chunks of memory, stuff stored sequential so column major vs row major important to know
@@ -418,6 +467,8 @@ Pointer aliasing, usually refereed to as just aliasing but not be confused with 
 \emph{Concurrency} means doing multiple things and the same time, instead of \emph{sequential}. This can cause various problems such as the same object being accessed at the same time. The dinning philosophers is an example  used to illustrate some of these problems. A group of philosophers is sitting at a round table, each has a plate of spaghetti in front of them and there is a fork between each pair of philosophers. The philosophers alternate between thinking and eating. However they can only eat if they have both the right and left fork.
 
 %TODO picture here
+
+%more dinning stuff here
 
 \emph{Deadlocks} occur when two or more threads wait for the other to finish, since they are all stucking in waiting the program will not progress.
 
@@ -482,7 +533,7 @@ you end up with similar problems as gpu, though probably easier to use
 
 structure of mic
 
-Most CPUs have a marginal decrease in performance when using double precision instead of single. GPUs lose much more. %TODO
+GPUs are much better at single precision calculations than double. A CPU looses some performance but not near as much as a GPU.\cite{cuda, nvtesla}
 
 \subsection{Which program for GPU and which for CPU?}
 \label{gpu_gwas}
@@ -524,9 +575,9 @@ Max achived with LinPack 33 PetaFlops
 Picture of Tianhe-2 here
 
 \subsection{CUDA programming model}
-This section is about GPU programming in more detail using NVIDIAs CUDA(Compute Unified Device Architecture). CUDA extends C and C++ with some additional functionality that can be used to perform operations on NVIDAs GPUs. It provides a separate compiler to compile the GPU code called nvcc. Diffrent GPUs support different CUDA functions, each NVIDIA GPU has a value called computational capability. The higher the value the more features of CUDA are supported on that GPU. Some properties also vary between the different underlying architectures. This means that it is important to know what kind of capability the GPU to be used has so that the program does not need features that are not there. The things described here might not apply to GPUs with compute capability below 3. There are GPUs made specifically for calculations rather than games.\\
+This section is about GPU programming in more detail using NVIDIAs CUDA(Compute Unified Device Architecture)\cite{cuda}. CUDA extends C and C++ with some additional functionality that can be used to perform operations on NVIDAs GPUs. It provides a separate compiler to compile the GPU code called nvcc. Diffrent GPUs support different CUDA functions, each NVIDIA GPU has a value called computational capability. The higher the value the more features of CUDA are supported on that GPU. Some properties also vary between the different underlying architectures. This means that it is important to know what kind of capability the GPU to be used has so that the program does not need features that are not there. The things described here might not apply to GPUs with compute capability below 3. There are GPUs made specifically for calculations rather than games.\cite{cuda}\\
 \\
-In CUDA the GPU is called \emph{device} and ???? is the \emph{host}. To perform operations on the device a type of function called \emph{kernel} is used. A kernel is specified the same way as a normal C/C++ function but with the addition of \_\_global\_\_ in front of the function declaration. The way the kernels are used differs slightly from normal C/C++ too. <<<...>>> is added to the it specifying how many threads to be use among others.\\
+In CUDA the GPU is called \emph{device} and ???? is the \emph{host}. To perform operations on the device a type of function called \emph{kernel} is used. A kernel is specified the same way as a normal C/C++ function but with the addition of \_\_global\_\_ in front of the function declaration. The way the kernels are used differs slightly from normal C/C++ too. <<<...>>> is added to the it specifying how many threads to be use among others.\cite{cuda}\\
 \\
 Below here is an example of a kernel and how it can be called from the host code. The kernel add each element of the arrays A and B storing it in C. Each thread performs on addition and knows why elements to use based on it's id. The call to the kernel is made by giving three arrays and the number of threads to be used as N. In this case N needs to be the length of the arrays.
 \begin{lstlisting}
@@ -542,7 +593,7 @@ Below here is an example of a kernel and how it can be called from the host code
 Add@<<<1, N>>>@(A, B, C);
 \end{lstlisting}
 
-The $<<<N,M>>>$ specifier tells CUDA how many $N$ blocks and how many $M$ threads per block that the kernel should use. A block is a group of threads and shares some memory and resources. The blocks can be executed in any order so they need to be completely independent from each other but variables can be shared among threads inside a block. The blocks are  organized in a one, two or three dimensional \emph{grid}. These can be accessed by each thread so it knows which grid it is in. This can be used to make it easier to assign the threads to the correct bit of the calculation. For instance using a two dimensional grid is good for matrices.
+The $<<<N,M>>>$ specifier tells CUDA how many $N$ blocks and how many $M$ threads per block that the kernel should use. A block is a group of threads and shares some memory and resources. The blocks can be executed in any order so they need to be completely independent from each other but variables can be shared among threads inside a block. The blocks are  organized in a one, two or three dimensional \emph{grid}. These can be accessed by each thread so it knows which grid it is in. This can be used to make it easier to assign the threads to the correct bit of the calculation. For instance using a two dimensional grid is good for matrices\cite{cuda, cuda_best_practice}.
 
 \begin{figure}[h]
     \centering
@@ -558,35 +609,39 @@ The $<<<N,M>>>$ specifier tells CUDA how many $N$ blocks and how many $M$ thread
     \label{fig:grid_2d}
 \end{figure}
 
-The streaming multiprocessors(SM) is the hardware that handles the execution of these blocks and can execute hundreds of threads concurrently. It uses \emph{SIMT}(Single-Instruction, Multiple-Thread) which is similar to SIMD described earlier in section \ref{concurrency}. SIMT works mostly as SIMD except that it can act as MIMD on collections of threads called \emph{warps}. Each warp consists of 32 threads. When an SM gets a block it is split into warps that are assigned to warp schedulers. Each warp scheduler gives one instruction to a warp so full efficiency is achieved when all the 32 threads perform the same instruction. If there is any divergence it has to disable unrelated threads, so divergence can be costly. However different groups of warps are on different warps schedulers so can diverge without problem.
+The streaming multiprocessors(SM) is the hardware that handles the execution of these blocks and can execute hundreds of threads concurrently. It uses \emph{SIMT}(Single-Instruction, Multiple-Thread) which is similar to SIMD described earlier in section \ref{concurrency}. SIMT works mostly as SIMD except that it can act as MIMD on collections of threads called \emph{warps}. Each warp consists of 32 threads. When an SM gets a block it is split into warps that are assigned to warp schedulers. Each warp scheduler gives one instruction to a warp so full efficiency is achieved when all the 32 threads perform the same instruction. If there is any divergence it has to disable unrelated threads, so divergence can be costly. However different groups of warps are on different warps schedulers so can diverge without problem.\cite{cuda}
 
-\subsubsection{Separate Memory}
-The GPUs memory is physically on a different device separate from the computers main memory which means that they have separate memory spaces. An object in one memory is not accessible in the other memory. The computers main memory is the \emph{host memory} and the GPUs memory is the \emph{device memory}. Since they are separate data has to be transferred to the device memory and this is done by explicit calls to transfer sections of the hosts memory.\\
+%TODO simt picture
 
-Text about transfer with example %TODO
+\subsubsection{Device Memory}
+The GPUs memory is physically on a different device separate from the computers main memory which means that they have separate memory spaces. An object in one memory is not accessible in the other memory. The computers main memory is the \emph{host memory} and the GPUs memory is the \emph{device memory}. Since they are separate data has to be transferred to the device memory and this is done by explicit calls to transfer sections of the hosts memory.\cite{cuda}\\
+\\
+The GPU also have several different types of memory\cite{cuda}. Correct usage can give increased speed\cite{cuda, cuda_best_practice}.
 
-%shared memory and other memory types, here or in efficient cuda?
+\begin{itemize}
+  \item Register memory is located on the multiprocessor and usually costs zero cycles to access. The multiprocessor splits the available registers over its threads so if there are a lot of threads that uses a lot of variables not all of them will fit in the register. This is why a program sometimes can be faster with lower occupancy.\cite{cuda}
+  \item Global memory is the main memory of the GPU and is accessible from all threads and blocks. However it is relatively slow to access.\cite{cuda}
+  \item Shared memory is shared inside a block and is faster than global memory. However it is limited in size.\cite{cuda}
+  \item Constant memory is small however its cached so it is fast to access. It's read only and best used for small amount of variables that all threads access.\cite{cuda}
+  \item Local memory is tied to the threads scope, but it is still resides off-chip so it has the same access time as global memory.\cite{cuda}
+  \item Texture memory is read only and can be faster to access than global memory in some situations. This was more important in older GPUs when global memory wasn't cached.\cite{plink_gpu, cuda}
+  \item Read-only cache is available on Kepler GPUs and uses the same cache as the texture memory. The data as to be read only each multiprocessor can have up to 48kb of space depending on GPU.\cite{kepler_tuning_guide}
+\end{itemize}
 
 \subsubsection{Streams}
-The kernel calls can be made on a stream. By default a kernel is executed on the null stream. The easiest way to think of the stream is as queue. The kernels on a stream will be executed in the order they are made but kernels from different streams can be executed in any order given there is enough computational resources. In this way it is possible to execute up to 32 concurrent kernels depending on GPU.\\
+The kernel calls can be made on a stream. By default a kernel is executed on the null stream. The easiest way to think of the stream is as queue. The kernels on a stream will be executed in the order they are made but kernels from different streams can be executed in any order given there is enough computational resources. In this way it is possible to execute up to 32 concurrent kernels depending on GPU.\cite{cuda}\\
 \\
-Streams are important for asynchronous transfers. These transfers are executed on a stream and just as kernels gets executed after the previous kernels on the same stream is done. And as with the kernels the transfer on one stream can happen . This however depends on the number of copy engines and kernel engines. Some older GPUs have one copy engine and one kernel engine. Newer ones have one copy engine for device to host and one for host to device. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers.
-
+This is not entirely true for some GPU architectures because they only have one queue for the kernels. Because of this independent kernels from different streams can block each other. If we have a group of kernels and issue them on stream one first and then on stream two all the kernels in stream two will be stuck in the queue waiting for the kernels in stream one to finish. This is because the kernels queue only looks at the first kernels to see if they can be executed. The second kernel in the first stream then blocks the queue from moving forward so it will not see the kernels on stream two that could be executed. Newer architectures after Kepler on the other hand has several queues so they don't have this problem.\cite{cuda, cuda_best_practice, kepler_tuning_guide}\\
+\\
+Streams are also important for asynchronous transfers. These transfers are executed on a stream and just as kernels gets executed after the previous kernels on the same stream is done. The advantage is that other streams can do calculations as normal while the transfer happens. This can hide the time for transfers completely in some situations. However the host memory has to be pinned. Pinned memory means that the operative system can not page that memory. Paging is that the operative system stores a part of the memory in another area, usually the disk memory, to save space in the memory. Too much pinned memory can slow down the computer.\cite{cuda, overlap_transfers_cuda}\\
+\\
 %example sequential
 
 %example after
 
-However there can be problems in how to implement it and that it differs between GPUs. Doing it the wrong way can even make the execution time longer.
+However there is problem that asynchronous transfers can cause depending on the GPUs architecture. Some older GPUs only have one copy engine while newer have one for each direction, one to the GPU and one from the GPU. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers.\cite{overlap_transfers_cuda} %put in fortran cite thing
 
 %example from the fortran stuff with graphs and such
-
-\subsubsection{CUBLAS}
-CUBLAS is provides blas functions for cuda.
-can also be run concurrently with streams
-
-As already mentioned different architectures and even different GPUs differ how they work. Make sure to lookup the different specifics and read the guides for the relevant architecture.
-
-\cite{cuda}
 
 \subsubsection{Efficient CUDA}
 One of the main criticism against GPUs for general computing purposes is that it is hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. Here are some things that needs to be considered when writing programs that use CUDA.\cite{plink_gpu, cuda, cuda_best_practice}
@@ -602,23 +657,10 @@ One of the main criticism against GPUs for general computing purposes is that it
   The number of blocks should be larger than the number of multiprocessors so that all multiprocessors have at least one block to execute. Having two blocks or more per multiprocessor can be good so that there are blocks that aren't waiting for a \_\_syncthreads() that can be executed. However this is not always possible due to shared memory usage and similar.\cite{cuda_best_practice}\\
   \\  
   The number of threads per block should be a multiplier of 32 but minimum 64. It's also important to remember that multiple concurrent blocks can reside on the same multiprocessor. Too large number of threads in a block and parts of the multiprocessor might be idle since there aren't a block small enough to use those threads. Between 128 and 256 threads is a good place to start.\cite{cuda_best_practice}
-  \item[Streams, concurrent kernels and asynchronous transfers] \hfill \\
-  By using streams it is possible to overlap memory transfers with calculations. This means that the data for the next batch can be transferred while the current batch is calculated and when it is done it can start calculating on the next batch directly after the current one is done. This can hide the time for transfers completely in some situations. However it requires the memory on the host to be pinned. Pinning too much memory can reduce performance of the host.\cite{cuda}\\
-  \\
-  Operations on a stream is guaranteed to be done in the order they are made however calls on different streams can be executed in any order. Some GPUs allow kernels from different streams to be executed concurrently which can be a big boost if the kernels small enough to fit on the multiprocessors at the same time. Up to 16 or 32 kernels, depending on GPU, can be executed at the same time.\\
-  \\
-  However it requires tweaking of the code that is specific to the GPUs architecture. For instance FERMI architecture only has one queue for the kernels which means that we can get false dependency between kernels. If we have a batch of small kernels and issue them on stream one first and then stream two all the kernels in stream two will be stuck in the queue waiting for the kernels in stream one to finish, this is because the second kernel on stream one has to wait for the first kernel since they are in the same stream. The second kernel then blocks the queue from moving forward so it will not see the kernels on stream two that could be executed. Kepler GPUs on the other hand has several queues so it won't be a problem on those GPUs. It's the same with asynchronous transfers, some GPUs only have one copy engine while others have one engine for device to host and one for host to device.\cite{cuda, overlap_transfers_cuda, kepler_tuning_guide}
-  \item[Use the correct memory on the GPU] \hfill \\
-  Correct use of caches and memory is important for CPU\cite{drepper2007cpumemory}. It's also important on GPUs but it gets more complicated since the caches are smaller and there are several types of memory.
-    \begin{itemize}
-    \item Register memory is located on the multiprocessor and usually costs zero cycles to access. The multiprocessor splits the available registers over its threads so if there are a lot of threads that uses a lot of variables not all of them will fit in the register. This is why a program sometimes can be faster with lower occupancy.
-    \item Global memory is the main memory of the GPU and is accessible from all threads and blocks. However it is relatively slow to access.
-    \item Shared memory is shared inside a block and is faster than global memory. However it is limited in size.
-    \item Constant memory is small however its cached so it is fast to access. It's read only and best used for small amount of variables that all threads access.
-    \item Local memory is tied to the threads scope, but it is still resides off-chip so it has the same access time as global memory.
-    \item Texture memory is read only and can be faster to access than global memory in some situations. This was more important in older GPUs when global memory wasn't cached.\cite{plink_gpu, cuda}
-    \item Read-only cache is available on Kepler GPUs and uses the same cache as the texture memory. The data as to be read only each multiprocessor can have up to 48kb of space depending on GPU.\cite{kepler_tuning_guide}
-  \end{itemize}
+  \item[Use streams and asynchronous transfers] \hfill \\
+  By using streams it is possible to overlap memory transfers with calculations as mentioned before. This means that the data for the next batch can be transferred while the current batch is calculated and when it is done it can start calculating on the next batch directly after the current one is done. This can hide the time for transfers completely in some situations. Depending on the time the transfers take versus the time the calculations take this can give significant speedup.\cite{cuda, overlap_transfers_cuda, kepler_tuning_guide}
+  \item[Use the correct memory type and caches] \hfill \\
+  Correct use of caches and memory is important for both CPU\cite{drepper2007cpumemory} and GPU. However it is more complicated on GPU since the caches are smaller and there are several types of memory as mentioned before\cite{cuda, cuda_best_practice}.
   \item[Avoid divergence] \hfill \\
   Each thread in a warp executes the same instruction at the same time so if some of threads diverge the rest will be ideal until they are at the same instruction again. This means it is important to use control structures such as if statements carefully to prevent threads from idling.\cite{cuda, cuda_best_practice}
   \item[Avoid memory bank conflicts when using shared memory] \hfill \\
@@ -626,7 +668,7 @@ One of the main criticism against GPUs for general computing purposes is that it
   \item[Use existing libraries] \hfill \\
   Instead of writing everything from scratch it is usually a good idea to use already existing libraries. Especially when performance is important and most task are non trivial on GPUs so using an already optimized library is a good idea. Some of the most popular libraries for CUDA are:
   \begin{itemize}
-    \item CUBLAS: BLAS implementation for CUDA\cite{cublas}
+    \item CUBLAS: BLAS implementation for CUDA. BLAS and LAPACK is a standard for a library that provides highly optimized functions for linear algebra.\cite{cublas}
     \item CULAtools: BLAS and LAPACK implementation for CUDA for both dense and sparse matrices\cite{culatools}
     \item MAGMA: BLAS and LAPACK implementation among other things that can distribute the work on both CPU and GPU\cite{magma_2010}
     \item Thrust: Template based library that tries to emulate C++ standard library\cite{thrust_gpu}
@@ -637,17 +679,17 @@ One of the main criticism against GPUs for general computing purposes is that it
   Aliasing can be a problem as mentioned earlier. By using the \_\_restrict\_\_ keyword on pointers the compiler can be told that no aliasing will occur, however it is up to the programmer to make sure that is the case or there might be unexpected results. Not using aliasing reduces the number of memory accesses the CPU needs to make. However it increases register pressure so it can have an negative effect on performance.\cite{cuda}
   \item[Use fast math functions if precision isn't needed] \hfill \\
   There are two versions of runtime math functions. The ones of the type funcf() is slower but more accurate than \_funcf(). The option -use\_fast\_math makes the compiler change all the funcf() to \_funcf().\cite{cuda_best_practice}
-  \item[Instruction level parallelism can give speed]\hfill \\
+  \item[Instruction level parallelism can increase speed]\hfill \\
   Just as for CPUs the GPUs can take advantage of instruction level parallelism. By unrolling loops this can give 2x the speed relatively simple.\cite{volkov2011unrolling}
 \end{description}
 
 \clearpage
 \subsection{Performance Measures}
-An important part in making fast and efficient programs is to know how fast the program is under certain conditions and which parts of the program are slow. For instance the speed could suddenly drop when we start using to many threads, there might be a bottleneck in the network, and so on.\\
+An important part in making fast and efficient programs is to know how fast the program is under certain conditions and which parts of the program are slow. For instance the speed could suddenly drop when we start using too many threads, there might be a bottleneck in the network, and so on.\\
 \\
-There are two ways to measure how long a program takes to execute. Execution time, sometimes called wall clock time, is how long real life time the program took. The other is to measure the number of processor cycles spent. A parallel program will have shorter execution time than it is serial version however it will likely have spent more processor cycles due to overhead from communication and initialization of the threads. We are usually interested in execution time however number of cycles can be useful for comparison of algorithms.\\
+There are two ways to measure how long a program takes to execute. Wall clock time is how long real life time the program took. The other is to measure the number of processor cycles spent. A parallel program will have shorter execution time than it is serial version however it will likely have spent more processor cycles due to overhead from communication and initialization of the threads. These two measures are useful for different kinds of comparisons. Wall clock time is better for overall performance while number of cycles is useful for comparing different algorithms.\\
 \\
-speed up is measures how much faster then program is with a certain number of threads compared to the serial version. It's defined as
+Speed up is measures how much faster then program is with a certain number of threads compared to the serial version. It's defined as
 $$S(p)=\frac{T(1)}{T(p)}$$
 Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speed up is when S(p)=p.\\
 \\
@@ -659,11 +701,11 @@ Strong scaling refers to how the program handles a fixed problem size and increa
 It can be a good idea to plot these measures while varying p, this can show when bottlenecks occur. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication affects the performance.
 
 \subsubsection{Amdahl's Law and Gustafson's Law}
-Amdahl's Law is used to find the expected speed up of a system when parts of is parallelised. Simply it says that as the number of processors increases the parts that aren't parallelised will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallelised part. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
+Amdahl's Law is used to find the expected speed up of a system when parts of is made concurrent. Simply it says that as the number of processors increases the parts that aren't parallel will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
 \\
-It says that the expected speed up with F fraction of the code parallelised and p threads is 
+It says that the expected speed up with F fraction of the code parallel and p threads is 
 $$S(p)=\frac{1}{(1-F)+\frac{F}{p}(1-F)}$$
-As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F}$. If we have 90\% of a code parallelized then even with infinite number of threads we won't get a better speed up than ten.\cite{2010_reevaluating_amdahl}
+As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F}$. If we have 90\% of a code parallel then even with infinite number of threads we won't get a better speed up than ten.\cite{2010_reevaluating_amdahl}
 
 \begin{figure}[h]
     \centering
@@ -691,7 +733,7 @@ $$S(p)=p+(1-F)(1-p)$$
 \begin{figure}[h]
     \centering
     \includegraphics[width=13cm]{GustafsonsLaw.png}
-    \caption{Illustration of Gustafsons Law}
+    \caption{Illustration of Gustafson's Law}
     \label{fig:GustafsonsLaw}
 \end{figure}
 
@@ -700,14 +742,11 @@ There are applications called profilers that are made to assess the programs per
 
 \clearpage
 \section{Software Design}
-How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software.
-
-The messier code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. All code gather problems overtime, however a well designed system will degenerate a lot slower than one that was designed carelessly. Our code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code.
-
-%study om repro in comp science
-%använde repeabtibility istället för reproducebility
-
-There are ways to code in such a way that these problems can be mitigated. Most of the things described here goes under the agile development type and the concept of clean code. SOLID is an acronym for five principles for object oriented programming and design. When used together they are intended to make programs that are easy to maintain and extend. As already mentioned readability is important. Correct names will make the code explain itself without other documentation, the code itself is the documentation.
+How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software. Messier code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. All code gather problems overtime, however a well designed system will degenerate a lot slower than one that was designed carelessly. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in.\cite{cleancode2008, design_patterns}\\
+\\
+This is also important in science where others might wish to use the tools or repeat the experiments. A recent study\cite{comp_repro_2013} found that the repeatability in computer science is low. They used the term reproducibility but repeatability is a more fitting term because they didn't try to reproduce the results from scratch, they tried to repeat it using the same code. Of 513 articles they got the code from 231, 108 failed to build, 21 failed to run properly\cite{comp_repro_2013}. Just 102 worked as they should\cite{comp_repro_2013}.\\
+\\
+There are ways to design the program and code in such a way that it is easier to read and maintain. Most of the things described here goes under the development technique called agile development and the concept of clean code\cite{cleancode2008}. SOLID is an acronym for five principles for object oriented programming and design. When used together they are intended to make programs that are easy to maintain and extend. As already mentioned readability is important. Correct names will make the code explain itself without other documentation, the code itself is the documentation.
 
 \begin{table}[h]
 \begin{tabular}{ l l p{2in}}
@@ -725,7 +764,7 @@ There are ways to code in such a way that these problems can be mitigated. Most 
 \label{table:solid_table}
 \end{table}
 
-Dependency injection is one way to implement dependency inversion principle. Injection is passing the dependency to the dependent object. This is used instead of allowing the dependent object to construct or find the dependency.
+Dependency injection is one way to implement dependency inversion principle\cite{cleancode2008}. Injection is passing the dependency to the dependent object. This is used instead of allowing the dependent object to construct or find the dependency.
 
 \subsection{Unit Tests and Mocks}
 \emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work.\cite{cleancode2008}\\
@@ -735,12 +774,14 @@ It can be easy to denote test code as less important than the main code but they
 \emph{Mocking} is to replace a real object with a fake object called a \emph{mock} that for the code is indistinguishable from the real object. This allows one to create situations and test with more control and without depending on the real objects code. The second is important for unit tests since it enables one to test units that normally depend on others in isolation. In the first case it is useful in situations such as when one wants to test a class handling of a rare failure. Such failures can be hard and time consuming to induce. It is then easier to use a mock object that behaves like the failure has occurred. However mocking requires that the code for the class doesn't create the object itself since there is no way to replace the object with the mock. This is one of the reasons why dependency injection should be use.\cite{cleancode2008}
 
 \subsection{Design Patterns}
-A \emph{design pattern} in software design is a reusable general solution to a common recurring problem in a given context. It is templates and structures to solve the problem, however it is not code. However they are partially dependent on the programming language since different languages have different features and limitations.\\
+A \emph{design pattern} in software design is a reusable general solution to a common recurring problem in a given context. It is templates and structures to solve the problem, however it is not code. However they are partially dependent on the programming language since different languages have different features and limitations.\cite{design_patterns}\\
 \\
-\emph{Consumer producer} is a concurrency pattern for when there are a number of consumers/workers and producers. They share a common queue for products. The producer generates some product and put it into the queue, while the the consumers consume the products. The problem is that the producers should not add to an non empty slot and that each product should only be consumed once.
+\emph{Consumer producer} is a concurrency pattern for when there are a number of consumers/workers and producers. They share a common queue for products. The producer generates some product and put it into the queue, while the the consumers consume the products. The problem is that the producers should not add to an non empty slot and that each product should only be consumed once.\cite{cleancode2008, design_patterns}
 
-%cite http://www.objectmentor.com/resources/articles/Principles_and_Patterns.pdf
-%cite clean code
+\subsection{Version Control Software}
+%TODO
+git
+cite git
 
 \clearpage
 \chapter{Algorithm}
@@ -822,8 +863,8 @@ own kernels more than simple elemntwise, probably hard to optimize. unknowish
 
 \begin{description}
 %anything with hat is estimate
-\item[OR]
-  Odds ratio
+\item[$\theta_{ij}$]
+  Odds ratio with exposure levels i and j
 \item[$RR_{ij}$]
   Relative risk with exposure levels i and j
 \item[X]
@@ -832,6 +873,8 @@ own kernels more than simple elemntwise, probably hard to optimize. unknowish
   The outcome, binary variable
 \item[$\pi(x)$]
   P(Y=1)
+\item[$\theta$]
+  Odds
 \end{description}
 
 \section{B List of Abbrivations}
@@ -857,6 +900,7 @@ own kernels more than simple elemntwise, probably hard to optimize. unknowish
   MIMD
   SISD
   MISD
+  LR
 \end{description}
 
 %List of figs

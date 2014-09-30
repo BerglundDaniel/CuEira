@@ -12,6 +12,8 @@
 \usepackage{subcaption}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \setcounter{secnumdepth}{5}
 \setlength{\parindent}{0in}
@@ -111,12 +113,12 @@ The first chapter contains an short introduction to the area and some termonolog
 Appendix has list of variables and acronyms
 
 \section{Genetics}
-Some kind of intro
-
-The DNA is spread over chromosomes, each chromosome comes in a pair that can have different variations in them. A position in the DNA is a locus. An variation of the same gene or locus is an allele. The effect of an allele is either dominant, recessive or co-dominant. Dominant means that the effect occurs if the allele only needs to be present once to get the effect, recessive is when the allele has to be in both chromosomes. Co-dominant is when both alleles are expressed, this usually produce some kind of intermediate state.\cite{sadava_life}
-
-4 bases
-
+Some kind of intro\\
+\\
+The DNA is spread over chromosomes, each chromosome comes in a pair that can have different variations in them. A position in the DNA is a locus. An variation of the same gene or locus is an allele. The effect of an allele is either dominant, recessive or co-dominant. Dominant means that the effect occurs if the allele only needs to be present once to get the effect, recessive is when the allele has to be in both chromosomes. Co-dominant is when both alleles are expressed, this usually produce some kind of intermediate state.\cite{sadava_life}\\
+\\
+4 bases\cite{sadava_life}\\
+\\
 SNPs are variations in the genome where a single nucleotide is different between individuals in a population\cite{fareed_snp}
 
 \section{Genome-wide association studies}
@@ -124,7 +126,7 @@ One type of study to find links between genetic markers and diseases is genome-w
 \\
 GWAS usually have either cohort or case-control study design. In cohort study a sample of a population is followed and over time some individuals will develop the disease of interest. In case-control studies two groups are compared with each other to find risk factors. One group consists of individuals with the disease and the other of individuals that are similar to the cases but who do not have the disease.\cite{rothman1998modern,mann_observational}\\
 \\
-A typical study consists of tens of thousands of individuals and hundred thousands or millions of SNPs. Due to the high number of SNPs few algorithms are capable to investigate more than second order interaction in a reasonable time. There are some algorithms that can handle higher interaction orders however these have drawbacks\cite{gwis,high_order_2012,fast_high_order_cluster}. The biological interpretation of interaction with order above 2 might not be clear too. %FIXME need refrence
+A typical study consists of tens of thousands of individuals and hundred thousands or millions of SNPs. Due to the high number of SNPs few algorithms are capable to investigate more than second order interaction in a reasonable time. There are some algorithms that can handle higher interaction orders however these have drawbacks\cite{gwis,high_order_2012,fast_high_order_cluster}.
 
 \section{Defining Interaction}
 There are several ways to define interaction. The overall goal is usually to detect if \emph{biological} interactions are present. \emph{Biological} interaction is when the factors co-operate through a physiological or biological mechanism and causes the effect, e.g. the disease. This information can be used to explain the mechanisms involved in causing the disease and possibly help to find cures for them. However biological interaction is not well defined and thus it is not possible to calculate it directly from data.\cite{rothman1998modern,rothman2002intro_epidemiology}\\
@@ -149,8 +151,8 @@ The aim of this project was to build a program for gene-environment using logist
 \clearpage
 \chapter{Background}
 %TODO
-Intro here
-
+Intro here\\
+\\
 Most of the conducted research on interactions in GWAS has been focused on gene-gene interactions. Few studies and tools have been investigating gene-environment interactions.
 
 Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} have been used for GWAS. GPUs have been a popular choice since most of the methods for searching for interaction are good on GPUs because each combination of variables can usually be considered independently from the others. More about this in section \ref{gpu_gwas}
@@ -199,7 +201,7 @@ Environmental factors can be of any type which creates problems in various ways\
 For instance if a study would look into the effects of yellow teeth on lung cancer they would likely find an effect. However it would be due to the confounder smoking since smoking causes yellow teeth and lung cancer.
 
 \subsection{The Multiple Testing Problem}
-It is not uncommon to test a lot of hypothesis on the same data and in the case of GWAS it can be billions of tests. If one continues to test one should eventually find something that is significant due to random chance. With the standard p-value of 5\% it is expected to get 1 in 20 false positives under the assumption that the null hypothesis is true. The problem arises from the fact that the hypothesis tests are dependent on each other since they use parts of the same data. This is the multiple testing problem and if it is not corrected for one might find a lot of false positives.\cite{bonferroni_multiple}\\
+It is not uncommon to test a lot of hypothesis on the same data and in the case of GWAS it can be billions of tests. If one continues to test one should eventually find something that is significant due to random chance. With the standard p-value of 5\% it is expected to get 1 in 20 false positives under the assumption that the null hypothesis is true. The problem arises from the fact that the hypothesis tests are dependent on each other since they use parts of the same data. This is the multiple testing problem and if it is not corrected for a lot false positives might be found.\cite{bonferroni_multiple}\\
 \\
 Bonferroni correction is the simplest method and viewed as a conservative way to correct for this problem. It simply divides the p-value threshold that a test passes by the number of hypothesis. However the number of hypothesis made is not always clear. With a two-stage analysis, is the number of hypothesis the number of tests done in both stages combined, the number made in the first stage or the second stage?\cite{bonferroni_multiple}
 
@@ -265,7 +267,12 @@ One way to model the contingency tables is by using \emph{logistic regression}. 
 log(\frac{\pi}{1-\pi})
 \end{equation}
 
-%TODO picture of logit transformation graph
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{logit.png}
+    \caption{Graph of the logit transformation. Wikipedia Commons}
+    \label{fig:logit}
+\end{figure}
 
 The probability with a set of predictor variables \emph{X} is $\pi(X)=P(Y=1)$. The linear regression model with n predictors $X=(x_1,x_2,....,x_n)$, coefficients $\beta=(\beta_1, \beta_2,....,\beta_n)$ and by using the logit transformation is then\cite{agresti_categorical}
 \begin{equation}\label{eq:logit_lr}
@@ -289,11 +296,46 @@ This means that $\exp{\beta}$ is the odds ratio since the odds increase by $\exp
 \theta=\frac{e^{\alpha+\beta (x+1)}}{e^{\alpha+\beta x}}=e^{\alpha+\beta (x+1)-\alpha-\beta x}=e^{\beta}
 \end{equation}
 
-Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models \cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. Below is pseudo code for the algorithm\cite{uvehag_master_thesis}.
+Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models \cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. Below is pseudo code for the algorithm using Newtons method\cite{uvehag_master_thesis}.\\
+\\
+Fix this part a bit %TODO
+Note: $\cdot$ is matrix-matrix or vector, * is element by element\\
+X is the variables(N X M), Y outcomes with length N, inital beta is length M
 
-\begin{lstlisting}
+\begin{algorithm}
+\begin{algorithmic}
+\State $\boldsymbol{X}\gets
+\begin{pmatrix}
+\begin{matrix}
+  1\\
+  \vdots\\
+  1
+\end{matrix} & \boldsymbol{X}
+\end{pmatrix}
+$
 
-\end{lstlisting}
+\State $\beta\gets
+\begin{pmatrix}
+  0\\
+  \beta
+\end{pmatrix}
+$
+
+\State $iter\gets 0$
+\State $diff\gets 1$
+\\
+\While{$iter < max\_iter \; \boldsymbol{and} \; diff > threshold$}
+\State $\beta_{old}\gets\beta$
+\State $p\gets \frac{e^{\beta \cdot \boldsymbol{X}}}{1+e^{\beta \cdot \boldsymbol{X}}}$
+\State $s\gets \boldsymbol{X}\cdot (\boldsymbol{Y}-p)$
+\State $\boldsymbol{J}\gets (\boldsymbol{X}\cdot (p*(1-p)))\cdot \boldsymbol{X^T}$
+\State $\beta\gets \beta_{old}+\boldsymbol{J}^{-1} \cdot s$
+\State $diff\gets \sum |\beta-\beta_{old}|$
+\State $iter\gets iter+1$
+\EndWhile
+\State $log \; likelihood\gets \sum (\boldsymbol{Y}*ln p+(1-\boldsymbol{Y})*ln(1-p))$
+\end{algorithmic}
+\end{algorithm}
 
 \subsubsection{Mathematical Definition of Interaction for LR}
 \label{additive}
@@ -434,51 +476,92 @@ It was first used in EDVAC which was one of the first stored program computers\c
 
 some text here about von neaumann architecture
 
-For the purpose in this thesis it is easiest to think about the architecture as three main parts, data storage, processor and the memory.
+For the purpose of this thesis it is easiest to think about the architecture as three main parts, data storage, processor and the memory.
 
 \subsection{CPU}
 Central processing unit(CPU) is \cite{introduction_hpc_hager}
 
-Until 1996 there was computers with just a single core CPU on top 500\cite{TOP500}. Since about 2005 most desktop computers CPU has several cores which has increased the need for parallelization. The cores themselves aren't getting faster, the CPUs have more cores.
+Until 1996 there was computers with just a single core CPU on top 500\cite{TOP500}. Since about 2005 most desktop computers CPU has several cores which has increased the need for parallel programs. The cores themselves aren't getting faster, the CPUs have more cores.
 
 %schematic here
 
-As you can see most of it is not used for calculations. A large part of the area is used for optimizations and caching. We will talk about caching in the next section. CPUs have various optimizations too improve their performance.
+As you can see most of it is not used for calculations. A large part of the area is used for optimizations and caching. We will talk about caching and optimizations the next section. 
 
-branch prediction
+\subsection{Memory, Caching and Optimizations}
+there are various optimizations, bla bla intro
+\\
+Picture here of memory stuff, caching\\
+\\
+Retrieving data from memory is relatively slow compared to how fast the processor works\cite{introduction_hpc_hager,drepper2007cpumemory}. %TODO something about the  maginitude
+To solve this problem a \emph{cache} was introduced. It stores recently used data in a very small and very fast memory that resides on the CPU chip itself. That data can then be reused fast without waiting for the main memory to fetch it. However when the data is not in the cache it takes the usual speed to fetch it from the main memory, that is a \emph{cache miss}. Avoiding cache misses is important for speed because of how costly they can be. Modern CPUs commonly have more than one cache, most have three. They are named L1 to L3, with L1 being the one fastest and smallest and L3 the largest and slowest. The speed of the L1 cache is usually around one processor cycle and the total size of the caches is around four to sixteen megabyte on modern CPUs.\\
+\\
+Modern multicore processors several L1 caches, one for each core. It is usually one L2 per core too, however it is shared in some architectures. L3 is almost always shared between all cores. That multiple caches are used creates a problem called \emph{cache coherency}. It is that when the data is modified in one cache all the cores caches needs to be updated too so that they use the new value.\\
+\\
+Another memory optimization somewhat related to caches is \emph{prefetching}\cite{introduction_hpc_hager}. Instead of fetching just the data requested by the current operations it also fetches the surrounding data. The chance that the surrounding data will be used soon is high since it is common to iterate over arrays and similar structures\cite{introduction_hpc_hager}. If a program iterates over an array unless it was used recently the first value will be a cache miss since it is not in the cache. However the following values will be due to them being prefetched and cached. At some point however the array is too long to be prefetched and cached completely and when the CPU hits that spot a new cache miss will happen. Because everything is stored sequentially it is important in some cases to know how the it is stored so that the prefetching and caching can be used. One of these cases is for matrices, they are 2D but stored as one array. Different programming languages store them differently, either column by column or row by row. Row by row is called \emph{row major} and column by column is \emph{column major.}\\
+\\
+In section 6.2.1 in \cite{drepper2007cpumemory} an example of how much speed that can be gained by optimizing matrix matrix multiplication. The first version is shown below.
 
-%TODO instruction level paralism
+\begin{lstlisting}
+for (i = 0; i < N; ++i)
+  for (j = 0; j< N; ++j)
+    for (k = 0;k < N; ++k)
+      res[i][j]+= mul1[i][k] * mul2[k][j];
+\end{lstlisting}
 
-\subsection{Caching and CPU Optimizations}
-%TODO
-The CPU optimization that is most important to know for programmers is caching because it affect the way the code has to be written and the difference between using it correctly and not is huge.
-The CPU also fetches chunks of memory, stuff stored sequential so column major vs row major important to know
+By transposing the mul2 matrix it becomes more cache friendly because it uses the prefectching of surrounding data the way that mul1 already is\cite{drepper2007cpumemory}. The transpose itself can be eliminated while also making it use the cache better by reading in the correct amount of data, this is the size SM in the code below\cite{drepper2007cpumemory}. 
+The version below took 17.3\% of the original\cite{drepper2007cpumemory}.
 
-%correct vs incorrect matrix multiplication
+\begin{lstlisting}
+#define SM (CLS / sizeof (double))
 
-\cite{drepper2007cpumemory}
+for (i = 0; i < N; i += SM)
+  for (j = 0; j < N; j += SM)
+    for (k = 0; k < N; k += SM)
+      for (i2 = 0, rres = &res[i][j], rmul1 = &mul1[i][k]; i2 < SM; ++i2, rres += N, rmul1 += N)
+	for (k2 = 0, rmul2 = &mul2[k][j]; k2 < SM; ++k2, rmul2 += N)
+	  for (j2 = 0; j2 < SM; ++j2)
+	    rres[j2] += rmul1[k2] * rmul2[j2];
+\end{lstlisting}
 
-Branch prediction, speculative execution
-
-Pointer aliasing, usually refereed to as just aliasing but not be confused with aliasing in graphics, is when the same memory area can be accessed using different variables. This becomes a problem if an area of the program operates on them at similar times. The relative order of operations between these operations then has to be preserved preventing various optimizations such as instruction level parallelism since the CPU doesn't know if this occurs or not so has to treat all situations where it can occur as if it does. Most compilers have options to disable aliasing to allow for more optimizations, however it is then the programmers responsibility to make sure that aliasing doesn't occur.
+On top of that by using some additional features of the the CPU do multiple instructions at once further speed is gained pushing the speed to 9.47\% of the original time\cite{drepper2007cpumemory}. \\
+\\
+Instruction level parallelism\\ %TODO
+\\
+If the operation instructions diverge, e.g. if statements, the CPU would have to wait for the results to see what instructions load and do next\cite{drepper2007cpumemory}. This can mean a lot of lost time, however thanks to a optimization called \emph{branch prediction} and \emph{speculative execution} that can be prevented in some cases\cite{drepper2007cpumemory}. A dedicated part of the CPU stores the results from these diverges and when they are repeated it uses them to make an guess of what do to next\cite{drepper2007cpumemory}. It then loads the instructions and tries to fetch the needed data\cite{drepper2007cpumemory}. It then speculatively executes the instructions, i.e it executes instructions that might not actually be needed\cite{drepper2007cpumemory}. If the guess was correct the results are kept, on the other hand if it was wrong the CPU starts again from the correct path and discards the incorrect results\cite{drepper2007cpumemory}.
+\\
+One thing that sometimes can prevent optimizations is \emph{pointer aliasing}, usually refereed to as just \emph{aliasing} but not be confused with aliasing in graphics, is when the same memory area can be accessed using different variables\cite{introduction_hpc_hager}. This becomes a problem if an set of instructions operates on them at similar times. The relative order of operations between these operations then has to be preserved preventing various optimizations such as instruction level parallelism. The compiler doesn't know if aliasing occurs or not so has to treat all situations where it can occur as if it does\cite{introduction_hpc_hager}. Some programming languages such as Fortran disallow some types of aliasing while C/C++ can get problems with aliasing\cite{introduction_hpc_hager}. This one of the reasons why Fortran is usually faster than C/C++\cite{introduction_hpc_hager}. The compilers for the languages in the second case usually have options to disable aliasing to allow for more optimizations by the compiler. However for languages that don't allow aliasing or if it is disabled it is then the programmers responsibility to make sure that aliasing doesn't occur\cite{introduction_hpc_hager}.
 
 \subsection{Concurrency and Threads}
 \label{concurrency}
-\emph{Concurrency} means doing multiple things and the same time, instead of \emph{sequential}. This can cause various problems such as the same object being accessed at the same time. The dinning philosophers is an example  used to illustrate some of these problems. A group of philosophers is sitting at a round table, each has a plate of spaghetti in front of them and there is a fork between each pair of philosophers. The philosophers alternate between thinking and eating. However they can only eat if they have both the right and left fork.
+\emph{Concurrency} means doing multiple things and the same time, instead of \emph{sequential}. This can cause various problems such as the same object being accessed at the same time. The dinning philosophers is an concurrency problem that can used to illustrate some of these problems. A group of philosophers is sitting at a round table, each has a plate of spaghetti in front of them and there is a fork between each pair of philosophers\cite{hoare1985communicating}. The philosophers alternate between thinking and eating. However they can only eat if they have both the right and left fork\cite{hoare1985communicating}.
 
-%TODO picture here
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=5cm]{dining_philosophers.png}
+    \caption{Illustration of the dining philosophers problem. Wikipedia Commons}
+    \label{fig:dining_philosophers}
+\end{figure}
 
-%more dinning stuff here
-
-\emph{Deadlocks} occur when two or more threads wait for the other to finish, since they are all stucking in waiting the program will not progress.
-
-A \emph{race condition} occurs when the result depends on which threads affects it first. Due to the nature of how parallelism works the output can vary between different runs of the program depending on which thread is fastest.
-
-\emph{Locks} are used to prevent situations as the ones described above by making sure only one thread at a time can change the data in question.
-
-In computer science concurrency occurs when instructions are separated in different threads. There are various way this can happen depending on architecture. They are divided into four general groups. The non parallel is \emph{SISD}(Single-Instruction,Single-Data) and is as the name says, single instructions on single data.
-\emph{SIMD}(Single-Instruction, Multiple-Data) is applying the same instruction on different data. SIMD is also called vectorisation.
-\emph{MIMD}(Multiple-Instruction, Multiple-Data) applies different instructions on different data. There is also \emph{MISD}(Multiple-Instruction, Single-Data) but it is uncommon. It performs different operations at the same time on a piece of data.
+A potential proposal for behaviour instructions could be:
+\begin{itemize}
+ \item Think
+ \item Wait for a fork to become available and pick up that fork
+ \item Wait for and pick up the other fork
+ \item Eat
+ \item Put down the forks one by one
+ \item Go back to thinking
+\end{itemize}
+The problem is that this set of instructions can lead to a state where everyone is holding one fork and waiting to get the other one\cite{hoare1985communicating}. But no one is done eating so no forks will become available. The system is then locked into its state, this is called a \emph{deadlock}\cite{hoare1985communicating, introduction_hpc_hager}. A potential solution to the problem in this case is to introduce a person that dictates if a philosopher is allowed to eat or not\cite{hoare1985communicating}.\\
+\\
+There are also other potential problems that can arise when using concurrency. A \emph{race condition} occurs when the result depends on what affects it first, it is a race between them on who can reach it first\cite{introduction_hpc_hager}. \emph{Locks} can be used to prevent situations as the ones described above by making sure only one thread at a time can access the object\cite{introduction_hpc_hager}.\\
+\\
+In computer science concurrency occurs when instructions are separated in different \emph{threads}. The type can be divided into four groups including the sequential.
+\begin{itemize}
+ \item \emph{SISD}(Single-Instruction,Single-Data) is the sequential and is as the name says, single instructions on single data\cite{introduction_hpc_hager}.
+ \item \emph{SIMD}(Single-Instruction, Multiple-Data) is applying the same instruction on different data\cite{introduction_hpc_hager}. SIMD is also called vectorisation\cite{introduction_hpc_hager}.
+ \item \emph{MIMD}(Multiple-Instruction, Multiple-Data) applies different instructions on different data\cite{introduction_hpc_hager}.
+ \item \emph{MISD}(Multiple-Instruction, Single-Data) performs different operations at the same piece of data, this paradigm is uncommon\cite{introduction_hpc_hager}.
+\end{itemize}
 
 \begin{figure}
         \centering
@@ -507,8 +590,6 @@ In computer science concurrency occurs when instructions are separated in differ
         \end{subfigure}
         \caption{Flynns taxamony}\label{fig:flynn}
 \end{figure}
-
-\cite{introduction_hpc_hager}
 
 \subsection{Accelerators, GPUs and Xeon Phi}
 Graphics processing unit(GPU) have become more popular for general computing the last 10 years.
@@ -577,7 +658,7 @@ Picture of Tianhe-2 here
 \subsection{CUDA programming model}
 This section is about GPU programming in more detail using NVIDIAs CUDA(Compute Unified Device Architecture)\cite{cuda}. CUDA extends C and C++ with some additional functionality that can be used to perform operations on NVIDAs GPUs. It provides a separate compiler to compile the GPU code called nvcc. Diffrent GPUs support different CUDA functions, each NVIDIA GPU has a value called computational capability. The higher the value the more features of CUDA are supported on that GPU. Some properties also vary between the different underlying architectures. This means that it is important to know what kind of capability the GPU to be used has so that the program does not need features that are not there. The things described here might not apply to GPUs with compute capability below 3. There are GPUs made specifically for calculations rather than games.\cite{cuda}\\
 \\
-In CUDA the GPU is called \emph{device} and ???? is the \emph{host}. To perform operations on the device a type of function called \emph{kernel} is used. A kernel is specified the same way as a normal C/C++ function but with the addition of \_\_global\_\_ in front of the function declaration. The way the kernels are used differs slightly from normal C/C++ too. <<<...>>> is added to the it specifying how many threads to be use among others.\cite{cuda}\\
+In CUDA the GPU is called \emph{device} and systems CPU and memory is the \emph{host}. To perform operations on the device a type of function called \emph{kernel} is used. A kernel is specified the same way as a normal C/C++ function but with the addition of \_\_global\_\_ in front of the function declaration. The way the kernels are used differs slightly from normal C/C++ too. <<<...>>> is added to the it specifying how many threads to be use among others.\cite{cuda}\\
 \\
 Below here is an example of a kernel and how it can be called from the host code. The kernel add each element of the arrays A and B storing it in C. Each thread performs on addition and knows why elements to use based on it's id. The call to the kernel is made by giving three arrays and the number of threads to be used as N. In this case N needs to be the length of the arrays.
 \begin{lstlisting}
@@ -619,17 +700,18 @@ The GPUs memory is physically on a different device separate from the computers 
 The GPU also have several different types of memory\cite{cuda}. Correct usage can give increased speed\cite{cuda, cuda_best_practice}.
 
 \begin{itemize}
-  \item Register memory is located on the multiprocessor and usually costs zero cycles to access. The multiprocessor splits the available registers over its threads so if there are a lot of threads that uses a lot of variables not all of them will fit in the register. This is why a program sometimes can be faster with lower occupancy.\cite{cuda}
+  \item Register memory is located on the multiprocessor and usually costs zero cycles to access. The multiprocessor splits the available registers over its threads so if there are a lot of threads that uses a lot of variables not all of them will fit in the register. This is why a program sometimes can be faster with lower number of threads.\cite{cuda}
   \item Global memory is the main memory of the GPU and is accessible from all threads and blocks. However it is relatively slow to access.\cite{cuda}
   \item Shared memory is shared inside a block and is faster than global memory. However it is limited in size.\cite{cuda}
-  \item Constant memory is small however its cached so it is fast to access. It's read only and best used for small amount of variables that all threads access.\cite{cuda}
-  \item Local memory is tied to the threads scope, but it is still resides off-chip so it has the same access time as global memory.\cite{cuda}
-  \item Texture memory is read only and can be faster to access than global memory in some situations. This was more important in older GPUs when global memory wasn't cached.\cite{plink_gpu, cuda}
+  \item Constant memory is small however it is read only which enables some optimizations. It is best used for small variables that all threads access.\cite{cuda}
+  \item Local memory is tied to the threads scope, however it still resides off-chip so it has the same access time as global memory.\cite{cuda}
+  \item Texture memory is read only and can be faster to access than global memory in some situations. This was more important in older GPUs when global memory was not cached.\cite{plink_gpu, cuda}
   \item Read-only cache is available on Kepler GPUs and uses the same cache as the texture memory. The data as to be read only each multiprocessor can have up to 48kb of space depending on GPU.\cite{kepler_tuning_guide}
 \end{itemize}
 
 \subsubsection{Streams}
-The kernel calls can be made on a stream. By default a kernel is executed on the null stream. The easiest way to think of the stream is as queue. The kernels on a stream will be executed in the order they are made but kernels from different streams can be executed in any order given there is enough computational resources. In this way it is possible to execute up to 32 concurrent kernels depending on GPU.\cite{cuda}\\
+\label{streams}
+The kernel calls can be made on a \emph{stream}. The easiest way to think of the stream is as queue. The kernels on a stream will be executed in the order they are made but kernels from different streams can be executed in any order given there is enough computational resources. In this way it is possible to execute up to 32 concurrent kernels depending on GPU.\cite{cuda}\\
 \\
 This is not entirely true for some GPU architectures because they only have one queue for the kernels. Because of this independent kernels from different streams can block each other. If we have a group of kernels and issue them on stream one first and then on stream two all the kernels in stream two will be stuck in the queue waiting for the kernels in stream one to finish. This is because the kernels queue only looks at the first kernels to see if they can be executed. The second kernel in the first stream then blocks the queue from moving forward so it will not see the kernels on stream two that could be executed. Newer architectures after Kepler on the other hand has several queues so they don't have this problem.\cite{cuda, cuda_best_practice, kepler_tuning_guide}\\
 \\
@@ -813,11 +895,10 @@ Producer consumer pattern
 
 why lr
 -less sever drawbakcs for non binary
--can handle non binary data
+-can handle non binary data(however statistical problems needs to be solved)
 -slow but is not too slow for gene-environment interaction
 
-Strucuture picture here.
-
+C++ is row major but this program is column major completely. Because BLAS and CUBLAS
 
 Dependencies
 -boost
@@ -838,10 +919,12 @@ compilers
 
 %What was used
 %Zorn specs
-%compiler intel 13.1
+%compiler intel 14.0
 %cmake 2.8
 %mkl 13.1
 %cuda 5.5
+
+kepler vs fermi queue problem, problem described in section \ref{streams}
 
 \chapter{Discussion and Conclusions}
 %Discussion and Conclusions (up to 3 pages)

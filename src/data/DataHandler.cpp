@@ -12,7 +12,8 @@ DataHandler::DataHandler(const Configuration& configuration, FileIO::BedReader& 
         &environmentInformation), currentEnvironmentFactorPos(environmentInformation.size() - 1), state(
         NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(&contingencyTableFactory), modelInformationFactory(
         &modelInformationFactory), currentSNP(nullptr), cellCountThreshold(configuration.getCellCountThreshold()), alleleStatistics(
-        nullptr), modelInformation(nullptr), currentEnvironmentFactor(nullptr) {
+        nullptr), modelInformation(nullptr), currentEnvironmentFactor(nullptr), currentStatisticModel(ADDITIVE), appliedStatisticModel(
+        false) {
 
 }
 
@@ -21,7 +22,7 @@ DataHandler::DataHandler(const Configuration& configuration) :
         nullptr), snpVector(nullptr), environmentVector(nullptr), environmentInformation(nullptr), currentEnvironmentFactorPos(
         0), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(nullptr), currentSNP(nullptr), alleleStatistics(
         nullptr), cellCountThreshold(0), modelInformationFactory(nullptr), modelInformation(nullptr), currentEnvironmentFactor(
-        nullptr) {
+        nullptr), currentStatisticModel(ADDITIVE), appliedStatisticModel(false) {
 
 }
 
@@ -37,6 +38,7 @@ DataHandler::~DataHandler() {
 
 DataHandlerState DataHandler::next() {
   currentRecode = ALL_RISK;
+  appliedStatisticModel = false;
 
   delete contingencyTable;
   delete modelInformation;
@@ -106,23 +108,23 @@ void DataHandler::applyStatisticModel(StatisticModel statisticModel) {
     throw InvalidState("Before using applyStatisticModel run next() at least once.");
   }
 #endif
+
+  if(appliedStatisticModel){ // If a model has been previously applied after a next or a recode then things can have changed
+    snpVector->recode(currentRecode);
+    environmentVector->recode(currentRecode);
+  }
+
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
-}
 
-bool DataHandler::readSNP(SNP& nextSnp) {
-  std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = bedReader->readSNP(nextSnp);
-  alleleStatistics = pair->first;
-  snpVector = pair->second;
-
-  delete pair;
-  return nextSnp.shouldInclude();
+  appliedStatisticModel = true;
+  currentStatisticModel = statisticModel;
 }
 
 void DataHandler::recode(Recode recode) {
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
-    throw InvalidState("Before using the getter run next() at least once.");
+    throw InvalidState("Before using recode run next() at least once.");
   }
 #endif
 
@@ -131,10 +133,11 @@ void DataHandler::recode(Recode recode) {
   }
 #ifdef DEBUG
   else if(!(recode == SNP_PROTECT || recode == ENVIRONMENT_PROTECT || recode == INTERACTION_PROTECT || recode == ALL_RISK)){
-    throw InvalidState("Unknown recode for a SNPVector.");
+    throw InvalidState("Unknown recode for DataHandler.");
   }
 #endif
   currentRecode = recode;
+  appliedStatisticModel = false;
 
   snpVector->recode(recode);
   environmentVector->recode(recode);
@@ -148,6 +151,15 @@ void DataHandler::recode(Recode recode) {
     modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
         *alleleStatistics, *contingencyTable);
   }
+}
+
+bool DataHandler::readSNP(SNP& nextSnp) {
+  std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = bedReader->readSNP(nextSnp);
+  alleleStatistics = pair->first;
+  snpVector = pair->second;
+
+  delete pair;
+  return nextSnp.shouldInclude();
 }
 
 Recode DataHandler::getRecode() const {

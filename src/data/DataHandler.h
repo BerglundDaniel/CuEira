@@ -45,7 +45,8 @@ class DataHandler {
   FRIEND_TEST(DataHandlerTest, Recode);
   FRIEND_TEST(DataHandlerTest, RecodeEnvNotBinary);
   FRIEND_TEST(DataHandlerTest, RecodeEnvBinary);
-  FRIEND_TEST(DataHandlerTest, ApplyStatisticModel);
+  FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevFalse);
+  FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevTrue);
 public:
   DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
       const ContingencyTableFactory& contingencyTableFactory, const Model::ModelInformationFactory& modelInformationFactory,
@@ -98,10 +99,12 @@ private:
   const ContingencyTable* contingencyTable;
   const AlleleStatistics* alleleStatistics;
   Recode currentRecode;
+  StatisticModel currentStatisticModel;
   int currentEnvironmentFactorPos;
   SNP* currentSNP;
   const EnvironmentFactor* currentEnvironmentFactor;
   const int cellCountThreshold;
+  bool appliedStatisticModel;
 };
 
 } /* namespace CuEira */

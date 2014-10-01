@@ -136,6 +136,7 @@ int main(int argc, char* argv[]) {
   Container::HostMatrix* covariates = nullptr;
   std::vector<std::string>* covariatesNames = nullptr;
   if(configuration.covariateFileSpecified()){
+    throw InvalidState("Covariates no working atm"); //FIXME the thread doesn't take them at fix it
 #ifdef PROFILE
     boost::chrono::system_clock::time_point beforeCovPoint = boost::chrono::system_clock::now();
 #endif

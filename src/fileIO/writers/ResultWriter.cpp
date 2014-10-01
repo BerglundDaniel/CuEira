@@ -53,16 +53,8 @@ void ResultWriter::printHeader() {
       << "no_snp0_env0_case,no_snp0_env0_control,no_snp1_env0_case,no_snp1_env0_control,no_snp0_env1_case,no_snp0_env1_control,no_snp1_env1_case,no_snp1_env1_control,"
       << "ap,reri,OR_add_snp,OR_add_snp_L,OR_add_snp_H,OR_add_env,OR_env_add_L,OR_env_add_H,OR_add_inter,OR_add_inter_L,OR_add_inter_H,";
 
-  //Covariates here too
-
   outputStream
       << "OR_mult_snp,OR_mult_snp_L,OR_mult_snp_H,OR_mult_env,OR_mult_env_L,OR_mult_env_H,OR_mult_inter,OR_mult_inter_L,OR_mult_inter_H,";
-
-  /*
-   for(int i = 0; i < numberOfCovariates; ++i){
-   outputStream << (*covariatesNames)[i] << "_cov_OR," << (*covariatesNames)[i] << "_cov_OR_L,"
-   << (*covariatesNames)[i] << "_cov_OR_H,";
-   }*/
 
   outputStream << "recode" << std::endl;
 }

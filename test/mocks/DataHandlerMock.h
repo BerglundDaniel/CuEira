@@ -13,6 +13,7 @@
 #include <EnvironmentVector.h>
 #include <ModelInformation.h>
 #include <DataHandlerState.h>
+#include <StatisticModel.h>
 
 namespace CuEira {
 
@@ -36,7 +37,7 @@ public:
   MOCK_CONST_METHOD0(getEnvironmentVector, const Container::EnvironmentVector&());
 
   MOCK_METHOD0(next, DataHandlerState());
-  MOCK_METHOD1(recode, void(Recode));
+  MOCK_METHOD1(recode, void(Recode, StatisticModel));
 };
 
 } /* namespace CuEira */

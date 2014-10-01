@@ -441,7 +441,7 @@ TEST_F(DataHandlerTest, ContingencyTableIncludeFalse) {
   EXPECT_EQ(modelInformationSkipMock, &modelInformation);
 }
 
-TEST_F(DataHandlerTest, ApplyStatisticModel) {
+TEST_F(DataHandlerTest, ApplyStatisticModel_PrevFalse) {
 #ifdef CPU
   Container::HostVector* interactionData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
 #else
@@ -461,6 +461,41 @@ TEST_F(DataHandlerTest, ApplyStatisticModel) {
   (*environmentStore)[0]->setVariableType(OTHER);
   dataHandler.currentEnvironmentFactor = (*environmentInformation)[0];
   dataHandler.snpVector = snpVectorMock;
+  dataHandler.appliedStatisticModel = false;
+
+  EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(2).WillRepeatedly(ReturnRef(*interactionData));
+  EXPECT_CALL(*environmentVectorMock, applyStatisticModel(statisticModel, _)).Times(1);
+  EXPECT_CALL(*snpVectorMock, applyStatisticModel(statisticModel, _)).Times(1);
+
+  dataHandler.applyStatisticModel(statisticModel);
+
+  delete interactionData;
+}
+
+TEST_F(DataHandlerTest, ApplyStatisticModel_PrevTrue) {
+#ifdef CPU
+  Container::HostVector* interactionData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
+#else
+  Container::HostVector* interactionData = new Container::PinnedHostVector(numberOfIndividuals);
+#endif
+  const StatisticModel statisticModel = ADDITIVE;
+
+  Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();
+
+  EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
+
+  DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock,
+      *modelInformationFactoryMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
+
+  //Set some things so it behaves like it has been initialised
+  dataHandler.state = dataHandler.INITIALISED;
+  (*environmentStore)[0]->setVariableType(OTHER);
+  dataHandler.currentEnvironmentFactor = (*environmentInformation)[0];
+  dataHandler.snpVector = snpVectorMock;
+  dataHandler.appliedStatisticModel = true;
+
+  EXPECT_CALL(*snpVectorMock, recode(_)).Times(1);
+  EXPECT_CALL(*interactionVectorMock, recode(_)).Times(1);
 
   EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(2).WillRepeatedly(ReturnRef(*interactionData));
   EXPECT_CALL(*environmentVectorMock, applyStatisticModel(statisticModel, _)).Times(1);

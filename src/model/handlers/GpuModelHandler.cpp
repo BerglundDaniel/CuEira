@@ -27,10 +27,10 @@ CombinedResults* GpuModelHandler::calculateModel() {
   logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
   logisticRegressionConfiguration.setInteraction(*interactionData);
 
-  LogisticRegression::LogisticRegressionResult* logisticRegressionResult = logisticRegression->calculate();
+  LogisticRegression::LogisticRegressionResult* additiveLogisticRegressionResult = logisticRegression->calculate();
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
 
-  Recode recode = logisticRegressionResult->calculateRecode();
+  Recode recode = additiveLogisticRegressionResult->calculateRecode();
   if(recode != ALL_RISK){
     dataHandler->recode(recode);
 
@@ -39,12 +39,20 @@ CombinedResults* GpuModelHandler::calculateModel() {
     logisticRegressionConfiguration.setInteraction(*interactionData);
 
     //Calculate again
-    delete logisticRegressionResult;
-    logisticRegressionResult = logisticRegression->calculate();
+    delete additiveLogisticRegressionResult;
+    additiveLogisticRegressionResult = logisticRegression->calculate();
     CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
   }
 
-  return combinedResultsFactory.constructCombinedResults(logisticRegressionResult, recode);
+  //TODO do something with dataHandler
+
+  logisticRegressionConfiguration.setSNP(*snpData);
+  logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
+
+  LogisticRegression::LogisticRegressionResult* multiplicativeLogisticRegressionResult =
+      logisticRegression->calculate();
+
+  return combinedResultsFactory.constructCombinedResults(additiveLogisticRegressionResult, recode);
 }
 
 } /* namespace Model */

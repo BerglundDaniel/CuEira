@@ -90,9 +90,6 @@ DataHandlerState DataHandler::next() {
     }
   }
 
-  snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
-  environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
-
   if(currentEnvironmentFactor->getVariableType() == BINARY){
     modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
         *alleleStatistics, *contingencyTable);
@@ -100,6 +97,9 @@ DataHandlerState DataHandler::next() {
     modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
         *alleleStatistics);
   }
+
+  snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
+  environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 
   return CALCULATE;
 }

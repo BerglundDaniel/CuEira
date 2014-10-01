@@ -182,6 +182,10 @@ TEST_F(DataHandlerTest, Next) {
   std::vector<ContingencyTableMock*> contingencyTableVector(numberOfRuns);
   std::vector<Model::ModelInformationMock*> modelInformationVector(numberOfRuns);
 
+  for(int i = 0; i < numberOfEnvironmentFactors; ++i){
+    (*environmentStore)[i]->setVariableType(BINARY);
+  }
+
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock,
       *modelInformationFactoryMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
 
@@ -438,6 +442,7 @@ TEST_F(DataHandlerTest, ContingencyTableIncludeFalse) {
   const StatisticModel statisticModel = ADDITIVE;
   EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(statisticModel));
   EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(5));
+  (*environmentStore)[0]->setVariableType(BINARY);
 
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock,
       *modelInformationFactoryMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
@@ -469,7 +474,9 @@ TEST_F(DataHandlerTest, ContingencyTableIncludeFalse) {
   Model::ModelInformation* modelInformationSkipMock = new Model::ModelInformationMock();
   EXPECT_CALL(*modelInformationFactoryMock, constructModelInformation(Eq(ByRef(*(*snpStore)[0])),Eq(ByRef(*(*environmentStore)[0])),_,_)).Times(
       1).WillOnce(Return(modelInformationSkipMock));
+
   DataHandlerState state = dataHandler.next();
+
   const Model::ModelInformation& modelInformation = dataHandler.getCurrentModelInformation();
   EXPECT_EQ(SKIP, state);
   EXPECT_EQ(modelInformationSkipMock, &modelInformation);

@@ -62,7 +62,7 @@ TEST_F(ModelInformationFactoryTest, ConstructModelInformationNotTable) {
   std::ostringstream result;
   result << snp << "," << environmentFactor << "," << alleleStatistics;
 
-  ModelInformation* modelInformation = modelInformationFactory.constructModelInformation(DONE, snp, environmentFactor,
+  ModelInformation* modelInformation = modelInformationFactory.constructModelInformation(snp, environmentFactor,
       alleleStatistics);
 
   std::ostringstream osModelInformation;
@@ -87,7 +87,7 @@ TEST_F(ModelInformationFactoryTest, ConstructModelInformationAll) {
   std::ostringstream result;
   result << snp << "," << environmentFactor << "," << alleleStatistics << "," << contingencyTable;
 
-  ModelInformation* modelInformation = modelInformationFactory.constructModelInformation(DONE, snp, environmentFactor,
+  ModelInformation* modelInformation = modelInformationFactory.constructModelInformation(snp, environmentFactor,
       alleleStatistics, contingencyTable);
 
   std::ostringstream osModelInformation;

@@ -632,7 +632,7 @@ In short GPUs excel at linear algebra but Intel MIC is probably a good alternati
 GPUs are good for interaction algorithms since most approaches are embarrassingly parallel since they consider each combination independently from the others. They also often perform a lot of linear algebra. Several studies got high gains from implementing their programs on GPU, however their CPU versions weren't parallelized so it is likely that the gains would have been less compared to an optimized and parallelized CPU version.\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} However one study made a CPU cluster version and a GPU version of an algorithm that uses $chi^2$ tests, they found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.
 
 \subsection{Clusters}
-%picture, server->nodes etc
+%picture, server->nodes etc TODO
 
 Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communciate over a shared network but have separate memory and processors. Storage is usually shared. A computer in a cluster is called a \emph{node}. \cite{intro_hpc, kirk2012programming}
 
@@ -693,10 +693,11 @@ The $<<<N,M>>>$ specifier tells CUDA how many $N$ blocks and how many $M$ thread
 
 The streaming multiprocessors(SM) is the hardware that handles the execution of these blocks and can execute hundreds of threads concurrently. It uses \emph{SIMT}(Single-Instruction, Multiple-Thread) which is similar to SIMD described earlier in section \ref{concurrency}. SIMT works mostly as SIMD except that it can act as MIMD on collections of threads called \emph{warps}. Each warp consists of 32 threads. When an SM gets a block it is split into warps that are assigned to warp schedulers. Each warp scheduler gives one instruction to a warp so full efficiency is achieved when all the 32 threads perform the same instruction. If there is any divergence it has to disable unrelated threads, so divergence can be costly. However different groups of warps are on different warps schedulers so can diverge without problem.\cite{cuda}
 
+%TODO placeholder image
 \begin{figure}[h]
     \centering
     \includegraphics[width=7cm]{SIMT.png}
-    \caption{SIMT architecture}
+    \caption{SIMT architecture, PLACE HOLDER}
     \label{fig:SIMT}
 \end{figure}
 
@@ -723,13 +724,23 @@ This is not entirely true for some GPU architectures because they only have one 
 \\
 Streams are also important for asynchronous transfers. These transfers are executed on a stream and just as kernels gets executed after the previous kernels on the same stream is done. The advantage is that other streams can do calculations as normal while the transfer happens. This can hide the time for transfers completely in some situations. However the host memory has to be pinned. Pinned memory means that the operative system can not page that memory. Paging is that the operative system stores a part of the memory in another area, usually the disk memory, to save space in the memory. Too much pinned memory can slow down the computer.\cite{cuda, overlap_transfers_cuda}\\
 \\
-%example sequential TODO
+However there is problem that asynchronous transfers can cause depending on the GPUs architecture\cite{overlap_transfers_cuda, cuda_fortran_overlap}. Some older GPUs only have one copy engine while newer have one for each direction, one to the GPU and one from the GPU\cite{overlap_transfers_cuda, cuda_fortran_overlap}. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers\cite{overlap_transfers_cuda, cuda_fortran_overlap}. The example below is from \cite{cuda_fortran_overlap}.
 
-%example after TODO
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{streams_seq.jpg}
+    \caption{Sequential versions}
+    \label{fig:sequential}
+\end{figure}
 
-However there is problem that asynchronous transfers can cause depending on the GPUs architecture\cite{overlap_transfers_cuda, cuda_fortran_overlap}. Some older GPUs only have one copy engine while newer have one for each direction, one to the GPU and one from the GPU\cite{overlap_transfers_cuda, cuda_fortran_overlap}. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers\cite{overlap_transfers_cuda, cuda_fortran_overlap}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{streams_async.jpg}
+    \caption{Asynchronous versions. D2H=device to host transfer. H2D=host to device transfer. Each colour represents a stream.}
+    \label{fig:ascynchronous}
+\end{figure}
 
-%example from the fortran stuff with graphs and such TODO
+The examples are with a sequential version and three asynchronous of the same code with two different architectures, either one or two copy engines. In the asynchronous the data is split over four streams coloured differently in the figures. Version 1 initiates the calls by looping over the streams one by one and doing the transfer and kernel calls on that stream before moving on to the next\cite{cuda_fortran_overlap}. Version 2 makes all the host to device transfer calls for all streams first, then the kernels and then the device to host transfer call\cite{cuda_fortran_overlap}. Version 3 is the same as version 2 but with a dummy even after each kernel\cite{cuda_fortran_overlap}. The figures show that with the wrong ordering of the calls the asynchronous version is largely the same as the sequential. It also varies what the fastest version is depending on the GPUs architecture.
 
 \subsubsection{Efficient CUDA}
 One of the main criticism against GPUs for general computing purposes is that it is hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. Here are some things that needs to be considered when writing programs that use CUDA.\cite{plink_gpu, cuda, cuda_best_practice}
@@ -773,25 +784,25 @@ One of the main criticism against GPUs for general computing purposes is that it
 
 \clearpage
 \subsection{Performance Measures}
-An important part in making fast and efficient programs is to know how fast the program is under certain conditions and which parts of the program are slow. For instance the speed could suddenly drop when we start using too many threads, there might be a bottleneck in the network, and so on.\\
+An important part in making fast and efficient programs is to know how fast the program is under certain conditions and which parts of the program are slow\cite{introduction_hpc_hager}. For instance the speed could suddenly drop when we start using too many threads, there might be a bottleneck in the network, and so on.\\
 \\
-There are two ways to measure how long a program takes to execute. Wall clock time is how long real life time the program took. The other is to measure the number of processor cycles spent. A parallel program will have shorter execution time than it is serial version however it will likely have spent more processor cycles due to overhead from communication and initialization of the threads. These two measures are useful for different kinds of comparisons. Wall clock time is better for overall performance while number of cycles is useful for comparing different algorithms.\\
+There are two ways to measure how long a program takes to execute\cite{introduction_hpc_hager}. Wall clock time is how long real life time the program took. The other is to measure the number of processor cycles spent. A parallel program will have shorter execution time than it is serial version however it will likely have spent more processor cycles due to overhead from communication and initialization of the threads. These two measures are useful for different kinds of comparisons. Wall clock time is better for overall performance while number of cycles is useful for comparing different algorithms\cite{introduction_hpc_hager, cuda_best_practice}.\\
 \\
-Speed up is measures how much faster then program is with a certain number of threads compared to the serial version. It's defined as
+Speed up is measures how much faster then program is with a certain number of threads compared to the serial version. It's defined as\cite{introduction_hpc_hager}
 $$S(p)=\frac{T(1)}{T(p)}$$
-Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speed up is when S(p)=p.\\
+Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speed up is when S(p)=p\cite{introduction_hpc_hager}.\\
 \\
-Efficiency reflects how efficient the program is using p threads. Linear speed has efficiency 1. It's defined as
+Efficiency reflects how efficient the program is using p threads. Linear speed has efficiency 1. It's defined as\cite{introduction_hpc_hager}
 $$E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}$$
 \\
-Strong scaling refers to how the program handles a fixed problem size and increased number of processors. An program with strong scaling has linear speed up. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased.\cite{cuda_best_practice}\\
+Strong scaling refers to how the program handles a fixed problem size and increased number of processors\cite{introduction_hpc_hager}. An program with strong scaling has linear speed up\cite{introduction_hpc_hager}. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased\cite{introduction_hpc_hager, cuda_best_practice}.\\
 \\
-It can be a good idea to plot these measures while varying p, this can show when bottlenecks occur. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication affects the performance.
+It can be a good idea to plot these measures while varying p, this can show when bottlenecks occur. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication over the network affects the performance.
 
 \subsubsection{Amdahl's Law and Gustafson's Law}
-Amdahl's Law is used to find the expected speed up of a system when parts of is made concurrent. Simply it says that as the number of processors increases the parts that aren't parallel will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
+Amdahl's Law is used to find the expected speed up of a system when parts of is made concurrent. Simply it says that as the number of processors increases the parts that aren't parallel will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts\cite{introduction_hpc_hager}. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
 \\
-It says that the expected speed up with F fraction of the code parallel and p threads is 
+It says that the expected speed up with F fraction of the code parallel and p threads is\cite{introduction_hpc_hager} 
 $$S(p)=\frac{1}{(1-F)+\frac{F}{p}(1-F)}$$
 As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F}$. If we have 90\% of a code parallel then even with infinite number of threads we won't get a better speed up than ten.\cite{2010_reevaluating_amdahl}
 
@@ -813,9 +824,9 @@ There are limitation to Amdahl's Law since it makes a couple of assumptions.
   \item The serial portion can't be overlapped by the parallel parts. For instance with producer consumer type pattern the consumer could be strictly serial but the time it takes could be overlapped by the parallel producers.
 \end{itemize}
 
-This means it is most accurate with programs that are of the fork-join type, e.g. both serial and parallel parts.\\
+This means it is most accurate with programs that are of the fork-join type, e.g. both serial and parallel parts\cite{gustafson1988reevaluating}.\\
 \\
-Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, e.g. increased precision by reducing grid size for simulations, higher frame rate for graphics and so on. The second is that the parallel portion of the program tends to expand faster than the serial part, e.g. for matrix multiplication the initialization scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$. The former means that it is closely related to weak scaling. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speed up with p threads and F fraction of the code that is parallel is\cite{gustafson1988reevaluating, cuda_best_practice}
+Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law\cite{gustafson1988reevaluating}. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, e.g. increased precision by reducing grid size for simulations, higher frame rate for graphics and so on\cite{gustafson1988reevaluating, introduction_hpc_hager}. The second is that the parallel portion of the program tends to expand faster than the serial part, e.g. for matrix multiplication the initialization scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$\cite{gustafson1988reevaluating, introduction_hpc_hager}. The former means that it is closely related to weak scaling\cite{introduction_hpc_hager}. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speed up with p threads and F fraction of the code that is parallel is\cite{gustafson1988reevaluating, cuda_best_practice, introduction_hpc_hager}
 $$S(p)=p+(1-F)(1-p)$$
 
 \begin{figure}[h]
@@ -894,7 +905,7 @@ plink data format
 \section{Current algorithm, JEIRA and GEISA}
 JEIRA and GEISA uses Java and its built-in functions for concurrency. Since GEISA is based on JEIRA, as talked about in section \ref{jeira}, they both work in roughly the same way.\\
 \\
-The immplementaton uses the producer consumer pattern described in section \ref{design_pattern}. The main thread creates a queue of tasks. All the result producers iterates over this shared queue and outputs results. These results are placed in a queue a consumed by another thread that prints the results. The program reads all data at the start which means it can get memory problems for large datasets.
+The implementation uses the producer consumer pattern described in section \ref{design_pattern}. The main thread creates a queue of tasks. All the result producers iterates over this shared queue and outputs results. These results are placed in a queue a consumed by another thread that prints the results. The program reads all data at the start which means it can get memory problems for large datasets.
 
 %risk allele diff
 

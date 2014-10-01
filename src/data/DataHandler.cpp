@@ -101,6 +101,11 @@ DataHandlerState DataHandler::next() {
 }
 
 void DataHandler::applyStatisticModel(StatisticModel statisticModel) {
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    throw InvalidState("Before using applyStatisticModel run next() at least once.");
+  }
+#endif
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 }

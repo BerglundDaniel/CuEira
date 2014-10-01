@@ -153,7 +153,6 @@ void DataHandlerTest::TearDown() {
 
 #ifdef DEBUG
 TEST_F(DataHandlerTest, ConstructAndGetException){
-  EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(ADDITIVE));
   EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
 
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock, *modelInformationFactoryMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
@@ -168,6 +167,7 @@ TEST_F(DataHandlerTest, ConstructAndGetException){
   EXPECT_THROW(dataHandler.recode(SNP_PROTECT), InvalidState);
   EXPECT_THROW(dataHandler.recode(ENVIRONMENT_PROTECT), InvalidState);
   EXPECT_THROW(dataHandler.recode(INTERACTION_PROTECT), InvalidState);
+  EXPECT_THROW(dataHandler.applyStatisticModel(ADDITIVE), InvalidState);
 }
 #endif
 
@@ -371,7 +371,6 @@ TEST_F(DataHandlerTest, RecodeEnvBinary) {
     EXPECT_EQ(recode, dataHandler.getRecode());
   }
 
-  delete interactionData;
 }
 
 TEST_F(DataHandlerTest, ReadSNPIncludeFalse) {
@@ -463,6 +462,7 @@ TEST_F(DataHandlerTest, ApplyStatisticModel) {
   dataHandler.currentEnvironmentFactor = (*environmentInformation)[0];
   dataHandler.snpVector = snpVectorMock;
 
+  EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(2).WillRepeatedly(ReturnRef(*interactionData));
   EXPECT_CALL(*environmentVectorMock, applyStatisticModel(statisticModel, _)).Times(1);
   EXPECT_CALL(*snpVectorMock, applyStatisticModel(statisticModel, _)).Times(1);
 

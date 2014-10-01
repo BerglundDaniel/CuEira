@@ -4,6 +4,8 @@
 #include <CombinedResults.h>
 #include <CombinedResultsLogisticRegression.h>
 #include <InteractionStatistics.h>
+#include <ModelStatistics.h>
+#include <OddsRatioStatistics.h>
 #include <ModelStatisticsFactory.h>
 #include <LogisticRegressionResult.h>
 #include <Recode.h>

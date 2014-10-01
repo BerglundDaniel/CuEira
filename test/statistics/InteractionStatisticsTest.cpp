@@ -44,11 +44,11 @@ protected:
   Container::HostMatrix* inverseInfoMat;
   Container::HostVector* beta;
 
+  std::vector<double> oddsRatios;
 };
 
 InteractionStatisticsTest::InteractionStatisticsTest() :
-    numberOfPredictors(4), logisticRegressionResultMock(nullptr), oddsRatios(numberOfPredictors), oddsRatiosLow(
-        numberOfPredictors), oddsRatiosHigh(numberOfPredictors),
+    numberOfPredictors(4), logisticRegressionResultMock(nullptr), oddsRatios(numberOfPredictors),
 #ifdef CPU
         beta(new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors))), inverseInfoMat(
             new Container::LapackppHostMatrix(new LaGenMatDouble(numberOfPredictors, numberOfPredictors)))
@@ -64,6 +64,10 @@ InteractionStatisticsTest::InteractionStatisticsTest() :
   //Only care about the diagonal of the information matrix inverse
   for(int i = 0; i < numberOfPredictors; ++i){
     (*inverseInfoMat)(i, i) = i;
+  }
+
+  for(int i = 0; i < numberOfPredictors - 1; ++i){
+    oddsRatios[i] = exp((*beta)(i + 1));
   }
 
 }

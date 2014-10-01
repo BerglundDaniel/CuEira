@@ -105,7 +105,6 @@ void EnvironmentVector::recodeEnvironmentProtective() {
     }
   }else{
     for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-      //FIXME is this correct?
       (*recodedData)(i) = (*originalData)(i) * -1;
     }
   }

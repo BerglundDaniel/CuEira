@@ -1,6 +1,8 @@
 #ifndef MODELSTATISTICS_H_
 #define MODELSTATISTICS_H_
 
+#include <ostream>
+
 namespace CuEira {
 
 /**

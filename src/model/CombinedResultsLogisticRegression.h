@@ -6,6 +6,7 @@
 #include <InteractionStatistics.h>
 #include <OddsRatioStatistics.h>
 #include <Recode.h>
+#include <CombinedResults.h>
 
 namespace CuEira {
 namespace Model {

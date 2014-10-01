@@ -3,6 +3,9 @@
 
 #include <ModelStatistics.h>
 #include <LogisticRegressionResult.h>
+#include <StatisticModel.h>
+#include <OddsRatioStatistics.h>
+#include <InteractionStatistics.h>
 
 namespace CuEira {
 

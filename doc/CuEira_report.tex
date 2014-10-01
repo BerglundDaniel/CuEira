@@ -140,6 +140,7 @@ $c$ is the product term that represents multiplicative interaction between varia
 \emph{Additive} interaction is a bit broader than multiplicative interaction. It is that the effect from the interaction is larger than the sum of the separate effects. It implies biological interaction as defined by Rothman, which is sometimes called \emph{causal interdependence} or \emph{causal interaction}. A more precise definition can be found in section \ref{additive}
 
 \section{GEIRA and JEIRA}
+\label{jeira}
 \emph{GEIRA} is a tool for analysing gene-environment interaction. It uses logistic regression and causal interaction\cite{geira}. \emph{JEIRA} is a parallelised implementation of GEIRA\cite{uvehag_master_thesis}.
 
 %TODO something about GEISA
@@ -692,7 +693,12 @@ The $<<<N,M>>>$ specifier tells CUDA how many $N$ blocks and how many $M$ thread
 
 The streaming multiprocessors(SM) is the hardware that handles the execution of these blocks and can execute hundreds of threads concurrently. It uses \emph{SIMT}(Single-Instruction, Multiple-Thread) which is similar to SIMD described earlier in section \ref{concurrency}. SIMT works mostly as SIMD except that it can act as MIMD on collections of threads called \emph{warps}. Each warp consists of 32 threads. When an SM gets a block it is split into warps that are assigned to warp schedulers. Each warp scheduler gives one instruction to a warp so full efficiency is achieved when all the 32 threads perform the same instruction. If there is any divergence it has to disable unrelated threads, so divergence can be costly. However different groups of warps are on different warps schedulers so can diverge without problem.\cite{cuda}
 
-%TODO simt picture
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{SIMT.png}
+    \caption{SIMT architecture}
+    \label{fig:SIMT}
+\end{figure}
 
 \subsubsection{Device Memory}
 The GPUs memory is physically on a different device separate from the computers main memory which means that they have separate memory spaces. An object in one memory is not accessible in the other memory. The computers main memory is the \emph{host memory} and the GPUs memory is the \emph{device memory}. Since they are separate data has to be transferred to the device memory and this is done by explicit calls to transfer sections of the hosts memory.\cite{cuda}\\
@@ -717,13 +723,13 @@ This is not entirely true for some GPU architectures because they only have one 
 \\
 Streams are also important for asynchronous transfers. These transfers are executed on a stream and just as kernels gets executed after the previous kernels on the same stream is done. The advantage is that other streams can do calculations as normal while the transfer happens. This can hide the time for transfers completely in some situations. However the host memory has to be pinned. Pinned memory means that the operative system can not page that memory. Paging is that the operative system stores a part of the memory in another area, usually the disk memory, to save space in the memory. Too much pinned memory can slow down the computer.\cite{cuda, overlap_transfers_cuda}\\
 \\
-%example sequential
+%example sequential TODO
 
-%example after
+%example after TODO
 
-However there is problem that asynchronous transfers can cause depending on the GPUs architecture. Some older GPUs only have one copy engine while newer have one for each direction, one to the GPU and one from the GPU. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers.\cite{overlap_transfers_cuda} %put in fortran cite thing
+However there is problem that asynchronous transfers can cause depending on the GPUs architecture\cite{overlap_transfers_cuda, cuda_fortran_overlap}. Some older GPUs only have one copy engine while newer have one for each direction, one to the GPU and one from the GPU\cite{overlap_transfers_cuda, cuda_fortran_overlap}. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers\cite{overlap_transfers_cuda, cuda_fortran_overlap}.
 
-%example from the fortran stuff with graphs and such
+%example from the fortran stuff with graphs and such TODO
 
 \subsubsection{Efficient CUDA}
 One of the main criticism against GPUs for general computing purposes is that it is hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. Here are some things that needs to be considered when writing programs that use CUDA.\cite{plink_gpu, cuda, cuda_best_practice}
@@ -856,6 +862,7 @@ It can be easy to denote test code as less important than the main code but they
 \emph{Mocking} is to replace a real object with a fake object called a \emph{mock} that for the code is indistinguishable from the real object. This allows one to create situations and test with more control and without depending on the real objects code. The second is important for unit tests since it enables one to test units that normally depend on others in isolation. In the first case it is useful in situations such as when one wants to test a class handling of a rare failure. Such failures can be hard and time consuming to induce. It is then easier to use a mock object that behaves like the failure has occurred. However mocking requires that the code for the class doesn't create the object itself since there is no way to replace the object with the mock. This is one of the reasons why dependency injection should be use.\cite{cleancode2008}
 
 \subsection{Design Patterns}
+\label{design_pattern}
 A \emph{design pattern} in software design is a reusable general solution to a common recurring problem in a given context. It is templates and structures to solve the problem, however it is not code. However they are partially dependent on the programming language since different languages have different features and limitations.\cite{design_patterns}\\
 \\
 \emph{Consumer producer} is a concurrency pattern for when there are a number of consumers/workers and producers. They share a common queue for products. The producer generates some product and put it into the queue, while the the consumers consume the products. The problem is that the producers should not add to an non empty slot and that each product should only be consumed once.\cite{cleancode2008, design_patterns}
@@ -884,21 +891,23 @@ cite git
 
 plink data format
 
-\section{Current algorithm}
-JEIRA uses Java and Javas built-in functions for concurrency.
+\section{Current algorithm, JEIRA and GEISA}
+JEIRA and GEISA uses Java and its built-in functions for concurrency. Since GEISA is based on JEIRA, as talked about in section \ref{jeira}, they both work in roughly the same way.\\
+\\
+The immplementaton uses the producer consumer pattern described in section \ref{design_pattern}. The main thread creates a queue of tasks. All the result producers iterates over this shared queue and outputs results. These results are placed in a queue a consumed by another thread that prints the results. The program reads all data at the start which means it can get memory problems for large datasets.
 
-Producer consumer pattern
+%risk allele diff
 
 %strucuture picture
 
 \section{CuEira}
 
+%structure picture
+
 why lr
 -less sever drawbakcs for non binary
 -can handle non binary data(however statistical problems needs to be solved)
 -slow but is not too slow for gene-environment interaction
-
-C++ is row major but this program is column major completely. Because BLAS and CUBLAS
 
 Dependencies
 -boost
@@ -906,8 +915,16 @@ Dependencies
 -mkl
 -intel compiler
 
+C++ is row major but this program is column major completely. Because BLAS and CUBLAS
+
+In the initialisation step it reads all the data except the information for the individuals in the SNPs, i.e. it doesn't read the bed file at that stage.
+Shared blocking queue and a result writer
+3 threads per GPU
+Each thread has one CUDA stream
+Each thread gets a snp from the queue, reads in the snp data, calculates the models and writes the results
+
 %optimizations
-compilers
+%compilers
 
 \chapter{Results}
 %Results (up till 15 pages including plots)

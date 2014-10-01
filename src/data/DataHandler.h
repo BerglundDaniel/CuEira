@@ -42,6 +42,8 @@ class DataHandlerTest;
 class DataHandler {
   friend DataHandlerTest;
   FRIEND_TEST(DataHandlerTest, Recode);
+  FRIEND_TEST(DataHandlerTest, RecodeEnvNotBinary);
+  FRIEND_TEST(DataHandlerTest, RecodeEnvBinary);
 public:
   DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
       const ContingencyTableFactory& contingencyTableFactory, const Model::ModelInformationFactory& modelInformationFactory,

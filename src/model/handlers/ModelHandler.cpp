@@ -14,11 +14,10 @@ ModelHandler::~ModelHandler() {
   delete dataHandler;
 }
 
-ModelInformation* ModelHandler::next() {
-  ModelInformation* modelInformation = dataHandler->next();
-  ModelState modelState = modelInformation->getModelState();
-  if(modelState == DONE){
-    return modelInformation;
+DataHandlerState ModelHandler::next() {
+  DataHandlerState dataHandlerState = dataHandler->next();
+  if(dataHandlerState == DONE){
+    return dataHandlerState;
   }
 
 #ifdef DEBUG
@@ -35,18 +34,18 @@ ModelInformation* ModelHandler::next() {
   currentSNP = &dataHandler->getCurrentSNP();
   currentEnvironmentFactor = &dataHandler->getCurrentEnvironmentFactor();
 
-  if(modelState == SKIP){
+  if(dataHandlerState == SKIP){
     snpData = nullptr;
     environmentData = nullptr;
     interactionData = nullptr;
 
-    return modelInformation;
+    return dataHandlerState;
   }else{
     snpData = &dataHandler->getSNPVector().getRecodedData();
     environmentData = &dataHandler->getEnvironmentVector().getRecodedData();
     interactionData = &dataHandler->getInteractionVector().getRecodedData();
 
-    return modelInformation;
+    return dataHandlerState;
   }
 }
 

@@ -164,8 +164,6 @@ TEST_F(DataHandlerTest, ConstructAndGetException){
   EXPECT_THROW(dataHandler.getSNPVector(), InvalidState);
   EXPECT_THROW(dataHandler.getInteractionVector(), InvalidState);
   EXPECT_THROW(dataHandler.getRecode(), InvalidState);
-  EXPECT_THROW(dataHandler.getContingencyTable(), InvalidState);
-  EXPECT_THROW(dataHandler.getAlleleStatistics(), InvalidState);
   EXPECT_THROW(dataHandler.recode(ALL_RISK), InvalidState);
   EXPECT_THROW(dataHandler.recode(SNP_PROTECT), InvalidState);
   EXPECT_THROW(dataHandler.recode(ENVIRONMENT_PROTECT), InvalidState);
@@ -318,7 +316,7 @@ TEST_F(DataHandlerTest, RecodeEnvNotBinary) {
 
   //Set some things so it behaves like it has been initialised
   dataHandler.state = dataHandler.INITIALISED;
-  (*environmentInformation)[0]->setVariableType(OTHER);
+  (*environmentStore)[0]->setVariableType(OTHER);
   dataHandler.currentEnvironmentFactor = (*environmentInformation)[0];
   dataHandler.snpVector = snpVectorMock;
 
@@ -367,7 +365,7 @@ TEST_F(DataHandlerTest, RecodeEnvBinary) {
 
   //Set some things so it behaves like it has been initialised
   dataHandler.state = dataHandler.INITIALISED;
-  (*environmentInformation)[0]->setVariableType(BINARY);
+  (*environmentStore)[0]->setVariableType(BINARY);
   dataHandler.currentEnvironmentFactor = (*environmentInformation)[0];
   dataHandler.currentSNP = dataQueue->next();
   dataHandler.snpVector = snpVectorMock;

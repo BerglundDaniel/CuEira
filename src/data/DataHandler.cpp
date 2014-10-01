@@ -84,8 +84,8 @@ DataHandlerState DataHandler::next() {
 
     setSNPInclude(*currentSNP, *contingencyTable);
     if(!currentSNP->shouldInclude()){
-      modelInformation = modelInformationFactory->constructModelInformation(SKIP, *currentSNP,
-          *currentEnvironmentFactor, *alleleStatistics, *contingencyTable);
+      modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
+          *alleleStatistics, *contingencyTable);
       return SKIP;
     }
   }

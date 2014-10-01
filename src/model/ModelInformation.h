@@ -22,11 +22,6 @@ public:
       const AlleleStatistics& alleleStatistics);
   virtual ~ModelInformation();
 
-  virtual const SNP& getSNP() const;
-  virtual const EnvironmentFactor& getEnvironmentFactor() const;
-  virtual const ContingencyTable& getContingencyTable() const;
-  virtual const AlleleStatistics& getAlleleStatistics() const;
-
   ModelInformation(const ModelInformation&) = delete;
   ModelInformation(ModelInformation&&) = delete;
   ModelInformation& operator=(const ModelInformation&) = delete;
@@ -36,7 +31,6 @@ protected:
   explicit ModelInformation(); //For the mock
   virtual void toOstream(std::ostream& os) const;
 
-private:
   const SNP* snp;
   const EnvironmentFactor* environmentFactor;
   const AlleleStatistics* alleleStatistics;

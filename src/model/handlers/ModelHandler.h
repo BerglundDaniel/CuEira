@@ -15,6 +15,7 @@
 #include <ModelResult.h>
 #include <ModelInformation.h>
 #include <Model.h>
+#include <DataHandlerState.h>
 
 namespace CuEira {
 namespace Model {
@@ -33,10 +34,10 @@ public:
   ModelHandler(const CombinedResultsFactory& combinedResultsFactory, DataHandler* dataHandler);
   virtual ~ModelHandler();
 
-  virtual ModelInformation* next();
+  virtual DataHandlerState next();
   virtual CombinedResults* calculateModel()=0;
 
-  virtual const ModelInformation getCurrentModelInformation() const;
+  virtual const ModelInformation& getCurrentModelInformation() const;
   virtual const SNP& getCurrentSNP() const;
   virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 

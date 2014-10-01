@@ -3,9 +3,6 @@
 
 #include <ostream>
 
-#include <InteractionStatistics.h>
-#include <Recode.h>
-
 namespace CuEira {
 namespace Model {
 
@@ -17,7 +14,7 @@ namespace Model {
 class CombinedResults {
   friend std::ostream& operator<<(std::ostream& os, const CombinedResults& combinedResults);
 public:
-  CombinedResults(InteractionStatistics* interactionStatistics, Recode recode);
+  CombinedResults();
   virtual ~CombinedResults();
 
   CombinedResults(const CombinedResults&) = delete;
@@ -26,11 +23,7 @@ public:
   CombinedResults& operator=(CombinedResults&&) = delete;
 
 protected:
-  virtual void toOstream(std::ostream& os) const;
-
-private:
-  InteractionStatistics* interactionStatistics;
-  Recode recode;
+  virtual void toOstream(std::ostream& os) const=0;
 };
 
 } /* namespace Model */

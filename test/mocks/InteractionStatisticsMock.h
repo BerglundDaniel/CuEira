@@ -23,9 +23,6 @@ public:
 
   MOCK_CONST_METHOD0(getReri, double());
   MOCK_CONST_METHOD0(getAp, double());
-  MOCK_CONST_METHOD0(getOddsRatios, const std::vector<double>&());
-  MOCK_CONST_METHOD0(getOddsRatiosLow, const std::vector<double>&());
-  MOCK_CONST_METHOD0(getOddsRatiosHigh, const std::vector<double>&());
 };
 
 } /* namespace CuEira */

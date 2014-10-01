@@ -7,6 +7,7 @@ set(TEST_INCLUDE_DIRECTORIES
 set(TEST_SOURCE
   ${TEST_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/InteractionStatisticsTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/OddsRatioStatisticsTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/AlleleStatisticsTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/AlleleStatisticsFactoryTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ContingencyTableTest.cpp

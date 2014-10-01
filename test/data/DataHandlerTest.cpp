@@ -172,8 +172,6 @@ TEST_F(DataHandlerTest, ConstructAndGetException){
 #endif
 
 TEST_F(DataHandlerTest, Next) {
-  const StatisticModel statisticModel = ADDITIVE;
-  EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(statisticModel));
   EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
   Sequence readSequence;
   Sequence contingencyTableSequence;
@@ -192,11 +190,9 @@ TEST_F(DataHandlerTest, Next) {
 #ifdef CPU
   Container::HostVector* envData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
   Container::HostVector* snpData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
-  Container::HostVector* interactionData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
 #else
   Container::HostVector* envData = new Container::PinnedHostVector(numberOfIndividuals);
   Container::HostVector* snpData = new Container::PinnedHostVector(numberOfIndividuals);
-  Container::HostVector* interactionData = new Container::PinnedHostVector(numberOfIndividuals);
 #endif
 
   Container::SNPVectorMock* snpVectorMock1 = constructorHelpers.constructSNPVectorMock();
@@ -225,16 +221,10 @@ TEST_F(DataHandlerTest, Next) {
   pair2->first = alleleStatisticsMock2;
   pair2->second = snpVectorMock2;
 
-  EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(2 * (numberOfRuns)).WillRepeatedly(
-      ReturnRef(*interactionData));
-  EXPECT_CALL(*interactionVectorMock, recode(_)).Times(numberOfRuns);
-
-  EXPECT_CALL(*environmentVectorMock, applyStatisticModel(statisticModel, _)).Times(numberOfRuns);
   EXPECT_CALL(*environmentVectorMock, switchEnvironmentFactor(_)).Times(numberOfRuns);
 
-  EXPECT_CALL(*snpVectorMock1, applyStatisticModel(statisticModel, _)).Times(numberOfEnvironmentFactors);
+  EXPECT_CALL(*interactionVectorMock, recode(_)).Times(numberOfRuns);
   EXPECT_CALL(*snpVectorMock1, recode(ALL_RISK)).Times(numberOfEnvironmentFactors - 1);
-  EXPECT_CALL(*snpVectorMock2, applyStatisticModel(statisticModel, _)).Times(numberOfEnvironmentFactors);
   EXPECT_CALL(*snpVectorMock2, recode(ALL_RISK)).Times(numberOfEnvironmentFactors - 1);
 
   for(int i = 0; i < numberOfRuns; ++i){
@@ -299,20 +289,11 @@ TEST_F(DataHandlerTest, Next) {
 
   delete envData;
   delete snpData;
-  delete interactionData;
 }
 
 TEST_F(DataHandlerTest, RecodeEnvNotBinary) {
-#ifdef CPU
-  Container::HostVector* interactionData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
-#else
-  Container::HostVector* interactionData = new Container::PinnedHostVector(numberOfIndividuals);
-#endif
-
   Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();
 
-  const StatisticModel statisticModel = ADDITIVE;
-  EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(statisticModel));
   EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
 
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock,
@@ -331,11 +312,7 @@ TEST_F(DataHandlerTest, RecodeEnvNotBinary) {
   dataHandler.recode(ALL_RISK);
   EXPECT_EQ(ALL_RISK, dataHandler.getRecode());
 
-  EXPECT_CALL(*snpVectorMock, applyStatisticModel(statisticModel, _)).Times(numberOfRecode);
-  EXPECT_CALL(*environmentVectorMock, applyStatisticModel(statisticModel, _)).Times(numberOfRecode);
   EXPECT_CALL(*interactionVectorMock, recode(_)).Times(numberOfRecode);
-  EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(numberOfRecode * 2).WillRepeatedly(
-      ReturnRef(*interactionData));
 
   for(int i = 0; i < numberOfRecode; ++i){
     Recode recode = recodes[i];
@@ -346,22 +323,13 @@ TEST_F(DataHandlerTest, RecodeEnvNotBinary) {
     dataHandler.recode(recode);
     EXPECT_EQ(recode, dataHandler.getRecode());
   }
-
-  delete interactionData;
 }
 
 TEST_F(DataHandlerTest, RecodeEnvBinary) {
-#ifdef CPU
-  Container::HostVector* interactionData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
-#else
-  Container::HostVector* interactionData = new Container::PinnedHostVector(numberOfIndividuals);
-#endif
   Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();
   Sequence contingencyTableSequence;
   Sequence modelInformationSequence;
 
-  const StatisticModel statisticModel = ADDITIVE;
-  EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(statisticModel));
   EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
 
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock,
@@ -381,11 +349,7 @@ TEST_F(DataHandlerTest, RecodeEnvBinary) {
   dataHandler.recode(ALL_RISK);
   EXPECT_EQ(ALL_RISK, dataHandler.getRecode());
 
-  EXPECT_CALL(*snpVectorMock, applyStatisticModel(statisticModel, _)).Times(numberOfRecode);
-  EXPECT_CALL(*environmentVectorMock, applyStatisticModel(statisticModel, _)).Times(numberOfRecode);
   EXPECT_CALL(*interactionVectorMock, recode(_)).Times(numberOfRecode);
-  EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(numberOfRecode * 2).WillRepeatedly(
-      ReturnRef(*interactionData));
 
   for(int i = 0; i < numberOfRecode; ++i){
     Model::ModelInformationMock* modelInformationMock = new Model::ModelInformationMock();
@@ -411,9 +375,7 @@ TEST_F(DataHandlerTest, RecodeEnvBinary) {
 }
 
 TEST_F(DataHandlerTest, ReadSNPIncludeFalse) {
-  const StatisticModel statisticModel = ADDITIVE;
   (*snpStore)[0]->setInclude(MISSING_DATA);
-  EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(statisticModel));
   EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
 
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock,
@@ -439,8 +401,6 @@ TEST_F(DataHandlerTest, ReadSNPIncludeFalse) {
 }
 
 TEST_F(DataHandlerTest, ContingencyTableIncludeFalse) {
-  const StatisticModel statisticModel = ADDITIVE;
-  EXPECT_CALL(*configurationMock, getStatisticModel()).Times(1).WillRepeatedly(Return(statisticModel));
   EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(5));
   (*environmentStore)[0]->setVariableType(BINARY);
 
@@ -480,6 +440,35 @@ TEST_F(DataHandlerTest, ContingencyTableIncludeFalse) {
   const Model::ModelInformation& modelInformation = dataHandler.getCurrentModelInformation();
   EXPECT_EQ(SKIP, state);
   EXPECT_EQ(modelInformationSkipMock, &modelInformation);
+}
+
+TEST_F(DataHandlerTest, ApplyStatisticModel) {
+#ifdef CPU
+  Container::HostVector* interactionData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
+#else
+  Container::HostVector* interactionData = new Container::PinnedHostVector(numberOfIndividuals);
+#endif
+  const StatisticModel statisticModel = ADDITIVE;
+
+  Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();
+
+  EXPECT_CALL(*configurationMock, getCellCountThreshold()).Times(1).WillRepeatedly(Return(0));
+
+  DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock,
+      *modelInformationFactoryMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
+
+  //Set some things so it behaves like it has been initialised
+  dataHandler.state = dataHandler.INITIALISED;
+  (*environmentStore)[0]->setVariableType(OTHER);
+  dataHandler.currentEnvironmentFactor = (*environmentInformation)[0];
+  dataHandler.snpVector = snpVectorMock;
+
+  EXPECT_CALL(*environmentVectorMock, applyStatisticModel(statisticModel, _)).Times(1);
+  EXPECT_CALL(*snpVectorMock, applyStatisticModel(statisticModel, _)).Times(1);
+
+  dataHandler.applyStatisticModel(statisticModel);
+
+  delete interactionData;
 }
 
 } /* namespace CuEira */

@@ -26,6 +26,7 @@ set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelInformation.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelInformationWithTable.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CombinedResults.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CombinedResultsLogisticRegression.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelInformationFactory.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CombinedResultsFactory.cpp
   PARENT_SCOPE

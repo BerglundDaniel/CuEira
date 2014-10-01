@@ -13,7 +13,7 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
   CUDA::handleCudaStatus(cudaGetLastError(), "Error before initialisation in GPUWorkerThread ");
 
   StreamFactory streamFactory;
-  InteractionStatisticsFactory interactionStatisticsFactory;
+  ModelStatisticsFactory interactionStatisticsFactory;
   Model::CombinedResultsFactory combinedResultsFactory(interactionStatisticsFactory);
   const Container::DeviceVector& deviceOutcomes = device->getOutcomes();
 

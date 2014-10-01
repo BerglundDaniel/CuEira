@@ -8,7 +8,6 @@
 #include <Configuration.h>
 #include <GeneticModel.h>
 #include <PhenotypeCoding.h>
-#include <StatisticModel.h>
 #include <HostVector.h>
 
 namespace CuEira {
@@ -42,7 +41,6 @@ public:
   MOCK_CONST_METHOD0(getCovariateDelimiter, std::string());
   MOCK_CONST_METHOD0(getNumberOfMaxLRIterations, int());
   MOCK_CONST_METHOD0(getLRConvergenceThreshold, double());
-  MOCK_CONST_METHOD0(getStatisticModel, StatisticModel());
   MOCK_CONST_METHOD0(getCellCountThreshold, int());
 
 };

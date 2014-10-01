@@ -3,8 +3,8 @@
 namespace CuEira {
 namespace Model {
 
-CombinedResultsFactory::CombinedResultsFactory(const InteractionStatisticsFactory& interactionStatisticsFactory) :
-    interactionStatisticsFactory(&interactionStatisticsFactory) {
+CombinedResultsFactory::CombinedResultsFactory(const ModelStatisticsFactory& modelStatisticsFactory) :
+    modelStatisticsFactory(&modelStatisticsFactory) {
 
 }
 
@@ -13,16 +13,21 @@ CombinedResultsFactory::~CombinedResultsFactory() {
 }
 
 CombinedResultsFactory::CombinedResultsFactory() :
-    interactionStatisticsFactory(nullptr) {
+    modelStatisticsFactory(nullptr) {
 
 }
 
 CombinedResults* CombinedResultsFactory::constructCombinedResults(
-    LogisticRegression::LogisticRegressionResult* logisticRegressionResult, Recode recode) const {
-  InteractionStatistics* interactionStatistics = interactionStatisticsFactory->constructInteractionStatistics(
-      logisticRegressionResult);
+    LogisticRegression::LogisticRegressionResult* additiveLogisticRegressionResult,
+    LogisticRegression::LogisticRegressionResult* multiplicativeLogisticRegressionResult, Recode recode) const {
 
-  return new CombinedResults(interactionStatistics, recode);
+  ModelStatistics* additiveInteractionStatistics = modelStatisticsFactory->constructModelStatistics(
+      additiveLogisticRegressionResult, ADDITIVE);
+  ModelStatistics* multiplicativeInteractionStatistics = modelStatisticsFactory->constructModelStatistics(
+      multiplicativeLogisticRegressionResult, MULTIPLICATIVE);
+
+  return new CombinedResultsLogisticRegression(additiveInteractionStatistics, multiplicativeInteractionStatistics,
+      recode);
 }
 
 } /* namespace Model */

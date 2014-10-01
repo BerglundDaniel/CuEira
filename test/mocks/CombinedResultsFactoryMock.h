@@ -22,7 +22,7 @@ public:
 
   }
 
-  MOCK_CONST_METHOD2(constructCombinedResults, CombinedResults*(LogisticRegression::LogisticRegressionResult, Recode));
+  MOCK_CONST_METHOD3(constructCombinedResults, CombinedResults*(LogisticRegression::LogisticRegressionResult*, LogisticRegression::LogisticRegressionResult*, Recode));
 };
 
 } /* namespace Model */

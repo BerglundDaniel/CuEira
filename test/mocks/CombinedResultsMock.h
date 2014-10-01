@@ -13,7 +13,7 @@ namespace Model {
 class CombinedResultsMock: public CombinedResults {
 public:
   CombinedResultsMock() :
-  CombinedResults(nullptr, ALL_RISK){
+  CombinedResults(){
 
   }
 

@@ -22,6 +22,7 @@ CombinedResults* GpuModelHandler::calculateModel() {
     throw InvalidState("Must run next() on ModelHandler before calculateModel().");
   }
 #endif
+  dataHandler->applyStatisticModel(MULTIPLICATIVE);
 
   logisticRegressionConfiguration.setSNP(*snpData);
   logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
@@ -33,6 +34,7 @@ CombinedResults* GpuModelHandler::calculateModel() {
   Recode recode = additiveLogisticRegressionResult->calculateRecode();
   if(recode != ALL_RISK){
     dataHandler->recode(recode);
+    dataHandler->applyStatisticModel(MULTIPLICATIVE);
 
     logisticRegressionConfiguration.setSNP(*snpData);
     logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
@@ -44,15 +46,17 @@ CombinedResults* GpuModelHandler::calculateModel() {
     CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
   }
 
-  //TODO do something with dataHandler
+  dataHandler->applyStatisticModel(ADDITIVE);
 
   logisticRegressionConfiguration.setSNP(*snpData);
   logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
+  //Don't need to set the interaction again since it doesn't change between additive and multiplicative model
 
   LogisticRegression::LogisticRegressionResult* multiplicativeLogisticRegressionResult =
       logisticRegression->calculate();
 
-  return combinedResultsFactory.constructCombinedResults(additiveLogisticRegressionResult, recode);
+  return combinedResultsFactory.constructCombinedResults(additiveLogisticRegressionResult,
+      multiplicativeLogisticRegressionResult, recode);
 }
 
 } /* namespace Model */

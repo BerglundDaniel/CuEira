@@ -11,7 +11,6 @@
 
 #include <GeneticModel.h>
 #include <PhenotypeCoding.h>
-#include <StatisticModel.h>
 #include <HostVector.h>
 
 #ifdef CPU
@@ -129,11 +128,6 @@ public:
    * Get the threshold for the cell cell counts of the contingency table
    */
   virtual int getCellCountThreshold() const;
-
-  /**
-   * Get the statistic model to use for the logistic regression
-   */
-  virtual StatisticModel getStatisticModel() const;
 
   Configuration(const Configuration&) = delete;
   Configuration(Configuration&&) = delete;

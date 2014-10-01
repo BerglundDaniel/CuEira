@@ -7,22 +7,21 @@ DataHandler::DataHandler(const Configuration& configuration, FileIO::BedReader& 
     const Model::ModelInformationFactory& modelInformationFactory,
     const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
     Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector) :
-    configuration(configuration), currentRecode(ALL_RISK), dataQueue(&dataQueue), statisticModel(
-        configuration.getStatisticModel()), bedReader(&bedReader), interactionVector(interactionVector), snpVector(
-        nullptr), environmentVector(environmentVector), environmentInformation(&environmentInformation), currentEnvironmentFactorPos(
-        environmentInformation.size() - 1), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(
-        &contingencyTableFactory), modelInformationFactory(&modelInformationFactory), currentSNP(nullptr), cellCountThreshold(
-        configuration.getCellCountThreshold()), alleleStatistics(nullptr), modelInformation(nullptr), currentEnvironmentFactor(
-        nullptr) {
+    configuration(configuration), currentRecode(ALL_RISK), dataQueue(&dataQueue), bedReader(&bedReader), interactionVector(
+        interactionVector), snpVector(nullptr), environmentVector(environmentVector), environmentInformation(
+        &environmentInformation), currentEnvironmentFactorPos(environmentInformation.size() - 1), state(
+        NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(&contingencyTableFactory), modelInformationFactory(
+        &modelInformationFactory), currentSNP(nullptr), cellCountThreshold(configuration.getCellCountThreshold()), alleleStatistics(
+        nullptr), modelInformation(nullptr), currentEnvironmentFactor(nullptr) {
 
 }
 
 DataHandler::DataHandler(const Configuration& configuration) :
-    configuration(configuration), currentRecode(ALL_RISK), dataQueue(nullptr), statisticModel(ADDITIVE), bedReader(
-        nullptr), interactionVector(nullptr), snpVector(nullptr), environmentVector(nullptr), environmentInformation(
-        nullptr), currentEnvironmentFactorPos(0), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(
-        nullptr), currentSNP(nullptr), alleleStatistics(nullptr), cellCountThreshold(0), modelInformationFactory(
-        nullptr), modelInformation(nullptr), currentEnvironmentFactor(nullptr) {
+    configuration(configuration), currentRecode(ALL_RISK), dataQueue(nullptr), bedReader(nullptr), interactionVector(
+        nullptr), snpVector(nullptr), environmentVector(nullptr), environmentInformation(nullptr), currentEnvironmentFactorPos(
+        0), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(nullptr), currentSNP(nullptr), alleleStatistics(
+        nullptr), cellCountThreshold(0), modelInformationFactory(nullptr), modelInformation(nullptr), currentEnvironmentFactor(
+        nullptr) {
 
 }
 
@@ -98,10 +97,12 @@ DataHandlerState DataHandler::next() {
         *alleleStatistics);
   }
 
+  return CALCULATE;
+}
+
+void DataHandler::applyStatisticModel(StatisticModel statisticModel) {
   snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
   environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
-
-  return CALCULATE;
 }
 
 bool DataHandler::readSNP(SNP& nextSnp) {
@@ -142,9 +143,6 @@ void DataHandler::recode(Recode recode) {
     modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
         *alleleStatistics, *contingencyTable);
   }
-
-  snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
-  environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
 }
 
 Recode DataHandler::getRecode() const {

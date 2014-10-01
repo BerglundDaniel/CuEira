@@ -10,6 +10,7 @@
 #include <HostMatrix.h>
 #include <HostVector.h>
 #include <LogisticRegressionResult.h>
+#include <OddsRatioStatistics.h>
 
 namespace CuEira {
 
@@ -18,17 +19,14 @@ namespace CuEira {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class InteractionStatistics {
+class InteractionStatistics: public OddsRatioStatistics {
   friend std::ostream& operator<<(std::ostream& os, const InteractionStatistics& statistics);
 public:
-  InteractionStatistics(const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult);
+  explicit InteractionStatistics(const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult);
   virtual ~InteractionStatistics();
 
-  double getReri() const;
-  double getAp() const;
-  const std::vector<double>& getOddsRatios() const;
-  const std::vector<double>& getOddsRatiosLow() const;
-  const std::vector<double>& getOddsRatiosHigh() const;
+  virtual double getReri() const;
+  virtual double getAp() const;
 
   InteractionStatistics(const InteractionStatistics&) = delete;
   InteractionStatistics(InteractionStatistics&&) = delete;
@@ -36,24 +34,13 @@ public:
   InteractionStatistics& operator=(InteractionStatistics&&) = delete;
 
 protected:
+  InteractionStatistics(); //For the mock
   virtual void toOstream(std::ostream& os) const;
 
 private:
-  std::vector<double>* calculateStandardError(const Container::HostMatrix& covarianceMatrix) const;
   double calculateReri(const std::vector<double>& oddsRatios) const;
   double calculateAp(double reri, PRECISION interactionBeta) const;
-  std::vector<double>* calculateOddsRatios(const Container::HostVector& betaCoefficents) const;
-  std::vector<double>* calculateOddsRatiosLow(const Container::HostVector& betaCoefficents,
-      const std::vector<double>& standardError) const;
-  std::vector<double>* calculateOddsRatiosHigh(const Container::HostVector& betaCoefficents,
-      const std::vector<double>& standardError) const;
 
-  const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult;
-  const Container::HostVector& betaCoefficents;
-  std::vector<double>* standardError;
-  std::vector<double>* oddsRatios;
-  std::vector<double>* oddsRatiosLow;
-  std::vector<double>* oddsRatiosHigh;
   double reri;
   double ap;
 };

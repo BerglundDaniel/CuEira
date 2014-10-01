@@ -2,10 +2,12 @@
 #define COMBINEDRESULTSFACTORY_H_
 
 #include <CombinedResults.h>
+#include <CombinedResultsLogisticRegression.h>
 #include <InteractionStatistics.h>
-#include <InteractionStatisticsFactory.h>
+#include <ModelStatisticsFactory.h>
 #include <LogisticRegressionResult.h>
 #include <Recode.h>
+#include <StatisticModel.h>
 
 namespace CuEira {
 namespace Model {
@@ -17,16 +19,18 @@ namespace Model {
  */
 class CombinedResultsFactory {
 public:
-  CombinedResultsFactory(const InteractionStatisticsFactory& interactionStatisticsFactory);
+  CombinedResultsFactory(const ModelStatisticsFactory& modelStatisticsFactory);
   virtual ~CombinedResultsFactory();
 
-  virtual CombinedResults* constructCombinedResults(LogisticRegression::LogisticRegressionResult* logisticRegressionResult, Recode recode) const;
+  virtual CombinedResults* constructCombinedResults(
+      LogisticRegression::LogisticRegressionResult* additiveLogisticRegressionResult,
+      LogisticRegression::LogisticRegressionResult* multiplicativeLogisticRegressionResult, Recode recode) const;
 
 protected:
   CombinedResultsFactory(); //For the mock
 
 private:
-  const InteractionStatisticsFactory* interactionStatisticsFactory;
+  const ModelStatisticsFactory* modelStatisticsFactory;
 };
 
 } /* namespace Model */

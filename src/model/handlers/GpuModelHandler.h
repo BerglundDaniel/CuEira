@@ -19,6 +19,7 @@
 #include <ModelResult.h>
 #include <ModelInformation.h>
 #include <Model.h>
+#include <StatisticModel.h>
 
 namespace CuEira {
 namespace Model {

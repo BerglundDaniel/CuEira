@@ -76,7 +76,7 @@ TEST_F(GpuModelHandlerLRIntegrationTest, 2Env_2SNP) {
 
   CUDA::HostToDevice hostToDevice(cudaStream);
   CUDA::DeviceToHost deviceToHost(cudaStream);
-  InteractionStatisticsFactory StatisticsFactory;
+  ModelStatisticsFactory StatisticsFactory;
   CUDA::KernelWrapper kernelWrapper(cudaStream, cublasHandle);
 
   Container::PinnedHostVector hostOutcomes(numberOfIndividuals);

@@ -17,8 +17,8 @@
 #include <PinnedHostMatrix.h>
 #endif
 
-using testing::Ge;
-using testing::Le;
+using ::testing::Ge;
+using ::testing::Le;
 using testing::Return;
 using testing::_;
 using testing::ReturnRef;
@@ -31,10 +31,10 @@ namespace CuEira_Test {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class InteractionStatisticsTest: public ::testing::Test {
+class OddsRatioStatisticsTest: public ::testing::Test {
 protected:
-  InteractionStatisticsTest();
-  virtual ~InteractionStatisticsTest();
+  OddsRatioStatisticsTest();
+  virtual ~OddsRatioStatisticsTest();
   virtual void SetUp();
   virtual void TearDown();
 
@@ -44,9 +44,13 @@ protected:
   Container::HostMatrix* inverseInfoMat;
   Container::HostVector* beta;
 
+  std::vector<double> oddsRatios;
+  std::vector<double> oddsRatiosLow;
+  std::vector<double> oddsRatiosHigh;
+
 };
 
-InteractionStatisticsTest::InteractionStatisticsTest() :
+OddsRatioStatisticsTest::OddsRatioStatisticsTest() :
     numberOfPredictors(4), logisticRegressionResultMock(nullptr), oddsRatios(numberOfPredictors), oddsRatiosLow(
         numberOfPredictors), oddsRatiosHigh(numberOfPredictors),
 #ifdef CPU
@@ -66,15 +70,21 @@ InteractionStatisticsTest::InteractionStatisticsTest() :
     (*inverseInfoMat)(i, i) = i;
   }
 
+  for(int i = 0; i < numberOfPredictors - 1; ++i){
+    oddsRatios[i] = exp((*beta)(i + 1));
+
+    oddsRatiosLow[i] = exp(-1.96 * (*inverseInfoMat)(i + 1, i + 1) + (*beta)(i + 1));
+    oddsRatiosHigh[i] = exp(1.96 * (*inverseInfoMat)(i + 1, i + 1) + (*beta)(i + 1));
+  }
 }
 
-InteractionStatisticsTest::~InteractionStatisticsTest() {
+OddsRatioStatisticsTest::~OddsRatioStatisticsTest() {
   //Don't need to LogisticRegressionResult since the class will do that.
   delete inverseInfoMat;
   delete beta;
 }
 
-void InteractionStatisticsTest::SetUp() {
+void OddsRatioStatisticsTest::SetUp() {
   logisticRegressionResultMock = new Model::LogisticRegression::LogisticRegressionResultMock();
 
   EXPECT_CALL(*logisticRegressionResultMock, getBeta()).Times(1).WillRepeatedly(ReturnRef(*beta));
@@ -82,36 +92,47 @@ void InteractionStatisticsTest::SetUp() {
       ReturnRef(*inverseInfoMat));
 }
 
-void InteractionStatisticsTest::TearDown() {
+void OddsRatioStatisticsTest::TearDown() {
 
 }
 
-TEST_F(InteractionStatisticsTest, Reri) {
+TEST_F(OddsRatioStatisticsTest, OddsRatios) {
   InteractionStatistics statistics(logisticRegressionResultMock);
+
+  std::vector<double> oddsRatiosStat = statistics.getOddsRatios();
+
   double e = 1e-5;
+  for(int i = 0; i < numberOfPredictors - 1; ++i){
+    double l = oddsRatios[i] - e;
+    double h = oddsRatios[i] + e;
 
-  double reri = oddsRatios[2] - oddsRatios[1] - oddsRatios[0] + 1;
-  double l = reri - e;
-  double h = reri + e;
-
-  double statReri = statistics.getReri();
-  EXPECT_THAT(statReri, Ge(l));
-  EXPECT_THAT(statReri, Le(h));
+    EXPECT_THAT(oddsRatiosStat[i], Ge(l));
+    EXPECT_THAT(oddsRatiosStat[i], Le(h));
+  }
 }
 
-TEST_F(InteractionStatisticsTest, Ap) {
+TEST_F(OddsRatioStatisticsTest, OddsRatiosLowAndHigh) {
   InteractionStatistics statistics(logisticRegressionResultMock);
+
+  std::vector<double> oddsRatiosLowStat = statistics.getOddsRatiosLow();
+  std::vector<double> oddsRatiosHighStat = statistics.getOddsRatiosHigh();
+
   double e = 1e-5;
+  for(int i = 0; i < numberOfPredictors - 1; ++i){
+    EXPECT_THAT(oddsRatiosLowStat[i], Le(oddsRatiosHighStat[i]));
 
-  double reri = statistics.getReri();
-  double or11 = (*beta)(3);
+    double l_low = oddsRatiosLow[i] - e;
+    double h_low = oddsRatiosLow[i] + e;
 
-  double l = reri / or11 - e;
-  double h = reri / or11 + e;
+    double l_high = oddsRatiosHigh[i] - e;
+    double h_high = oddsRatiosHigh[i] + e;
 
-  double statAp = statistics.getAp();
-  EXPECT_THAT(statAp, Ge(l));
-  EXPECT_THAT(statAp, Le(h));
+    EXPECT_THAT(oddsRatiosLowStat[i], Ge(l_low));
+    EXPECT_THAT(oddsRatiosLowStat[i], Le(h_low));
+
+    EXPECT_THAT(oddsRatiosHighStat[i], Ge(l_high));
+    EXPECT_THAT(oddsRatiosHighStat[i], Le(h_high));
+  }
 }
 
 }

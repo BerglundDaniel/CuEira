@@ -30,6 +30,7 @@
 #include <InteractionVector.h>
 #include <ModelInformation.h>
 #include <ModelInformationFactory.h>
+#include <StatisticModel.h>
 
 namespace CuEira {
 class DataHandlerTest;
@@ -44,6 +45,7 @@ class DataHandler {
   FRIEND_TEST(DataHandlerTest, Recode);
   FRIEND_TEST(DataHandlerTest, RecodeEnvNotBinary);
   FRIEND_TEST(DataHandlerTest, RecodeEnvBinary);
+  FRIEND_TEST(DataHandlerTest, ApplyStatisticModel);
 public:
   DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
       const ContingencyTableFactory& contingencyTableFactory, const Model::ModelInformationFactory& modelInformationFactory,
@@ -52,6 +54,7 @@ public:
   virtual ~DataHandler();
 
   virtual DataHandlerState next();
+  virtual void applyStatisticModel(StatisticModel statisticModel);
 
   virtual Recode getRecode() const;
   virtual void recode(Recode recode);
@@ -86,7 +89,6 @@ private:
   const ContingencyTableFactory* contingencyTableFactory;
   const Model::ModelInformationFactory* modelInformationFactory;
   Task::DataQueue* dataQueue;
-  const StatisticModel statisticModel;
   FileIO::BedReader* bedReader;
   const std::vector<const EnvironmentFactor*>* environmentInformation;
   Container::EnvironmentVector* environmentVector;

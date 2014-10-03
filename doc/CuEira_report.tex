@@ -44,6 +44,25 @@
   tabsize=3
 }
 
+\newcounter{example}
+\newcounter{algorithmCode}
+
+\makeatletter
+\lstnewenvironment{example}[2]{
+  \renewcommand\lstlistingname{Example}
+  \let\c@lstlisting=\c@example
+  \let\thelstlisting=\theexample
+  \lstset{caption=#1, label=#2}
+} {}
+
+\lstnewenvironment{algorithmCode}[2]{
+  \renewcommand\lstlistingname{Algorithm}
+  \let\c@lstlisting=\c@algorithmCode
+  \let\thelstlisting=\thealgorithmCode
+  \lstset{caption=#1, label=#2}
+} {}
+\makeatother
+
 \makeatletter
 \newcommand\ackname{Acknowledgements}
 \if@titlepage
@@ -156,7 +175,7 @@ Intro here\\
 \\
 Most of the conducted research on interactions in GWAS has been focused on gene-gene interactions. Few studies and tools have been investigating gene-environment interactions.
 
-Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} have been used for GWAS. GPUs have been a popular choice since most of the methods for searching for interaction are good on GPUs because each combination of variables can usually be considered independently from the others. More about this in section \ref{gpu_gwas}
+Both CPU clusters\cite{biforce} and GPUs\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} have been used for GWAS. GPUs have been a popular choice since most of the methods for searching for interaction are good on GPUs because each combination of variables can commonly be considered independently from the others. More about this in section \ref{gpu_gwas}
 
 %Bla bla lite om outline
 
@@ -179,9 +198,9 @@ This section will introduce the statistics and some of the algorithms used to se
 \\
 There are a lot of algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned. They can be roughly classified into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}.	\\
 \\
-Environmental factors can be of any type which creates problems in various ways\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variable to be binary or have other problems since they weren't designed for environmental interaction.\cite{gene_enviroment_2013}\\
+Environmental factors can be of any variable type(i.e. binary, continuous, categorical) which creates problems in various ways\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variables to be binary or have other problems since they weren't designed for environmental interaction.\cite{gene_enviroment_2013}\\
 \\
-\emph{Exhaustive search} is the most direct approach, it compares all combinations of the SNPs in the data. Exhaustive search methods will not miss a significant combination because it didn't consider that specific combination. However it also means that they can be slow since they will spend time on combinations other methods would skip completely. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and BOOST\cite{boost_gene_gene} are two examples of this type of algorithm.\\
+\emph{Exhaustive search} is the most direct approach, it compares all combinations of the SNPs in the dataset. Exhaustive search methods will not miss a significant combination because it didn't consider that specific combination. However it also means that they can be slow since they will spend time on combinations other methods would skip completely. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and BOOST\cite{boost_gene_gene} are two examples of this type of algorithm.\\
 \\
 \emph{Stochastic} methods uses random sampling to iterate through the data. BEAM\cite{beam_2007} is one example and it uses Markov Chain Monte Carlo(MCMC) method.\\
 \\
@@ -190,24 +209,24 @@ Environmental factors can be of any type which creates problems in various ways\
 \emph{Stepwise} methods uses a filtering stage and a search stage. At the filtering stage uninteresting combinations are filtered out by using some exhaustive method. The other SNPs are the examined more carefully in the search stage. BOOST\cite{boost_gene_gene} is an example which uses succinct data structures and a likelihood ratio test to filter the data before applying log-linear models.
 
 \subsection{Confounders and Covariates}
-\emph{Confounding} is one of the central issues in the design of epidemiological studies. It is when the effect of the exposure is mixed with the effect of another variable. So if we do not measure the second variable, the effect of the first would be estimated as stronger than it really is. The second variable is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorporated into the models. \emph{Covariates} are possible confounders or other variables that one wants to adjust for in the model. Sometimes covariates are called \emph{control variables}.\cite{rothman2002intro_epidemiology,rothman1998modern}
+\emph{Confounding} is one of the central issues in design of epidemiological studies. It is when the effect of the exposure is mixed with the effect of another variable. So if we do not measure the second variable, the effect of the first would be estimated as stronger than it really is. The second variable is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorporated into the models. \emph{Covariates} are possible confounders or other variables that one wants to adjust for in the model. Sometimes covariates are called \emph{control variables}.\cite{rothman2002intro_epidemiology,rothman1998modern}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=5cm]{Simple_Confounding_Case.png}
-    \caption{Illustration of a simple case of confounding. If we do not observe Z we might falesly find an association between X and Y}
+    \caption{Illustration of a simple case of confounding. If we do not observe Z we might falsely find an association between X and Y}
     \label{fig:confunding}
 \end{figure}
 
-For instance if a study would look into the effects of yellow teeth on lung cancer they would likely find an effect. However it would be due to the confounder smoking since smoking causes yellow teeth and lung cancer.
+For instance if a study would look into the effects of yellow teeth on lung cancer they would likely find an effect. However it would be due to the confounder smoking since smoking causes yellow teeth and lung cancer. %TODO cite
 
 \subsection{The Multiple Testing Problem}
-It is not uncommon to test a lot of hypothesis on the same data and in the case of GWAS it can be billions of tests. If one continues to test one should eventually find something that is significant due to random chance. With the standard p-value of 5\% it is expected to get 1 in 20 false positives under the assumption that the null hypothesis is true. The problem arises from the fact that the hypothesis tests are dependent on each other since they use parts of the same data. This is the multiple testing problem and if it is not corrected for a lot false positives might be found.\cite{bonferroni_multiple}\\
+It is not uncommon to test a lot of hypothesis on the same data and in the case of GWAS it can be billions of tests. If one continues to test one should eventually find something that is significant due to random chance. With the common significance threshold of 5\% it is expected to get 1 in 20 false positives under the assumption that the null hypothesis is true. The problem arises from the fact that the hypothesis tests are dependent on each other since they use parts of the same data. This is the multiple testing problem and if it is not corrected for a lot false positives might be found.\cite{bonferroni_multiple}\\
 \\
-Bonferroni correction is the simplest method and viewed as a conservative way to correct for this problem. It simply divides the p-value threshold that a test passes by the number of hypothesis. However the number of hypothesis made is not always clear. With a two-stage analysis, is the number of hypothesis the number of tests done in both stages combined, the number made in the first stage or the second stage?\cite{bonferroni_multiple}
+Bonferroni correction is the simplest method and viewed as a conservative way to correct for this problem. It simply divides the significance threshold by the number of hypothesis tested. However the number of hypothesis made is not always clear. With a two-stage analysis, is the number of hypothesis the number of tests done in both stages combined, the number made in the first stage or the second stage?\cite{bonferroni_multiple}
 
 \subsection{Contingency Tables}
-A contingency table is a matrix used to describe categorical data. Each cell contains the frequency of occurrences with a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 2 table. From this table we can for instance see that 688 smokers got lung cancer. Contingency tables are the basis for various statistical tests to model the data.\cite{agresti_categorical}
+A contingency table is a matrix used to describe categorical data. Each cell contains a count of occurrences for a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 2 table. From this table we can for instance see that 688 smokers got lung cancer. Contingency tables are the basis for various statistical tests to model the data.\cite{agresti_categorical}
 
 \begin{table}[h]
 \begin{tabular}{| l c c |}
@@ -223,7 +242,7 @@ A contingency table is a matrix used to describe categorical data. Each cell con
 \end{table}
 
 \subsubsection{Relative Risk and Odds Ratio}
-From a contingency table it is possible to calculate some useful measures such as the risk of getting the outcome based on exposure. The risk for a row i in the table will be referred to as $\pi_i$. For table \ref{table:contingency_table} the risks $\pi_1$ and $\pi_2$ is
+From a contingency table it is possible to calculate some useful measures such as the risk of getting the outcome based on exposure. The risk for a row $i$ in the table will be referred to as $\pi_i$. For table \ref{table:contingency_table} the risks $\pi_1$ and $\pi_2$ is
 
 \begin{equation}
 \pi_1=\frac{688}{688+650}=0.51
@@ -253,13 +272,13 @@ Another useful measure is \emph{odds} and \emph{odds ratio}(OR). The odds is\cit
 \Omega=\frac{\pi}{1-\pi}
 \end{equation}
 
-The odds are non-negative and $\Omega>1$ when the outcome is more likely than not\cite{agresti_categorical}. So for $\pi=0.75$ the odds is $\Omega=\frac{0.75}{1-0.75}=3$. This means that the outcome is 3 times more likely than not. OR can be used as an approximation of RR in case control studies because RR can not be estimated in that type of studies\cite{or_mislead}. Cohort studies on the other hand can give estimates of RR. FIXME cite\cite{}. OR is the ratio of the odds just as RR is the ratio of the risks\cite{agresti_categorical}.
+The odds are non-negative and $\Omega>1$ when the outcome is more likely than not\cite{agresti_categorical}. So for $\pi=0.75$ the odds is $\Omega=\frac{0.75}{1-0.75}=3$. This means that the outcome is 3 times more likely to occur than not. ORs can be used as an approximation of RR in case control studies because RR can not be estimated in that type of studies\cite{or_mislead}. Cohort studies on the other hand can give estimates of RR. FIXME cite\cite{}. OR is the ratio of the odds just as RR is the ratio of the risks\cite{agresti_categorical}.
 
 \begin{equation}\label{eq:odds_ratio}
 \theta=\frac{\Omega_1}{\Omega_2}
 \end{equation}
 
-In the case when the outcome is an disease or similar variables with odds ratio below one are called \emph{protective} and when it is above one it is a \emph{risk factor}\cite{recoding_2011}.
+In the case when the outcome is a disease or similar variables with odds ratio below one are called \emph{protective} and when it is above one it is a \emph{risk factor}\cite{recoding_2011}.
 
 \subsection{Logistic Regression}
 One way to model the contingency tables is by using \emph{logistic regression}. Logistic regression is a type of linear regression model for classification that models a latent probability for the outcomes. The outcomes are binary, however the method can be extended to multiple outcomes. In this work we will only consider them as binary. Logistic regression transforms the probability by using the \emph{logit} transformation. The logit transformation with probability $\pi$ is \cite{agresti_categorical}
@@ -302,9 +321,10 @@ Finding the $\beta$ coefficients are done in a similar way as with other linear 
 Fix this part a bit %TODO
 Note: $\cdot$ is matrix-matrix or vector, * is element by element\\
 X is the variables(N X M), Y outcomes with length N, beta is length M
-M=number of predictors excludig intercept
+M=number of predictors excluding intercept
 result beta is M+1
 
+%TODO label and caption
 \begin{algorithm}
 \begin{algorithmic}
 \State $\boldsymbol{X}\gets
@@ -410,7 +430,7 @@ OR_{both\:factors\:present}^x-OR_{first\:factor\:present}-OR_{second\:factor\:pr
 Case 3 has interaction for x>the point
 Case 4 has interaction for x<the point
 
-Depeding on where the point is interaction might not be relevant, e.g. needs to smoke a million ciggarets a day and case 3. Or disapers to fast, eg 1 cigarret a year case 4.
+Depending on where the point is interaction might not be relevant, e.g. needs to smoke a million cigarettes a day and case 3. Or disappears to fast, eg 1 cigarette a year case 4.
 
 \subsubsection{Statistic Measures for interaction}
 Based on the LR model and its corresponding ORs there are some measures that can be calculated. These 
@@ -456,9 +476,9 @@ Their biggest advantage is that they are usually non-parametric and designed wit
 \subsubsection{Multifactor-Dimensionality Reduction}
 MDR is a method that reduces the number of dimensions(i.e. variable) by combining several dimensions into one. In GWAS it combines the variables that are suspected to interact. This new variable is then compared against the outcome. If the new variables predictability of the outcome is high enough then the variables that were combined are considered to interact. This process is usually repeated on all pair combinations of variables.\\
 \\
-The reduction from n dimensions is done by calculating the ratio of cases versus controls for each combination of the possible values of the variables. If the ratio is above a certain threshold all the members of that groups get the value 1 for the new dimension, otherwise 0. Accuracy of the model is done by using cross validation and permutation tests, in simpler words it means that it reshuffles the data randomly and recalculates the model many times to get an estimate of the models certainty. Because of it MDR can be slow. However it is still usually faster than exhaustive search with regression methods.\cite{cordell_detect_review,mdr_2001}\\
+The reduction from $n$ dimensions is done by calculating the ratio of cases versus controls for each combination of the possible values of the variables. If the ratio is above a certain threshold all the members of that groups get the value 1 for the new dimension, otherwise 0. Accuracy of the model is done by using cross validation and permutation tests, in simpler words it means that it reshuffles the data randomly and recalculates the model many times to get an estimate of the models certainty. Because of that MDR can be slow. However it is still usually faster than exhaustive search with regression methods.\cite{cordell_detect_review,mdr_2001}\\
 \\
-An simple example of MDR using exclusive or (XOR). XOR is an logical operator that is true if one and only one of its two variables is true. We have 4 possible combinations and an occurrence for each of them. The combination (1,0) and (0,1) both have one case with outcome 1 so MDR will classify them as 1 in the new variable Z. The other two combinations have outcome 0 so will be classified with Z=0. From here it is easy to make an predictor from Z to the outcome Y by comparing the values.
+A simple example of MDR using exclusive or (XOR). XOR is an logical operator that is true if one and only one of its two variables is true. We have 4 possible combinations and an occurrence for each of them. The combination (1,0) and (0,1) both have one case with outcome 1 so MDR will classify them as 1 in the new variable Z. The other two combinations have outcome 0 so will be classified with Z=0. From here it is easy to make an predictor from Z to the outcome Y by comparing the values.
 
 \begin{table}[h]
 \begin{tabular}{ | c | c | c | }
@@ -536,30 +556,30 @@ Until 1996 there was computers with just a single core CPU on top 500\cite{TOP50
 As you can see most of it is not used for calculations. A large part of the area is used for optimizations and caching. We will talk about caching and optimizations the next section. 
 
 \subsection{Memory, Caching and Optimizations}
+\label{optimizations}
 there are various optimizations, bla bla intro
 \\
 Picture here of memory stuff, caching\\
 \\
 Retrieving data from memory is relatively slow compared to how fast the processor works\cite{introduction_hpc_hager,drepper2007cpumemory}. %TODO something about the  maginitude
-To solve this problem a \emph{cache} was introduced. It stores recently used data in a very small and very fast memory that resides on the CPU chip itself. That data can then be reused fast without waiting for the main memory to fetch it. However when the data is not in the cache it takes the usual speed to fetch it from the main memory, that is a \emph{cache miss}. Avoiding cache misses is important for speed because of how costly they can be. Modern CPUs commonly have more than one cache, most have three. They are named L1 to L3, with L1 being the one fastest and smallest and L3 the largest and slowest. The speed of the L1 cache is usually around one processor cycle and the total size of the caches is around four to sixteen megabyte on modern CPUs.\\
+To solve this problem a \emph{cache} was introduced\cite{drepper2007cpumemory}. It stores recently used data in a very small and very fast memory that resides on the CPU chip itself\cite{drepper2007cpumemory}. That data can then be reused fast without waiting for the main memory to fetch it. However when the data is not in the cache it takes the usual speed to fetch it from the main memory, that is a \emph{cache miss}\cite{drepper2007cpumemory}. Avoiding cache misses is important for speed because of how much time it can take to fetch the data from the main memory\cite{drepper2007cpumemory}. Modern CPUs commonly have more than one cache, most have three\cite{introduction_hpc_hager}. They are named L1 to L3, with L1 being the one fastest and smallest and L3 the largest and slowest\cite{introduction_hpc_hager}.\\
 \\
-Modern multicore processors several L1 caches, one for each core. It is usually one L2 per core too, however it is shared in some architectures. L3 is almost always shared between all cores. That multiple caches are used creates a problem called \emph{cache coherency}. It is that when the data is modified in one cache all the cores caches needs to be updated too so that they use the new value.\\
+Modern multicore processors several L1 caches, one for each core\cite{introduction_hpc_hager}. It is commonly one L2 per core too, however it is shared in some architectures\cite{introduction_hpc_hager}. L3 is almost always shared between all cores\cite{introduction_hpc_hager}. That multiple caches are used creates a problem called \emph{cache coherency}. It is that when the data is modified in one cache all the cores caches needs to be updated too so that they use the new value\cite{introduction_hpc_hager}.\\
 \\
-Another memory optimization somewhat related to caches is \emph{prefetching}\cite{introduction_hpc_hager}. Instead of fetching just the data requested by the current operations it also fetches the surrounding data. The chance that the surrounding data will be used soon is high since it is common to iterate over arrays and similar structures\cite{introduction_hpc_hager}. If a program iterates over an array unless it was used recently the first value will be a cache miss since it is not in the cache. However the following values will be due to them being prefetched and cached. At some point however the array is too long to be prefetched and cached completely and when the CPU hits that spot a new cache miss will happen. Because everything is stored sequentially it is important in some cases to know how the it is stored so that the prefetching and caching can be used. One of these cases is for matrices, they are 2D but stored as one array. Different programming languages store them differently, either column by column or row by row. Row by row is called \emph{row major} and column by column is \emph{column major.}\\
+Another memory optimization somewhat related to caches is \emph{prefetching}\cite{introduction_hpc_hager, drepper2007cpumemory}. Instead of fetching just the data requested by the current operations it also fetches the surrounding data\cite{drepper2007cpumemory}. The chance that the surrounding data will be used soon is high since it is common to iterate over arrays and similar structures\cite{introduction_hpc_hager}. If a program iterates over an array unless it was used recently the first value will be a cache miss since it is not in the cache. However the following values will be due to them being prefetched and cached. At some point however the array is too long to be prefetched and cached completely and when the CPU hits that spot a new cache miss will happen\cite{drepper2007cpumemory}. Because everything is stored sequentially it is important in some cases to know how the it is stored so that the prefetching and caching can be used. One of these cases is for matrices, they are 2D but stored as one array. Different programming languages store them differently, either column by column or row by row. Row by row is called \emph{row major} and column by column is \emph{column major.}\\ %TODO cite row major and such
 \\
-In section 6.2.1 in \cite{drepper2007cpumemory} an example of how much speed that can be gained by optimizing matrix matrix multiplication. The first version is shown below.
+In section 6.2.1 in What Every Programmer Should Know About Memory\cite{drepper2007cpumemory} an example of how much speed that can be gained by optimizing matrix matrix multiplication. The first version is shown in algorithm \ref{alg:matmatmult}.
 
-\begin{lstlisting}
+\begin{algorithmCode}{Matrix matrix multiplication} {alg:matmatmult}
 for (i = 0; i < N; ++i)
   for (j = 0; j< N; ++j)
     for (k = 0;k < N; ++k)
       res[i][j]+= mul1[i][k] * mul2[k][j];
-\end{lstlisting}
+\end{algorithmCode}
 
-By transposing the mul2 matrix it becomes more cache friendly because it uses the prefectching of surrounding data the way that mul1 already is\cite{drepper2007cpumemory}. The transpose itself can be eliminated while also making it use the cache better by reading in the correct amount of data, this is the size SM in the code below\cite{drepper2007cpumemory}. 
-The version below took 17.3\% of the original\cite{drepper2007cpumemory}.
+By transposing the mul2 matrix it becomes more cache friendly because it uses the prefectching of surrounding data the way that mul1 already is\cite{drepper2007cpumemory}. The transpose itself can be eliminated while also making it use the cache better by reading in the correct amount of data, this is the size SM in the code\cite{drepper2007cpumemory}. The optimized version is shown in \ref{alg:matmatmultopt}. It took 17.3\% of the original time\cite{drepper2007cpumemory}.
 
-\begin{lstlisting}
+\begin{algorithmCode}{Matrix matrix multiplication optimized} {alg:matmatmultopt}
 #define SM (CLS / sizeof (double))
 
 for (i = 0; i < N; i += SM)
@@ -569,15 +589,32 @@ for (i = 0; i < N; i += SM)
 	for (k2 = 0, rmul2 = &mul2[k][j]; k2 < SM; ++k2, rmul2 += N)
 	  for (j2 = 0; j2 < SM; ++j2)
 	    rres[j2] += rmul1[k2] * rmul2[j2];
-\end{lstlisting}
+\end{algorithmCode}
 
-On top of that by using some additional features of the the CPU do multiple instructions at once further speed is gained pushing the speed to 9.47\% of the original time\cite{drepper2007cpumemory}. \\
+On top of that by using some additional features of the the CPU do multiple instructions at once further speed is gained increasing it to 9.47\% of the original time\cite{drepper2007cpumemory}. \\
 \\
-Instruction level parallelism\\ %TODO
+If the operation instructions diverge, e.g. if statements, the CPU would have to wait for the results to see what instructions load and do next\cite{drepper2007cpumemory}. This can mean a lot of lost time, however thanks to a optimization called \emph{branch prediction} and \emph{speculative execution} that can be prevented in some cases\cite{drepper2007cpumemory}. A dedicated part of the CPU stores the results from these diverges and when they are repeated it uses them to make an guess of what do to next\cite{drepper2007cpumemory}. It then loads the instructions and tries to fetch the needed data\cite{drepper2007cpumemory}. It then speculatively executes the instructions, i.e it executes instructions that might not actually be needed\cite{drepper2007cpumemory}. If the guess was correct the results are kept, on the other hand if it was wrong the CPU starts again from the correct path and discards the incorrect results\cite{drepper2007cpumemory}.\\
 \\
-If the operation instructions diverge, e.g. if statements, the CPU would have to wait for the results to see what instructions load and do next\cite{drepper2007cpumemory}. This can mean a lot of lost time, however thanks to a optimization called \emph{branch prediction} and \emph{speculative execution} that can be prevented in some cases\cite{drepper2007cpumemory}. A dedicated part of the CPU stores the results from these diverges and when they are repeated it uses them to make an guess of what do to next\cite{drepper2007cpumemory}. It then loads the instructions and tries to fetch the needed data\cite{drepper2007cpumemory}. It then speculatively executes the instructions, i.e it executes instructions that might not actually be needed\cite{drepper2007cpumemory}. If the guess was correct the results are kept, on the other hand if it was wrong the CPU starts again from the correct path and discards the incorrect results\cite{drepper2007cpumemory}.
+Sometimes there can be several independent instructions, e.g. when adding two vectors together, this allows optimizations for \emph{instruction level parallelism}\cite{introduction_hpc_hager}. The order of the instructions can be ignored which for instance means that if an instruction needs to wait for some data another instruction that has its data available could be executed while waiting\cite{introduction_hpc_hager}. It is an optimization called \emph{out of order execution}\cite{introduction_hpc_hager}. There are also other possible optimizations\cite{introduction_hpc_hager}.
 \\
-One thing that sometimes can prevent optimizations is \emph{pointer aliasing}, usually refereed to as just \emph{aliasing} but not be confused with aliasing in graphics, is when the same memory area can be accessed using different variables\cite{introduction_hpc_hager}. This becomes a problem if an set of instructions operates on them at similar times. The relative order of operations between these operations then has to be preserved preventing various optimizations such as instruction level parallelism. The compiler doesn't know if aliasing occurs or not so has to treat all situations where it can occur as if it does\cite{introduction_hpc_hager}. Some programming languages such as Fortran disallow some types of aliasing while C/C++ can get problems with aliasing\cite{introduction_hpc_hager}. This one of the reasons why Fortran is usually faster than C/C++\cite{introduction_hpc_hager}. The compilers for the languages in the second case usually have options to disable aliasing to allow for more optimizations by the compiler. However for languages that don't allow aliasing or if it is disabled it is then the programmers responsibility to make sure that aliasing doesn't occur\cite{introduction_hpc_hager}.
+In the example \ref{ex:independent_instructions} the instructions are independent because they use different variables so they can be executed in any order. If the variables $b$ and $c$ needs to be fetched but $e$ and $f$ are available due to previous instructions then the CPU could execute the second addition first by using out of order execution. However if an operation later depends on the variable $a$ or $d$ then that instruction would have to wait until the additions have been executed.
+
+\begin{example}{Independent Instructions}{ex:independent_instructions}
+a = b + c;
+d = e + f;
+\end{example}
+
+\emph{Pointer aliasing} can prevent the compiler from making certain optimizations, e.g. out of order execution mentioned above. Pointer aliasing is when the same memory area can be accessed using different variables\cite{introduction_hpc_hager}. This becomes a problem if an set of instructions use these variables in the same area of the program. The relative order of operations between these operations then has to be preserved. The compiler does have the information if aliasing occurs or not which means the compiler has to treat all situations where it can occur as if it does\cite{introduction_hpc_hager}.\\
+\\
+If the integers in example \ref{ex:independent_instructions} are changed to pointers then aliasing can occur because some of these pointers could point to the same memory. For instance if a and e points to the same memory then the result would be wrong if the second line is executed before the first. This would force the instructions to be executed in order or the result would likely be incorrect.
+
+\begin{example}{Pointer Aliasing}{ex:aliasing}
+//All variables are pointers
+*a = *b + *c;
+*d = *e + *f;
+\end{example}
+
+Some programming languages, e.g. Fortran, disallow some types of aliasing while others, e.g. C/C++, allows aliasing\cite{introduction_hpc_hager}. The compilers for the languages in the second case commonly have an option to disable aliasing. However for languages that don't allow aliasing, or if it is disabled, it is then the programmers responsibility to make sure that aliasing does not occur or the results can be wrong\cite{introduction_hpc_hager}.
 
 \subsection{Concurrency and Threads}
 \label{concurrency}
@@ -603,12 +640,13 @@ The problem is that this set of instructions can lead to a state where everyone 
 \\
 There are also other potential problems that can arise when using concurrency. A \emph{race condition} occurs when the result depends on what affects it first, it is a race between them on who can reach it first\cite{introduction_hpc_hager}. \emph{Locks} can be used to prevent situations as the ones described above by making sure only one thread at a time can access the object\cite{introduction_hpc_hager}.\\
 \\
-In computer science concurrency occurs when instructions are separated in different \emph{threads}. The type can be divided into four groups including the sequential.
+In computer science concurrency occurs when instructions are separated in different \emph{threads}. The architectures can be divided in a taxonomy with four categories including the sequential. They are illustrated in figure \ref{fig:flynn_taxonomy}.
+
 \begin{itemize}
  \item \emph{SISD}(Single-Instruction,Single-Data) is the sequential and is as the name says, single instructions on single data\cite{introduction_hpc_hager}.
  \item \emph{SIMD}(Single-Instruction, Multiple-Data) is applying the same instruction on different data\cite{introduction_hpc_hager}. SIMD is also called vectorisation\cite{introduction_hpc_hager}.
  \item \emph{MIMD}(Multiple-Instruction, Multiple-Data) applies different instructions on different data\cite{introduction_hpc_hager}.
- \item \emph{MISD}(Multiple-Instruction, Single-Data) performs different operations at the same piece of data, this paradigm is uncommon\cite{introduction_hpc_hager}.
+ \item \emph{MISD}(Multiple-Instruction, Single-Data) performs different operations at the same piece of data, this paradigm is uncommon\cite{introduction_hpc_hager, computer_arch_2003}.
 \end{itemize}
 
 \begin{figure}
@@ -636,7 +674,7 @@ In computer science concurrency occurs when instructions are separated in differ
                 \caption{MIMD}
                 \label{fig:MIMD}
         \end{subfigure}
-        \caption{Flynns taxamony}\label{fig:flynn}
+        \caption{Flynns taxonomy of parallel architectures\cite{introduction_hpc_hager}}\label{fig:flynn_taxonomy}
 \end{figure}
 
 \subsection{Accelerators, GPUs and Xeon Phi}
@@ -652,6 +690,8 @@ Graphics processing unit(GPU) have become more popular for general computing the
 %structure of gpu
 
 'dummer' threads than CPU, more area for calculations
+no branch prediction or speculative execution \ref{optimizations}
+
 
 Xeon Phi, intel mic
 mimd
@@ -704,12 +744,13 @@ Max achived with LinPack 33 PetaFlops
 Picture of Tianhe-2 here
 
 \subsection{CUDA programming model}
-This section is about GPU programming in more detail using NVIDIAs CUDA(Compute Unified Device Architecture)\cite{cuda}. CUDA extends C and C++ with some additional functionality that can be used to perform operations on NVIDAs GPUs. It provides a separate compiler to compile the GPU code called nvcc. Diffrent GPUs support different CUDA functions, each NVIDIA GPU has a value called computational capability. The higher the value the more features of CUDA are supported on that GPU. Some properties also vary between the different underlying architectures. This means that it is important to know what kind of capability the GPU to be used has so that the program does not need features that are not there. The things described here might not apply to GPUs with compute capability below 3. There are GPUs made specifically for calculations rather than games.\cite{cuda}\\
+This section is about GPU programming in more detail using NVIDIAs CUDA(Compute Unified Device Architecture)\cite{cuda}. CUDA extends C and C++ with some additional functionality that can be used to perform operations on NVIDAs GPUs. It provides a separate compiler to compile the GPU code called nvcc\cite{cuda}. Different GPUs support different CUDA functions, each NVIDIA GPU has a value called computational capability. The higher the value the more features of CUDA are supported on that GPU. Some properties also vary between the different underlying architectures. This means that it is important to know what kind of capability the GPU to be used has so that the program does not need features that are not there. The things described here might not apply to GPUs with compute capability below 3. There are GPUs made specifically for calculations rather than games. This section is an summary of how CUDA works from the CUDA programming guide\cite{cuda} and CUDA best practices guide\cite{cuda_best_practice}.\\
 \\
 In CUDA the GPU is called \emph{device} and systems CPU and memory is the \emph{host}. To perform operations on the device a type of function called \emph{kernel} is used. A kernel is specified the same way as a normal C/C++ function but with the addition of \_\_global\_\_ in front of the function declaration. The way the kernels are used differs slightly from normal C/C++ too. <<<...>>> is added to the it specifying how many threads to be use among others.\cite{cuda}\\
 \\
 Below here is an example of a kernel and how it can be called from the host code. The kernel add each element of the arrays A and B storing it in C. Each thread performs on addition and knows why elements to use based on it's id. The call to the kernel is made by giving three arrays and the number of threads to be used as N. In this case N needs to be the length of the arrays.
-\begin{lstlisting}
+
+\begin{example}{Simple Kernel}{simple_kernel}
 // Kernel definition
 @__global__@ void Add(float* A, float* B, float* C)
 {
@@ -720,9 +761,9 @@ Below here is an example of a kernel and how it can be called from the host code
 // In the host code
 // Kernel invocation with N threads
 Add@<<<1, N>>>@(A, B, C);
-\end{lstlisting}
+\end{example}
 
-The $<<<N,M>>>$ specifier tells CUDA how many $N$ blocks and how many $M$ threads per block that the kernel should use. A block is a group of threads and shares some memory and resources. The blocks can be executed in any order so they need to be completely independent from each other but variables can be shared among threads inside a block. The blocks are  organized in a one, two or three dimensional \emph{grid}. These can be accessed by each thread so it knows which grid it is in. This can be used to make it easier to assign the threads to the correct bit of the calculation. For instance using a two dimensional grid is good for matrices\cite{cuda, cuda_best_practice}.
+The $<<<N,M>>>$ specifier tells CUDA how many $N$ blocks and how many $M$ threads per block that the kernel should use\cite{cuda}. A block is a group of threads and shares some memory and resources. The blocks can be executed in any order so they need to be completely independent from each other but variables can be shared among threads inside a block. The blocks are  organized in a one, two or three dimensional \emph{grid}. These can be accessed by each thread so it knows which grid it is in. This can be used to make it easier to assign the threads to the correct bit of the calculation. For instance using a two dimensional grid is good for matrices\cite{cuda, cuda_best_practice}.
 
 \begin{figure}[h]
     \centering
@@ -740,7 +781,6 @@ The $<<<N,M>>>$ specifier tells CUDA how many $N$ blocks and how many $M$ thread
 
 The streaming multiprocessors(SM) is the hardware that handles the execution of these blocks and can execute hundreds of threads concurrently. It uses \emph{SIMT}(Single-Instruction, Multiple-Thread) which is similar to SIMD described earlier in section \ref{concurrency}. SIMT works mostly as SIMD except that it can act as MIMD on collections of threads called \emph{warps}. Each warp consists of 32 threads. When an SM gets a block it is split into warps that are assigned to warp schedulers. Each warp scheduler gives one instruction to a warp so full efficiency is achieved when all the 32 threads perform the same instruction. If there is any divergence it has to disable unrelated threads, so divergence can be costly. However different groups of warps are on different warps schedulers so can diverge without problem.\cite{cuda}
 
-%TODO placeholder image
 \begin{figure}[h]
     \centering
     \includegraphics[width=8cm]{SIMT.png}
@@ -760,7 +800,7 @@ The GPU also have several different types of memory\cite{cuda}. Correct usage ca
   \item Constant memory is small however it is read only which enables some optimizations. It is best used for small variables that all threads access.\cite{cuda}
   \item Local memory is tied to the threads scope, however it still resides off-chip so it has the same access time as global memory.\cite{cuda}
   \item Texture memory is read only and can be faster to access than global memory in some situations. This was more important in older GPUs when global memory was not cached.\cite{plink_gpu, cuda}
-  \item Read-only cache is available on Kepler GPUs and uses the same cache as the texture memory. The data as to be read only each multiprocessor can have up to 48kb of space depending on GPU.\cite{kepler_tuning_guide}
+  \item Read-only cache is available on GPUs based on Kepler architecture and uses the same cache as the texture memory. The data as to be read only each multiprocessor can have up to 48kb of space depending on GPU.\cite{kepler_tuning_guide}
 \end{itemize}
 
 \subsubsection{Streams}
@@ -769,9 +809,11 @@ The kernel calls can be made on a \emph{stream}. The easiest way to think of the
 \\
 This is not entirely true for some GPU architectures because they only have one queue for the kernels. Because of this independent kernels from different streams can block each other. If we have a group of kernels and issue them on stream one first and then on stream two all the kernels in stream two will be stuck in the queue waiting for the kernels in stream one to finish. This is because the kernels queue only looks at the first kernels to see if they can be executed. The second kernel in the first stream then blocks the queue from moving forward so it will not see the kernels on stream two that could be executed. Newer architectures after Kepler on the other hand has several queues so they don't have this problem.\cite{cuda, cuda_best_practice, kepler_tuning_guide}\\
 \\
-Streams are also important for asynchronous transfers. These transfers are executed on a stream and just as kernels gets executed after the previous kernels on the same stream is done. The advantage is that other streams can do calculations as normal while the transfer happens. This can hide the time for transfers completely in some situations. However the host memory has to be pinned. Pinned memory means that the operative system can not page that memory. Paging is that the operative system stores a part of the memory in another area, usually the disk memory, to save space in the memory. Too much pinned memory can slow down the computer.\cite{cuda, overlap_transfers_cuda}\\
+Streams are also important for asynchronous transfers. These transfers are executed on a stream and just as kernels gets executed after the previous kernels on the same stream is done. The advantage is that other streams can do calculations as normal while the transfer happens. This can hide the time for transfers completely in some situations as shown in \ref{fig:ascynchronous}. However the host memory has to be pinned, pinned memory means that the operative system can not page that memory. Paging is that the operative system stores a part of the memory in another area, usually the disk memory, to save space in the memory. Too much pinned memory can slow down the computer.\cite{cuda, overlap_transfers_cuda}\\
 \\
-However there is problem that asynchronous transfers can cause depending on the GPUs architecture\cite{overlap_transfers_cuda, cuda_fortran_overlap}. Some older GPUs only have one copy engine while newer have one for each direction, one to the GPU and one from the GPU\cite{overlap_transfers_cuda, cuda_fortran_overlap}. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers\cite{overlap_transfers_cuda, cuda_fortran_overlap}. The example below is from \cite{cuda_fortran_overlap}.
+However there is problem that asynchronous transfers can cause depending on the GPUs architecture\cite{overlap_transfers_cuda, cuda_fortran_overlap}. Some older GPUs only have one copy engine while newer have one for each direction, one to the GPU and one from the GPU\cite{overlap_transfers_cuda, cuda_fortran_overlap}. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers\cite{overlap_transfers_cuda, cuda_fortran_overlap}.\\
+\\
+There is an example of this in \cite{cuda_fortran_overlap} which illustrates the problem. They have four versions of the same code, a sequential transfer version and three asynchronous transfer versions. Two different GPUs were used, one had one copy engine the other had two. In the asynchronous the data is split over four streams coloured differently in the figure \ref{fig:ascynchronous}. Version 1 initiates the calls by looping over the streams one by one and doing the transfer and kernel calls on that stream before moving on to the next\cite{cuda_fortran_overlap}. Version 2 makes all the host to device transfer calls for all streams first, then the kernels and then the device to host transfer call\cite{cuda_fortran_overlap}. Version 3 is the same as version 2 but with a dummy even after each kernel\cite{cuda_fortran_overlap}. The figure \ref{fig:ascynchronous} shows how the transfers and kernels are executed on the GPU.
 
 \begin{figure}[h]
     \centering
@@ -787,10 +829,8 @@ However there is problem that asynchronous transfers can cause depending on the 
     \label{fig:ascynchronous}
 \end{figure}
 
-The examples are with a sequential version and three asynchronous of the same code with two different architectures, either one or two copy engines. In the asynchronous the data is split over four streams coloured differently in the figures. Version 1 initiates the calls by looping over the streams one by one and doing the transfer and kernel calls on that stream before moving on to the next\cite{cuda_fortran_overlap}. Version 2 makes all the host to device transfer calls for all streams first, then the kernels and then the device to host transfer call\cite{cuda_fortran_overlap}. Version 3 is the same as version 2 but with a dummy even after each kernel\cite{cuda_fortran_overlap}. The figures show that with the wrong ordering of the calls the asynchronous version is largely the same as the sequential. It also varies what the fastest version is depending on the GPUs architecture.
-
 \subsubsection{Efficient CUDA}
-One of the main criticism against GPUs for general computing purposes is that it is hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. Here are some things that needs to be considered when writing programs that use CUDA.\cite{plink_gpu, cuda, cuda_best_practice}
+One of the main criticism against GPUs for general computing purposes is that it is hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. This section is a summary of things that can be good to consider for CUDA programs from the CUDA programming guide\cite{cuda}, CUDA best practices guide \cite{cuda_best_practice} and a similar list as this one, however slightly outdated now since it is from 2010, from a master thesis about GPU in GWAS\cite{plink_gpu}.
 \\
 \begin{description}
   \item[Maximize parallelism] \hfill \\
@@ -820,13 +860,13 @@ One of the main criticism against GPUs for general computing purposes is that it
     \item Thrust: Template based library that tries to emulate C++ standard library\cite{thrust_gpu}
   \end{itemize}
   \item[Avoid slow instructions] \hfill \\
-  There are some instructions that can be slow and should be avoided if possible, for instance type conversion, integer division and modulo. If a function is called with a floating point number that might be used as a double and require a conversion. By putting an f at the end of the number it is told to be single precision float, for instance 0.5f. In some cases it is possible to use bitwise operations instead which is faster.\cite{cuda, cuda_best_practice}
+  There are some instructions that can be slow and should be avoided if possible, for instance type conversion, integer division and modulo. If a function is called with a floating point number that might be used as a double and require a conversion. By putting an $f$ at the end of the number it is told to be single precision float, for instance 0.5f. In some cases it is possible to use bitwise operations instead which is faster.\cite{cuda, cuda_best_practice}
   \item[Restricted pointers can give increased performance] \hfill \\
   Aliasing can be a problem as mentioned earlier. By using the \_\_restrict\_\_ keyword on pointers the compiler can be told that no aliasing will occur, however it is up to the programmer to make sure that is the case or there might be unexpected results. Not using aliasing reduces the number of memory accesses the CPU needs to make. However it increases register pressure so it can have an negative effect on performance.\cite{cuda}
   \item[Use fast math functions if precision isn't needed] \hfill \\
-  There are two versions of runtime math functions. The ones of the type funcf() is slower but more accurate than \_funcf(). The option -use\_fast\_math makes the compiler change all the funcf() to \_funcf().\cite{cuda_best_practice}
+  There are three versions of the math functions. The double precision version is func() while the single precision function is funcf(). There is third faster but less accurate version \_funcf(). The option -use\_fast\_math makes the compiler change all the funcf() to \_funcf().\cite{cuda_best_practice}
   \item[Instruction level parallelism can increase speed]\hfill \\
-  Just as for CPUs the GPUs can take advantage of instruction level parallelism. By unrolling loops this can give 2x the speed relatively simple.\cite{volkov2011unrolling}
+  Just as for CPUs the GPUs can take advantage of instruction level parallelism. By unrolling loops this can give 2x the speed relatively simple\cite{volkov2011unrolling}.
 \end{description}
 
 \clearpage
@@ -835,7 +875,7 @@ An important part in making fast and efficient programs is to know how fast the 
 \\
 There are two ways to measure how long a program takes to execute\cite{introduction_hpc_hager}. Wall clock time is how long real life time the program took. The other is to measure the number of processor cycles spent. A parallel program will have shorter execution time than it is serial version however it will likely have spent more processor cycles due to overhead from communication and initialization of the threads. These two measures are useful for different kinds of comparisons. Wall clock time is better for overall performance while number of cycles is useful for comparing different algorithms\cite{introduction_hpc_hager, cuda_best_practice}.\\
 \\
-Speed up is measures how much faster then program is with a certain number of threads compared to the serial version. It's defined as\cite{introduction_hpc_hager}
+Speed up is a measure of how much faster then program is with a certain number of threads compared to the serial version. It's defined as\cite{introduction_hpc_hager}
 $$S(p)=\frac{T(1)}{T(p)}$$
 Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speed up is when S(p)=p\cite{introduction_hpc_hager}.\\
 \\
@@ -844,10 +884,10 @@ $$E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}$$
 \\
 Strong scaling refers to how the program handles a fixed problem size and increased number of processors\cite{introduction_hpc_hager}. An program with strong scaling has linear speed up\cite{introduction_hpc_hager}. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased\cite{introduction_hpc_hager, cuda_best_practice}.\\
 \\
-It can be a good idea to plot these measures while varying p, this can show when bottlenecks occur. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication over the network affects the performance.
+It can be a good idea to plot these measures while varying p, this can show when a bottleneck occurs. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication over the network affects the performance.
 
 \subsubsection{Amdahl's Law and Gustafson's Law}
-Amdahl's Law is used to find the expected speed up of a system when parts of is made concurrent. Simply it says that as the number of processors increases the parts that aren't parallel will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts\cite{introduction_hpc_hager}. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
+Amdahl's Law is used to find the expected speed up of a system when parts of it are made concurrent. Simply it says that as the number of processors increases the parts that aren't parallel will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts\cite{introduction_hpc_hager}. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
 \\
 It says that the expected speed up with F fraction of the code parallel and p threads is\cite{introduction_hpc_hager} 
 $$S(p)=\frac{1}{(1-F)+\frac{F}{p}(1-F)}$$
@@ -856,7 +896,7 @@ As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F
 \begin{figure}[h]
     \centering
     \includegraphics[width=11cm]{AmdahlsLaw.png}
-    \caption{Illustration of Amdahls Law. Wikipedia Commons}
+    \caption{Illustration of Amdahl's Law. Wikipedia Commons}
     \label{fig:AmdahlsLaw}
 \end{figure}
 
@@ -886,13 +926,15 @@ $$S(p)=p+(1-F)(1-p)$$
 \subsubsection{Profilers}
 There are applications called profilers that are made to assess the programs performance and resource consumption. They calculate some of the measures mentioned earlier and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlenecks and other problems in the program. It does not matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products.\cite{introduction_hpc_hager, cuda_best_practice}
 
+%TODO lite om nsight
+
 \clearpage
 \section{Software Design}
-How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software. Messier code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. All code gather problems overtime, however a well designed system will degenerate a lot slower than one that was designed carelessly. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in.\cite{cleancode2008, design_patterns}\\
+How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software. Badly organized and written code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. Fixing those bugs are likely to time consuming because it can be hard to find where they originated from. All code gather problems overtime, however a well designed system will degenerate a lot slower than one that was designed carelessly. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in. \cite{cleancode2008, design_patterns}\\
 \\
-This is also important in science where others might wish to use the tools or repeat the experiments. A recent study\cite{comp_repro_2013} found that the repeatability in computer science is low. They used the term reproducibility but repeatability is a more fitting term because they didn't try to reproduce the results from scratch, they tried to repeat it using the same code. Of 513 articles they got the code from 231, 108 failed to build, 21 failed to run properly\cite{comp_repro_2013}. Just 102 worked as they should\cite{comp_repro_2013}.\\
+This is also important in science where others might wish to use the tools or repeat the experiments. A recent study\cite{comp_repro_2013} found that the repeatability in computer science is low. They used the term reproducibility however repeatability is a more fitting term because they didn't try to reproduce the results from scratch, they tried to repeat it using the same code. Of 513 articles they received the code from 231, 108 failed to build, 21 failed to run properly\cite{comp_repro_2013}. Just 102 worked properly\cite{comp_repro_2013}.\\
 \\
-There are ways to design the program and code in such a way that it is easier to read and maintain. Most of the things described here goes under the development technique called agile development and the concept of clean code\cite{cleancode2008}. SOLID is an acronym for five principles for object oriented programming and design. When used together they are intended to make programs that are easy to maintain and extend. As already mentioned readability is important. Correct names will make the code explain itself without other documentation, the code itself is the documentation.
+There are ways to design the program and code in such a way that it is easier to read and maintain. Most of the things described here goes under the development technique called agile development and the concept of clean code and is a summary of some concepts from the book Clean Code\cite{cleancode2008}. SOLID is an acronym for five principles for object oriented programming and design\cite{cleancode2008}. When used together they are intended to make programs that are easy to maintain and extend. As already mentioned readability is important. Correct names will make the code explain itself without other documentation, the code itself is the documentation.
 
 \begin{table}[h]
 \begin{tabular}{ l l p{2in}}
@@ -906,7 +948,7 @@ There are ways to design the program and code in such a way that it is easier to
   D & Dependency inversion principle & Depend on abstractions(e.g. interfaces) not details \\
   \hline  
 \end{tabular}
-\caption{The five SOLID principles}
+\caption{The five SOLID principles, from \cite{cleancode2008}}
 \label{table:solid_table}
 \end{table}
 
@@ -927,6 +969,9 @@ A \emph{design pattern} in software design is a reusable general solution to a c
 
 \subsection{Version Control Software}
 %TODO
+
+For this project git was used and the code can be found at \url{https://github.com/Berjiz/CuEira}
+
 git
 cite git
 
@@ -1007,13 +1052,26 @@ Why?
 %mkl 13.1
 %cuda 5.5
 
+single vs double precision
+
+fast math
+
+no aliasing
+
 kepler vs fermi queue problem, problem described in section \ref{streams}
+
+personHandler is slow
 
 \chapter{Discussion and Conclusions}
 %Discussion and Conclusions (up to 3 pages)
 %Need for novel methods for gene-environment interaction
 %Need for methods for third order interaction and higher
 %more statistics for non binary
+
+%TODO look back att efficent cuda part
+
+%TODO divergence problems, nothing now but could be with recoding on GPU or bootstrap
+%idea for solution using pointer architmic
 
 \chapter{Outlook}
 %Outlook (up to one page)
@@ -1028,7 +1086,7 @@ cublas not that much harder than regular blas. A wrapper could enable simple and
 own kernels more than simple elemntwise, probably hard to optimize. unknowish
 
 \chapter{Appendix}
-\section{A List of Variables}
+\section{List of Variables}
 
 \begin{description}
 %anything with hat is estimate
@@ -1041,12 +1099,12 @@ own kernels more than simple elemntwise, probably hard to optimize. unknowish
 \item[Y]
   The outcome, binary variable
 \item[$\pi(x)$]
-  P(Y=1)
-\item[$\theta$]
+  = $P(Y=1)$
+\item[$\Omega$]
   Odds
 \end{description}
 
-\section{B List of Abbrivations}
+\section{List of Abbreviations}
 
 \begin{description}
 \item[MAF] \hfill \\
@@ -1071,6 +1129,9 @@ own kernels more than simple elemntwise, probably hard to optimize. unknowish
   MISD
   LR
 \end{description}
+
+\section{Environmental and Covariates File Format}
+The environmental factors and covariates are stored in separate files with the same format, one file for environmental factors and one for the covariates if any. One of the columns needs to contain the individual ids, the rest of the columns should be data. The delimiter can be anything of the usual ones and there is an option to provided it to the program. The default is tab delimited.
 
 %List of figs
 %List of tables

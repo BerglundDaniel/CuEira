@@ -195,7 +195,7 @@ Environmental factors can be of any type which creates problems in various ways\
 \begin{figure}[h]
     \centering
     \includegraphics[width=5cm]{Simple_Confounding_Case.png}
-    \caption{Illustration of a simple case of confounding. If we do not observe Z we might falesly find an association between X and Y. Wikipedia Commons}
+    \caption{Illustration of a simple case of confounding. If we do not observe Z we might falesly find an association between X and Y}
     \label{fig:confunding}
 \end{figure}
 
@@ -210,7 +210,7 @@ Bonferroni correction is the simplest method and viewed as a conservative way to
 A contingency table is a matrix used to describe categorical data. Each cell contains the frequency of occurrences with a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 2 table. From this table we can for instance see that 688 smokers got lung cancer. Contingency tables are the basis for various statistical tests to model the data.\cite{agresti_categorical}
 
 \begin{table}[h]
-\begin{tabular}{ l c c }
+\begin{tabular}{| l c c |}
   \hline
   & Lung cancer & No lung cancer\\
   \hline
@@ -301,7 +301,9 @@ Finding the $\beta$ coefficients are done in a similar way as with other linear 
 \\
 Fix this part a bit %TODO
 Note: $\cdot$ is matrix-matrix or vector, * is element by element\\
-X is the variables(N X M), Y outcomes with length N, inital beta is length M
+X is the variables(N X M), Y outcomes with length N, beta is length M
+M=number of predictors excludig intercept
+result beta is M+1
 
 \begin{algorithm}
 \begin{algorithmic}
@@ -327,9 +329,9 @@ $
 \\
 \While{$iter < max\_iter \; \boldsymbol{and} \; diff > threshold$}
 \State $\beta_{old}\gets\beta$
-\State $p\gets \frac{e^{\beta \cdot \boldsymbol{X}}}{1+e^{\beta \cdot \boldsymbol{X}}}$
-\State $s\gets \boldsymbol{X}\cdot (\boldsymbol{Y}-p)$
-\State $\boldsymbol{J}\gets (\boldsymbol{X}\cdot (p*(1-p)))\cdot \boldsymbol{X^T}$
+\State $p\gets \frac{e^{\boldsymbol{X} \cdot \beta}}{1+e^{\boldsymbol{X} \cdot \beta}}$
+\State $s\gets \boldsymbol{X^T}\cdot (\boldsymbol{Y}-p)$
+\State $\boldsymbol{J}\gets (\boldsymbol{X^T}\cdot (p*(1-p)))\cdot \boldsymbol{X}$
 \State $\beta\gets \beta_{old}+\boldsymbol{J}^{-1} \cdot s$
 \State $diff\gets \sum |\beta-\beta_{old}|$
 \State $iter\gets iter+1$
@@ -340,13 +342,12 @@ $
 
 \subsubsection{Mathematical Definition of Interaction for LR}
 \label{additive}
-%TODO fix headline?
+The more precise defintion of additive interaction is, the divergence from additive effects on a logarithmic scale, e.g.
 
-
-the divergence from additive effects on a logarithmic scale, e.g.
 \begin{equation}
 OR_{both\:factors\:present}>OR_{first\:factor\:present}+OR_{second\:factor\:present}-1
 \end{equation}
+
 \cite{rothman1998modern}
 
 The interaction variable needs to be represented and this is done by looking at how the model looks.
@@ -359,44 +360,90 @@ However there is a problem when both variables are non binary. Because LR models
 
 However in gene-environment interaction the SNP variable is binary unless co-dominant model is used. This means that the coding isn't a problem for non binary environmental variables.
 
+
+Extending to non binary.
+
+\begin{equation}
+OR_{both\:factors\:present}^x>OR_{first\:factor\:present}+OR_{second\:factor\:present}^x-1
+\end{equation}
+Where x is the number of steps from the base level.
+
+This means that the interaction depends on the level of the factor. There are four cases
+
+Using $\beta_{snp}$
+$\beta_{environment}$
+$\beta_{interaction}$
+
+\begin{table}[h]
+\begin{tabular}{| l | l | l |}
+  \hline
+  Case & Additive Interaction present, binary factor & Additive interaction present, non binary factor\\
+  \hline
+  $\beta_{interaction}>\beta_{snp} \; \beta_{interaction}>\beta_{environment}$ & Yes & Yes\\
+  $\beta_{interaction}<\beta_{snp} \; \beta_{interaction}<\beta_{environment}$ & No & No\\
+  $\beta_{interaction}>\beta_{snp} \; \beta_{interaction}<\beta_{environment}$ & No & For some x\\
+  $\beta_{interaction}<\beta_{snp} \; \beta_{interaction}>\beta_{environment}$ & No & For some x\\
+  \hline  
+\end{tabular}
+\caption{Additive interaction cases for non binary environmental factor}
+\label{table:additive_interaction}
+\end{table}
+
+Can also be written as
+
+\begin{equation}
+OR_{both\:factors\:present}^x-OR_{first\:factor\:present}-OR_{second\:factor\:present}^x+1
+\end{equation}
+
+In case 3 it is monotone increasing
+
+In case 4 it is monotone decreasing
+
+Which means both pass 0 at one point.(Unless all equal 1 which means all 0)
+
+That point can be found by solving
+
+\begin{equation}
+OR_{both\:factors\:present}^x-OR_{first\:factor\:present}-OR_{second\:factor\:present}^x+1=0
+\end{equation}
+
+Case 3 has interaction for x>the point
+Case 4 has interaction for x<the point
+
+Depeding on where the point is interaction might not be relevant, e.g. needs to smoke a million ciggarets a day and case 3. Or disapers to fast, eg 1 cigarret a year case 4.
+
 \subsubsection{Statistic Measures for interaction}
-Intro here
+Based on the LR model and its corresponding ORs there are some measures that can be calculated. These 
 
-In case-control studies OR is used as an approximation of RR to calculate these measures.
-
-Relative  excess risk due to interaction(RERI) is
+Relative  excess risk due to interaction(RERI) is\cite{recoding_2011}
 \begin{equation}
 RERI=RR_{11}-RR_{10}-RR_{01}+1
 \end{equation}
-%cite rothman? chapter 15
 
 RERI says how much of the effect from the factors is due to interaction.
 
-Attributable proportion due to interaction(AP)
+Attributable proportion due to interaction(AP)\cite{recoding_2011}
 \begin{equation}
 AP=\frac{RERI}{RR_{11}}=\frac{1}{RR_{11}}-\frac{RR_{10}}{RR_{11}}-\frac{RR_{01}}{RR_{11}}+1
 \end{equation}
 
-Synergy index(SI)
+Synergy index(SI)\cite{recoding_2011}
 \begin{equation}
 \frac{RR_{11}-1}{RR_{10}+RR_{01}-2}
 \end{equation}
 
-SI is simpler to investigate on the log scale
-\begin{equation}
-ln(SI)=ln(RR_{11}-1)-ln(RR_{10}+RR_{01}-2)
-\end{equation}
-
-Lack of interaction shows in the values by
+Lack of interaction shows in the values by \cite{recoding_2011}
 AP=0
 SI=1
-\cite{recoding_2011}
 
 \subsubsection{Recoding of Protective Effects}
+\label{recode}
 The measures for interaction RERI, AP and SI mentioned above are developed for risk factors, i.e. $OR>1$, which causes problems if the factor is protective. This can be solved by \emph{recoding}. It switches the %TODO
 That makes sure that none of the ORs will be below 1.\\
-\\
-This means that there is three types of recoding, when we recode the SNP(10), environment(01) and both(11). It's important to keep track of which is used to prevent confusion with the risk allele and how to compare the results with other methods and studies.
+
+%TODO env recode, lägst risk blir högst etc. Dvs byter om intervalet. LR bry sig om steg/skala inte förflytning så *-1 är ok. Ger dock annat intercept men samma coefficents
+
+This means that there is three types of recoding, recoding the SNP(10), environment(01) and both(11). It's important to keep track of which is used to prevent confusion with the risk allele and how to compare the results with other methods and studies.
 
 \cite{recoding_2011}
 
@@ -566,25 +613,25 @@ In computer science concurrency occurs when instructions are separated in differ
 
 \begin{figure}
         \centering
-        \begin{subfigure}[b]{0.4\textwidth}
+        \begin{subfigure}[b]{0.48\textwidth}
                 \includegraphics[width=\textwidth]{SISD}
                 \caption{SISD}
                 \label{fig:SISD}
         \end{subfigure}%
         ~
-        \begin{subfigure}[b]{0.4\textwidth}
+        \begin{subfigure}[b]{0.48\textwidth}
                 \includegraphics[width=\textwidth]{MISD}
                 \caption{MISD}
                 \label{fig:MISD}
         \end{subfigure}
 
-        \begin{subfigure}[b]{0.4\textwidth}
+        \begin{subfigure}[b]{0.48\textwidth}
                 \includegraphics[width=\textwidth]{SIMD}
                 \caption{SIMD}
                 \label{fig:SIMD}
         \end{subfigure}
         ~
-        \begin{subfigure}[b]{0.4\textwidth}
+        \begin{subfigure}[b]{0.48\textwidth}
                 \includegraphics[width=\textwidth]{MIMD}
                 \caption{MIMD}
                 \label{fig:MIMD}
@@ -679,15 +726,15 @@ The $<<<N,M>>>$ specifier tells CUDA how many $N$ blocks and how many $M$ thread
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=10cm]{automatic-scalability.png}
-    \caption{Text about blocks. Need to make a black white version}
+    \includegraphics[width=10cm]{grid_scale.png}
+    \caption{Blocks execution depending on the number of streaming multiprocessors}
     \label{fig:blocks_scaling}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=10cm]{grid_2d.png}
-    \caption{2d grid of blocks}
+    \includegraphics[width=10cm]{2D_grid.png}
+    \caption{2D grid of blocks}
     \label{fig:grid_2d}
 \end{figure}
 
@@ -696,8 +743,8 @@ The streaming multiprocessors(SM) is the hardware that handles the execution of 
 %TODO placeholder image
 \begin{figure}[h]
     \centering
-    \includegraphics[width=7cm]{SIMT.png}
-    \caption{SIMT architecture, PLACE HOLDER}
+    \includegraphics[width=8cm]{SIMT.png}
+    \caption{SIMT architecture}
     \label{fig:SIMT}
 \end{figure}
 
@@ -925,6 +972,7 @@ Dependencies
 -cmake+make
 -mkl
 -intel compiler
+-google test and mock, already included in the source due to easier compiling
 
 C++ is row major but this program is column major completely. Because BLAS and CUBLAS
 
@@ -933,6 +981,13 @@ Shared blocking queue and a result writer
 3 threads per GPU
 Each thread has one CUDA stream
 Each thread gets a snp from the queue, reads in the snp data, calculates the models and writes the results
+
+Outcomes shared over whole GPU
+
+LR
+Some parts on GPU, some parts on CPU
+Which parts?
+Why?
 
 %optimizations
 %compilers
@@ -962,9 +1017,12 @@ kepler vs fermi queue problem, problem described in section \ref{streams}
 
 \chapter{Outlook}
 %Outlook (up to one page)
+more statistics for non binary
 
 need to change mkl to any blas and remove dependency on intel compiler
+
 clusters
+kinda possible by splitting the input files
 
 cublas not that much harder than regular blas. A wrapper could enable simple and easy use without losing too much features.
 own kernels more than simple elemntwise, probably hard to optimize. unknowish

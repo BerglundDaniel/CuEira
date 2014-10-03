@@ -495,7 +495,7 @@ TEST_F(DataHandlerTest, ApplyStatisticModel_PrevTrue) {
   dataHandler.appliedStatisticModel = true;
 
   EXPECT_CALL(*snpVectorMock, recode(_)).Times(1);
-  EXPECT_CALL(*interactionVectorMock, recode(_)).Times(1);
+  EXPECT_CALL(*environmentVectorMock, recode(_)).Times(1);
 
   EXPECT_CALL(*interactionVectorMock, getRecodedData()).Times(2).WillRepeatedly(ReturnRef(*interactionData));
   EXPECT_CALL(*environmentVectorMock, applyStatisticModel(statisticModel, _)).Times(1);

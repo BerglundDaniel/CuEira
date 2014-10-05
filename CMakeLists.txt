@@ -16,7 +16,7 @@ set(TEST_DATA_DIR ${PROJECT_BINARY_DIR}/data)
 set(CUEIRA_LIB CuEira_Core)
 set(CUEIRA_GPU_LIB CuEira_GPU)
 set(CUEIRA_GPU_NVCC_LIB CuEira_NVCC_GPU)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/") #Sets another directory to look for find_package files
 set(Boost_USE_STATIC_LIBS off) 
 set(Boost_USE_MULTITHREADED off)
 

@@ -102,20 +102,20 @@
 \thispagestyle{empty}
 \selectlanguage{english}
 \begin{abstract}
-Abstract in english
+This is a first draft of a report for a masters thesis in computer science. The aim is to make a program for gene-environment interaction search using GPUs to speed up the calculations. The preliminary results show that there likely is a speed gain when using larger datasets.
 \end{abstract}
 
-\clearpage
-\thispagestyle{empty}
-\selectlanguage{english}
-\begin{abstract}
-Abstract på svenska
-\end{abstract}
+%\clearpage
+%\thispagestyle{empty}
+%\selectlanguage{english}
+%\begin{abstract}
+%Abstract på svenska
+%\end{abstract}
 
 \clearpage
 \thispagestyle{empty}
 \begin{acknowledgements}
-Asdf
+Lorem ipsum
 \end{acknowledgements}
 
 \clearpage
@@ -160,7 +160,7 @@ $c$ is the product term that represents multiplicative interaction between varia
 
 \section{GEIRA, JEIRA and GEISA, the Aim of the Project}
 \label{jeira}
-\emph{GEIRA} is a tool for analysing gene-environment interaction. It uses logistic regression and additive(causal) interaction\cite{geira}. \emph{JEIRA} is a parallelised implementation of GEIRA in Java\cite{uvehag_master_thesis}. \emph{GEISA} is based on JEIRA with some changes\cite{geisa}. These three programs were the basis of this project. The aim of this project was to make the gene-environment interaction analysis faster by using GPUs. The program is written in C++ because it is generally faster than Java and CUDA is C/C++.
+\emph{GEIRA} is a tool for analysing gene-environment interaction. It uses logistic regression and additive(causal) interaction\cite{geira}. \emph{JEIRA} is a parallelised implementation of GEIRA in Java\cite{uvehag_master_thesis}. \emph{GEISA} is based on JEIRA with some changes\cite{geisa}. These three programs were the basis of this project. The aim of this project was to make the gene-environment interaction analysis faster by using GPUs. The program is written in C++ because it is generally faster than Java and CUDA is C/C++. Originally one goal was to implement it using a cluster, but it was cut due to lack of time.
 
 %TODO graph or such of development?
 
@@ -178,7 +178,7 @@ An allele itself doesn't contain the information if it is harmful or not so to
 The \emph{risk allele} is
 
 
-SNPs are commonly binary variables with either dominant or recessive models. The case where the risk would occur given the genetic model is coded as 1 and absence is coded as 0. Co-dominant model can also be used and in that case when an individual has the risk allele in both positions is coded as 2, when only one is present is coded as 1 and absence is 0 as before. The fact that it's a binary variable is used in a lot of algorithms because it simplifies things.\\
+SNPs are commonly binary variables with either dominant or recessive models. The case where the risk would occur given the genetic model is coded as 1 and absence is coded as 0. Co-dominant model can also be used and in that case when an individual has the risk allele in both positions is coded as 2, when only one is present is coded as 1 and absence is 0 as before. The fact that it's a binary variable is used in many methods because it simplifies things.\\
 
 
 
@@ -187,7 +187,7 @@ SNPs are commonly binary variables with either dominant or recessive models. The
 \section{Algorithmic Background}
 This section will introduce the statistics and some of the algorithms used to search for interaction. The focus is on logistic regression, however some other methods are briefly examined also.\\
 \\
-There are a lot of algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned\cite{gene_enviroment_2013}. One of the challenges of gene-environment interaction is that environmental factors can be of any variable type(i.e. binary, continuous, categorical) which creates problems in various ways\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variables to be binary or have other problems since they weren't designed for environmental interaction\cite{gene_enviroment_2013}.\\
+There are many algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned\cite{gene_enviroment_2013}. One of the challenges of gene-environment interaction is that environmental factors can be of any variable type(i.e. binary, continuous, categorical) which creates problems in various ways\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variables to be binary or have other problems since they weren't designed for environmental interaction\cite{gene_enviroment_2013}.\\
 \\
 Both groups of computers(i.e. clusters) using regular processors\cite{biforce} and graphic processors\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} have been used for GWAS. Graphic processors for computing have become more popular in the last ten years. They have been a popular choice for some GWAS methods because each combination of variables can commonly be considered independently from the others. More about graphic processors in section \ref{gpu} and why the are good for GWAS in section \ref{gpu_gwas}.\\
 \\
@@ -214,7 +214,7 @@ The methods can be roughly classified into four categories, exhaustive, stochast
 For instance if a study would look into the effects of yellow teeth on lung cancer they would likely find an effect. However it would be due to the confounder smoking since smoking causes yellow teeth and lung cancer. %TODO cite
 
 \subsection{The Multiple Testing Problem}
-It is not uncommon to test a lot of hypothesis on the same data and in the case of GWAS it can be billions of tests. If one continues to test one should eventually find something that is significant due to random chance. With the common significance threshold of 5\% it is expected to get 1 in 20 false positives under the assumption that the null hypothesis is true. The problem arises from the fact that the hypothesis tests are dependent on each other since they use parts of the same data. This is the multiple testing problem and if it is not corrected for a lot false positives might be found.\cite{bonferroni_multiple}\\
+It is not uncommon to test many hypothesis on the same data and in the case of GWAS it can be billions of tests. If one continues to test one should eventually find something that is significant due to random chance. With the common significance threshold of 5\% it is expected to get 1 in 20 false positives under the assumption that the null hypothesis is true. The problem arises from the fact that the hypothesis tests are dependent on each other since they use parts of the same data. This is the multiple testing problem and if it is not corrected for many false positives might be found.\cite{bonferroni_multiple}\\
 \\
 Bonferroni correction is the simplest method and viewed as a conservative way to correct for this problem. It simply divides the significance threshold by the number of hypothesis tested. However the number of hypothesis made is not always clear. With a two-stage analysis, is the number of hypothesis the number of tests done in both stages combined, the number made in the first stage or the second stage?\cite{bonferroni_multiple}
 
@@ -437,14 +437,12 @@ RERI=RR_{11}-RR_{10}-RR_{01}+1
 AP=\frac{RERI}{RR_{11}}=\frac{1}{RR_{11}}-\frac{RR_{10}}{RR_{11}}-\frac{RR_{01}}{RR_{11}}+1
 \end{equation}
 
-Synergy index(SI)\cite{recoding_2011}
+\emph{Synergy index}(SI) is the ratio of the combined effects and the individual effects\cite{recoding_2011}.
 \begin{equation}
 \frac{RR_{11}-1}{RR_{10}+RR_{01}-2}
 \end{equation}
 
-Lack of interaction shows in the values by \cite{recoding_2011}
-AP=0
-SI=1
+By using the definition of additive interaction it can be shown that additive interaction is present when $RERI>0$, $AP>0$ and $SI>0$\cite{recoding_2011}.
 
 \subsubsection{Recoding of Protective Effects}
 \label{recode}
@@ -519,23 +517,18 @@ It has been shown in high dimensional data that RF tends to only rank interactin
 
 \clearpage
 \section{Computer Architecture}
-intro here why bla bla %TODO
-\\
-Most computers today are based on the \emph{Von Neumann architecture}. It was first used in EDVAC in the late 1940s, it was one of the first stored program computers\cite{von1993first}. Stored program computers uses electronic memory to store the program instructions\cite{computer_arch_2003}.
+This section will explain some of the architectures used to perform tasks in a computer. A large part is focused on optimization techniques that are in used today. For the purpose of this thesis it is easiest to think about the computer as three main parts, data storage(e.g. the disk), processor and the memory. Sometimes there is also an accelerator, for instance a graphic processor, which will be explained in section \ref{gpu}.
+%Most computers today are based on the \emph{Von Neumann architecture}. It was first used in EDVAC in the late 1940s, it was one of the first stored program %computers\cite{von1993first}. Stored program computers uses electronic memory to store the program instructions\cite{computer_arch_2003}.
 
-some text here about von neaumann architecture
-
-For the purpose of this thesis it is easiest to think about the architecture as three main parts, data storage, processor and the memory. Sometimes there is also an accelerator, for instance a graphic processor, which will be explained in section \ref{gpu}.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=7cm]{Von_Neumann_architecture.png}
-    \caption{Schematic of the Von Neumann architecture. Wikipedia Commons}
-    \label{fig:VonNeumann}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=7cm]{Von_Neumann_architecture.png}
+%    \caption{Schematic of the Von Neumann architecture. Wikipedia Commons}
+%    \label{fig:VonNeumann}
+%\end{figure}
 
 \subsection{CPU}
-Central processing unit(CPU) is the part of the computer that performs the tasks\cite{introduction_hpc_hager}. It executes instructions one by one in its core. Most modern CPUs have multi-core architecture. These CPUs have multiple cores\cite{introduction_hpc_hager}. Each core can perform tasks independent of each other so the programs needs to be parallel to get maximum speed. Parallel means that the program issues multiple instructions at the same time, more about this in section \ref{concurrency}.\\
+Central processing unit(CPU) is the part of the computer that performs most of the tasks\cite{introduction_hpc_hager}. It executes instructions one by one in its core. Most modern CPUs have multi-core architecture. These CPUs have multiple cores\cite{introduction_hpc_hager}. Each core can perform tasks independent of each other so the programs needs to be parallel to get maximum speed. Parallel means that the program issues multiple instructions at the same time, more about this in section \ref{concurrency}.\\
 \\
 The figures \ref{fig:cpu_scheme} and \ref{fig:core_die} shows how the CPU is divided into areas and that most of it is not used for calculations. A large part of the area is used for various optimizations. The next section \ref{optimizations} will explain some of these optimizations.
 
@@ -589,7 +582,7 @@ for (i = 0; i < N; i += SM)
 
 On top of that by using some additional features of the the CPU do multiple instructions at once further speed is gained increasing it to 9.47\% of the original time\cite{drepper2007cpumemory}. \\
 \\
-If the operation instructions diverge, e.g. if statements, the CPU would have to wait for the results to see what instructions load and do next\cite{drepper2007cpumemory}. This can mean a lot of lost time, however thanks to a optimization called \emph{branch prediction} and \emph{speculative execution} that can be prevented in some cases\cite{drepper2007cpumemory}. A dedicated part of the CPU stores the results from these diverges and when they are repeated it uses them to make an guess of what do to next\cite{drepper2007cpumemory}. It then loads the instructions and tries to fetch the needed data\cite{drepper2007cpumemory}. It then speculatively executes the instructions, i.e it executes instructions that might not actually be needed\cite{drepper2007cpumemory}. If the guess was correct the results are kept, on the other hand if it was wrong the CPU starts again from the correct path and discards the incorrect results\cite{drepper2007cpumemory}.\\
+If the operation instructions diverge, e.g. if statements, the CPU would have to wait for the results to see what instructions load and do next\cite{drepper2007cpumemory}. This can mean a significant loss of time, however thanks to a optimization called \emph{branch prediction} and \emph{speculative execution} that can be prevented in some cases\cite{drepper2007cpumemory}. A dedicated part of the CPU stores the results from these diverges and when they are repeated it uses them to make an guess of what do to next\cite{drepper2007cpumemory}. It then loads the instructions and tries to fetch the needed data\cite{drepper2007cpumemory}. It then speculatively executes the instructions, i.e it executes instructions that might not actually be needed\cite{drepper2007cpumemory}. If the guess was correct the results are kept, on the other hand if it was wrong the CPU starts again from the correct path and discards the incorrect results\cite{drepper2007cpumemory}.\\
 \\
 Sometimes there can be several independent instructions, e.g. when adding two vectors together, this allows optimizations for \emph{instruction level parallelism}\cite{introduction_hpc_hager}. The order of the instructions can be ignored which for instance means that if an instruction needs to wait for some data another instruction that has its data available could be executed while waiting\cite{introduction_hpc_hager}. It is an optimization called \emph{out of order execution}\cite{introduction_hpc_hager}. There are also other possible optimizations\cite{introduction_hpc_hager}.
 \\
@@ -623,7 +616,7 @@ Some programming languages, e.g. Fortran, disallow some types of aliasing while 
     \label{fig:dining_philosophers}
 \end{figure}
 
-A potential proposal for behaviour instructions could be:
+A potential proposal\cite{hoare1985communicating} for behaviour instructions could be:
 \begin{itemize}
  \item Think
  \item Wait for a fork to become available and pick up that fork
@@ -675,7 +668,7 @@ In computer science concurrency occurs when instructions are separated in differ
 
 \subsection{Accelerators, GPUs and Xeon Phi}
 \label{gpu}
-Accelerators are separate parts made to do one task and do it well. They are usually highly specialised and perform badly outside of the tasks they were designed for. The two accelerators explained here is graphical processing unit(GPU) and Intel Xeon Phi\cite{cuda, jeffers2013intel}. GPUs have mostly been used for games and other graphics related problems however have become more popular for general computing the last 10 years due to their high number of cores\cite{cuda}.  Intel Mic is much more recent with prototypes in 2010 and the first generation released in 2010\cite{jeffers2013intel}. It is Intels response to the GPUs and has elements of both GPU and CPU\cite{jeffers2013intel}.
+Accelerators are separate parts made to do one task and do it well. They are usually highly specialised and perform badly outside of the tasks they were designed for. The two accelerators explained here is graphical processing unit(GPU) and Intel Xeon Phi\cite{cuda, jeffers2013intel}. GPUs have mostly been used for games and other graphics related problems however have become more popular for general computing the last 10 years due to their high number of cores\cite{cuda}.  Intel Mic is much more recent with prototypes in 2010 and the first generation released in 2010\cite{jeffers2013intel}. It is Intels response to the GPUs and has elements of both GPU and CPU\cite{jeffers2013intel}. This section will focus on explaining some parts of the architecture of the GPUs and Xeon Phi. How to use the GPUs are talked about in more detail in section \ref{cuda_programming_model}.
 
 \begin{figure}[h]
     \centering
@@ -686,14 +679,14 @@ Accelerators are separate parts made to do one task and do it well. They are usu
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=12cm]{gpu_scheme.png}
+    \includegraphics[width=11cm]{gpu_scheme.png}
     \caption{Layout of the Maxwell architecture, from \cite{nvidia_maxwell}}
     \label{fig:gpu_scheme}
 \end{figure}
 
-GPUs are made to process images in a fast manner so that games and similar tasks runs smoothly. Most image processing means doing the same thing to all the pixels. 
+GPUs are made to process images in a fast manner so that games and similar tasks runs smoothly\cite{cuda}. Because GPUs are made for image processing they are GPUs have a large number of cores(~1000-2000)\cite{cuda, nvtesla}. Each core is slower than a core in a CPU, however the number of cores makes up for it. The downside is that it's slower than a normal CPU for sequential tasks so the program has to take advantage of the extreme parallelism to get good speed\cite{cuda_best_practice}. The memory of the GPU is separate from the computers main memory which means that the data needs to be transferred between the memories which increases the programs complexity\cite{cuda}.\\
 \\
-Because of this GPUs are made to work very fast with simple instructions\cite{cuda}. To do that they have a large number of cores(~1000-2000)\cite{nvtesla}. Each is slower than a core in a CPU, however the amount of them makes of up for it the extreme parallelism can be used. The cores also have fewer optimizations than CPUs, this means that they can then devote a larger portion of the chip to the calculations as seen in figure \ref{fig:gpu_scheme}. For instance NVIDIAs GPUs lack optimizations such as branch prediction and speculative execution talked about in section \ref{optimizations} \cite{cuda}. Their caches are also much smaller than the CPUs\cite{cuda}.
+The GPU cores work in a manner that is similar to SIMD\cite{cuda}. The cores also have fewer optimizations than CPUs, this means that they can then devote a larger portion of the chip to the calculations as seen in figure \ref{fig:gpu_scheme}. For instance NVIDIAs GPUs lack optimizations such as branch prediction and speculative execution talked about in section \ref{optimizations} \cite{cuda}. Their caches are also much smaller than the CPUs\cite{cuda}. Another inheritance from the image processing is that they are much faster with single precision than with double precision datatypes\cite{cuda, nvtesla}. A CPU drops slightly in performance when using double precision but much less than a GPU as seen in figure \ref{fig:gpu_vs_cpu}. Single and double precision refers to how many bytes are used to store numbers, fewer bytes means less numerical precision.
 
 \begin{figure}[h]
     \centering
@@ -702,31 +695,18 @@ Because of this GPUs are made to work very fast with simple instructions\cite{cu
     \label{fig:knights_corner_layout}
 \end{figure}
 
-Intels Xeon Phi 
+Intels answer to the increasing popularity of GPUs for general computing is Xeon Phi\cite{jeffers2013intel}. It has elements of GPU architecture however is still more like a CPU. It has separate memory and many cores(50+)\cite{jeffers2013intel}. It is MIMD which can be good for codes that diverge a lot, for ease of use however it has the possibly to use more SIMD like structures\cite{jeffers2013intel}. It is possible to only use the Xeon Phis memory and avoid the memory transfers that way. The memory is relatively small compared to the main memory so if the program needs a lot of memory transfers are likely needed. The cores of the Xeon Phi lacks some of the normal optimizations, e.g. out of order execution\cite{jeffers2013intel}.
 
-mimd
-
-Xeon Phi does not use a separate compiler like nvcc for CUDA\cite{jeffers2013intel}. This can make compiling the code easier.
-
-however depending on needed memory but not always might require memory copy
-still need vectorisation and other stuff
-you end up with similar problems as gpu, though probably easier to use
-
-\subsection{GPU vs Xeon Phi, Why GPU for Interaction?}
+\subsubsection{GPU vs Xeon Phi, Why use GPUs for Interaction?}
 \label{gpu_gwas}
-What is most efficient depends largely on the algorithm and the purpose of the computer with the accelerator. For instance if the algorithm has a lot of divergence Xeon Phi is likely faster because Xeon Phi is MIMD while GPU is SIMT. Xeon Phi can be applied to a broader set of problems due to using a MIMD architecture\cite{jeffers2013intel}. A one on one comparison of speed might not be entirely relevant because the algorithm used for the test might simply be better suited for one the architectures. Speed per cost, either power consumption or the price on the hardware, can also be more relevant. If one is half the cost of the other then comparing two versus one would be a better comparison. CUDA is also more mature than Xeon Phi since Xeon Phi is only a few years old while CUDA is almost ten\cite{cuda, jeffers2013intel}.\\
+What is most efficient depends largely on the algorithm and if there is any previous existing code. For instance if the algorithm contains many points of divergence Xeon Phi is likely faster because Xeon Phi is MIMD while GPU is SIMT. Xeon Phi can be applied to a broader set of problems due to using a MIMD architecture\cite{jeffers2013intel}. A one on one comparison of speed might not be entirely relevant because the algorithm used for the test might simply be better suited for one the architectures. Speed per cost, either power consumption or the price on the hardware, can also be more relevant. If one is half the cost of the other then comparing two versus one would be a better comparison. CUDA is also more mature than Xeon Phi since Xeon Phi is only a few years old while CUDA is almost ten\cite{cuda, jeffers2013intel}.\\
 \\
-Already existing code is a important factor
+Already existing code is a important factor because if it is already parallel then it might work straight away on Xeon Phi.
 
-
-GPUs are much better at single precision calculations than double\cite{nvtesla}. A CPU looses some performance but not near as much as a GPU\cite{cuda, nvtesla}.
-
-In short GPUs excel at linear algebra but Intel MIC is probably a good alternative for it to.
-
-In the end it is best to look at the specifics of the algorithm that is going to be optimized and what type of computers that might already be available. It is also important to think about how important maximum speed is and the amount of time to spend. If extremely high speed is of importance and there is a lot of time to spend a GPU is likely to get higher performance unless the algorithm is badly suited for GPUs. However Xeon Phi might reach similar speed but with less effort.
+In the end it is best to look at the specifics of the algorithm that is going to be optimized and what type of computers that might already be available. It is also important to think about how important maximum speed is and how much time there is to spend. If extremely high speed is of importance and time is not a concern then a GPU is likely to get higher performance, unless the algorithm is badly suited for GPUs. However Xeon Phi might reach similar speed but with less effort.
 
 %Why GPU for GWAS
-GPUs are good for interaction algorithms since most approaches are embarrassingly parallel since they consider each combination independently from the others. They also often perform a lot of linear algebra. Several studies got high gains from implementing their programs on GPU, however their CPU versions weren't parallel so it is likely that the gains would have been less compared to an optimized and parallel CPU version, especially if a Xeon Phi co-processor was used.\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} However one study made a CPU cluster version and a GPU version of their algorithm, they found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.
+GPUs are good for interaction algorithms because most approaches consider each combination independently and also in this case that LR consists of linear algebra operations. A new combination can be transferred while another is calculated. Linear algebra with sufficiently large matrices and vectors work very well on GPUs\cite{cublas, cuda}. Several studies got high gains from implementing their algorithms on GPU\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}. However most studies had CPU versions that were not parallel so it is likely that the gains would have been less if they would have been compared to an optimized and parallel CPU version, especially if a Xeon Phi co-processor was used. One study did make a comparison of a CPU cluster version and a GPU version of their algorithm, they found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.
 
 \subsection{Clusters}
 \label{clusers}
@@ -738,16 +718,16 @@ GPUs are good for interaction algorithms since most approaches are embarrassingl
     \label{fig:cluster}
 \end{figure}
 
-Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communciate over a shared network but have separate memory and processors. Storage is usually shared. A computer in a cluster is called a \emph{node}. \cite{intro_hpc, kirk2012programming}
+Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communicate over a shared network but have separate memory and processors. Storage is usually shared. A computer in a cluster is called a \emph{node}. \cite{intro_hpc, introduction_hpc_hager}
 
 various programming models, shared memory and so on
 %shared memory, cache coherrency and stuff
 
-mpi is commonly used for clusters\cite{kirk2012programming}
+mpi is commonly used for clusters\cite{introduction_hpc_hager}
 
 top 500\cite{TOP500}
 
-Few clusters used GPUs before 2009 but now mix of GPUs and cpu are common among the top clusters. It was driven largely by demand for power saving while still giving high performance. The GPUs can do the heavy computation while other parts are used on CPU. Most of these clusters are highly ranked in Green 500. \cite{kirk2012programming}
+Few clusters used GPUs before 2009 but now mix of GPUs and CPUs are common among the top clusters. It was driven largely by demand for power saving while still giving high performance. The GPUs can do the heavy computation while other parts are used on CPU. \cite{introduction_hpc_hager}
 %Something about Intel MIC
 
 Flops is not everything, bad performance compare to theoretical maximum
@@ -757,8 +737,6 @@ Very few programs scale to the fastest clusters, peta scale.
 Tianhe 2 is current top. Theoretical performance 54.9 PetaFlops.\cite{TOP500}
 Max achived with LinPack 33 PetaFlops
 60\% efficiency
-
-Picture of Tianhe-2 here
 
 \cite{introduction_hpc_hager}
 
@@ -825,6 +803,7 @@ There are applications called profilers that are made to assess the programs per
 
 \clearpage
 \section{CUDA programming model}
+\label{cuda_programming_model}
 This section is about GPU programming in more detail using NVIDIAs CUDA(Compute Unified Device Architecture)\cite{cuda}. CUDA extends C and C++ with some additional functionality that can be used to perform operations on NVIDAs GPUs. It provides a separate compiler to compile the GPU code called nvcc\cite{cuda}. Different GPUs support different CUDA functions, each NVIDIA GPU has a value called computational capability. The higher the value the more features of CUDA are supported on that GPU. Some properties also vary between the different underlying architectures. This means that it is important to know what kind of capability the GPU to be used has so that the program does not need features that are not there. The things described here might not apply to GPUs with compute capability below 3. There are GPUs made specifically for calculations rather than games. This section is an summary of how CUDA works from the CUDA programming guide\cite{cuda} and CUDA best practices guide\cite{cuda_best_practice}.\\
 \\
 In CUDA the GPU is called \emph{device} and systems CPU and memory is the \emph{host}. To perform operations on the device a type of function called \emph{kernel} is used. A kernel is specified the same way as a normal C/C++ function but with the addition of \_\_global\_\_ in front of the function declaration. The way the kernels are used differs slightly from normal C/C++ too. <<<...>>> is added to the it specifying how many threads to be use among others.\cite{cuda}\\
@@ -875,7 +854,7 @@ The GPUs memory is physically on a different device separate from the computers 
 The GPU also have several different types of memory\cite{cuda}. Correct usage can give increased speed\cite{cuda, cuda_best_practice}.
 
 \begin{itemize}
-  \item Register memory is located on the multiprocessor and usually costs zero cycles to access. The multiprocessor splits the available registers over its threads so if there are a lot of threads that uses a lot of variables not all of them will fit in the register. This is why a program sometimes can be faster with lower number of threads.\cite{cuda}
+  \item Register memory is located on the multiprocessor and usually costs zero cycles to access. The multiprocessor splits the available registers over its threads so if there are many threads that uses many variables not all of them will fit in the register. This is why a program sometimes can be faster with lower number of threads.\cite{cuda}
   \item Global memory is the main memory of the GPU and is accessible from all threads and blocks. However it is relatively slow to access.\cite{cuda}
   \item Shared memory is shared inside a block and is faster than global memory. However it is limited in size.\cite{cuda}
   \item Constant memory is small however it is read only which enables some optimizations. It is best used for small variables that all threads access.\cite{cuda}
@@ -919,7 +898,7 @@ One of the main criticism against GPUs for general computing purposes is that it
   \item[Minimize transfers between host and device] \hfill \\
   Moving data between host and device is expensive and should be avoided if possible. It can be better to run serial parts on the GPU rather than moving the data to the host to do the calculation on the CPU. The bandwidth between host and device is one of the large performance bottlenecks. This can be a problem when the data is to large to fit in the relatively small GPU dram.\cite{cuda, cuda_best_practice}
   \item[Find the optimal number of blocks and threads] \hfill \\
-  There are a lot of things affected by the number of blocks and threads so they should be considered carefully. It is a good idea to parametrize them so that they can be changed for future hardware and varied for optimization. NVIDIA has an occupancy calculator which can be helpful in determining the optimal numbers, however high occupancy does not mean high performance.\cite{cuda, cuda_best_practice}\\
+  There are many things affected by the number of blocks and threads so they should be considered carefully. It is a good idea to parametrize them so that they can be changed for future hardware and varied for optimization. NVIDIA has an occupancy calculator which can be helpful in determining the optimal numbers, however high occupancy does not mean high performance.\cite{cuda, cuda_best_practice}\\
   \\
   The number of blocks should be larger than the number of multiprocessors so that all multiprocessors have at least one block to execute. Having two blocks or more per multiprocessor can be good so that there are blocks that aren't waiting for a \_\_syncthreads() that can be executed. However this is not always possible due to shared memory usage and similar.\cite{cuda_best_practice}\\
   \\  
@@ -952,7 +931,7 @@ One of the main criticism against GPUs for general computing purposes is that it
 
 \clearpage
 \section{Software Design}
-How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software. Badly organized and written code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. Fixing those bugs are likely to time consuming because it can be hard to find where they originated from. All code gather problems overtime, however a well designed system will degenerate a lot slower than one that was designed carelessly. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in. \cite{cleancode2008, design_patterns}\\
+How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software. Badly organized and written code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. Fixing those bugs are likely to time consuming because it can be hard to find where they originated from. All code gather problems overtime, however a well designed system will degenerate significantly slower than one that was designed carelessly. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in. \cite{cleancode2008, design_patterns}\\
 \\
 This is also important in science where others might wish to use the tools or repeat the experiments. A recent study\cite{comp_repro_2013} found that the repeatability in computer science is low. They used the term reproducibility however repeatability is a more fitting term because they didn't try to reproduce the results from scratch, they tried to repeat it using the same code. Of 513 articles they received the code from 231, 108 failed to build, 21 failed to run properly\cite{comp_repro_2013}. Just 102 worked properly\cite{comp_repro_2013}.\\
 \\
@@ -1031,6 +1010,7 @@ why lr
 -can handle non binary data(however statistical problems needs to be solved)
 -slow but is not too slow for gene-environment interaction
 
+\subsection{Structure}
 C++ is row major but this program is column major completely. Because BLAS and CUBLAS
 
 In the initialisation step it reads all the data except the information for the individuals in the SNPs, i.e. it doesn't read the bed file at that stage.
@@ -1202,7 +1182,7 @@ This is a small collection of various bugs and limitations encountered in the co
 \\
 There are several problems with Intel compilers and libraries. Most libraries work fine with gnu C/C++ compiler but have problems with Intel compilers. Boost 1.55 does not work with Intel compilers, 1.54 works. AllOf in Google Test also does not work together with Intel compilers.\\
 \\
-Nvcc can not compile c+11 code, no interface included in the code that nvcc compiles can use c++11. This problem can largely be avoided by using separate compilation. The CUDA find package module for CMake(included in version 2.8 and later) has a default flag that should be removed as it can cause problems. The flag tells nvcc to propagate the host code flags, if the compiler for the host code then uses c++11 that flag is propagated to nvcc and it will not compile The flag is disabled in CMake by using $set(CUDA_PROPAGATE_HOST_FLAGS off)$.
+Nvcc can not compile c+11 code, no interface included in the code that nvcc compiles can use c++11. This problem can largely be avoided by using separate compilation. The CUDA find package module for CMake(included in version 2.8 and later) has a default flag that should be removed as it can cause problems. The flag tells nvcc to propagate the host code flags, if the compiler for the host code then uses c++11 that flag is propagated to nvcc and it will not compile The flag is disabled in CMake by using set(CUDA\_PROPAGATE\_HOST\_FLAGS off).
 
 \section{How to Compile CuEira}
 \label{compile_cueira}
@@ -1220,7 +1200,14 @@ The source code for the program is available at github, \url{https://github.com/
  \item Google Test and Google Mock, already included in the folder.
 \end{itemize}
 
-%TODO
+First install the dependencies, they might need to be compiled from source. Open a terminal and make a new directory where you want the program to be compiled. Enter the directory and write:\\
+cmake /path/to/CuEira/\\
+Then type:\\
+make\\
+\\
+The program should now be compiling. CMake might complain about not finding a dependency. If it does you need to tell CMake where it is. The path to boost is set by using EXPORT BOOST\_ROOT = /path/to/boost/. The path to the compilers is done with CXX = cmake /path/to/source for the C++ compiler and C = cmake /path/to/source for the C compiler.
+
+%TODO set cuda
 
 \newpage
 \bibliographystyle{ieeetr}

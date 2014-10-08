@@ -46,10 +46,6 @@ const SNP & SNPVector::getAssociatedSNP() const {
 }
 
 void SNPVector::recode(Recode recode) {
-  if(currentRecode == recode){
-    return;
-  }
-
   currentRecode = recode;
   if(recode == ALL_RISK){
     recodeAllRisk();

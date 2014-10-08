@@ -61,10 +61,6 @@ void EnvironmentVector::recode(Recode recode) {
   }
 #endif
 
-  if(currentRecode == recode){
-    return;
-  }
-
   currentRecode = recode;
   if(recode == ALL_RISK){
     recodeAllRisk();

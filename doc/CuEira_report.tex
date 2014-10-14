@@ -773,6 +773,8 @@ Tianhe 2 is current top. Theoretical performance 54.9 PetaFlops.\cite{TOP500}
 Max achived with LinPack 33 PetaFlops
 60\% efficiency
 
+Linpack not everything
+
 \cite{introduction_hpc_hager}
 
 \clearpage
@@ -973,7 +975,7 @@ One of the main criticism against GPUs for general computing purposes is that it
 \section{Software Design}
 How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software. Badly organized and written code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. Fixing those bugs are likely to time consuming because it can be hard to find where they originated from. All code gather problems overtime, however a well designed system will degenerate significantly slower than one that was designed carelessly. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in. \cite{cleancode2008, design_patterns}\\
 \\
-This is also important in science where others might wish to use the tools or repeat the experiments. A recent study\cite{comp_repro_2013} found that the repeatability in computer science is low. They used the term reproducibility however repeatability is a more fitting term because they didn't try to reproduce the results from scratch, they tried to repeat it using the same code. Of 513 articles they received the code from 231, 108 failed to build, 21 failed to run properly\cite{comp_repro_2013}. Just 102 worked properly\cite{comp_repro_2013}.\\
+This is also important in science where others might wish to use the tools or repeat the experiments. A recent study\cite{comp_repro_2013} found that the repeatability in computer science is low. They used the term reproducibility however repeatability is a more fitting term because they didn't try to reproduce the results from scratch, they tried to repeat it using the same code. Of 513 articles they received the code from 231, 108 failed to build, 21 failed to run properly\cite{comp_repro_2013}. The remaing 102 compiled and ran, however they did not check if the results of the program was correct\cite{comp_repro_2013}.\\
 \\
 There are ways to design the program and code in such a way that it is easier to read and maintain. Most of the things described here goes under the development technique called agile development and the concept of clean code and is a summary of some concepts from the book Clean Code\cite{cleancode2008}. SOLID is an acronym for five principles for object oriented programming and design\cite{cleancode2008}. When used together they are intended to make programs that are easy to maintain and extend\cite{cleancode2008}. As already mentioned readability is important. Correct names will make the code explain itself without other documentation, the code itself is the documentation\cite{cleancode2008}.
 

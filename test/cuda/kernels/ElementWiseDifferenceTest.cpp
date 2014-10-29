@@ -75,13 +75,13 @@ TEST_F(ElementWiseDifferenceTest, KernelSmallVector) {
     (*hostVector2)(i) = (i + 3) * 10;
   }
 
-  Container::DeviceVector* deviceVector1 = hostToDeviceStream1.transferVector(hostVector1);
-  Container::DeviceVector* deviceVector2 = hostToDeviceStream1.transferVector(hostVector2);
+  Container::DeviceVector* deviceVector1 = hostToDeviceStream1.transferVector(*hostVector1);
+  Container::DeviceVector* deviceVector2 = hostToDeviceStream1.transferVector(*hostVector2);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
   kernelWrapper.elementWiseDifference(*deviceVector1, *deviceVector2, *resultDeviceVector);
 
-  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
+  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(*resultDeviceVector);
   stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in ElementWiseDifferenceTest: ");
 

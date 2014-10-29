@@ -11,9 +11,10 @@ namespace Model {
  */
 class ModelResult {
 public:
-  ModelResult();
   virtual ~ModelResult();
 
+protected:
+  ModelResult();
 };
 
 } /* namespace Model */

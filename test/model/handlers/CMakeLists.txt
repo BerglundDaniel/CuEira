@@ -4,16 +4,12 @@ set(TEST_INCLUDE_DIRECTORIES
   PARENT_SCOPE
 )
 
-if(${CPU})
-  set(CPU_TEST_SOURCE
-    ${CMAKE_CURRENT_SOURCE_DIR}/CpuModelHandlerTest.cpp
-  )
-else()
+if(NOT ${CPU})
   set(GPU_TEST_SOURCE
     #${CMAKE_CURRENT_SOURCE_DIR}/GpuModelHandlerTest.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/GpuModelHandlerLRIntegrationTest.cpp
   )
-endif(${CPU})
+endif()
 
 set(TEST_SOURCE
   ${TEST_SOURCE}

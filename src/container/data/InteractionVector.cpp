@@ -7,7 +7,7 @@ InteractionVector::InteractionVector(const EnvironmentVector& environmentVector)
     environmentVector(&environmentVector), numberOfIndividualsToInclude(
         environmentVector.getNumberOfIndividualsToInclude()), state(NOT_INITIALISED),
 #ifdef CPU
-        interactionVector(new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude)))
+        interactionVector(new RegularHostVector(numberOfIndividualsToInclude))
 #else
         interactionVector(new PinnedHostVector(numberOfIndividualsToInclude))
 #endif

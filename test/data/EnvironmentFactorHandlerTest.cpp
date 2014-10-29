@@ -10,13 +10,7 @@
 #include <EnvironmentFactor.h>
 #include <VariableType.h>
 #include <Id.h>
-
-#ifdef CPU
-#include <lapackpp/gmd.h>
-#include <LapackppHostMatrix.h>
-#else
-#include <PinnedHostMatrix.h>
-#endif
+#include <RegularHostMatrix.h>
 
 namespace CuEira {
 
@@ -47,12 +41,7 @@ EnvironmentFactorHandlerTest::~EnvironmentFactorHandlerTest() {
 }
 
 void EnvironmentFactorHandlerTest::SetUp() {
-#ifdef CPU
-  dataMatrix=
-  new Container::LapackppHostMatrix(new LaGenMatDouble(numberOfIndividuals, numberOfColumns));
-#else
-  dataMatrix = new Container::PinnedHostMatrix(numberOfIndividuals, numberOfColumns);
-#endif
+  dataMatrix = new Container::RegularHostMatrix(numberOfIndividuals, numberOfColumns);
 
   //Col 1
   for(int i = 0; i < numberOfIndividuals; ++i){

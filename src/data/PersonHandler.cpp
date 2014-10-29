@@ -119,7 +119,7 @@ void PersonHandler::createOutcomes() {
     int rowNumber = -1;
     Phenotype phenotype;
 #ifdef CPU
-    outcomes = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude));
+    outcomes = new Container::RegularHostVector(numberOfIndividualsToInclude);
 #else
     outcomes = new Container::PinnedHostVector(numberOfIndividualsToInclude);
 #endif

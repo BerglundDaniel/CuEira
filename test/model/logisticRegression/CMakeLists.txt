@@ -1,6 +1,6 @@
-if(${CPU})
-  add_subdirectory(serial)
-else()
+add_subdirectory(cpu)
+
+if(NOT ${CPU})
   add_subdirectory(cuda)
 endif()
 
@@ -12,6 +12,8 @@ set(TEST_INCLUDE_DIRECTORIES
 
 set(TEST_SOURCE
   ${TEST_SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionConfigurationTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionResultTest.cpp
   PARENT_SCOPE
 )

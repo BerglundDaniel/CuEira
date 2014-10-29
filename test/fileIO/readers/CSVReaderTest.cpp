@@ -16,13 +16,7 @@
 #include <HostMatrix.h>
 #include <HostVector.h>
 #include <ConstructorHelpers.h>
-
-#ifdef CPU
-#include <lapackpp/gmd.h>
-#include <LapackppHostMatrix.h>
-#else
-#include <PinnedHostMatrix.h>
-#endif
+#include <RegularHostMatrix.h>
 
 using testing::Return;
 using testing::_;
@@ -193,12 +187,7 @@ TEST_F(CSVReaderTest, StoreDataException) {
   lineSplit[1] = "NotANumber";
   lineSplit[2] = "ind0";
 
-#ifdef CPU
-  LaGenMatDouble* lapackppMatrix = new LaGenMatDouble(numberOfIndividualsToInclude, numberOfColumns);
-  Container::HostMatrix* dataMatrix2 = new Container::LapackppHostMatrix(lapackppMatrix);
-#else
-  Container::HostMatrix* dataMatrix2 = new Container::PinnedHostMatrix(numberOfIndividualsToInclude, numberOfColumns);
-#endif
+  Container::HostMatrix* dataMatrix2 = new Container::RegularHostMatrix(numberOfIndividualsToInclude, numberOfColumns);
 
   ASSERT_THROW(csvReader.storeData(lineSplit, 0, dataMatrix2, 0), FileReaderException);
 

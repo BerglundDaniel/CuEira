@@ -2,6 +2,7 @@
 #define MODEL_H_
 
 #include <ModelResult.h>
+#include <ModelConfiguration.h>
 
 namespace CuEira {
 namespace Model {
@@ -13,7 +14,6 @@ namespace Model {
  */
 class Model {
 public:
-  Model();
   virtual ~Model();
 
   virtual ModelResult* calculate()=0;
@@ -22,6 +22,13 @@ public:
   Model(Model&&) = delete;
   Model& operator=(const Model&) = delete;
   Model& operator=(Model&&) = delete;
+
+protected:
+  Model(ModelConfiguration* modelConfiguration);
+  Model(); //For the mock
+
+  ModelConfiguration* modelConfiguration;
+  const MKLWrapper* blasWrapper;
 };
 
 } /* namespace Model */

@@ -6,13 +6,10 @@ add_subdirectory(fileIO)
 add_subdirectory(model)
 add_subdirectory(statistics)
 add_subdirectory(task)
+add_subdirectory(blas)
 
 if(NOT ${CPU})
   add_subdirectory(cuda)
-endif()
-
-if(${ENABLE_MKL})
-  add_subdirectory(mkl)
 endif()
 
 set(INCLUDE_DIRECTORIES

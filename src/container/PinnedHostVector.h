@@ -19,11 +19,11 @@ class PinnedHostMatrix;
 class PinnedHostVector: public HostVector {
   friend PinnedHostMatrix;
 public:
-  PinnedHostVector(unsigned int numberOfRows);
+  PinnedHostVector(int numberOfRows);
   virtual ~PinnedHostVector();
 
-  virtual PRECISION& operator()(unsigned int index);
-  virtual const PRECISION& operator()(unsigned int index) const;
+  virtual PRECISION& operator()(int index);
+  virtual const PRECISION& operator()(int index) const;
 
   PinnedHostVector(const PinnedHostVector&) = delete;
   PinnedHostVector(PinnedHostVector&&) = delete;
@@ -31,7 +31,7 @@ public:
   PinnedHostVector& operator=(PinnedHostVector&&) = delete;
 
 protected:
-  PinnedHostVector(unsigned int numberOfRows, PRECISION* hostVector, bool subview);
+  PinnedHostVector(int numberOfRows, PRECISION* hostVector, bool subview);
 };
 
 } /* namespace Container */

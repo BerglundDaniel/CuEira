@@ -270,13 +270,13 @@ void KernelWrapper::columnByColumnMatrixVectorElementWiseMultiply(const DeviceMa
 }
 
 void KernelWrapper::sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector,
-    PRECISION* sumHost) const {
+    PRECISION& sumHost) const {
 #ifdef DOUBLEPRECISION
   cublasDdot(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, oneVector.getMemoryPointer(), 1,
-      sumHost);
+      &sumHost);
 #else
   cublasSdot(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, oneVector.getMemoryPointer(), 1,
-      sumHost);
+      &sumHost);
 #endif
 }
 

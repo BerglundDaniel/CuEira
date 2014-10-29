@@ -13,13 +13,7 @@
 #include <SNPVectorMock.h>
 #include <EnvironmentVectorMock.h>
 #include <ConstructorHelpers.h>
-
-#ifdef CPU
-#include <lapackpp/lavd.h>
-#include <LapackppHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#endif
+#include <RegularHostVector.h>
 
 using testing::Return;
 using testing::_;
@@ -51,13 +45,9 @@ protected:
 
 InteractionVectorTest::InteractionVectorTest() :
     numberOfIndividuals(6), environmentVectorMock(constructorHelpers.constructEnvironmentVectorMock()), snpVectorMock(
-        constructorHelpers.constructSNPVectorMock()), interact(numberOfIndividuals),
-#ifdef CPU
-        envData(new LapackppHostVector(new LaVectorDouble(numberOfIndividuals))),
-        snpData(new LapackppHostVector(new LaVectorDouble(numberOfIndividuals)))
-#else
-        envData(new PinnedHostVector(numberOfIndividuals)), snpData(new PinnedHostVector(numberOfIndividuals))
-#endif
+        constructorHelpers.constructSNPVectorMock()), interact(numberOfIndividuals), envData(
+        new RegularHostVector(numberOfIndividuals)), snpData(new RegularHostVector(numberOfIndividuals))
+
 {
   for(int i = 0; i < numberOfIndividuals; ++i){
     (*envData)(i) = 0.1;
@@ -83,7 +73,7 @@ void InteractionVectorTest::TearDown() {
 }
 
 #ifdef DEBUG
-TEST_F(InteractionVectorTest, Exception) {
+TEST_F(InteractionVectorTest, Exception){
   EXPECT_CALL(*environmentVectorMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
       Return(numberOfIndividuals));
 

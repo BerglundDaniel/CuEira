@@ -82,7 +82,7 @@ void GpuModelHandlerTest::TearDown() {
 }
 
 TEST_F(GpuModelHandlerTest, Next) {
-  GpuModelHandler gpuModelHandler(*statisticsFactoryMock, dataHandlerMock, *logisticRegressionConfigurationMock,
+  LogisticRegressionModelHandler gpuModelHandler(*statisticsFactoryMock, dataHandlerMock, *logisticRegressionConfigurationMock,
       logisticRegressionMock);
   ASSERT_EQ(gpuModelHandler.NOT_INITIALISED, gpuModelHandler.state);
 
@@ -107,7 +107,7 @@ TEST_F(GpuModelHandlerTest, Next) {
 
 TEST_F(GpuModelHandlerTest, NextFalse) {
 
-  GpuModelHandler gpuModelHandler(*statisticsFactoryMock, dataHandlerMock, *logisticRegressionConfigurationMock,
+  LogisticRegressionModelHandler gpuModelHandler(*statisticsFactoryMock, dataHandlerMock, *logisticRegressionConfigurationMock,
       logisticRegressionMock);
 
   EXPECT_CALL(*dataHandlerMock, next()).Times(1).WillRepeatedly(Return(false));
@@ -116,7 +116,7 @@ TEST_F(GpuModelHandlerTest, NextFalse) {
 }
 
 TEST_F(GpuModelHandlerTest, NextAndCalculate) {
-  GpuModelHandler gpuModelHandler(*statisticsFactoryMock, dataHandlerMock, *logisticRegressionConfigurationMock,
+  LogisticRegressionModelHandler gpuModelHandler(*statisticsFactoryMock, dataHandlerMock, *logisticRegressionConfigurationMock,
       logisticRegressionMock);
   ASSERT_EQ(gpuModelHandler.NOT_INITIALISED, gpuModelHandler.state);
 
@@ -167,7 +167,7 @@ TEST_F(GpuModelHandlerTest, NextAndCalculate) {
 }
 
 TEST_F(GpuModelHandlerTest, NextAndCalculateRecode) {
-  GpuModelHandler gpuModelHandler(*statisticsFactoryMock, dataHandlerMock, *logisticRegressionConfigurationMock,
+  LogisticRegressionModelHandler gpuModelHandler(*statisticsFactoryMock, dataHandlerMock, *logisticRegressionConfigurationMock,
       logisticRegressionMock);
   LogisticRegression::LogisticRegressionResultMock* logisticRegressionResultMock2 =
       new LogisticRegression::LogisticRegressionResultMock();

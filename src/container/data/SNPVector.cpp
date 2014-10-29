@@ -9,7 +9,7 @@ SNPVector::SNPVector(SNP& snp, GeneticModel geneticModel, const std::vector<int>
         snp.getRiskAllele()),
 #ifdef CPU
         modifiedSNPData(
-            new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude)))
+            new RegularHostVector(numberOfIndividualsToInclude))
 #else
         modifiedSNPData(new PinnedHostVector(numberOfIndividualsToInclude))
 #endif

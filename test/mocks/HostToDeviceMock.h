@@ -6,8 +6,8 @@
 #include <HostToDevice.h>
 #include <DeviceVector.h>
 #include <DeviceMatrix.h>
-#include <HostVector.h>
-#include <HostMatrix.h>
+#include <PinnedHostVector.h>
+#include <PinnedHostMatrix.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -23,11 +23,11 @@ public:
 
   }
 
-  MOCK_CONST_METHOD1(transferMatrix, Container::DeviceMatrix*(const Container::HostMatrix*));
-  MOCK_CONST_METHOD1(transferVector, Container::DeviceVector*(const Container::HostVector*));
+  MOCK_CONST_METHOD1(transferMatrix, Container::DeviceMatrix*(const Container::PinnedHostMatrix&));
+  MOCK_CONST_METHOD1(transferVector, Container::DeviceVector*(const Container::PinnedHostVector&));
 
-  MOCK_CONST_METHOD2(transferMatrix, void(const Container::HostMatrix*, PRECISION*));
-  MOCK_CONST_METHOD2(transferVector, void(const Container::HostVector*, PRECISION*));
+  MOCK_CONST_METHOD2(transferMatrix, void(const Container::PinnedHostMatrix&, PRECISION*));
+  MOCK_CONST_METHOD2(transferVector, void(const Container::PinnedHostVector&, PRECISION*));
 
 };
 

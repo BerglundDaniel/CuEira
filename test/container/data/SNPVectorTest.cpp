@@ -15,13 +15,7 @@
 #include <GeneticModel.h>
 #include <RiskAllele.h>
 #include <StatisticModel.h>
-
-#ifdef CPU
-#include <lapackpp/lavd.h>
-#include <LapackppHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#endif
+#include <RegularHostVector.h>
 
 namespace CuEira {
 namespace Container {
@@ -302,11 +296,7 @@ TEST_F(SNPVectorTest, InvertRiskAllele) {
 }
 
 TEST_F(SNPVectorTest, StatisticModel) {
-#ifdef CPU
-  LapackppHostVector interactionVector(new LaVectorDouble(numberOfIndividuals));
-#else
-  PinnedHostVector interactionVector(numberOfIndividuals);
-#endif
+  RegularHostVector interactionVector(numberOfIndividuals);
 
   for(int i = 0; i < numberOfIndividuals; ++i){
     if(i < 5){

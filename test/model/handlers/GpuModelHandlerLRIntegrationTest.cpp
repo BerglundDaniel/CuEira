@@ -154,7 +154,7 @@ TEST_F(GpuModelHandlerLRIntegrationTest, 2Env_2SNP) {
       new Model::LogisticRegression::LogisticRegressionConfiguration(configuration, hostToDevice, *deviceOutcomes,
           kernelWrapper);
 
-  GpuModelHandler gpuModelHandler(statisticsFactory, dataHandler, logisticRegressionConfiguration,
+  LogisticRegressionModelHandler gpuModelHandler(statisticsFactory, dataHandler, logisticRegressionConfiguration,
       logisticRegressionMock);
 
   while(gpuModelHandler.next()){

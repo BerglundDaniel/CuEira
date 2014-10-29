@@ -91,13 +91,13 @@ TEST_F(LogLikelihoodPartsTest, KernelSmallVector) {
     }
   }
 
-  Container::DeviceVector* outcomesDeviceVector = hostToDeviceStream1.transferVector(hostVectorOutcomes);
-  Container::DeviceVector* probabilitesDeviceVector = hostToDeviceStream1.transferVector(hostVectorProbabilites);
+  Container::DeviceVector* outcomesDeviceVector = hostToDeviceStream1.transferVector(*hostVectorOutcomes);
+  Container::DeviceVector* probabilitesDeviceVector = hostToDeviceStream1.transferVector(*hostVectorProbabilites);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
   kernelWrapper.logLikelihoodParts(*outcomesDeviceVector, *probabilitesDeviceVector, *resultDeviceVector);
 
-  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
+  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(*resultDeviceVector);
   stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in ElemtWiseDivisionTest: ");
 

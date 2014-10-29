@@ -6,16 +6,8 @@
 #include <HostVector.h>
 #include <HostMatrix.h>
 #include <LogisticRegressionResult.h>
-
-#ifdef CPU
-#include <lapackpp/lavd.h>
-#include <lapackpp/gmd.h>
-#include <LapackppHostVector.h>
-#include <LapackppHostMatrix.h>
-#else
-#include <PinnedHostVector.h>
-#include <PinnedHostMatrix.h>
-#endif
+#include <RegularHostVector.h>
+#include <RegularHostMatrix.h>
 
 namespace CuEira {
 namespace Model {
@@ -54,18 +46,11 @@ void LogisticRegressionResultTest::TearDown() {
 
 TEST_F(LogisticRegressionResultTest, ConstructAndGet) {
   const int numberOfPredictors = 5;
-#ifdef CPU
-  Container::HostVector* beta = new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors));
-  Container::HostMatrix* informationMatrix = new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfPredictors, numberOfPredictors));
-  Container::HostMatrix* inverseInformationMatrixHost = new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfPredictors, numberOfPredictors));
-#else
-  Container::HostVector* beta = new Container::PinnedHostVector(numberOfPredictors);
-  Container::HostMatrix* informationMatrix = new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors);
-  Container::HostMatrix* inverseInformationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
+  Container::HostVector* beta = new Container::RegularHostVector(numberOfPredictors);
+  Container::HostMatrix* informationMatrix = new Container::RegularHostMatrix(numberOfPredictors, numberOfPredictors);
+  Container::HostMatrix* inverseInformationMatrixHost = new Container::RegularHostMatrix(numberOfPredictors,
       numberOfPredictors);
-#endif
+
   int numberOfIterations = 10;
   PRECISION logLikelihood = 0;
 
@@ -81,18 +66,11 @@ TEST_F(LogisticRegressionResultTest, ConstructAndGet) {
 
 TEST_F(LogisticRegressionResultTest, Recode_ALL_RISK) {
   const int numberOfPredictors = 4;
-#ifdef CPU
-  Container::HostVector* beta = new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors));
-  Container::HostMatrix* informationMatrix = new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfPredictors, numberOfPredictors));
-  Container::HostMatrix* inverseInformationMatrixHost = new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfPredictors, numberOfPredictors));
-#else
-  Container::HostVector* beta = new Container::PinnedHostVector(numberOfPredictors);
-  Container::HostMatrix* informationMatrix = new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors);
-  Container::HostMatrix* inverseInformationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
+  Container::HostVector* beta = new Container::RegularHostVector(numberOfPredictors);
+  Container::HostMatrix* informationMatrix = new Container::RegularHostMatrix(numberOfPredictors, numberOfPredictors);
+  Container::HostMatrix* inverseInformationMatrixHost = new Container::RegularHostMatrix(numberOfPredictors,
       numberOfPredictors);
-#endif
+
   int numberOfIterations = 10;
   PRECISION logLikelihood = 0;
 
@@ -109,18 +87,11 @@ TEST_F(LogisticRegressionResultTest, Recode_ALL_RISK) {
 
 TEST_F(LogisticRegressionResultTest, Recode_SNP_PROTECT) {
   const int numberOfPredictors = 4;
-#ifdef CPU
-  Container::HostVector* beta = new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors));
-  Container::HostMatrix* informationMatrix = new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfPredictors, numberOfPredictors));
-  Container::HostMatrix* inverseInformationMatrixHost = new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfPredictors, numberOfPredictors));
-#else
-  Container::HostVector* beta = new Container::PinnedHostVector(numberOfPredictors);
-  Container::HostMatrix* informationMatrix = new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors);
-  Container::HostMatrix* inverseInformationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
+  Container::HostVector* beta = new Container::RegularHostVector(numberOfPredictors);
+  Container::HostMatrix* informationMatrix = new Container::RegularHostMatrix(numberOfPredictors, numberOfPredictors);
+  Container::HostMatrix* inverseInformationMatrixHost = new Container::RegularHostMatrix(numberOfPredictors,
       numberOfPredictors);
-#endif
+
   int numberOfIterations = 10;
   PRECISION logLikelihood = 0;
 
@@ -137,18 +108,11 @@ TEST_F(LogisticRegressionResultTest, Recode_SNP_PROTECT) {
 
 TEST_F(LogisticRegressionResultTest, Recode_ENVIRONMENT_PROTECT) {
   const int numberOfPredictors = 4;
-#ifdef CPU
-  Container::HostVector* beta = new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors));
-  Container::HostMatrix* informationMatrix = new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfPredictors, numberOfPredictors));
-  Container::HostMatrix* inverseInformationMatrixHost = new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfPredictors, numberOfPredictors));
-#else
-  Container::HostVector* beta = new Container::PinnedHostVector(numberOfPredictors);
-  Container::HostMatrix* informationMatrix = new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors);
-  Container::HostMatrix* inverseInformationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
+  Container::HostVector* beta = new Container::RegularHostVector(numberOfPredictors);
+  Container::HostMatrix* informationMatrix = new Container::RegularHostMatrix(numberOfPredictors, numberOfPredictors);
+  Container::HostMatrix* inverseInformationMatrixHost = new Container::RegularHostMatrix(numberOfPredictors,
       numberOfPredictors);
-#endif
+
   int numberOfIterations = 10;
   PRECISION logLikelihood = 0;
 
@@ -165,18 +129,11 @@ TEST_F(LogisticRegressionResultTest, Recode_ENVIRONMENT_PROTECT) {
 
 TEST_F(LogisticRegressionResultTest, Recode_INTERACTION_PROTECT) {
   const int numberOfPredictors = 4;
-#ifdef CPU
-  Container::HostVector* beta = new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors));
-  Container::HostMatrix* informationMatrix = new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfPredictors, numberOfPredictors));
-  Container::HostMatrix* inverseInformationMatrixHost = new Container::LapackppHostMatrix(
-      new LaGenMatDouble(numberOfPredictors, numberOfPredictors));
-#else
-  Container::HostVector* beta = new Container::PinnedHostVector(numberOfPredictors);
-  Container::HostMatrix* informationMatrix = new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors);
-  Container::HostMatrix* inverseInformationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
+  Container::HostVector* beta = new Container::RegularHostVector(numberOfPredictors);
+  Container::HostMatrix* informationMatrix = new Container::RegularHostMatrix(numberOfPredictors, numberOfPredictors);
+  Container::HostMatrix* inverseInformationMatrixHost = new Container::RegularHostMatrix(numberOfPredictors,
       numberOfPredictors);
-#endif
+
   int numberOfIterations = 10;
   PRECISION logLikelihood = 0;
 

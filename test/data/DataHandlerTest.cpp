@@ -35,13 +35,7 @@
 #include <ModelInformationMock.h>
 #include <ModelInformationFactoryMock.h>
 #include <DataHandlerState.h>
-
-#ifdef CPU
-#include <lapackpp/lavd.h>
-#include <LapackppHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#endif
+#include <RegularHostVector.h>
 
 using testing::Return;
 using testing::AtLeast;
@@ -187,13 +181,8 @@ TEST_F(DataHandlerTest, Next) {
   DataHandler dataHandler(*configurationMock, *bedReaderMock, *contingencyTableFactoryMock,
       *modelInformationFactoryMock, *environmentInformation, *dataQueue, environmentVectorMock, interactionVectorMock);
 
-#ifdef CPU
-  Container::HostVector* envData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
-  Container::HostVector* snpData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
-#else
-  Container::HostVector* envData = new Container::PinnedHostVector(numberOfIndividuals);
-  Container::HostVector* snpData = new Container::PinnedHostVector(numberOfIndividuals);
-#endif
+  Container::HostVector* envData = new Container::RegularHostVector(numberOfIndividuals);
+  Container::HostVector* snpData = new Container::RegularHostVector(numberOfIndividuals);
 
   Container::SNPVectorMock* snpVectorMock1 = constructorHelpers.constructSNPVectorMock();
   Container::SNPVectorMock* snpVectorMock2 = constructorHelpers.constructSNPVectorMock();
@@ -442,11 +431,7 @@ TEST_F(DataHandlerTest, ContingencyTableIncludeFalse) {
 }
 
 TEST_F(DataHandlerTest, ApplyStatisticModel_PrevFalse) {
-#ifdef CPU
-  Container::HostVector* interactionData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
-#else
-  Container::HostVector* interactionData = new Container::PinnedHostVector(numberOfIndividuals);
-#endif
+  Container::HostVector* interactionData = new Container::RegularHostVector(numberOfIndividuals);
   const StatisticModel statisticModel = ADDITIVE;
 
   Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();
@@ -473,11 +458,7 @@ TEST_F(DataHandlerTest, ApplyStatisticModel_PrevFalse) {
 }
 
 TEST_F(DataHandlerTest, ApplyStatisticModel_PrevTrue) {
-#ifdef CPU
-  Container::HostVector* interactionData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
-#else
-  Container::HostVector* interactionData = new Container::PinnedHostVector(numberOfIndividuals);
-#endif
+  Container::HostVector* interactionData = new Container::RegularHostVector(numberOfIndividuals);
   const StatisticModel statisticModel = ADDITIVE;
 
   Container::SNPVectorMock* snpVectorMock = constructorHelpers.constructSNPVectorMock();

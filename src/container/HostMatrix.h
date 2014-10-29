@@ -16,15 +16,15 @@ namespace Container {
 class HostMatrix {
 
 public:
-  HostMatrix(unsigned int numberOfRows, unsigned int numberOfColumns, PRECISION* hostMatrix);
+  HostMatrix(int numberOfRows, int numberOfColumns, PRECISION* hostMatrix);
   virtual ~HostMatrix();
 
   int getNumberOfRows() const;
   int getNumberOfColumns() const;
-  virtual HostVector* operator()(unsigned int column)=0;
-  virtual const HostVector* operator()(unsigned int column) const=0;
-  virtual PRECISION& operator()(unsigned int row, unsigned int column)=0;
-  virtual const PRECISION& operator()(unsigned int row, unsigned int column) const=0;
+  virtual HostVector* operator()(int column)=0;
+  virtual const HostVector* operator()(int column) const=0;
+  virtual PRECISION& operator()(int row, int column)=0;
+  virtual const PRECISION& operator()(int row, int column) const=0;
 
   PRECISION* getMemoryPointer();
   const PRECISION* getMemoryPointer() const;
@@ -36,8 +36,8 @@ public:
 
 protected:
   PRECISION* hostMatrix;
-  const unsigned int numberOfRows;
-  const unsigned int numberOfColumns;
+  const int numberOfRows;
+  const int numberOfColumns;
 };
 
 } /* namespace Container */

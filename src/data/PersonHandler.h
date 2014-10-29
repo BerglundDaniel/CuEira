@@ -15,8 +15,7 @@
 #include <InvalidState.h>
 
 #ifdef CPU
-#include <lapackpp/lavd.h>
-#include <LapackppHostVector.h>
+#include <RegularHostVector.h>
 #else
 #include <PinnedHostVector.h>
 #endif

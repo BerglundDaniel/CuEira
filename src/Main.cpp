@@ -21,16 +21,16 @@
 #include <AlleleStatisticsFactory.h>
 #include <DataHandlerFactory.h>
 #include <ResultWriter.h>
+#include <LogisticRegressionModelHandler.h>
 
 #ifdef CPU
-//#include <CpuModelHandler.h>
+
 #else
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <HostToDevice.h>
 #include <DeviceToHost.h>
 #include <CudaAdapter.cu>
-#include <GpuModelHandler.h>
 #include <LogisticRegressionConfiguration.h>
 #include <CudaException.h>
 #include <GPUWorkerThread.h>
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 
     CUDA::HostToDevice hostToDevice(*stream);
 
-    device->setOutcomes(hostToDevice.transferVector(&outcomes));
+    device->setOutcomes(hostToDevice.transferVector((const PinnedHostVector&)outcomes));
   }
 #endif
 

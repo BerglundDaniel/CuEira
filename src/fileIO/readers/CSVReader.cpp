@@ -71,8 +71,7 @@ std::pair<Container::HostMatrix*, std::vector<std::string>*>* CSVReader::readDat
 
       //Initialise matrix
 #ifdef CPU
-      LaGenMatDouble* lapackppMatrix = new LaGenMatDouble(numberOfIndividualsToInclude, numberOfDataColumns);
-      dataMatrix = new Container::LapackppHostMatrix(lapackppMatrix);
+      dataMatrix = new Container::RegularHostMatrix(numberOfIndividualsToInclude, numberOfDataColumns);
 #else
       dataMatrix = new Container::PinnedHostMatrix(numberOfIndividualsToInclude, numberOfDataColumns);
 #endif

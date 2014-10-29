@@ -36,7 +36,7 @@ if(${VERBOSE})
 endif(${VERBOSE})
 
 if(${CPU})
-  set (PRECISION double)
+  #set (PRECISION double) FIXME DOES THIS WORK?
   add_definitions(-DCPU=1)
 endif(${CPU})
   
@@ -80,11 +80,7 @@ include_directories( ${Boost_INCLUDE_DIR} )
 #if boost 1.55 and intel, print warning TODO
 
 if(${CPU})
-  set(LAPACKPP_INCLUDE_DIR /usr/local/include/lapackpp/)
-  set(BLAS_LIBRARIES "-lgfortran -llapackpp")
-  add_definitions(-llapackpp)
-  add_definitions(-lgfortran)
-  include_directories( ${LAPACKPP_INCLUDE_DIR} )
+
 else()
   find_package( CUDA REQUIRED )
   include_directories( ${CUDA_INCLUDE_DIRS} )

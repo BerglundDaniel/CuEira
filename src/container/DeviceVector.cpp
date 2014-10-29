@@ -32,11 +32,11 @@ __device__ __host__ int DeviceVector::getNumberOfColumns() const {
   return numberOfColumns;
 }
 
-__device__ __host__ PRECISION* DeviceVector::operator()(unsigned int row) {
+__device__ __host__ PRECISION* DeviceVector::operator()(int row) {
   return vectorDevice + row;
 }
 
-__device__ __host__ const PRECISION* DeviceVector::operator()(unsigned int row) const {
+__device__ __host__ const PRECISION* DeviceVector::operator()(int row) const {
   return vectorDevice + row;
 }
 

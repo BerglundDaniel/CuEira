@@ -14,6 +14,7 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
 
   StreamFactory streamFactory;
   ModelStatisticsFactory interactionStatisticsFactory;
+  MKLWrapper blasWrapper;
   Model::CombinedResultsFactory combinedResultsFactory(interactionStatisticsFactory);
   const Container::DeviceVector& deviceOutcomes = device->getOutcomes();
 
@@ -22,20 +23,20 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
   HostToDevice hostToDevice(*stream);
   DeviceToHost deviceToHost(*stream);
 
-  Model::LogisticRegression::LogisticRegressionConfiguration* logisticRegressionConfiguration = nullptr;
+  Model::LogisticRegression::CUDA::CudaLogisticRegressionConfiguration* logisticRegressionConfiguration = nullptr;
 
   if(configuration->covariateFileSpecified()){
-    //logisticRegressionConfiguration = new Model::LogisticRegression::LogisticRegressionConfiguration(*configuration,
-    //hostToDevice, deviceOutcomes, *kernelWrapper, *covariates);
+    //logisticRegressionConfiguration = new Model::LogisticRegression::CUDA::CudaLogisticRegressionConfiguration(*configuration,
+    //hostToDevice, deviceToHost, deviceOutcomes, *kernelWrapper, blasWrapper, *covariates);
   }else{
-    logisticRegressionConfiguration = new Model::LogisticRegression::LogisticRegressionConfiguration(*configuration,
-        hostToDevice, deviceOutcomes, *kernelWrapper);
+    logisticRegressionConfiguration = new Model::LogisticRegression::CUDA::CudaLogisticRegressionConfiguration(
+        *configuration, hostToDevice, deviceToHost, deviceOutcomes, *kernelWrapper, blasWrapper);
   }
 
-  Model::LogisticRegression::LogisticRegression* logisticRegression = new Model::LogisticRegression::LogisticRegression(
-      logisticRegressionConfiguration, hostToDevice, deviceToHost);
-  Model::ModelHandler* modelHandler = new Model::GpuModelHandler(combinedResultsFactory, dataHandler,
-      *logisticRegressionConfiguration, logisticRegression);
+  Model::LogisticRegression::CUDA::CudaLogisticRegression* logisticRegression =
+      new Model::LogisticRegression::CUDA::CudaLogisticRegression(logisticRegressionConfiguration);
+  Model::ModelHandler* modelHandler = new Model::LogisticRegression::LogisticRegressionModelHandler(
+      combinedResultsFactory, dataHandler, *logisticRegressionConfiguration, logisticRegression);
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with initialisation in GPUWorkerThread ");
 
   DataHandlerState dataHandlerState = modelHandler->next();

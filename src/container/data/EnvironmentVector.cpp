@@ -7,7 +7,7 @@ EnvironmentVector::EnvironmentVector(const EnvironmentFactorHandler& environment
     numberOfIndividualsToInclude(environmentHandler.getNumberOfIndividualsToInclude()), currentRecode(ALL_RISK), environmentHandler(
         &environmentHandler), originalData(nullptr), state(NOT_INITIALISED), environmentFactor(nullptr),
 #ifdef CPU
-        recodedData(new LapackppHostVector(new LaVectorDouble(numberOfIndividualsToInclude)))
+        recodedData(new RegularHostVector(numberOfIndividualsToInclude))
 #else
         recodedData(new PinnedHostVector(numberOfIndividualsToInclude))
 #endif

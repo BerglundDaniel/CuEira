@@ -12,9 +12,9 @@
 #include <HostMatrix.h>
 #include <DataHandler.h>
 #include <Stream.h>
-#include <LogisticRegressionConfiguration.h>
-#include <LogisticRegression.h>
-#include <GpuModelHandler.h>
+#include <CudaLogisticRegressionConfiguration.h>
+#include <CudaLogisticRegression.h>
+#include <LogisticRegressionModelHandler.h>
 #include <SNP.h>
 #include <DataHandlerState.h>
 #include <HostToDevice.h>
@@ -22,6 +22,7 @@
 #include <InteractionStatistics.h>
 #include <StreamFactory.h>
 #include <KernelWrapper.h>
+#include <MKLWrapper.h>
 #include <ResultWriter.h>
 #include <ModelInformation.h>
 #include <CombinedResults.h>

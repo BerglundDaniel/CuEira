@@ -3,12 +3,12 @@
 namespace CuEira {
 namespace Container {
 
-PinnedHostVector::PinnedHostVector(unsigned int numberOfRows) :
+PinnedHostVector::PinnedHostVector(int numberOfRows) :
     HostVector(numberOfRows, false, nullptr) {
   CuEira::CUDA::allocateHostPinnedMemory((void**) &hostVector, numberOfRows);
 }
 
-PinnedHostVector::PinnedHostVector(unsigned int numberOfRows, PRECISION* hostVector, bool subview) :
+PinnedHostVector::PinnedHostVector(int numberOfRows, PRECISION* hostVector, bool subview) :
     HostVector(numberOfRows, subview, hostVector) {
 
 }
@@ -19,8 +19,8 @@ PinnedHostVector::~PinnedHostVector() {
   }
 }
 
-PRECISION& PinnedHostVector::operator()(unsigned int index) {
-  if(index >= numberOfRows){
+PRECISION& PinnedHostVector::operator()(int index) {
+  if(index >= numberOfRows || index < 0){
     std::ostringstream os;
     os << "Index " << index << " is larger than the number of rows " << numberOfRows << std::endl;
     const std::string& tmp = os.str();
@@ -30,8 +30,8 @@ PRECISION& PinnedHostVector::operator()(unsigned int index) {
   return *(hostVector + index);
 }
 
-const PRECISION& PinnedHostVector::operator()(unsigned int index) const {
-  if(index >= numberOfRows){
+const PRECISION& PinnedHostVector::operator()(int index) const {
+  if(index >= numberOfRows || index < 0){
     std::ostringstream os;
     os << "Index " << index << " is larger than the number of rows " << numberOfRows << std::endl;
     const std::string& tmp = os.str();

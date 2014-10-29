@@ -8,14 +8,8 @@
 #include <HostVector.h>
 #include <HostMatrix.h>
 #include <LogisticRegressionResultMock.h>
-
-#ifdef CPU
-#include <lapackpp/lavd.h>
-#include <LapackppHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#include <PinnedHostMatrix.h>
-#endif
+#include <RegularHostVector.h>
+#include <RegularHostMatrix.h>
 
 using testing::Ge;
 using testing::Le;
@@ -48,15 +42,10 @@ protected:
 };
 
 InteractionStatisticsTest::InteractionStatisticsTest() :
-    numberOfPredictors(4), logisticRegressionResultMock(nullptr), oddsRatios(numberOfPredictors),
-#ifdef CPU
-        beta(new Container::LapackppHostVector(new LaVectorDouble(numberOfPredictors))), inverseInfoMat(
-            new Container::LapackppHostMatrix(new LaGenMatDouble(numberOfPredictors, numberOfPredictors)))
-#else
-        beta(new Container::PinnedHostVector(numberOfPredictors)), inverseInfoMat(
-            new Container::PinnedHostMatrix(numberOfPredictors, numberOfPredictors))
-#endif
-{
+    numberOfPredictors(4), logisticRegressionResultMock(nullptr), oddsRatios(numberOfPredictors), beta(
+        new Container::RegularHostVector(numberOfPredictors)), inverseInfoMat(
+        new Container::RegularHostMatrix(numberOfPredictors, numberOfPredictors)) {
+
   for(int i = 0; i < numberOfPredictors; ++i){
     (*beta)(i) = (i + 7) / 10.3;
   }

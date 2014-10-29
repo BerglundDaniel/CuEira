@@ -23,11 +23,11 @@ public:
   __device__ __host__ int getNumberOfRows() const;
   __device__ __host__ int getNumberOfColumns() const;
 
-  DeviceVector* operator()(unsigned int column);
-  const DeviceVector* operator()(unsigned int column) const;
+  DeviceVector* operator()(int column);
+  const DeviceVector* operator()(int column) const;
 
-  __device__ __host__ PRECISION* operator()(unsigned int row, unsigned int column);
-  __device__ __host__ const PRECISION* operator()(unsigned int row, unsigned int column) const;
+  __device__ __host__ PRECISION* operator()(int row, int column);
+  __device__ __host__ const PRECISION* operator()(int row, int column) const;
 
   __device__ __host__ PRECISION* getMemoryPointer();
   __device__ __host__ const PRECISION* getMemoryPointer() const;

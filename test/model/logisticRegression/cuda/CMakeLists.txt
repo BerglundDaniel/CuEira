@@ -6,8 +6,8 @@ set(TEST_INCLUDE_DIRECTORIES
 
 if(NOT ${CPU})
   set(GPU_TEST_SOURCE
-    ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionConfigurationTest.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CudaLogisticRegressionConfigurationTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CudaLogisticRegressionTest.cpp
   )
 endif(NOT ${CPU})
 

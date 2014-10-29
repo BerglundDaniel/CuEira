@@ -18,8 +18,7 @@
 #include <HostMatrix.h>
 
 #ifdef CPU
-#include <lapackpp/gmd.h>
-#include <LapackppHostMatrix.h>
+#include <RegularHostMatrix.h>
 #else
 #include <PinnedHostMatrix.h>
 #endif

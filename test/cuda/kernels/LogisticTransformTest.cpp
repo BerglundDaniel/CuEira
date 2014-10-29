@@ -74,12 +74,12 @@ TEST_F(LogisticTransformTest, KernelSmallVector) {
     (*hostVectorFrom)(i) = i / 10;
   }
 
-  Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
+  Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(*hostVectorFrom);
   Container::DeviceVector* probDeviceVector = new Container::DeviceVector(numberOfRows);
 
   kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
 
-  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
+  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(*probDeviceVector);
   stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in LogisticTransform test: ");
 
@@ -138,12 +138,12 @@ TEST_F(LogisticTransformTest, KernelLargeVector) {
     (*hostVectorFrom)(i) = (i % 10) / 10;
   }
 
-  Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
+  Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(*hostVectorFrom);
   Container::DeviceVector* probDeviceVector = new Container::DeviceVector(numberOfRows);
 
   kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
 
-  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
+  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(*probDeviceVector);
   stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in LogisticTransform test: ");
 
@@ -174,12 +174,12 @@ TEST_F(LogisticTransformTest, KernelHugeVector) {
     (*hostVectorFrom)(i) = (i % 10) / 10;
   }
 
-  Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(hostVectorFrom);
+  Container::DeviceVector* logitDeviceVector = hostToDeviceStream1.transferVector(*hostVectorFrom);
   Container::DeviceVector* probDeviceVector = new Container::DeviceVector(numberOfRows);
 
   kernelWrapper.logisticTransform(*logitDeviceVector, *probDeviceVector);
 
-  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(probDeviceVector);
+  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(*probDeviceVector);
   stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in LogisticTransform test: ");
 

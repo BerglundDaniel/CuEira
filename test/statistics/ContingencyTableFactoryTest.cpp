@@ -9,13 +9,7 @@
 #include <SNPVectorMock.h>
 #include <EnvironmentVectorMock.h>
 #include <ConstructorHelpers.h>
-
-#ifdef CPU
-#include <lapackpp/lavd.h>
-#include <LapackppHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#endif
+#include <RegularHostVector.h>
 
 using testing::Return;
 using testing::ReturnRef;
@@ -60,15 +54,9 @@ TEST_F(ContingencyTableFactoryTest, Construct) {
   Container::SNPVectorMock* snpVector = constructorHelpers.constructSNPVectorMock();
   Container::EnvironmentVectorMock* environmentVector = constructorHelpers.constructEnvironmentVectorMock();
 
-#ifdef CPU
-  Container::HostVector* envData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
-  Container::HostVector* snpData = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
-  Container::HostVector* outcomes = new Container::LapackppHostVector(new LaVectorDouble(numberOfIndividuals));
-#else
-  Container::HostVector* envData = new Container::PinnedHostVector(numberOfIndividuals);
-  Container::HostVector* snpData = new Container::PinnedHostVector(numberOfIndividuals);
-  Container::HostVector* outcomes = new Container::PinnedHostVector(numberOfIndividuals);
-#endif
+  Container::HostVector* envData = new Container::RegularHostVector(numberOfIndividuals);
+  Container::HostVector* snpData = new Container::RegularHostVector(numberOfIndividuals);
+  Container::HostVector* outcomes = new Container::RegularHostVector(numberOfIndividuals);
 
   for(int i = 0; i < numberOfIndividuals; ++i){
     if(i < 5){

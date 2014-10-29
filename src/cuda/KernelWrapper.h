@@ -104,7 +104,7 @@ public:
   /**
    * Sums the vectors elements and puts the result in the given pointer
    */
-  void sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector, PRECISION* sumHost) const;
+  void sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector, PRECISION& sumHost) const;
 
   /**
    * Syncs the associated stream

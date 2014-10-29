@@ -1,8 +1,8 @@
-if(${CPU})
-  add_subdirectory(serial)
-else()
+add_subdirectory(cpu)
+
+if(NOT ${CPU})
   add_subdirectory(cuda)
-endif(${CPU})
+endif()
 
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}
@@ -22,6 +22,8 @@ set(GPU_NVCC_SOURCE
 
 set(SOURCE
   ${SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegression.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionConfiguration.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionResult.cpp
   PARENT_SCOPE
 )

@@ -75,13 +75,13 @@ TEST_F(ElementWiseDivisionTest, KernelSmallVector) {
     (*hostVectorDenomitor)(i) = (i + 3) * 10;
   }
 
-  Container::DeviceVector* numeratorDeviceVector = hostToDeviceStream1.transferVector(hostVectorNumerator);
-  Container::DeviceVector* denomitorDeviceVector = hostToDeviceStream1.transferVector(hostVectorDenomitor);
+  Container::DeviceVector* numeratorDeviceVector = hostToDeviceStream1.transferVector(*hostVectorNumerator);
+  Container::DeviceVector* denomitorDeviceVector = hostToDeviceStream1.transferVector(*hostVectorDenomitor);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
   kernelWrapper.elementWiseDivision(*numeratorDeviceVector, *denomitorDeviceVector, *resultDeviceVector);
 
-  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
+  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(*resultDeviceVector);
   stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in ElemtWiseDivisionTest: ");
 

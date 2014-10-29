@@ -6,12 +6,7 @@ set(INCLUDE_DIRECTORIES
   PARENT_SCOPE
 )
 
-if(${CPU})
-  set(CPU_SOURCE
-    ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostVector.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/LapackppHostMatrix.cpp
-  )
-else()
+if(NOT ${CPU})
   set(GPU_SOURCE
     ${GPU_SOURCE}
     ${CMAKE_CURRENT_SOURCE_DIR}/PinnedHostVector.cpp
@@ -20,13 +15,14 @@ else()
     ${CMAKE_CURRENT_SOURCE_DIR}/DeviceMatrix.cpp
     PARENT_SCOPE
   )
-endif(${CPU})
+endif()
 
 set(SOURCE
   ${SOURCE}
-  ${CPU_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/HostVector.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/HostMatrix.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/RegularHostVector.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/RegularHostMatrix.cpp
   PARENT_SCOPE
 )
 

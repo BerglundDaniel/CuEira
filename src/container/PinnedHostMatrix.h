@@ -20,13 +20,13 @@ namespace Container {
  */
 class PinnedHostMatrix: public HostMatrix {
 public:
-  PinnedHostMatrix(unsigned int numberOfRows, unsigned int numberOfColumns);
+  PinnedHostMatrix(int numberOfRows, int numberOfColumns);
   virtual ~PinnedHostMatrix();
 
-  virtual HostVector* operator()(unsigned int column);
-  virtual const HostVector* operator()(unsigned int column) const;
-  virtual PRECISION& operator()(unsigned int row, unsigned int column);
-  virtual const PRECISION& operator()(unsigned int row, unsigned int column) const;
+  virtual PinnedHostVector* operator()(int column);
+  virtual const PinnedHostVector* operator()(int column) const;
+  virtual PRECISION& operator()(int row, int column);
+  virtual const PRECISION& operator()(int row, int column) const;
 
   PinnedHostMatrix(const PinnedHostMatrix&) = delete;
   PinnedHostMatrix(PinnedHostMatrix&&) = delete;

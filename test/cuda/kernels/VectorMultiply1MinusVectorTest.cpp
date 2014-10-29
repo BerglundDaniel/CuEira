@@ -71,12 +71,12 @@ TEST_F(VectorMultiply1MinusVectorTest, KernelSmallVector) {
     (*hostVector1)(i) = (i + 1) / 10;
   }
 
-  Container::DeviceVector* deviceVector1 = hostToDeviceStream1.transferVector(hostVector1);
+  Container::DeviceVector* deviceVector1 = hostToDeviceStream1.transferVector(*hostVector1);
   Container::DeviceVector* resultDeviceVector = new Container::DeviceVector(numberOfRows);
 
   kernelWrapper.probabilitesMultiplyProbabilites(*deviceVector1, *resultDeviceVector);
 
-  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(resultDeviceVector);
+  Container::HostVector* resultHostVector = deviceToHostStream1.transferVector(*resultDeviceVector);
   stream->syncStream();
   handleCudaStatus(cudaGetLastError(), "Error in VectorMultiply1MinusVectorTest: ");
 

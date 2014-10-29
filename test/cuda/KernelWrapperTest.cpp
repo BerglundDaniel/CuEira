@@ -82,8 +82,8 @@ TEST_F(KernelWrapperTest, ColumnByColumnMatrixVectorElementWiseMultiply) {
   vector(1) = 2;
   vector(2) = 3;
 
-  DeviceMatrix* matrixDevice = hostToDeviceStream1.transferMatrix(&matrix);
-  DeviceVector* vectorDevice = hostToDeviceStream1.transferVector(&vector);
+  DeviceMatrix* matrixDevice = hostToDeviceStream1.transferMatrix(matrix);
+  DeviceVector* vectorDevice = hostToDeviceStream1.transferVector(vector);
   DeviceMatrix* resultDevice = new DeviceMatrix(numberOfRows, numberOfColumns);
 
   kernelWrapper.columnByColumnMatrixVectorElementWiseMultiply(*matrixDevice, *vectorDevice, *resultDevice);
@@ -91,7 +91,7 @@ TEST_F(KernelWrapperTest, ColumnByColumnMatrixVectorElementWiseMultiply) {
   handleCudaStatus(cudaGetLastError(),
       "Error with ColumnByColumnMatrixVectorElementWiseMultiply in ColumnByColumnMatrixVectorElementWiseMultiplyTest: ");
 
-  HostMatrix* resultHost = deviceToHostStream1.transferMatrix(resultDevice);
+  HostMatrix* resultHost = deviceToHostStream1.transferMatrix(*resultDevice);
   kernelWrapper.syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with transfer in ColumnByColumnMatrixVectorElementWiseMultiply: ");
 
@@ -151,15 +151,15 @@ TEST_F(KernelWrapperTest, matrixTransMatrixMultiply) {
     matrix2(i, 3) = 9;
   }
 
-  DeviceMatrix* matrixTDevice = hostToDeviceStream1.transferMatrix(&matrixT);
-  DeviceMatrix* matrix2Device = hostToDeviceStream1.transferMatrix(&matrix2);
+  DeviceMatrix* matrixTDevice = hostToDeviceStream1.transferMatrix(matrixT);
+  DeviceMatrix* matrix2Device = hostToDeviceStream1.transferMatrix(matrix2);
   DeviceMatrix* resultDevice = new DeviceMatrix(numberOfColumns, numberOfColumns2);
 
   kernelWrapper.matrixTransMatrixMultiply(*matrixTDevice, *matrix2Device, *resultDevice);
   kernelWrapper.syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with matrixTransMatrixMultiply in matrixTransMatrixMultiply: ");
 
-  HostMatrix* resultHost = deviceToHostStream1.transferMatrix(resultDevice);
+  HostMatrix* resultHost = deviceToHostStream1.transferMatrix(*resultDevice);
   kernelWrapper.syncStream();
   handleCudaStatus(cudaGetLastError(), "Error with transfer in matrixTransMatrixMultiply: ");
 

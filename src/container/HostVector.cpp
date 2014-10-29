@@ -3,9 +3,9 @@
 namespace CuEira {
 namespace Container {
 
-HostVector::HostVector(unsigned int numberOfRows, bool subview, PRECISION* hostVector) :
+HostVector::HostVector(int numberOfRows, bool subview, PRECISION* hostVector) :
     numberOfRows(numberOfRows), numberOfColumns(1), subview(subview), hostVector(hostVector) {
-  if(numberOfRows < 0){
+  if(numberOfRows <= 0){
     throw DimensionMismatch("Number of rows for HostVector must be > 0");
   }
 }

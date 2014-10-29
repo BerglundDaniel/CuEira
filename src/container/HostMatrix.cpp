@@ -3,9 +3,9 @@
 namespace CuEira {
 namespace Container {
 
-HostMatrix::HostMatrix(unsigned int numberOfRows, unsigned int numberOfColumns, PRECISION* hostMatrix) :
+HostMatrix::HostMatrix(int numberOfRows, int numberOfColumns, PRECISION* hostMatrix) :
     numberOfRows(numberOfRows), numberOfColumns(numberOfColumns), hostMatrix(hostMatrix) {
-  if(numberOfRows < 0 || numberOfColumns < 0){
+  if(numberOfRows <= 0 || numberOfColumns <= 0){
     throw DimensionMismatch("Number of rows and columns for HostMatrix must be > 0");
   }
 }

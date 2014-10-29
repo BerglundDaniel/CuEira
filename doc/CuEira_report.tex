@@ -102,15 +102,15 @@
 \thispagestyle{empty}
 \selectlanguage{english}
 \begin{abstract}
-This is a first draft of a report for a masters thesis in computer science. The aim is to make a program for gene-environment interaction search using GPUs to speed up the calculations. The preliminary results show that there likely is a speed gain when using larger datasets.
+Abstract
 \end{abstract}
 
-%\clearpage
-%\thispagestyle{empty}
-%\selectlanguage{english}
-%\begin{abstract}
-%Abstract pÃ¥ svenska
-%\end{abstract}
+\clearpage
+\thispagestyle{empty}
+\selectlanguage{english}
+\begin{abstract}
+Abstract
+\end{abstract}
 
 %\clearpage
 %\thispagestyle{empty}
@@ -127,24 +127,28 @@ This is a first draft of a report for a masters thesis in computer science. The 
 \chapter{Introduction}
 
 \section{Outline}
-The first chapter contains an short introduction to the area and some terminology. The background chapter continues with the terminology and areas related to the project. It starts with some statistics and algorithms and then talks about computer architecture and software design. The algorithm section explains the structure of the current algorithms and then the structure and design of the program that was developed for this thesis, CuEira. After all the background and design are results comparing the performances of the programs and then a discussions of the results.
+The first chapter contains a short introduction to the area and the terminology. The second chapter gives the theoretical background. It starts with the statistics and algorithms and then describes the computer architecture and software design. The third algorithm section explains the structure of the current algorithms and also explains the design of the program that was developed in this thesis called CuEira. Section four provides the results and compariasions of the program performance. The fifth section is the discussion of these results. The last section dicusses the future work.
 
-%Appendix has list of variables and acronyms TODO
+%Aim of thesis
+
+%TODO appendix contains bla bla
 
 \section{Genome-wide association studies}
-One type of study to find associations between genetic markers and diseases or other traits is genome-wide association studies(GWAS). Most GWAS do not study interactions between the genetic markers or with environmental factors \cite{cordell_detect_review, gene_enviroment_2013}. Investigating gene-gene interactions recently has become more common\cite{cordell_detect_review}, however gene-environment interactions are still uncommon in studies\cite{gene_enviroment_2013}. Interactions between genes and environmental factors are considered to be important for complex diseases such as cancer and autoimmune diseases\cite{cordell_detect_review, gene_enviroment_2013, geira, ra_smoking}. A complex disease develops due to a combination of factors, not a single gene or environmental factor\cite{rothman1998modern}. The environmental factors can be various things such as smoking, physical activity and so on.
+One type of study to find associations between genetic markers and diseases or other traits in different individuals is genome-wide association study(GWAS). Most GWAS do not study interactions between the genetic markers or between the genetic markers and environmental factors \cite{cordell_detect_review, gene_enviroment_2013}. Investigating gene-gene interactions recently has become more common\cite{cordell_detect_review}, however gene-environment interactions are still uncommon in studies\cite{gene_enviroment_2013}. Interactions between genes and environmental factors are considered to be important for complex diseases such as cancer or autoimmune diseases\cite{cordell_detect_review, gene_enviroment_2013, geira, ra_smoking}. In general a complex disease develops due to a combination of factors, not just a single gene or environmental factor\cite{rothman2008modern}. Examples of environmental factors are smoking, physical activity and so on.
 \\
-GWAS usually has a study design that is either cohort or case-control\cite{rothman1998modern}. In cohort study a sample of a population is followed and over time some individuals will develop the disease of interest\cite{mann_observational}. In case-control studies two groups are compared with each other to find risk factors\cite{mann_observational}. One group consists of individuals with the disease and the other of individuals that are similar to the cases but who do not have the disease\cite{mann_observational}.\\
+GWAS usually has a study design that is either cohort or case-control\cite{rothman2008modern}. In cohort study a sample of a population is followed and over time some individuals will develop the disease of interest\cite{mann_observational}. In case-control studies two groups are compared with each other to find the risk factors\cite{mann_observational}. One of these two groups consists of individuals with the disease and the other group consists of individuals similar to the first group but who do not have the disease\cite{mann_observational}.\\
 \\
 \newpage
-A typical study consists of tens of thousands of individuals and hundred thousands up to millions of SNPs\cite{cordell_detect_review, burton2007genome}. Due to the high number of SNPs few algorithms are capable to investigate more than second order interaction in a reasonable time. There are some algorithms that can handle higher interaction orders however these have drawbacks\cite{gwis,high_order_2012,fast_high_order_cluster}.
+A typical GWAS consists of tens of thousands of individuals and up to several millions of genetic markers\cite{cordell_detect_review, burton2007genome}. In gene-gene interaction GWAS   few studies investigate more than the second order interaction because of the high number of possible combinations. There are some algorithms that can investigae higher order interactions however these have drawbacks\cite{gwis,high_order_2012,fast_high_order_cluster}.
+
+%Problem vs gene-gene and gene-env
+%focuses on gene-env, datatyp etc
 
 \section{Genetics}
-The genetic information is stored in \emph{chromosomes} each consisting of a \emph{DNA molecule}\cite{sadava_life}. Each chromosome comes in a pair where both chromosomes are nearly identical, except for the chromosomes related to sex\cite{sadava_life}. Females have two X chromosomes while males have one X and one Y\cite{sadava_life}. The DNA molecule is a double stranded helix of four nucleotide bases, \emph{adenine}(A),\emph{cytosine}(C),\emph{guanine}(G) and \emph{thymine}(T). They are always paired as A-T and G-C. The DNA contains many different regions, one type of such regions are \emph{genes}\cite{sadava_life}. Genes can \emph{expressed} meaning that they affect the \emph{phenotype}, the pair of genes from both chromosomes is the \emph{genotype}. The phenotype is the result of the genotype, e.g. eye colour, fur patters.\\
+The genetic information is stored in \emph{chromosomes} each consisting of a \emph{DNA molecule}\cite{sadava_life}. Each chromosome comes in a pair where both chromosomes are nearly identical, except for the chromosomes related to gender\cite{sadava_life}. The DNA molecule is a double stranded helix of four nucleotide bases, \emph{adenine}(A),\emph{cytosine}(C),\emph{guanine}(G) and \emph{thymine}(T). They are always paired as A-T and G-C. \emph{Genes} are sections of these DNA molecules. The pair of genes in the chromosomes is a \emph{genotype}. The observable product of the genotype is called \emph{phenotype}, e.g. eye colour, fur patters.\\
 \\
-The genetic markers mentioned above are commonly single nucleotide polymorphism(SNP, pronounced snip). SNPs are variations in the genome where a single nucleotide is different between individuals in a population\cite{sadava_life}.\\
-\\
-A position in the DNA is a \emph{locus}\cite{sadava_life}. A variation of the same gene or locus is an \emph{allele}\cite{sadava_life}. The effect of an gene can be either \emph{dominant}, \emph{recessive} or \emph{co-dominant}. Dominant means that the effect occurs if the gene only needs to be present in one of the chromosomes in the pair, recessive is when the allele has to be present in both chromosomes\cite{sadava_life}. Co-dominant is when both genes are expressed, when different alles are present this usually produce some kind of intermediate state\cite{sadava_life}.
+A position of the DNA or a gene is a \emph{locus}\cite{sadava_life}. A variation of the same gene or locus is an \emph{allele}\cite{sadava_life}. The effect of an allele on a phenotype can be either \emph{dominant}, \emph{recessive} or \emph{co-dominant}. Dominant means that the effect occurs if the allele only needs to be present in one of the chromosomes in the pair, recessive is when the allele needs to be present in both chromosomes \cite{sadava_life}. Co-dominant is when both alleles effect the phenotype, when different alleles are present this usually produce some kind of intermediate state\cite{sadava_life}.
+%TODO fix it, dominat, reccessive etc
 
 \begin{table}[h]
 \begin{tabular}{| l l l |}
@@ -156,64 +160,55 @@ A position in the DNA is a \emph{locus}\cite{sadava_life}. A variation of the sa
   GG & No effect & No effect \\
   \hline  
 \end{tabular}
-\caption{The genetic risk based on the genetic model and if the  allele with the effect is A}
+\caption{The phenotype based on the genetic model and if the  allele with the effect is A}
 \label{table:genetic}
 \end{table}
+
+\subsection{Major, Minor and Risk Allele}
+The the allele that is least common using all individuals(both cases and controls) is the \emph{minor allele}, the one that is most common is the \emph{major allele}. The frequency of the minor allele is the \emph{minor allele frequency}(MAF)\cite{uvehag_master_thesis, geira}. If the MAF is too low an analysis often will be of little value so all SNPs with MAF below a threshold are usually skipped. 5\% is common value of the threshold\cite{burton2007genome, geira}.\\
+\\
+To determine if the genetic risk is present for each individual one of the alleles needs to be chosen as the \emph{risk allele}. GEIRA and JEIRA determines the risk allele by comparing the MAFs of case and control\cite{geisa, uvehag_master_thesis}. If MAF of cases is greater or equal to the MAF of controls the minor allele is used as the risk otherwise the other allele\cite{geisa, uvehag_master_thesis}.\\
+\\
+A simpler equivalent definition is that the risk allele is the allele which frequency is higher in case than in controls. This definition means that the allele chosen as risk might not be the most common in either case or control, however the portion of the population that has the allele is higher among cases than controls. This hints that it might be a reason behind the outcomes. This definition is equivalent to the definition using MAF because if the minor allele has a higher frequency in cases then it the risk is the minor allele according to both definitions. If that is not the case the first definition sets the major allele as the risk. Also due to symmetrical reasons(the total frequency is always 1) this means that the major allele has higher frequency in cases than in controls, which according to the second definition means it is the risk allele.\\
+\\
+The presence of genetic risk based on the risk allele and the genetic model can be coded as a variable than then be can used in a statistical model. For dominant or recessive genetic model this means that the variable is binary since the risk is either present or not. See table \ref{table:genetic} for how the coding is based on the model. There is an alternative way to code using co-dominant genetic model. In this case the number of risk alleles in the individual used as the variable, so either 0, 1 or 2. %TODO reference
 
 \newpage
 \section{Defining Interaction}
 \label{interaction}
-There are several ways to define interaction. The overall goal is often to detect if \emph{biological} interactions are present. \emph{Biological} interaction is when the factors co-operate through a physiological or biological mechanism and causes the effect, e.g. the disease. This information can be used to explain the mechanisms involved in causing the disease and possibly help to find cures for them. However biological interaction is not well defined and thus it is not possible to calculate it directly from data.\cite{rothman1998modern,rothman2002intro_epidemiology}\\
+There are several ways to define interaction. The overall goal is often to detect if \emph{biological} interactions are present. \emph{Biological} interaction is when different factors co-operate through a physiological or biological mechanism and cause the effect, e.g. the disease. The information about the factors can then be used to explain the mechanisms involved in causing the disease and possibly help to find cures for them. However biological interaction is not well defined and thus it is not possible to calculate it directly from data.\cite{interaction_confusion, rothman2008modern,rothman2002intro_epidemiology}\\
 \\
-\emph{Statistical} interaction on the other hand is well defined. However it is scale dependent, i.e. interactions can appear and disappear based on transformations of the data. Statistical interaction also depends on the model used. The common way to define statistical interaction is to consider the presence of a product term between the variables in the statistical model, this is referred to as \emph{multiplicative} interaction. For instance for a linear model
+That is why statistical interaction is used and it is assumed that the presence of statistical interaction implies the presence of biological interaction
+
+\emph{Statistical} interaction on the other hand is well defined. However it is scale dependent, i.e. interactions can appear and disappear based on transformations of the given data. Statistical interaction also depends on the model used. The common way to define statistical interaction is to consider the presence of a product term between the variables in the model, this is referred to as \emph{multiplicative} interaction. For instance for a linear model
 \begin{equation}
 f(x,y)=ax+by+cxy+d
 \end{equation}
-$c$ is the product term that represents multiplicative interaction between variables x and y. Statistical interaction is often referred to as interaction which can make it a bit confusing.\cite{geira,rothman1998modern}\\
+$c$ is the product term that represents multiplicative interaction between variables x and y. \cite{geira, interaction_confusion, rothman2008modern}\\
 \\
-\emph{Additive} interaction is a bit broader than multiplicative interaction. It is that the effect from the interaction is larger than the sum of the separate effects. It implies biological interaction as defined by Rothman\cite{rothman1998modern}, which is sometimes called \emph{causal interdependence} or \emph{causal interaction}. A more precise definition can be found in section \ref{additive}
+\emph{Additive} interaction is another kind of statistical interaction that is broader than multiplicative interaction. It is when the total effect of the interacting factors present is larger than the sum of their separate effects. A more precise definition can be found in section \ref{additive}. It implies biological interaction as defined by Rothman\cite{rothman2008modern}, which is sometimes called \emph{causal interdependence} or \emph{causal interaction}\cite{causal_bounds_arvid}. Additive interaction can find more possible interactions than multiplicative and since it is closer to biological interaction it is often chosen in epidemiological studies\cite{interaction_confusion}.  
 
 \section{GEIRA, JEIRA and GEISA, the Aim of the Project}
 \label{jeira}
-\emph{GEIRA} is a tool for analysing gene-environment interaction. It uses logistic regression and additive(causal) interaction\cite{geira}. \emph{JEIRA} is a parallelised implementation of GEIRA in Java\cite{uvehag_master_thesis}. \emph{GEISA} is based on JEIRA with some changes\cite{geisa}. These three programs were the basis of this project. The aim of this project was to make the gene-environment interaction analysis faster by using GPUs and to be able to handle larger amounts of data. The program is written in C++ because it is generally faster than Java and CUDA is C/C++. Originally one goal was to implement it using a cluster, but it was cut due to lack of time.
+To search for interaction in data various tools can be used. \emph{GEIRA}\cite{geira} is one such tool which uses logistic regression, additive interaction and with bootstrap to asses the quality of the models\cite{geira}. It comes in two versions, one made in R and one in SAS. To improve speed up it was later implemented in Java and called \emph{JEIRA}\cite{uvehag_master_thesis}. It is parallel which made it significantly faster\cite{uvehag_master_thesis}. \emph{GEISA}\cite{geisa} is another tool based on JEIRA however it uses permutation testing instead of bootstrap to asses the certainty of the models\cite{geisa}. The programs structure is explained in section \ref{implementation}, the algorithms are explained in section \ref{algorithm_background}.\\
+\\
+%Bootstrap permutation testing
 
-%TODO graph or such of development?
+The aim of this project is to make the gene-environment interaction analysis faster by using graphics processors and to be able to handle larger amounts of data. The program is written in C++ and CUDA.
+
+%\\
+%The genetic markers mentioned previously are commonly single nucleotide polymorphism(SNP, pronounced snip). SNPs are variations in the genome where a single nucleotide is different %between individuals in a population\cite{sadava_life}.\\
 
 \clearpage
 \chapter{Background}
 %TODO
-To search for interaction contains elements of several subjects. This section will go through some of it starting with the algorithms and statistical background. And continuing with computer architecture and software design after that.
+This section will go through some of it starting with the algorithms and statistical background. And continuing with computer architecture and software design after that.
 
-\section{Major, Minor and Risk Allele}
-The the allele that is least common using all individuals(both cases and controls) is the \emph{minor allele}, the one that is most common is the \emph{major allele}. The frequency of the minor allele is the \emph{minor allele frequency}(MAF)\cite{uvehag_master_thesis, geira}. If the MAF is too low an analysis often will be of little value so it is commonly skipped if it is below a threshold. 5\% is common value of the threshold\cite{burton2007genome, geira}.\\
-\\
-To determine if the genetic risk is present for each individual one of the alleles needs to be chosen as the \emph{risk allele}. GEIRA and JEIRA determines the risk allele by comparing the MAFs of case and control\cite{geisa, uvehag_master_thesis}. If MAF of cases is greater or equal to the MAF of controls the minor allele is used as the risk otherwise the other allele\cite{geisa, uvehag_master_thesis}.\\
-\\
-%However the source code for GEIRA and JEIRA does not calculate the risk allele according to that definition. The current version of GEISA(0.13) has no changes to the part of the code that determines the risk allele compared to JEIRA. The code from the programs can be found in appendix \ref{geira_jeira_risk_allele}. What the code does in both cases is to compare the frequency of the most common allele in both groups and if the frequency 
-%\\
-A simpler equivalent definition is that the risk allele is the allele which frequency is higher in case than in controls. This definition means that the allele chosen as risk might not be the most common in either case or control, however the portion of the population that has the allele is higher among cases than controls. This hints that it might be a reason behind the outcomes. This definition is equivalent to the definition using MAF because if the minor allele has a higher frequency in cases then it the risk is the minor allele according to both definitions. If that is not the case the first definition sets the major allele as the risk. Also due to symmetrical reasons(the total frequency is always 1) this means that the major allele has higher frequency in cases than in controls, which according to the second definition means it is the risk allele.\\
-\\
-The presence of genetic risk based on the risk allele and the genetic model can be coded as a variable than then be can used in a statistical model. For dominant or recessive genetic model this means that the variable is binary since the risk is either present or not. See table \ref{table:genetic} for how the coding is based on the model. There is an alternative way to code using co-dominant genetic model. In this case the number of risk alleles in the individual used as the variable, so either 0, 1 or 2.
-
-\section{Algorithmic Background}
-This section will introduce the statistics and some of the algorithms used to search for interaction. The focus is on logistic regression, however some other methods are briefly examined also.\\
-\\
-There are many algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned\cite{gene_enviroment_2013}. One of the challenges of gene-environment interaction is that environmental factors can be of any variable type(i.e. binary, continuous, categorical) which creates problems in various ways\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variables to be binary or have other problems since they weren't designed for environmental interaction\cite{gene_enviroment_2013}.\\
-\\
-Both groups of computers(i.e. clusters) using regular processors\cite{biforce} and graphic processors\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} have been used for GWAS. Graphic processors for computing have become more popular in the last ten years. They have been a popular choice for some GWAS methods because each combination of variables can commonly be considered independently from the others. More about graphic processors in section \ref{gpu} and why the are good for GWAS in section \ref{gpu_gwas}.\\
-\\
-The methods can be roughly classified into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}.\\
-\\
-\emph{Exhaustive search} is the most direct approach, it compares all combinations of the SNPs in the dataset. Exhaustive search methods will not miss a significant combination because it didn't consider that specific combination. However it also means that they can be slow since they will spend time on combinations other methods would skip completely. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and BOOST\cite{boost_gene_gene} are two examples of this type of algorithm.\\
-\\
-\emph{Stochastic} methods uses random sampling to iterate through the data. BEAM\cite{beam_2007} is one example and it uses Markov Chain Monte Carlo(MCMC) method.\\
-\\
-\emph{Data Mining} and \emph{Machine Learning} are methods that try to learn patterns from data and tries to generalize it. MDR\cite{mdr_2001} is a type of data mining method and is among the most common methods used in GWAS. See section \ref{data_machine_learning} for more details.\\
-\\
-\emph{Stepwise} methods uses a filtering stage and a search stage. At the filtering stage uninteresting combinations are filtered out by using some exhaustive method. The other SNPs are the examined more carefully in the search stage. BOOST\cite{boost_gene_gene} is an example which uses succinct data structures and a likelihood ratio test to filter the data before applying log-linear models.
+\section{Statistical Background}
+This section will %TODO
 
 \subsection{Confounders and Covariates}
-\emph{Confounding} is one of the central issues in design of epidemiological studies. It is when the effect of the exposure is mixed with the effect of another variable. So if we do not measure the second variable, the effect of the first would be estimated as stronger than it really is. The second variable is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorporated into the models. \emph{Covariates} are possible confounders or other variables that one wants to adjust for in the model. Sometimes covariates are called \emph{control variables}.\cite{rothman2002intro_epidemiology,rothman1998modern}
+\emph{Confounding} is one of the central issues in design of epidemiological studies. It is when the effect of the exposure is mixed with the effect of another variable. So if we do not measure the second variable, the effect of the first would be estimated as stronger than it really is. The second variable is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorporated into the models. \emph{Covariates} are possible confounders or other variables that one wants to adjust for in the model. Sometimes covariates are called \emph{control variables}.\cite{rothman2002intro_epidemiology,rothman2008modern}
 
 \begin{figure}[h]
     \centering
@@ -286,189 +281,21 @@ The odds are non-negative and $\Omega>1$ when the outcome is more likely than no
 
 In the case when the outcome is a disease or similar variables with odds ratio below one are called \emph{protective} and when it is above one it is a \emph{risk factor}\cite{recoding_2011}.
 
-\subsection{Logistic Regression}
-One way to model the contingency tables is by using \emph{logistic regression}. Logistic regression is a type of linear regression model for classification that models a latent probability for the outcomes. The outcomes are binary, however the method can be extended to multiple outcomes. In this work we will only consider them as binary. Logistic regression transforms the probability by using the \emph{logit} transformation. The logit transformation with probability $\pi$ is \cite{agresti_categorical}
-
-\begin{equation}\label{eq:logit}
-\log(\frac{\pi}{1-\pi})
-\end{equation}
-
-The probability with a set of predictor variables \emph{X} is $\pi(X)=P(Y=1)$. The linear regression model with n predictors $X=(x_1,x_2,....,x_n)$, coefficients $\beta=(\beta_1, \beta_2,....,\beta_n)$ and by using the logit transformation is then\cite{agresti_categorical}
-\begin{equation}\label{eq:logit_lr}
-logit[\pi(X)]=\alpha+\beta X
-\end{equation}
-
-By moving the logit to the right side of the equation we get the model of the probability\cite{agresti_categorical}
-\begin{equation}
-\pi(X)=\frac{e^{\alpha+\beta X}}{1+e^{\alpha+\beta X}}
-\end{equation}
-
-The logit, equation \ref{eq:logit}, also happens to be the log of the odds(equation \ref{eq:odds})\cite{agresti_categorical}. By exponentiating both sides of equation \ref{eq:logit_lr} it shows that the odds is \cite{agresti_categorical}
-
-\begin{equation}
-e^{logit[\pi(X)]}=\frac{\pi(X)}{1-\pi(X)}=e^{\alpha+\beta X}=\Omega
-\end{equation}
-
-This means that $\exp{\beta}$ is the odds ratio since the odds increase by $\exp{\beta}$ for each unit increase of $X$\cite{agresti_categorical}. It can also been seen by taking the ratio of the odds using equation \ref{eq:odds_ratio} and  with $X=x+1$ and $X=x$
-
-\begin{equation}
-\theta=\frac{e^{\alpha+\beta (x+1)}}{e^{\alpha+\beta x}}=e^{\alpha+\beta (x+1)-\alpha-\beta x}=e^{\beta}
-\end{equation}
-
-Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models \cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. The pseudo code for the algorithm using Newtons method can be found in algorithm \ref{alg:lr} \cite{uvehag_master_thesis}. * is elemet by element multiplication. $X$ is an $NxM$ matrix that contains the variables, $Y$ is the outcomes with length $N$.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=10cm]{logit.png}
-    \caption{Graph of the logit transformation. Wikipedia Commons}
-    \label{fig:logit}
-\end{figure}
-
-\stepcounter{algorithmCode}
-\begin{algorithm}
-\begin{algorithmic}
-\State $\boldsymbol{X}\gets
-\begin{pmatrix}
-\begin{matrix}
-  1\\
-  \vdots\\
-  1
-\end{matrix} & \boldsymbol{X}
-\end{pmatrix}
-$
-
-\State $\beta\gets
-\begin{pmatrix}
-  0\\
-  \beta
-\end{pmatrix}
-$
-
-\State $iter\gets 0$
-\State $diff\gets 1$
-\\
-\While{$iter < max\_iter \; \boldsymbol{and} \; diff > threshold$}
-\State $\beta_{old}\gets\beta$
-\State $p\gets \frac{e^{\boldsymbol{X} \cdot \beta}}{1+e^{\boldsymbol{X} \cdot \beta}}$
-\State $s\gets \boldsymbol{X^T}\cdot (\boldsymbol{Y}-p)$
-\State $\boldsymbol{J}\gets (\boldsymbol{X^T}\cdot (p*(1-p)))\cdot \boldsymbol{X}$
-\State $\beta\gets \beta_{old}+\boldsymbol{J}^{-1} \cdot s$
-\State $diff\gets \sum |\beta-\beta_{old}|$
-\State $iter\gets iter+1$
-\EndWhile
-\State $log \; likelihood\gets \sum (\boldsymbol{Y}*ln p+(1-\boldsymbol{Y})*ln(1-p))$
-\end{algorithmic}
-  \caption{Logistic regression using maximum likelihood and Newtons method}
-  \label{alg:lr}
-\end{algorithm}
-
-\newpage
-$ $
-\newpage
-\subsubsection{Mathematical Definition of Interaction for LR}
-\label{additive}
-Interaction was talked about in section \ref{interaction}. The more precise definition of additive interaction is, the divergence from additive effects on a logarithmic scale, e.g\cite{rothman1998modern}.
-
-\begin{equation}
-OR_{both\:factors\:present}>OR_{first\:factor\:present}+OR_{second\:factor\:present}-1
-\end{equation}
-
-To get these specific ORs the variables are coded in the model according to table \ref{table:coding}\cite{uvehag_master_thesis}.
-
-\begin{table}[h]
-\begin{tabular}{| l | c c c|}
-  \hline
-  Factor present & First variable & Second variable & Interaction \\
-  \hline
-  None & 0 & 0 & 0 \\
-  \hline 
-  First & 1 & 0 & 0 \\
-  \hline
-  Second & 0 & 1 & 0 \\
-  \hline
-  Both & 0 & 0 & 1 \\
-  \hline
-\end{tabular}
-\caption{Coding of the variables for LR}
-\label{table:coding}
-\end{table}
-
-%math stuff for add
-
-%However there is a problem when both variables are non binary. Because LR models how the risk increases for each increase in the variable the interaction variable should preferably be in increased order of risk. However without doing extensive testing for the possible combinations it is not possible to know the order. It is easy in the binary case because the interaction only has two levels, both present or not. For an example take two variables with 3 levels, 0,1,2. For a single variable it is easy to assume that 2 is worse than 1. The problem with interaction occurs here because it is hard to know if 1,2 is worse than 2,1. In the case of continues variables it gets worse because scale starts to matter more.
-
-%However in gene-environment interaction the SNP variable is binary unless co-dominant model is used. This means that the coding isn't a problem for non binary environmental variables.
-
-
-%Extending to non binary.
-
-%OR>1 because recoding, see section \ref{recode}
-
-%\begin{equation}
-%OR_{both\:factors\:present}^x>OR_{first\:factor\:present}+OR_{second\:factor\:present}^x-1
-%\end{equation}
-%Where x is the number of steps from the base level.
-
-%This means that the interaction depends on the level of the factor. There are four cases
-
-%Using $\beta_{snp}$
-%$\beta_{environment}$
-%$\beta_{interaction}$
-
-%\begin{table}[h]
-%\begin{tabular}{| l | l | l |}
-%  \hline
-%  Case & Additive Interaction present, binary factor & Additive interaction present, non binary factor\\
-%  \hline
-%  $\beta_{interaction}>\beta_{snp} \; \beta_{interaction}>\beta_{environment}$ & Yes & Yes\\
-%  $\beta_{interaction}<\beta_{snp} \; \beta_{interaction}<\beta_{environment}$ & No & No\\
-%  $\beta_{interaction}>\beta_{snp} \; \beta_{interaction}<\beta_{environment}$ & No & For some x\\
-%  $\beta_{interaction}<\beta_{snp} \; \beta_{interaction}>\beta_{environment}$ & No & For some x\\
-%  \hline  
-%\end{tabular}
-%\caption{Additive interaction cases for non binary environmental factor}
-%\label{table:additive_interaction}
-%\end{table}
-
-%Can also be written as
-
-%\begin{equation}
-%OR_{both\:factors\:present}^x-OR_{second\:factor\:present}^x>OR_{first\:factor\:present}-1
-%\end{equation}
-
-%In case 3 it is monotone increasing
-
-%In case 4 it is monotone decreasing
-
-%TODO make some plots of it
-
-%Which means both pass 0 at one point.(Unless all equal 1 which means all 0)
-
-%That point can be found by solving
-
-%\begin{equation}
-%OR_{both\:factors\:present}^x-OR_{second\:factor\:present}^x=+OR_{first\:factor\:present}-1
-%\end{equation}
-
-%Case 3 has interaction for x>the point
-%Case 4 has interaction for x<the point
-
-%Depending on where the point is interaction might not be relevant, e.g. needs to smoke a million cigarettes a day and case 3. Or disappears to fast, eg 1 cigarette a year case 4.
-
 \subsubsection{Statistic Measures for interaction}
-Based on the model and its corresponding ORs there are some measures that can be calculated. These measures show various properties of the additive interaction. They are defined using $RR$ however as mentioned before in section \ref{rr_or} $OR$ can be used to approximate $RR$.\\
+%TODO inte helt korrekt? eftersom baseras på additive interaction så kan inte placeras här? interaction ej definerad än
+Based on the statistcal model and its corresponding ORs there are some measures that can be calculated. These measures show various properties of the additive interaction. They are defined using $RR$ however as mentioned before in section \ref{rr_or} $OR$ can be used to approximate $RR$.\\
 \\
-\emph{Relative  excess risk due to interaction}(RERI) is how much of the risk is due to interaction\cite{recoding_2011}. It is defined as\cite{recoding_2011}
+\emph{Relative  excess risk due to interaction}(RERI) is how much of the risk is due to interaction\cite{rothman2008modern, recoding_2011}. It is defined as\cite{rothman2008modern, recoding_2011}
 \begin{equation}
 RERI=RR_{11}-RR_{10}-RR_{01}+1
 \end{equation}
 
-\emph{Attributable proportion due to interaction}(AP) is similar to RERI however is the proportion relative to the interaction relative risk\cite{recoding_2011}.
+\emph{Attributable proportion due to interaction}(AP) is similar to RERI however is the proportion relative to the interaction relative risk\cite{rothman2008modern, recoding_2011}.
 \begin{equation}
 AP=\frac{RERI}{RR_{11}}=\frac{1}{RR_{11}}-\frac{RR_{10}}{RR_{11}}-\frac{RR_{01}}{RR_{11}}+1
 \end{equation}
 
-\emph{Synergy index}(SI) is the ratio of the combined effects and the individual effects\cite{recoding_2011}.
+\emph{Synergy index}(SI) is the ratio of the combined effects and the individual effects\cite{rothman2008modern, recoding_2011}.
 \begin{equation}
 \frac{RR_{11}-1}{RR_{10}+RR_{01}-2}
 \end{equation}
@@ -478,92 +305,31 @@ By using the definition of additive interaction it can be shown that additive in
 \newpage
 \subsubsection{Recoding of Protective Effects}
 \label{recode}
-%TODO
-The measures for additive interaction RERI, AP and SI mentioned above are developed for risk factors, i.e. $OR>1$, which causes problems if a factor is protective\cite{recoding_2011}. This can be solved by \emph{recoding}, recoding makes sure that no $OR$ is below one\cite{recoding_2011}. Recoding switches the reference group and the group with the lowest risk\cite{recoding_2011}. Denoting the different groups with $(s,e)$ where $s$ is the presence of the risk of the SNP variable and $e$ is the presence of the environmental variable. The reference group is $(0,0)$ and there are three other groups $(1,0)$,$(0,1)$ and $(1,1)$. This means that there are three cases of recoding, one for each group. To recode a group is to transform the variable so that it is changed from protective to risk.
-
-%\cite{recoding_2011} shows it for the binary environmental variable. However 
-
-%Since the odds is an monotone function, switching lowest risk with highest means inverting the interval of the variable, e.g. minimum becomes maximum, maximum becomes minimum.
-
-\subsection{Data Mining and Machine Learning Approaches}
-\label{data_machine_learning}
-Approaches based on Data Mining and Machine Learning have been a popular choice for GWAS. MDR\cite{mdr_2001} and Random Forest(RF)\cite{random_forest} are among the most common ones\cite{gene_enviroment_2013,cordell_detect_review}. There are other methods as well such as clustering approaches \cite{fast_high_order_cluster}. Most of them are used for screening the data for possible interactions\cite{gene_enviroment_2013,cordell_detect_review}.\\
-\\
-Their biggest advantage is that they are usually non-parametric and designed with high dimensional data in mind. However they are prone to overfitting and the usual way to try to prevent that is to use cross validation and sometimes permutation tests. It means that even if the method itself is fast it is repeated so many times that the whole algorithm can be slow in the end.\cite{cordell_detect_review}
-
-\subsubsection{Multifactor-Dimensionality Reduction}
-MDR is a method that reduces the number of dimensions(i.e. variable) by combining several dimensions into one. In GWAS it combines the variables that are suspected to interact. This new variable is then compared against the outcome. If the new variables predictability of the outcome is high enough then the variables that were combined are considered to interact. This process is usually repeated on all pair combinations of variables.\\
-\\
-The reduction from $n$ dimensions is done by calculating the ratio of cases versus controls for each combination of the possible values of the variables. If the ratio is above a certain threshold all the members of that groups get the value 1 for the new dimension, otherwise 0. Accuracy of the model is done by using cross validation and permutation tests, in simpler words it means that it reshuffles the data randomly and recalculates the model many times to get an estimate of the models certainty. Because of that MDR can be slow. However it is still usually faster than exhaustive search with regression methods.\cite{cordell_detect_review,mdr_2001}\\
-\\
-MDR can been used for gene-environment interaction but requires modifications since MDR can only handle binary variables. There are extensions that can use continues variables, however these are regression based so these will be slower than regular MDR.\cite{gene_enviroment_2013}\\
-\\
-A simple example of MDR using exclusive or (XOR). XOR is an logical operator that is true if one and only one of its two variables is true. We have 4 possible combinations and an occurrence for each of them, see table \ref{table:xor_table}. The combination (1,0) and (0,1) both have one case with outcome 1 so MDR will classify them as 1 in the new variable Z, the other two combinations have outcome 0 so will be classified with Z=0, see table \ref{table:xor_mdr_table}. From here it is easy to make an predictor from Z to the outcome Y by comparing the values.
+The measures for additive interaction RERI, AP and SI explained in the previous section are developed for risk factors, i.e. $OR>1$, which causes problems if a factor is protective\cite{recoding_2011}. This can be solved by \emph{recoding}, it switches the group of individuals without both factors, i.e. the \emph{reference group}, with the group that has the lowest  $OR$\cite{recoding_2011}. There are three possible combinations of the factors excluding the reference group shown in table \ref{table:recoding_cases}. Switching a group changes the level of the factors for all in individuals in the group to the reference groups level, and switches the individuals in the reference group with the groups level.
 
 \begin{table}[h]
-\begin{tabular}{ | c | c | c | }
+\begin{tabular}{| l l l |}
   \hline
-  \textbf{Y} & $\mathbf{X_1}$ & $\mathbf{X_2}$ \\
+  Genetic factor & Environment factor & Recoding case\\
   \hline
-  1 & 1 & 0 \\
-  \hline 
+  0 & 0 & N/A \\
   1 & 0 & 1 \\
-  \hline
-  0 & 0 & 0 \\
-  \hline
-  0 & 1 & 1 \\
+  0 & 1 & 2 \\
+  1 & 1 & 3 \\
   \hline
 \end{tabular}
-\caption{XOR table with outcome $\mathbf{Y}$ and variables $\mathbf{X_1}$ and $\mathbf{X_2}$.}
-\label{table:xor_table}
+\caption{Cases of recoding}
+\label{table:recoding_cases}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{ | c | c | }
-  \hline
-  \textbf{Y} & \textbf{Z} \\
-  \hline
-  1 & 1 \\
-  \hline
-  1 & 1 \\
-  \hline
-  0 & 0 \\
-  \hline
-  0 & 0 \\
-  \hline
-\end{tabular}
-\caption{XOR table with $\mathbf{X_1}$ and $\mathbf{X_2}$ combined into $\mathbf{Z}$ using MDR.}
-\label{table:xor_mdr_table}
-\end{table}
+\section{Computer Architecture Background}
+This section explains some of the computer architectures used to perform tasks in a thesis. A large part of this chapter is focused on the optimization techniques that are in use. For the purpose of this thesis it is best to think of the computer consisting of four main parts, the processor, the data storage, the memory and the accelerator.
 
-\subsubsection{Random Forest}
-RF is an ensemble learning method\cite{random_forest}. Ensemble methods combine multiple models to improve performance. RF takes randomized samples of the data and builds decision trees on each of them. These trees are then combined to form the classifier. Usually hundreds or thousands of trees are used depending on the problem\cite{random_forest}. One of the most popular variants of Random Forest for GWAS is Random Jungle\cite{random_jungle}.\\
+\subsection{Central Processing Unit}
+Central processing unit(CPU) is the part of the computer that executes instructions one by one in its core\cite{introduction_hpc_hager}.%TODO what is core
+Most modern CPUs have multi-core architecture\cite{introduction_hpc_hager}. Each core can perform tasks independent of each other.
 \\
-It has been shown in high dimensional data that RF tends to only rank interacting factors high if they have strong marginal effects\cite{winham_rf_2012}. Also the ranking of the variables does not indicate which factor it is interacting with either since it is based on the joint distributions\cite{gene_enviroment_2013}. How to incorporate the environmental factors in RF is also not obvious and using variables with very different scales can bias RFs results\cite{gene_enviroment_2013}.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=7cm]{Decision_Tree.png}
-    \caption{A example of a decision tree}
-    \label{fig:DecisionTree}
-\end{figure}
-
-\clearpage
-\section{Computer Architecture}
-This section will explain some of the architectures used to perform tasks in a computer. A large part is focused on optimization techniques that are in used today. For the purpose of this thesis it is easiest to think about the computer as three main parts, data storage(e.g. the disk), processor and the memory. Sometimes there is also an accelerator, for instance a graphic processor, which will be explained in section \ref{gpu}.
-%Most computers today are based on the \emph{Von Neumann architecture}. It was first used in EDVAC in the late 1940s, it was one of the first stored program %computers\cite{von1993first}. Stored program computers uses electronic memory to store the program instructions\cite{computer_arch_2003}.
-
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=7cm]{Von_Neumann_architecture.png}
-%    \caption{Schematic of the Von Neumann architecture. Wikipedia Commons}
-%    \label{fig:VonNeumann}
-%\end{figure}
-
-\subsection{CPU}
-Central processing unit(CPU) is the part of the computer that performs most of the tasks\cite{introduction_hpc_hager}. It executes instructions one by one in its core. Most modern CPUs have multi-core architecture. These CPUs have multiple cores\cite{introduction_hpc_hager}. Each core can perform tasks independent of each other so the programs needs to be parallel to get maximum speed. Parallel means that the program issues multiple instructions at the same time, more about this in section \ref{concurrency}.\\
-\\
-The figures \ref{fig:cpu_scheme} and \ref{fig:core_die} shows how the CPU is divided into areas and that most of it is not used for calculations. A large part of the area is used for various optimizations. The next section \ref{optimizations} will explain some of these optimizations.
+The figures \ref{fig:cpu_scheme} and \ref{fig:core_die} shows how the CPU is divided into areas and that most of it is not used for calculations. A large part of the area is used for various optimizations.
 
 \begin{figure}[h]
     \centering
@@ -572,74 +338,9 @@ The figures \ref{fig:cpu_scheme} and \ref{fig:core_die} shows how the CPU is div
     \label{fig:cpu_scheme}
 \end{figure}
 
-\newpage
-\subsection{Memory, Caching and Optimizations}
-\label{optimizations}
-Various optimizations have been introduce to the CPUs over the years\cite{drepper2007cpumemory, introduction_hpc_hager}. Some are common and almost all CPUs have them, others are unique to a specific vendor or CPU\cite{introduction_hpc_hager}. In this section some of the more common optimizations will be explained. As shown in figure \ref{fig:core_die} these optimizations take up the most of the cores area, the square in the upper left corner executes the instructions.
+%TODO
+so the programs need to be parallel to get maximum speed. Parallel means that the program issues multiple instructions at the same time, more about this in section \ref{concurrency}.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=8cm]{cpu_core_die.png}
-    \caption{Layout of a CPU core, Intel Nehalem i7, from \cite{tomshardware_nehalem}}
-    \label{fig:core_die}
-\end{figure}
-
-Retrieving data from memory is relatively slow compared to how fast the processor works\cite{introduction_hpc_hager,drepper2007cpumemory}. %TODO something about the  maginitude
-To solve this problem a \emph{cache} was introduced\cite{drepper2007cpumemory}. It stores recently used data in a very small and very fast memory that resides on the CPU chip itself\cite{drepper2007cpumemory}. The caches varies in sizes, the latest ones are around 16-20mb, for instance Intels i7-5960x with 20mb \cite{intel_haswell_2014_5960x}. The cached data can then be reused fast without waiting for the main memory to fetch it. However when the data is not in the cache it takes the usual speed to fetch it from the main memory, that is a \emph{cache miss}\cite{drepper2007cpumemory}. Avoiding cache misses is important for speed because of how much time it can take to fetch the data from the main memory\cite{drepper2007cpumemory}. Modern CPUs commonly have more than one cache, most have three\cite{introduction_hpc_hager}. They are named L1 to L3, with L1 being the one fastest and smallest and L3 the largest and slowest\cite{introduction_hpc_hager}.\\
-\\
-Modern multicore processors several L1 caches, one for each core\cite{introduction_hpc_hager}. It is commonly one L2 per core too, however it is shared in some architectures\cite{introduction_hpc_hager}. L3 is almost always shared between all cores\cite{introduction_hpc_hager}. That multiple caches are used creates a problem called \emph{cache coherency}. It is that when the data is modified in one cache all the cores caches needs to be updated too so that they use the new value\cite{introduction_hpc_hager}.\\
-\\
-Another memory optimization somewhat related to caches is \emph{prefetching}\cite{introduction_hpc_hager, drepper2007cpumemory}. Instead of fetching just the data requested by the current operations it also fetches the surrounding data\cite{drepper2007cpumemory}. The chance that the surrounding data will be used soon is high since it is common to iterate over arrays and similar structures\cite{introduction_hpc_hager}. If a program iterates over an array unless it was used recently the first value will be a cache miss since it is not in the cache. However the following values will be due to them being prefetched and cached. At some point however the array is too long to be prefetched and cached completely and when the CPU hits that spot a new cache miss will happen\cite{drepper2007cpumemory}. Because everything is stored sequentially it is important in some cases to know how the it is stored so that the prefetching and caching can be used. One of these cases is for matrices, they are 2D but stored as one array. Different programming languages store them differently, either column by column or row by row. Row by row is called \emph{row major} and column by column is \emph{column major.}\\ %TODO cite row major and such
-\\
-In section 6.2.1 in What Every Programmer Should Know About Memory\cite{drepper2007cpumemory} an example of how much speed that can be gained by optimizing matrix matrix multiplication. The first version is shown in algorithm \ref{alg:matmatmult}.
-
-\begin{algorithmCode}{Matrix matrix multiplication} {alg:matmatmult}
-for (i = 0; i < N; ++i)
-  for (j = 0; j< N; ++j)
-    for (k = 0;k < N; ++k)
-      res[i][j]+= mul1[i][k] * mul2[k][j];
-\end{algorithmCode}
-
-By transposing the mul2 matrix it becomes more cache friendly because it uses the prefectching of surrounding data the way that mul1 already is\cite{drepper2007cpumemory}. The transpose itself can be eliminated while also making it use the cache better by reading in the correct amount of data, this is the size SM in the code\cite{drepper2007cpumemory}. The optimized version is shown in \ref{alg:matmatmultopt}. It took 17.3\% of the original time\cite{drepper2007cpumemory}.
-
-\begin{algorithmCode}{Matrix matrix multiplication optimized} {alg:matmatmultopt}
-#define SM (CLS / sizeof (double))
-
-for (i = 0; i < N; i += SM)
-  for (j = 0; j < N; j += SM)
-    for (k = 0; k < N; k += SM)
-      for (i2 = 0, rres = &res[i][j], rmul1 = &mul1[i][k]; i2 < SM; ++i2, rres += N, rmul1 += N)
-	for (k2 = 0, rmul2 = &mul2[k][j]; k2 < SM; ++k2, rmul2 += N)
-	  for (j2 = 0; j2 < SM; ++j2)
-	    rres[j2] += rmul1[k2] * rmul2[j2];
-\end{algorithmCode}
-
-On top of that by using some additional features of the the CPU do multiple instructions at once further speed is gained increasing it to 9.47\% of the original time\cite{drepper2007cpumemory}. \\
-\\
-If the operation instructions diverge, e.g. if statements, the CPU would have to wait for the results to see what instructions load and do next\cite{drepper2007cpumemory}. This can mean a significant loss of time, however thanks to a optimization called \emph{branch prediction} and \emph{speculative execution} that can be prevented in some cases\cite{drepper2007cpumemory}. A dedicated part of the CPU stores the results from these diverges and when they are repeated it uses them to make an guess of what do to next\cite{drepper2007cpumemory}. It then loads the instructions and tries to fetch the needed data\cite{drepper2007cpumemory}. It then speculatively executes the instructions, i.e it executes instructions that might not actually be needed\cite{drepper2007cpumemory}. If the guess was correct the results are kept, on the other hand if it was wrong the CPU starts again from the correct path and discards the incorrect results\cite{drepper2007cpumemory}.\\
-\\
-Sometimes there can be several independent instructions, e.g. when adding two vectors together, this allows optimizations for \emph{instruction level parallelism}\cite{introduction_hpc_hager}. The order of the instructions can be ignored which for instance means that if an instruction needs to wait for some data another instruction that has its data available could be executed while waiting\cite{introduction_hpc_hager}. It is an optimization called \emph{out of order execution}\cite{introduction_hpc_hager}. There are also other possible optimizations\cite{introduction_hpc_hager}.
-\\
-In the example \ref{ex:independent_instructions} the instructions are independent because they use different variables so they can be executed in any order. If the variables $b$ and $c$ needs to be fetched but $e$ and $f$ are available due to previous instructions then the CPU could execute the second addition first by using out of order execution. However if an operation later depends on the variable $a$ or $d$ then that instruction would have to wait until the additions have been executed.
-
-\begin{example}{Independent Instructions}{ex:independent_instructions}
-a = b + c;
-d = e + f;
-\end{example}
-
-\emph{Pointer aliasing} can prevent the compiler from making certain optimizations, e.g. out of order execution mentioned above. Pointer aliasing is when the same memory area can be accessed using different variables\cite{introduction_hpc_hager}. This becomes a problem if an set of instructions use these variables in the same area of the program. The relative order of operations between these operations then has to be preserved. The compiler does have the information if aliasing occurs or not which means the compiler has to treat all situations where it can occur as if it does\cite{introduction_hpc_hager}.\\
-\\
-If the integers in example \ref{ex:independent_instructions} are changed to pointers then aliasing can occur because some of these pointers could point to the same memory. For instance if a and e points to the same memory then the result would be wrong if the second line is executed before the first. This would force the instructions to be executed in order or the result would likely be incorrect.
-
-\begin{example}{Pointer Aliasing}{ex:aliasing}
-//All variables are pointers
-*a = *b + *c;
-*d = *e + *f;
-\end{example}
-
-Some programming languages, e.g. Fortran, disallow some types of aliasing while others, e.g. C/C++, allows aliasing\cite{introduction_hpc_hager}. The compilers for the languages in the second case commonly have an option to disable aliasing. However for languages that don't allow aliasing, or if it is disabled, it is then the programmers responsibility to make sure that aliasing does not occur or the results can be wrong\cite{introduction_hpc_hager}.
-
-\newpage
 \subsection{Concurrency and Threads}
 \label{concurrency}
 \emph{Concurrency} means doing multiple things and the same time, instead of \emph{sequential}. This can cause various problems such as the same object being accessed at the same time. The dinning philosophers is an concurrency problem that can used to illustrate some of these problems. A group of philosophers is sitting at a round table, each has a plate of spaghetti in front of them and there is a fork between each pair of philosophers\cite{hoare1985communicating}. The philosophers alternate between thinking and eating. However they can only eat if they have both the right and left fork\cite{hoare1985communicating}.
@@ -703,6 +404,77 @@ In computer science concurrency occurs when instructions are separated in differ
 \end{figure}
 
 \newpage
+\subsection{Memory, Caching and Optimizations}
+\label{optimizations}
+Various optimizations have been introduce to the CPUs over the years\cite{drepper2007cpumemory, introduction_hpc_hager}. Some are common and almost all CPUs have them, others are unique to a specific vendor or CPU\cite{introduction_hpc_hager}. Figure \ref{fig:core_die} show the layout of a CPU core. This section explains some of the more common optimizations.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=8cm]{cpu_core_die.png}
+    \caption{Layout of a CPU core, Intel Nehalem i7, from \cite{tomshardware_nehalem}}
+    \label{fig:core_die}
+\end{figure}
+
+In general retrieving data from memory is relatively slow compared to how fast the processor works\cite{introduction_hpc_hager,drepper2007cpumemory}. %TODO something about the  maginitude
+To solve this problem a \emph{cache} was introduced\cite{drepper2007cpumemory}. It stores recently used data in a very small and very fast memory that resides on the CPU chip itself\cite{drepper2007cpumemory}. The caches varies in sizes, the latest ones are around 16-20 mB, for instance Intels i7-5960x with 20 mB \cite{intel_haswell_2014_5960x}. The cached data can then be reused without waiting for the main memory to fetch it. However when the data is not in the cache it costs time to fetch it from the main memory, that is a \emph{cache miss}\cite{drepper2007cpumemory}. Avoiding cache misses is important for the speed up\cite{drepper2007cpumemory}. Modern CPUs commonly have more than one cache, most have three\cite{introduction_hpc_hager}. They are named L1 to L3, with L1 being the one fastest and smallest and L3 the largest and slowest\cite{introduction_hpc_hager}.\\
+\\
+Modern multi-core processors have several L1 caches, one per core\cite{introduction_hpc_hager}. Commonly each core has a L2 cache as well, however it can be shared in some architectures\cite{introduction_hpc_hager}. The L3 cache is almost always shared between all cores\cite{introduction_hpc_hager}. The multiple caches used causes a problem called \emph{cache coherency}. It is when the data modified in one cache needs to be updated in all the caches in order for them to use the new value\cite{introduction_hpc_hager}.\\
+\\
+One of the memory optimization methods somewhat related to caches is \emph{prefetching}\cite{introduction_hpc_hager, drepper2007cpumemory}. Instead of fetching just the data requested by the current operations it also fetches the surrounding data\cite{drepper2007cpumemory}. Even if the data is not needed at the given point in time, the chance that the surrounding data will be used soon is high since it is common to iterate over arrays and similar structures\cite{introduction_hpc_hager}.\\
+\\
+When a program iterates over an array the first value is a cache miss since it is not in the cache. The following values are prefected and cached as well. However if the array is too long to be prefetched and cached completely and the CPU hits a position not in the cache then a new cache miss happens\cite{drepper2007cpumemory}. Usually matrices are stored sequential in memory\cite{drepper2007cpumemory}. For instance a two dimensional matrix is stored as a one dimensional array. Different programming languages store them differently, either column by column or row by row\cite{drepper2007cpumemory}. Row by row is called \emph{row major} and column by column is \emph{column major.}\\
+\\
+Below is an example of how prefectching can have an large impact on performance. 
+
+In section 6.2.1 in What Every Programmer Should Know About Memory\cite{drepper2007cpumemory} an example of how much speed that can be gained by optimizing matrix matrix multiplication. The simple version of it is shown in algorithm \ref{alg:matmatmult} and the version with prefectching is shown in \ref{alg:matmatmultopt}
+
+\begin{algorithmCode}{Matrix matrix multiplication} {alg:matmatmult}
+for (i = 0; i < N; ++i)
+  for (j = 0; j< N; ++j)
+    for (k = 0;k < N; ++k)
+      res[i][j]+= mul1[i][k] * mul2[k][j];
+\end{algorithmCode}
+%TODO describe variables and things here under algorithm
+
+By transposing the mul2 matrix it becomes more cache friendly by using prefectching of surrounding data the way that mul1 already is\cite{drepper2007cpumemory}. The transpose itself can be eliminated while also making it use the cache better by reading in the correct amount of data, this is the size SM in the code\cite{drepper2007cpumemory}. The optimized version is shown in \ref{alg:matmatmultopt}. It took 17.3\% of the original time\cite{drepper2007cpumemory}.
+
+\begin{algorithmCode}{Matrix matrix multiplication optimized} {alg:matmatmultopt}
+#define SM (CLS / sizeof (double))
+
+for (i = 0; i < N; i += SM)
+  for (j = 0; j < N; j += SM)
+    for (k = 0; k < N; k += SM)
+      for (i2 = 0, rres = &res[i][j], rmul1 = &mul1[i][k]; i2 < SM; ++i2, rres += N, rmul1 += N)
+	for (k2 = 0, rmul2 = &mul2[k][j]; k2 < SM; ++k2, rmul2 += N)
+	  for (j2 = 0; j2 < SM; ++j2)
+	    rres[j2] += rmul1[k2] * rmul2[j2];
+\end{algorithmCode}
+
+On top of that by using some additional features of the CPU such as doing multiple instructions at once more speed up is gained increasing it to 9.47\% of the original time\cite{drepper2007cpumemory}. \\
+\\
+If the operation instructions diverge, e.g. the \emph{if} statements, the CPU would have to wait for the results to see what instructions load and do next\cite{drepper2007cpumemory}. This can mean a significant loss of time, however because of an optimizations called \emph{branch prediction} and \emph{speculative execution} the loss of time can be prevented in some cases\cite{drepper2007cpumemory}. A dedicated part of the CPU stores the results from these divergences and when they are encountered again it uses them to make a guess of what do to next\cite{drepper2007cpumemory}. It then loads the instructions and tries to fetch the needed data\cite{drepper2007cpumemory}. The CPU then speculatively executes the instructions, i.e it executes instructions that might not actually be needed\cite{drepper2007cpumemory}. If the guess was correct the results are kept, on the other hand if it was wrong the CPU starts again from the correct path and discards the incorrect results\cite{drepper2007cpumemory}.\\
+\\
+Sometimes there can be several independent instructions, e.g. when adding two vectors together, this allows optimizations for \emph{instruction level parallelism}\cite{introduction_hpc_hager}. The order of the instructions can be ignored which for instance means that if an instruction needs to wait for some data another instruction that has its data available could be executed while waiting\cite{introduction_hpc_hager}. It is an optimization called \emph{out of order execution}\cite{introduction_hpc_hager}. There are also other possible optimizations\cite{introduction_hpc_hager}.
+\\
+In the example \ref{ex:independent_instructions} the instructions are independent because they use different variables so they can be executed in any order. If the variables $b$ and $c$ needs to be fetched but $e$ and $f$ are available due to previous instructions then the CPU could execute the second addition first by using out of order execution. However if an operation later depends on the variable $a$ or $d$ then that instruction would have to wait until the additions have been executed.
+
+\begin{example}{Independent Instructions}{ex:independent_instructions}
+a = b + c;
+d = e + f;
+\end{example}
+
+\emph{Pointer aliasing} can prevent the compiler from making certain optimizations, e.g. out of order execution mentioned above. Pointer aliasing is when the same memory area can be accessed using different variables\cite{introduction_hpc_hager}. This becomes a problem if an set of instructions use these variables in the same area of the program. The relative order of operations between these operations then has to be preserved. The compiler does have the information if aliasing occurs or not which means the compiler has to treat all situations where it can occur as if it does\cite{introduction_hpc_hager}.\\
+\\
+If the integers in example \ref{ex:independent_instructions} are changed to pointers then aliasing can occur because some of these pointers could point to the same memory. For instance if a and e points to the same memory then the result would be wrong if the second line is executed before the first. This would force the instructions to be executed in order or the result would likely be incorrect.
+
+\begin{example}{Pointer Aliasing}{ex:aliasing}
+//All variables are pointers %TODO move to below as comment
+*a = *b + *c;
+*d = *e + *f;
+\end{example}
+
+Some programming languages, e.g. Fortran, disallow some types of aliasing while others, e.g. C/C++, allows aliasing\cite{introduction_hpc_hager}. The compilers for the languages in the second case commonly have an option to disable aliasing. However for languages that don't allow aliasing, or if it is disabled, it is then the programmers responsibility to make sure that aliasing does not occur or the results can be wrong\cite{introduction_hpc_hager}.
+
 \subsection{Accelerators, GPUs and Xeon Phi}
 \label{gpu}
 Accelerators are separate parts made to do one task and do it well. They are usually highly specialised and perform badly outside of the tasks they were designed for. The two accelerators explained here is graphical processing unit(GPU) and Intel Xeon Phi\cite{cuda, jeffers2013intel}. GPUs have mostly been used for games and other graphics related problems however have become more popular for general computing the last 10 years due to their high number of cores\cite{cuda}.  Intel Mic is much more recent with prototypes in 2010 and the first generation released in 2010\cite{jeffers2013intel}. It is Intels response to the GPUs and has elements of both GPU and CPU\cite{jeffers2013intel}. This section will focus on explaining some parts of the architecture of the GPUs and Xeon Phi. How to use the GPUs are talked about in more detail in section \ref{cuda_programming_model}.
@@ -743,6 +515,9 @@ So what suits best needs to be looked at using a case by case basis by examining
 %Why GPU for GWAS
 GPUs are good for interaction algorithms because most methods consider each combination independently and also in this case that LR consists of linear algebra operations. A new combination can be transferred while another is calculated. Linear algebra with sufficiently large matrices and vectors work very well on GPUs\cite{cublas, cuda}. Several studies got high gains from implementing their algorithms on GPU\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}. However most studies had CPU versions that were not parallel so it is likely that the gains would have been less if they would have been compared to an optimized and parallel CPU version, especially if a Xeon Phi co-processor was used. One study did make a comparison of a CPU cluster version and a GPU version of their algorithm, they found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.
 
+\subsection{Data Storage}
+%TODO
+
 \subsection{Clusters}
 \label{clusers}
 
@@ -755,89 +530,21 @@ GPUs are good for interaction algorithms because most methods consider each comb
 
 Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communicate over a shared network but have separate memory and processors. Storage is usually shared. A computer in a cluster is called a \emph{node}. \cite{intro_hpc, introduction_hpc_hager}
 
-various programming models, shared memory and so on
-shared memory, cache coherrency and stuff
+%various programming models, shared memory and so on
+%shared memory, cache coherrency and stuff
 
-mpi is commonly used for clusters\cite{introduction_hpc_hager}
+%mpi is commonly used for clusters\cite{introduction_hpc_hager}
 
-top 500\cite{TOP500}
+%top 500\cite{TOP500}
 
-Few clusters used GPUs before 2009 but now mix of GPUs and CPUs are common among the top clusters. It was driven largely by demand for power saving while still giving high performance. The GPUs can do the heavy computation while other parts are used on CPU. \cite{introduction_hpc_hager}
-Something about Intel MIC
+%Few clusters used GPUs before 2009 but now mix of GPUs and CPUs are common among the top clusters. It was driven largely by demand for power saving while still giving high performance. The GPUs can do the heavy computation while other parts are used on CPU. \cite{introduction_hpc_hager}
+%Something about Intel MIC
 
-Flops is not everything, bad performance compare to theoretical maximum
-Stuck in network, hard drives, etc. Latency
-Very few programs scale to the fastest clusters, peta scale.
+%Flops is not everything, bad performance compare to theoretical maximum
+%Stuck in network, hard drives, etc. Latency
+%Very few programs scale to the largest clusters
 
-Tianhe 2 is current top. Theoretical performance 54.9 PetaFlops.\cite{TOP500}
-Max achived with LinPack 33 PetaFlops
-60\% efficiency
-
-Linpack not everything
-
-\cite{introduction_hpc_hager}
-
-\clearpage
-\section{Performance Measures}
-An important part in making fast and efficient programs is to know how fast the program is under certain conditions and which parts of the program are slow\cite{introduction_hpc_hager}. For instance the speed could suddenly drop when we start using too many threads, there might be a bottleneck in the network, and so on.\\
-\\
-There are two ways to measure how long a program takes to execute\cite{introduction_hpc_hager}. Wall clock time is how long real life time the program took. The other is to measure the number of processor cycles spent. A parallel program will have shorter execution time than it is serial version however it will likely have spent more processor cycles due to overhead from communication and initialization of the threads. These two measures are useful for different kinds of comparisons. Wall clock time is better for overall performance while number of cycles is useful for comparing different algorithms\cite{introduction_hpc_hager, cuda_best_practice}.\\
-\\
-Speed up is a measure of how much faster then program is with a certain number of threads compared to the serial version. It's defined as\cite{introduction_hpc_hager}
-$$S(p)=\frac{T(1)}{T(p)}$$
-Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speed up is when S(p)=p\cite{introduction_hpc_hager}.\\
-\\
-Efficiency reflects how efficient the program is using p threads. Linear speed has efficiency 1. It's defined as\cite{introduction_hpc_hager}
-$$E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}$$
-\\
-Strong scaling refers to how the program handles a fixed problem size and increased number of processors\cite{introduction_hpc_hager}. An program with strong scaling has linear speed up\cite{introduction_hpc_hager}. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased\cite{introduction_hpc_hager, cuda_best_practice}.\\
-\\
-It can be a good idea to plot these measures while varying p, this can show when a bottleneck occurs. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication over the network affects the performance.
-
-\newpage
-\subsection{Amdahl's Law and Gustafson's Law}
-Amdahl's Law is used to find the expected speed up of a system when parts of it are made concurrent. Simply it says that as the number of processors increases the parts that aren't parallel will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts\cite{introduction_hpc_hager}. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
-\\
-It says that the expected speed up with F fraction of the code parallel and p threads is\cite{introduction_hpc_hager} 
-$$S(p)=\frac{1}{(1-F)+\frac{F}{p}(1-F)}$$
-As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F}$. If we have 90\% of a code parallel then even with infinite number of threads we won't get a better speed up than ten.\cite{2010_reevaluating_amdahl}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=11cm]{AmdahlsLaw.png}
-    \caption{Illustration of Amdahl's Law. Wikipedia Commons}
-    \label{fig:AmdahlsLaw}
-\end{figure}
-
-There are limitation to Amdahl's Law since it makes a couple of assumptions.
-
-\begin{itemize}
-  \item The number of executing threads remain constant over the course of the program.
-  \item The parallel portion has perfect speed up. Often not true due to shared resources,eg caches, memory bandwidth, and shared data.
-  \item The parallel portion has infinite scaling, not true due to similar limits as above. More threads will not increase performance after a while or might even decrease it.
-  \item There is no overhead for creation and destruction of threads.
-  \item The length of the serial portion is independent of the number of threads. Often the serial work is to divided the work to the threads, this work will obviously increase as the number of threads go up. More threads can also lead to more communication overhead.
-  \item The serial portion can't be overlapped by the parallel parts. For instance with producer consumer type pattern the consumer could be strictly serial but the time it takes could be overlapped by the parallel producers.
-\end{itemize}
-
-This means it is most accurate with programs that are of the fork-join type, e.g. both serial and parallel parts\cite{gustafson1988reevaluating}.\\
-\\
-Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law\cite{gustafson1988reevaluating}. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, e.g. increased precision by reducing grid size for simulations, higher frame rate for graphics and so on\cite{gustafson1988reevaluating, introduction_hpc_hager}. The second is that the parallel portion of the program tends to expand faster than the serial part, e.g. for matrix multiplication the initialization scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$\cite{gustafson1988reevaluating, introduction_hpc_hager}. The former means that it is closely related to weak scaling\cite{introduction_hpc_hager}. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speed up with p threads and F fraction of the code that is parallel is\cite{gustafson1988reevaluating, cuda_best_practice, introduction_hpc_hager}
-$$S(p)=p+(1-F)(1-p)$$
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=13cm]{GustafsonsLaw.png}
-    \caption{Illustration of Gustafson's Law}
-    \label{fig:GustafsonsLaw}
-\end{figure}
-
-\subsection{Profilers}
-There are applications called profilers that are made to assess the programs performance and resource consumption. They calculate some of the measures mentioned earlier and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlenecks and other problems in the program. It does not matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products.\cite{introduction_hpc_hager, cuda_best_practice}
-
-%TODO lite om nsight
-
-%TODO screenshot av nsight
+%\cite{introduction_hpc_hager}
 
 \clearpage
 \section{CUDA programming model}
@@ -972,7 +679,7 @@ One of the main criticism against GPUs for general computing purposes is that it
 \end{description}
 
 \clearpage
-\section{Software Design}
+\section{Software Design Background}
 How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software. Badly organized and written code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. Fixing those bugs are likely to time consuming because it can be hard to find where they originated from. All code gather problems overtime, however a well designed system will degenerate significantly slower than one that was designed carelessly. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in. \cite{cleancode2008, design_patterns}\\
 \\
 This is also important in science where others might wish to use the tools or repeat the experiments. A recent study\cite{comp_repro_2013} found that the repeatability in computer science is low. They used the term reproducibility however repeatability is a more fitting term because they didn't try to reproduce the results from scratch, they tried to repeat it using the same code. Of 513 articles they received the code from 231, 108 failed to build, 21 failed to run properly\cite{comp_repro_2013}. The remaing 102 compiled and ran, however they did not check if the results of the program was correct\cite{comp_repro_2013}.\\
@@ -998,7 +705,10 @@ There are ways to design the program and code in such a way that it is easier to
 Dependency injection is one way to implement dependency inversion principle\cite{cleancode2008}. Injection is passing the dependency to the dependent object. This is used instead of allowing the dependent object to construct or find the dependency.
 
 \subsection{Unit Tests and Mocks}
-\emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work.\cite{cleancode2008}\\
+\emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work. \emph{Integration testing} is used to test several units together to find possible errors  
+
+
+\cite{cleancode2008}\\
 \\
 It can be easy to denote test code as less important than the main code but they should be treated as equally important. Tests should also not be an inconvenience to use so they should be easy to run, take reasonable amount of time to complete and not require any outside interpretation whether they failed or not.\cite{cleancode2008}\\
 \\
@@ -1010,17 +720,80 @@ A \emph{design pattern} in software design is a reusable general solution to a c
 \\
 \emph{Consumer producer} is a concurrency pattern for when there are a number of consumers/workers and producers. They share a common queue for products. The producer generates some product and put it into the queue, while the the consumers consume the products. The problem is that the producers should not add to an non empty slot and that each product should only be consumed once.\cite{cleancode2008, design_patterns}
 
-\newpage
 \subsection{Version Control Software}
 Backups for data, code, text and so on is important if something happens. One way to backup text and code projects is to use a version control software and is usually an important tool in developing\cite{git_book}. For this project Git was used and the source code can be found at \url{https://github.com/Berjiz/CuEira}. Version control software allows several developers to share a common \emph{repository} which allows them to work on different parts at the same time, it could even be in the same file\cite{git_book}. However changes at the same place causes \emph{merge conflicts} which usually needs to be solved manually\cite{git_book}. A version control software keeps track of all the changes made so if a part later turns out to be wrong that part can reverted to an older correct version\cite{git_book}. Version control software also have many other features\cite{git_book}.
 
 \clearpage
-\chapter{Algorithm}
+\section{Performance Measures}
+An important part in creating fast and efficient programs is to know how fast the program is under certain conditions and which parts of the program are slow\cite{introduction_hpc_hager}. For instance the speed could suddenly drop when too many threads, there might be a bottleneck in the communication, and so on.\\
+\\
+There are two ways to measure how long a program takes to execute\cite{introduction_hpc_hager}. Wall clock time is how long real life time the program took. The other is to measure the number of processor cycles spent. A parallel program will have shorter execution time than it is serial version however it will likely have spent more processor cycles due to overhead from communication and initialization of the threads. These two measures are useful for different kinds of comparisons. Wall clock time is better for overall performance while number of cycles is useful for comparing different algorithms\cite{introduction_hpc_hager, cuda_best_practice}.\\
+\\
+Speed up is a measure of how much faster then program is with a certain number of threads compared to the serial version. It's defined as\cite{introduction_hpc_hager}
+$$S(p)=\frac{T(1)}{T(p)}$$
+Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speed up is when S(p)=p\cite{introduction_hpc_hager}.\\
+\\
+Efficiency reflects how efficient the program is using p threads. Linear speed has efficiency 1. It's defined as\cite{introduction_hpc_hager}
+$$E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}$$
+\\
+Strong scaling refers to how the program handles a fixed problem size and increased number of processors\cite{introduction_hpc_hager}. An program with strong scaling has linear speed up\cite{introduction_hpc_hager}. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased\cite{introduction_hpc_hager, cuda_best_practice}.\\
+\\
+It can be a good idea to plot these measures while varying p, this can show when a bottleneck occurs. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication over the network affects the performance.
+
+\newpage
+\subsection{Amdahl's Law and Gustafson's Law}
+Amdahl's Law is used to find the expected speed up of a system when parts of it are made concurrent. Simply it says that as the number of processors increases the parts that aren't parallel will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts\cite{introduction_hpc_hager}. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
+\\
+It says that the expected speed up with F fraction of the code parallel and p threads is\cite{introduction_hpc_hager} 
+$$S(p)=\frac{1}{(1-F)+\frac{F}{p}(1-F)}$$
+As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F}$. If we have 90\% of a code parallel then even with infinite number of threads we won't get a better speed up than ten.\cite{2010_reevaluating_amdahl}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=11cm]{AmdahlsLaw.png}
+    \caption{Illustration of Amdahl's Law. Wikipedia Commons}
+    \label{fig:AmdahlsLaw}
+\end{figure}
+
+There are limitation to Amdahl's Law since it makes a couple of assumptions.
+
+\begin{itemize}
+  \item The number of executing threads remain constant over the course of the program.
+  \item The parallel portion has perfect speed up. Often not true due to shared resources,eg caches, memory bandwidth, and shared data.
+  \item The parallel portion has infinite scaling, not true due to similar limits as above. More threads will not increase performance after a while or might even decrease it.
+  \item There is no overhead for creation and destruction of threads.
+  \item The length of the serial portion is independent of the number of threads. Often the serial work is to divided the work to the threads, this work will obviously increase as the number of threads go up. More threads can also lead to more communication overhead.
+  \item The serial portion can't be overlapped by the parallel parts. For instance with producer consumer type pattern the consumer could be strictly serial but the time it takes could be overlapped by the parallel producers.
+\end{itemize}
+
+This means it is most accurate with programs that are of the fork-join type, e.g. both serial and parallel parts\cite{gustafson1988reevaluating}.\\
+\\
+Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law\cite{gustafson1988reevaluating}. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, e.g. increased precision by reducing grid size for simulations, higher frame rate for graphics and so on\cite{gustafson1988reevaluating, introduction_hpc_hager}. The second is that the parallel portion of the program tends to expand faster than the serial part, e.g. for matrix multiplication the initialization scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$\cite{gustafson1988reevaluating, introduction_hpc_hager}. The former means that it is closely related to weak scaling\cite{introduction_hpc_hager}. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speed up with p threads and F fraction of the code that is parallel is\cite{gustafson1988reevaluating, cuda_best_practice, introduction_hpc_hager}
+$$S(p)=p+(1-F)(1-p)$$
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=13cm]{GustafsonsLaw.png}
+    \caption{Illustration of Gustafson's Law}
+    \label{fig:GustafsonsLaw}
+\end{figure}
+
+\subsection{Profilers}
+There are applications called profilers that are made to assess the programs performance and resource consumption. They calculate some of the measures mentioned earlier and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlenecks and other problems in the program. It does not matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products.\cite{introduction_hpc_hager, cuda_best_practice}
+
+%TODO lite om nsight
+
+%TODO screenshot av nsight
+
+%TODO cite nsight
+
+\clearpage
+\chapter{Algorithms and Implementation}
 %Algorithm (up till 20 pages)
 %  - Current state - Basic algorithm, Data structure, memory consumption, parallelization, load balancing and scalability
 %  - And the same for own your implementation
 
-%TODO nÃ¥n typ av intro hÃ¤r
+This section starts with the algorithms and then the implemenations.
 
 %OTHERS
 %problem with exathsutive
@@ -1033,45 +806,230 @@ Backups for data, code, text and so on is important if something happens. One wa
 
 %plink data format
 
-\section{Current algorithm, JEIRA and GEISA}
+\section{Algorithmic Background}
+\label{algorithm_background}
+There are many algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned\cite{gene_enviroment_2013}. One of the challenges of gene-environment interaction is that environmental factors can be of any variable type(i.e. binary, continuous, categorical) which creates problems in various ways\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variables to be binary or have other problems since they weren't designed for environmental interaction\cite{gene_enviroment_2013}.\\
+\\
+Both groups of computers(i.e. clusters) using regular processors\cite{biforce} and graphic processors\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu} have been used for GWAS. Graphic processors for computing have become more popular in the last ten years. They have been a popular choice for some GWAS methods because each combination of variables can commonly be considered independently from the others. More about graphic processors in section \ref{gpu} and why the are good for GWAS in section \ref{gpu_gwas}.\\
+\\
+The methods can be roughly classified into four categories, exhaustive, stochastic, machine learning/data mining and stepwise\cite{fast_high_order_cluster}.\\
+\\
+\emph{Exhaustive search} is the most direct approach, it compares all combinations of the SNPs in the dataset. Exhaustive search methods will not miss a significant combination because it didn't consider that specific combination. However it also means that they can be slow since they will spend time on combinations other methods would skip completely. Multifactor-Dimensionality Reduction(MDR)\cite{mdr_2001} and BOOST\cite{boost_gene_gene} are two examples of this type of algorithm.\\
+\\
+\emph{Stochastic} methods uses random sampling to iterate through the data. BEAM\cite{beam_2007} is one example and it uses Markov Chain Monte Carlo(MCMC) method.\\
+\\
+\emph{Data Mining} and \emph{Machine Learning} are methods that try to learn patterns from data and tries to generalize it. MDR\cite{mdr_2001} is a type of data mining method and is among the most common methods used in GWAS. See section \ref{data_machine_learning} for more details.\\
+\\
+\emph{Stepwise} methods uses a filtering stage and a search stage. At the filtering stage uninteresting combinations are filtered out by using some exhaustive method. The other SNPs are the examined more carefully in the search stage. BOOST\cite{boost_gene_gene} is an example which uses succinct data structures and a likelihood ratio test to filter the data before applying log-linear models.
+
+\subsection{Logistic Regression}
+One way to model the contingency tables is by using \emph{logistic regression}. Logistic regression is a type of linear regression model for classification that models a latent probability for the outcomes. The outcomes are binary, however the method can be extended to multiple outcomes. In this work we will only consider them as binary. Logistic regression transforms the probability by using the \emph{logit} transformation. The logit transformation with probability $\pi$ is \cite{agresti_categorical}
+
+\begin{equation}\label{eq:logit}
+\log(\frac{\pi}{1-\pi})
+\end{equation}
+
+The probability with a set of predictor variables \emph{X} is $\pi(X)=P(Y=1)$. The linear regression model with n predictors $X=(x_1,x_2,....,x_n)$, coefficients $\beta=(\beta_1, \beta_2,....,\beta_n)$ and by using the logit transformation is then\cite{agresti_categorical}
+\begin{equation}\label{eq:logit_lr}
+logit[\pi(X)]=\alpha+\beta X
+\end{equation}
+
+By moving the logit to the right side of the equation we get the model of the probability\cite{agresti_categorical}
+\begin{equation}
+\pi(X)=\frac{e^{\alpha+\beta X}}{1+e^{\alpha+\beta X}}
+\end{equation}
+
+The logit, equation \ref{eq:logit}, also happens to be the log of the odds(equation \ref{eq:odds})\cite{agresti_categorical}. By exponentiating both sides of equation \ref{eq:logit_lr} it shows that the odds is \cite{agresti_categorical}
+
+\begin{equation}
+e^{logit[\pi(X)]}=\frac{\pi(X)}{1-\pi(X)}=e^{\alpha+\beta X}=\Omega
+\end{equation}
+
+This means that $\exp{\beta}$ is the odds ratio since the odds increase by $\exp{\beta}$ for each unit increase of $X$\cite{agresti_categorical}. It can also been seen by taking the ratio of the odds using equation \ref{eq:odds_ratio} and  with $X=x+1$ and $X=x$
+
+\begin{equation}
+\theta=\frac{e^{\alpha+\beta (x+1)}}{e^{\alpha+\beta x}}=e^{\alpha+\beta (x+1)-\alpha-\beta x}=e^{\beta}
+\end{equation}
+
+Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models \cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. The pseudo code for the algorithm using Newtons method can be found in algorithm \ref{alg:lr} \cite{uvehag_master_thesis}. * is elemet by element multiplication. $X$ is an $NxM$ matrix that contains the variables, $Y$ is the outcomes with length $N$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{logit.png}
+    \caption{Graph of the logit transformation. Wikipedia Commons}
+    \label{fig:logit}
+\end{figure}
+
+\stepcounter{algorithmCode}
+\begin{algorithm}
+\begin{algorithmic}
+\State $\boldsymbol{X}\gets
+\begin{pmatrix}
+\begin{matrix}
+  1\\
+  \vdots\\
+  1
+\end{matrix} & \boldsymbol{X}
+\end{pmatrix}
+$
+
+\State $\beta\gets
+\begin{pmatrix}
+  0\\
+  \beta
+\end{pmatrix}
+$
+
+\State $iter\gets 0$
+\State $diff\gets 1$
+\\
+\While{$iter < max\_iter \; \boldsymbol{and} \; diff > threshold$}
+\State $\beta_{old}\gets\beta$
+\State $p\gets \frac{e^{\boldsymbol{X} \cdot \beta}}{1+e^{\boldsymbol{X} \cdot \beta}}$
+\State $s\gets \boldsymbol{X^T}\cdot (\boldsymbol{Y}-p)$
+\State $\boldsymbol{J}\gets (\boldsymbol{X^T}\cdot (p*(1-p)))\cdot \boldsymbol{X}$
+\State $\beta\gets \beta_{old}+\boldsymbol{J}^{-1} \cdot s$
+\State $diff\gets \sum |\beta-\beta_{old}|$
+\State $iter\gets iter+1$
+\EndWhile
+\State $log \; likelihood\gets \sum (\boldsymbol{Y}*ln p+(1-\boldsymbol{Y})*ln(1-p))$
+\end{algorithmic}
+  \caption{Logistic regression using maximum likelihood and Newtons method}
+  \label{alg:lr}
+\end{algorithm}
+
+\subsubsection{Mathematical Definition of Interaction for LR}
+\label{additive}
+Interaction was talked about in section \ref{interaction}. The more precise definition of additive interaction is the divergence from additive effects on a logarithmic scale, e.g\cite{rothman2008modern}.
+
+\begin{equation}
+OR_{both\:factors\:present}>OR_{first\:factor\:present}+OR_{second\:factor\:present}-1
+\end{equation}
+
+A third variable is used to model the interaction for both multiplicative and additive interaction. Multiplicative interaction as explained in section \ref{interaction} does not include the effects from the factors, i.e. the main effects, in the interaction variable. However for additive interaction the interaction variable models the whole effect including the main effects. This means that the third variable for multiplicative and additive interaction are identical, however for additive interaction the first and second variable is zero when both factors are present. The coding for additive interaction is summarized in table \ref{table:coding}\cite{uvehag_master_thesis}.
+
+\begin{table}[h]
+\begin{tabular}{| l | c c c|}
+  \hline
+  Factor present & First variable & Second variable & Interaction \\
+  \hline
+  None & 0 & 0 & 0 \\
+  \hline 
+  First & 1 & 0 & 0 \\
+  \hline
+  Second & 0 & 1 & 0 \\
+  \hline
+  Both & 0 & 0 & 1 \\
+  \hline
+\end{tabular}
+\caption{Coding of the variables for LR}
+\label{table:coding}
+\end{table}
+
+\subsection{Data Mining and Machine Learning Approaches}
+\label{data_machine_learning}
+Approaches based on Data Mining and Machine Learning have been a popular choice for GWAS. MDR\cite{mdr_2001} and Random Forest(RF)\cite{random_forest} are among the most common ones\cite{gene_enviroment_2013,cordell_detect_review}. There are other methods as well such as clustering approaches \cite{fast_high_order_cluster}. Most of them are used for screening the data for possible interactions\cite{gene_enviroment_2013,cordell_detect_review}.\\
+\\
+Their biggest advantage is that they are usually non-parametric and designed with high dimensional data in mind. However they are prone to overfitting and the usual way to try to prevent that is to use cross validation and sometimes permutation tests. It means that even if the method itself is fast it is repeated so many times that the whole algorithm can be slow in the end.\cite{cordell_detect_review}
+
+\subsubsection{Multifactor-Dimensionality Reduction}
+MDR is a method that reduces the number of dimensions(i.e. variable) by combining several dimensions into one. In GWAS it combines the variables that are suspected to interact. This new variable is then compared against the outcome. If the new variables predictability of the outcome is high enough then the variables that were combined are considered to interact. This process is usually repeated on all pair combinations of variables.\\
+\\
+The reduction from $n$ dimensions is done by calculating the ratio of cases versus controls for each combination of the possible values of the variables. If the ratio is above a certain threshold all the members of that groups get the value 1 for the new dimension, otherwise 0. Accuracy of the model is done by using cross validation and permutation tests, in simpler words it means that it reshuffles the data randomly and recalculates the model many times to get an estimate of the models certainty. Because of that MDR can be slow. However it is still usually faster than exhaustive search with regression methods.\cite{cordell_detect_review,mdr_2001}\\
+\\
+MDR can been used for gene-environment interaction but requires modifications since MDR can only handle binary variables. There are extensions that can use continues variables, however these are regression based so these will be slower than regular MDR.\cite{gene_enviroment_2013}\\
+\\
+A simple example of MDR using exclusive or (XOR). XOR is an logical operator that is true if one and only one of its two variables is true. We have 4 possible combinations and an occurrence for each of them, see table \ref{table:xor_table}. The combination (1,0) and (0,1) both have one case with outcome 1 so MDR will classify them as 1 in the new variable Z, the other two combinations have outcome 0 so will be classified with Z=0, see table \ref{table:xor_mdr_table}. From here it is easy to make an predictor from Z to the outcome Y by comparing the values.
+
+\begin{table}[h]
+\begin{tabular}{ | c | c | c | }
+  \hline
+  \textbf{Y} & $\mathbf{X_1}$ & $\mathbf{X_2}$ \\
+  \hline
+  1 & 1 & 0 \\
+  \hline 
+  1 & 0 & 1 \\
+  \hline
+  0 & 0 & 0 \\
+  \hline
+  0 & 1 & 1 \\
+  \hline
+\end{tabular}
+\caption{XOR table with outcome $\mathbf{Y}$ and variables $\mathbf{X_1}$ and $\mathbf{X_2}$.}
+\label{table:xor_table}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{ | c | c | }
+  \hline
+  \textbf{Y} & \textbf{Z} \\
+  \hline
+  1 & 1 \\
+  \hline
+  1 & 1 \\
+  \hline
+  0 & 0 \\
+  \hline
+  0 & 0 \\
+  \hline
+\end{tabular}
+\caption{XOR table with $\mathbf{X_1}$ and $\mathbf{X_2}$ combined into $\mathbf{Z}$ using MDR.}
+\label{table:xor_mdr_table}
+\end{table}
+
+\subsubsection{Random Forest}
+RF is an ensemble learning method\cite{random_forest}. Ensemble methods combine multiple models to improve performance. RF takes randomized samples of the data and builds decision trees on each of them. These trees are then combined to form the classifier. Usually hundreds or thousands of trees are used depending on the problem\cite{random_forest}. One of the most popular variants of Random Forest for GWAS is Random Jungle\cite{random_jungle}.\\
+\\
+It has been shown in high dimensional data that RF tends to only rank interacting factors high if they have strong marginal effects\cite{winham_rf_2012}. Also the ranking of the variables does not indicate which factor it is interacting with either since it is based on the joint distributions\cite{gene_enviroment_2013}. How to incorporate the environmental factors in RF is also not obvious and using variables with very different scales can bias RFs results\cite{gene_enviroment_2013}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{Decision_Tree.png}
+    \caption{A example of a decision tree}
+    \label{fig:DecisionTree}
+\end{figure}
+
+\newpage
+\section{Implementation}
+\label{implementation}
+This section will briefly explain the structure of the JEIRA/GEISA program.
+
 JEIRA and GEISA uses Java and its built-in functions for concurrency. Since GEISA is based on JEIRA, as talked about in section \ref{jeira}, the underlying design is the same.\\
 \\
 The implementation uses the producer consumer pattern described in section \ref{design_pattern}. The main thread creates a queue of tasks. All the result producers iterates over this shared queue and outputs results. These results are placed in a queue a consumed by another thread that prints the results. The program reads all data at the start which means it can get memory problems for large datasets.
 
-%risk allele diff
+%However the source code for GEIRA and JEIRA does not calculate the risk allele according to that definition. The current version of GEISA(0.13) has no changes to the part of the code that determines the risk allele compared to JEIRA. The code from the programs can be found in appendix \ref{geira_jeira_risk_allele}. What the code does in both cases is to compare the frequency of the most common allele in both groups and if the frequency 
+%\\
 
-%strucuture picture
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{jeira_structure.png}
+    \caption{JEIRA structure}
+    \label{fig:jeira_structure}
+\end{figure}
 
-\section{CuEira}
-CuEira(CUDA Environment Risk Analyser) was designed and developed as a part of this thesis. It is written in C++. Information about dependencies and how to compile can be found in appendix \ref{compile_cueira}.\\
-\\
-The program has two steps, an initialisation step and a calculation step. In the initialisation step it reads all the data except the information for the individuals in the SNPs, i.e. it doesn't read the bed file at that stage. For the calculations the main thread starts a number of threads, one for each CUDA stream. The number of streams depends on how many GPUs the computer have, CuEira starts three streams per GPU. The threads share the data that has been read in the initialisation, among them is an queue of the SNPs. The queue has an lock to prevent more than one thread at a time to fetch a SNP.\\
-\\
-Each thread asks the queue for a SNP, reads its information and launches the calculations. When its done it prints the results and asks the queue for a new SNP until the queue is empty. The calculations are done mostly on GPU however some small parts are done on the CPU. This was done for two reasons, to not to do small taks on the GPU and prevent it from doing larger kernels instead. When thread reaches parts where it mostly use the CPU another thread can use the GPU, this one of the reasons to use streams. Secondly one of the operations(the singular value decomposition, SVD) was not available in CUBLAS and turned out to be tricky to do. The matrix in question is small so it was decided to do the SVD operation using the CPU where a library was available. A future examination where more these parts are done on GPUs to would be interesting and could increase performance by minimizing transfers.
-
-%structure picture
-
-%why lr
+why LR
 %-less sever drawbakcs for non binary
 %-can handle non binary data(however statistical problems needs to be solved)
 %-slow but is not too slow for gene-environment interaction
 
-%\subsection{Design of the Program}
-%C++ is row major but CuEira is write as column major. This was easier because BLAS and CUBLAS are column major.
+\subsection{General structure of CuEira}
+This section will
 
-%In the initialisation step it reads all the data except the information for the individuals in the SNPs, i.e. it doesn't read the bed file at that stage.
-%Shared blocking queue and a result writer
-%3 threads per GPU
-%Each thread has one CUDA stream
-%Each thread gets a snp from the queue, reads in the snp data, calculates the models and writes the results
+Why C++
 
-%Outcomes shared over whole GPU
+Libraries and dependencies
 
-%LR
-%Some parts on GPU, some parts on CPU
-%Which parts?
-%Why?
+Two three stages
 
+Each SNP handle independently
+
+\subsection{Storage}
+column major
+
+snp queue
+
+%memory usage on GPU
 %memory things, how many individuals before we get problems?
 %modern GPUs for general computing got about 6gb ram\cite{nvtesla}
 %what is needed to store one set of data?
@@ -1098,6 +1056,47 @@ Each thread asks the queue for a SNP, reads its information and launches the cal
 %124n+160 approx 124n since n large
 %$6*10^9/124 approx 48*10^6$
 
+\subsection{File I/O}
+the readers
+
+resultwriter
+
+\subsection{GPU}
+wrappers
+
+\subsection{Model}
+%LR
+%Some parts on GPU, some parts on CPU
+%Which parts?
+%Why?
+
+\subsection{Testing}
+mocks, protected constructors
+
+integration tests
+need more
+
+
+
+
+CuEira was designed and developed as a part of this thesis. It is written in C++. Information about dependencies and how to compile can be found in appendix \ref{compile_cueira}.\\
+\\
+The program has two steps, an initialisation step and a calculation step. In the initialisation step it reads all the data except the information for the individuals in the SNPs, i.e. it doesn't read the bed file at that stage. For the calculations the main thread starts a number of threads, one for each CUDA stream. The number of streams depends on how many GPUs the computer have, CuEira starts three streams per GPU. The threads share the data that has been read in the initialisation, among them is an queue of the SNPs. The queue has an lock to prevent more than one thread at a time to fetch a SNP.\\
+\\
+Each thread asks the queue for a SNP, reads its information and launches the calculations. When its done it prints the results and asks the queue for a new SNP until the queue is empty. The calculations are done mostly on GPU however some small parts are done on the CPU. This was done for two reasons, to not to do small taks on the GPU and prevent it from doing larger kernels instead. When thread reaches parts where it mostly use the CPU another thread can use the GPU, this one of the reasons to use streams. Secondly one of the operations(the singular value decomposition, SVD) was not available in CUBLAS and turned out to be tricky to do. The matrix in question is small so it was decided to do the SVD operation using the CPU where a library was available. A future examination where more these parts are done on GPUs to would be interesting and could increase performance by minimizing transfers.
+
+
+%\subsection{Design of the Program}
+%C++ is row major but CuEira is write as column major. This was easier because BLAS and CUBLAS are column major.
+
+%In the initialisation step it reads all the data except the information for the individuals in the SNPs, i.e. it doesn't read the bed file at that stage.
+%Shared blocking queue and a result writer
+%3 threads per GPU
+%Each thread has one CUDA stream
+%Each thread gets a snp from the queue, reads in the snp data, calculates the models and writes the results
+
+%Outcomes shared over whole GPU
+
 \chapter{Results}
 %What was used
 %Zorn specs
@@ -1121,12 +1120,6 @@ Each thread asks the queue for a SNP, reads its information and launches the cal
 %kepler vs fermi stuff
 %kepler vs fermi queue problem, problem described in section \ref{streams}
 
-Some first preliminary results on a small dataset with 2000 individuals and 100 SNPs and a larger dataset with 3446 individuals and 133 648 SNPs. GEISA is much faster than CuEira on the small dataset. CuEira takes 12.17 seconds to complete using 3 streams on 4 C2050 GPUs with the calculations taking 0.3 seconds. GEISA takes 2.6 seconds with calculations taking less than a second. A closer look at CuEira reveals that a part in the reading of the input files takes 10 seconds.\\
-\\
-The larger dataset took 6 minutes and 28 seconds for GEISA, with 5 minutes and 24 seconds spent on calculations. CuEira takes 3 minutes and 55 seconds, with calculations taking 3 minutes and 40 seconds. The slow part mentioned in the earlier paragraph took 10.8 seconds. However the numbers for CuEira on this dataset should be taken with a grain of salt. CuEira skips SNPs with missing data currently while GEISA does not. A dataset without missing data will be used for the final report, together with some variations in size.\\
-\\
-The data structure for the individuals in CuEira likely needs to be changed, it would likely cost much less time as a vector instead of a hashmap. However it seems to remain fairly constant on 10 seconds so might not be a problem for large datasets.
-
 \chapter{Discussion and Conclusions}
 %Discussion and Conclusions (up to 3 pages)
 %Need for novel methods for gene-environment interaction
@@ -1139,6 +1132,75 @@ The data structure for the individuals in CuEira likely needs to be changed, it 
 %idea for solution using pointer architmic
 
 %Using two separate compilers did cost some time. For instance there was a problem with nvcc because it does not support c++11 host code. Mostly it is not a problem because the code %can be compiled with different compilers separately and then put together\cite{cuda}. However the interfaces(e.g. function signatures) that are included in the code for nvcc needs to %be c++11 free. However compared to the total time spent on the project it was not much.
+
+
+
+
+%math stuff for add
+
+%However there is a problem when both variables are non binary. Because LR models how the risk increases for each increase in the variable the interaction variable should preferably be in increased order of risk. However without doing extensive testing for the possible combinations it is not possible to know the order. It is easy in the binary case because the interaction only has two levels, both present or not. For an example take two variables with 3 levels, 0,1,2. For a single variable it is easy to assume that 2 is worse than 1. The problem with interaction occurs here because it is hard to know if 1,2 is worse than 2,1. In the case of continues variables it gets worse because scale starts to matter more.
+
+%However in gene-environment interaction the SNP variable is binary unless co-dominant model is used. This means that the coding isn't a problem for non binary environmental variables.
+
+
+%Extending to non binary.
+
+%OR>1 because recoding, see section \ref{recode}
+
+%\begin{equation}
+%OR_{both\:factors\:present}^x>OR_{first\:factor\:present}+OR_{second\:factor\:present}^x-1
+%\end{equation}
+%Where x is the number of steps from the base level.
+
+%This means that the interaction depends on the level of the factor. There are four cases
+
+%Using $\beta_{snp}$
+%$\beta_{environment}$
+%$\beta_{interaction}$
+
+%\begin{table}[h]
+%\begin{tabular}{| l | l | l |}
+%  \hline
+%  Case & Additive Interaction present, binary factor & Additive interaction present, non binary factor\\
+%  \hline
+%  $\beta_{interaction}>\beta_{snp} \; \beta_{interaction}>\beta_{environment}$ & Yes & Yes\\
+%  $\beta_{interaction}<\beta_{snp} \; \beta_{interaction}<\beta_{environment}$ & No & No\\
+%  $\beta_{interaction}>\beta_{snp} \; \beta_{interaction}<\beta_{environment}$ & No & For some x\\
+%  $\beta_{interaction}<\beta_{snp} \; \beta_{interaction}>\beta_{environment}$ & No & For some x\\
+%  \hline  
+%\end{tabular}
+%\caption{Additive interaction cases for non binary environmental factor}
+%\label{table:additive_interaction}
+%\end{table}
+
+%Can also be written as
+
+%\begin{equation}
+%OR_{both\:factors\:present}^x-OR_{second\:factor\:present}^x>OR_{first\:factor\:present}-1
+%\end{equation}
+
+%In case 3 it is monotone increasing
+
+%In case 4 it is monotone decreasing
+
+%TODO make some plots of it
+
+%Which means both pass 0 at one point.(Unless all equal 1 which means all 0)
+
+%That point can be found by solving
+
+%\begin{equation}
+%OR_{both\:factors\:present}^x-OR_{second\:factor\:present}^x=+OR_{first\:factor\:present}-1
+%\end{equation}
+
+%Case 3 has interaction for x>the point
+%Case 4 has interaction for x<the point
+
+%Depending on where the point is interaction might not be relevant, e.g. needs to smoke a million cigarettes a day and case 3. Or disappears to fast, eg 1 cigarette a year case 4.
+
+
+%Since the odds is an monotone function, switching lowest risk with highest means inverting the interval of the variable, e.g. minimum becomes maximum, maximum becomes minimum.
+
 
 \chapter{Outlook}
 %Outlook (up to one page)
@@ -1213,7 +1275,16 @@ The data structure for the individuals in CuEira likely needs to be changed, it 
 % a t g c
 \end{description}
 
-%\section{Risk Allele Code from GEIRA, JEIRA and GEISA}
+%List of figs
+%List of tables
+
+\section{Plink binary data format}
+%TODO
+
+\section{Environmental and Covariates File Format}
+The environmental factors and covariates are stored in separate files with the same format, one file for environmental factors and one for the covariates if any. One of the columns needs to contain the individual ids, the rest of the columns should be data. The delimiter can be anything of the usual ones and there is an option to provided it to the program. The default is tab delimited.
+
+\section{Risk Allele Code from GEIRA, JEIRA and GEISA}
 %\label{geira_jeira_risk_allele}
 %GEISA(vesion 0.13) has the same code as JEIRA to determine the risk allele.\\
 %\\
@@ -1237,14 +1308,21 @@ The data structure for the individuals in CuEira likely needs to be changed, it 
 %  summary.setRiskAllele(caseMinAllele);
 %\end{algorithmCode}
 
-\section{Environmental and Covariates File Format}
-The environmental factors and covariates are stored in separate files with the same format, one file for environmental factors and one for the covariates if any. One of the columns needs to contain the individual ids, the rest of the columns should be data. The delimiter can be anything of the usual ones and there is an option to provided it to the program. The default is tab delimited.
+\subsection{Risk Allele Difference Results}
+Example of recode diference on data sample
 
-%List of figs
-%List of tables
-
-%\section{Risk Allele Difference Results}
-%geisa vs cueira on sample file, much more recode 1 and 3
+\begin{table}[h]
+\begin{tabular}{| l l |}
+  \hline
+  Recode Geisa & Recode CuEira \\
+  \hline
+  0 & 0 \\
+  0 & 0 \\
+  \hline  
+\end{tabular}
+\caption{Recode difference}
+\label{table:recode_difference}
+\end{table}
 
 \section{Encountered Bugs}
 \label{found_bugs}
@@ -1277,7 +1355,7 @@ make\\
 \\
 The program should now be compiling. CMake might complain about not finding a dependency. If it does you need to tell CMake where it is. The path to boost is set by using EXPORT BOOST\_ROOT = /path/to/boost/. The path to the compilers is done with CXX = cmake /path/to/source for the C++ compiler and C = cmake /path/to/source for the C compiler.
 
-%TODO set cuda
+%TODO how to set cuda
 
 \newpage
 \bibliographystyle{ieeetr}

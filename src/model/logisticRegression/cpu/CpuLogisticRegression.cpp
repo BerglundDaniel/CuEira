@@ -6,8 +6,8 @@ namespace LogisticRegression {
 namespace CPU {
 
 CpuLogisticRegression::CpuLogisticRegression(CpuLogisticRegressionConfiguration* cpuLogisticRegressionConfiguration) :
-    cpuLogisticRegressionConfiguration(cpuLogisticRegressionConfiguration), outcomes(
-        &cpuLogisticRegressionConfiguration->getOutcomes()), predictors(
+    LogisticRegression(cpuLogisticRegressionConfiguration), cpuLogisticRegressionConfiguration(
+        cpuLogisticRegressionConfiguration), outcomes(&cpuLogisticRegressionConfiguration->getOutcomes()), predictors(
         &cpuLogisticRegressionConfiguration->getPredictors()), probabilites(
         &cpuLogisticRegressionConfiguration->getProbabilites()), workMatrixNxM(
         &cpuLogisticRegressionConfiguration->getWorkMatrixNxM()), workVectorNx1(
@@ -17,8 +17,8 @@ CpuLogisticRegression::CpuLogisticRegression(CpuLogisticRegressionConfiguration*
 }
 
 CpuLogisticRegression::CpuLogisticRegression() :
-    cpuLogisticRegressionConfiguration(nullptr), outcomes(nullptr), predictors(nullptr), probabilites(nullptr), workMatrixNxM(
-        nullptr), workVectorNx1(nullptr), defaultBetaCoefficents(nullptr) {
+    LogisticRegression(), cpuLogisticRegressionConfiguration(nullptr), outcomes(nullptr), predictors(nullptr), probabilites(
+        nullptr), workMatrixNxM(nullptr), workVectorNx1(nullptr), defaultBetaCoefficents(nullptr) {
 
 }
 

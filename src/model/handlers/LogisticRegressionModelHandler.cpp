@@ -33,6 +33,15 @@ CombinedResults* LogisticRegressionModelHandler::calculateModel() {
   LogisticRegressionResult* additiveLogisticRegressionResult = logisticRegression->calculate();
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
 
+  dataHandler->applyStatisticModel(MULTIPLICATIVE);
+
+  logisticRegressionConfiguration.setSNP(*snpData);
+  logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
+  //Don't need to set the interaction again since it doesn't change between additive and multiplicative model
+
+  LogisticRegressionResult* multiplicativeLogisticRegressionResult = logisticRegression->calculate();
+  CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
+
   Recode recode = additiveLogisticRegressionResult->calculateRecode();
   if(recode != ALL_RISK){
     dataHandler->recode(recode);
@@ -48,15 +57,16 @@ CombinedResults* LogisticRegressionModelHandler::calculateModel() {
     CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
   }
 
-  dataHandler->applyStatisticModel(MULTIPLICATIVE);
+  /* FIXME TMP thing due to comparasion with GEISA
+   dataHandler->applyStatisticModel(MULTIPLICATIVE);
 
-  logisticRegressionConfiguration.setSNP(*snpData);
-  logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
-  //Don't need to set the interaction again since it doesn't change between additive and multiplicative model
+   logisticRegressionConfiguration.setSNP(*snpData);
+   logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
+   //Don't need to set the interaction again since it doesn't change between additive and multiplicative model
 
-  LogisticRegressionResult* multiplicativeLogisticRegressionResult = logisticRegression->calculate();
-  CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
-
+   LogisticRegressionResult* multiplicativeLogisticRegressionResult = logisticRegression->calculate();
+   CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
+   */
   return combinedResultsFactory.constructCombinedResults(additiveLogisticRegressionResult,
       multiplicativeLogisticRegressionResult, recode);
 }

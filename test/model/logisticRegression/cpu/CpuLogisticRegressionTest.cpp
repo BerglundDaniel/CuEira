@@ -188,7 +188,7 @@ TEST_F(CpuLogisticRegressionTest, calculateInformationMatrix) {
   double e = 1e-5;
   double x, h, l;
   const int numberOfRows = 3;
-  const int numberOfPredictors = 3;
+  const int numberOfPredictors = 4;
 
   RegularHostVector outcomes(numberOfRows);
 
@@ -215,6 +215,10 @@ TEST_F(CpuLogisticRegressionTest, calculateInformationMatrix) {
   predictors(1, 2) = 0.2;
   predictors(2, 2) = 0.5;
 
+  predictors(0, 3) = 2;
+  predictors(1, 3) = 5;
+  predictors(2, 3) = 6;
+
   probabilites(0) = 0.9;
   probabilites(1) = 0.3;
   probabilites(2) = 0.5;
@@ -240,6 +244,12 @@ TEST_F(CpuLogisticRegressionTest, calculateInformationMatrix) {
   EXPECT_THAT(informationMatrix(0, 2), Ge(l));
   EXPECT_THAT(informationMatrix(0, 2), Le(h));
 
+  x = 1; //FIXME
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(informationMatrix(0, 3), Ge(l));
+  EXPECT_THAT(informationMatrix(0, 3), Le(h));
+
   x = 0.9525;
   l = x - e;
   h = x + e;
@@ -252,15 +262,36 @@ TEST_F(CpuLogisticRegressionTest, calculateInformationMatrix) {
   EXPECT_THAT(informationMatrix(1, 2), Ge(l));
   EXPECT_THAT(informationMatrix(1, 2), Le(h));
 
+  x = 1; //FIXME
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(informationMatrix(1, 3), Ge(l));
+  EXPECT_THAT(informationMatrix(1, 3), Le(h));
+
   x = 0.0718;
   l = x - e;
   h = x + e;
   EXPECT_THAT(informationMatrix(2, 2), Ge(l));
   EXPECT_THAT(informationMatrix(2, 2), Le(h));
 
+  x = 1; //FIXME
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(informationMatrix(2, 3), Ge(l));
+  EXPECT_THAT(informationMatrix(2, 3), Le(h));
+
+  x = 1; //FIXME
+  l = x - e;
+  h = x + e;
+  EXPECT_THAT(informationMatrix(3, 3), Ge(l));
+  EXPECT_THAT(informationMatrix(3, 3), Le(h));
+
   EXPECT_EQ(informationMatrix(1, 0), informationMatrix(0, 1));
   EXPECT_EQ(informationMatrix(2, 0), informationMatrix(0, 2));
   EXPECT_EQ(informationMatrix(2, 1), informationMatrix(1, 2));
+  EXPECT_EQ(informationMatrix(3, 0), informationMatrix(0, 3));
+  EXPECT_EQ(informationMatrix(3, 1), informationMatrix(1, 3));
+  EXPECT_EQ(informationMatrix(3, 2), informationMatrix(2, 3));
 }
 
 TEST_F(CpuLogisticRegressionTest, calculateLogLikelihood) {

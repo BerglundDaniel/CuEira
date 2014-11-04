@@ -11,9 +11,9 @@
 \usepackage[titles]{tocloft}
 \usepackage{subcaption}
 \usepackage{listings}
-\usepackage{color}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage[toc,page]{appendix}
 
 \setcounter{secnumdepth}{5}
 \setlength{\parindent}{0in}
@@ -21,47 +21,11 @@
 \renewcommand{\topfraction}{0.85}
 \renewcommand{\textfraction}{0.1}
 \renewcommand{\floatpagefraction}{0.75}
-\definecolor{dkgreen}{rgb}{0,0.6,0}
-\definecolor{gray}{rgb}{0.5,0.5,0.5}
-\definecolor{mauve}{rgb}{0.58,0,0.82}
-\definecolor{darkred}{rgb}{0.9,0,0}
 
-\lstset{frame=tb,
-  language=C++,
-  aboveskip=5mm,
-  belowskip=5mm,
-  showstringspaces=false,
-  columns=flexible,
-  basicstyle={\small\ttfamily},
-  numbers=none,
-  numberstyle=\tiny\color{gray},
-  keywordstyle=\color{blue},
-  commentstyle=\color{dkgreen},
-  stringstyle=\color{mauve},
-  breaklines=true,
-  moredelim=**[is][\color{darkred}]{@}{@},
-  breakatwhitespace=true,
-  tabsize=3
-}
+\definecolor{keyword}{RGB}{70,100,200}
+\definecolor{kernel}{RGB}{139,0,0}
 
-\newcounter{example}
-\newcounter{algorithmCode}
-
-\makeatletter
-\lstnewenvironment{example}[2]{
-  \renewcommand\lstlistingname{Example}
-  \let\c@lstlisting=\c@example
-  \let\thelstlisting=\theexample
-  \lstset{caption=#1, label=#2}
-} {}
-
-\lstnewenvironment{algorithmCode}[2]{
-  \renewcommand\lstlistingname{Algorithm}
-  \let\c@lstlisting=\c@algorithmCode
-  \let\thelstlisting=\thealgorithmCode
-  \lstset{caption=#1, label=#2}
-} {}
-\makeatother
+\newcounter{ExamplesCounter}
 
 \makeatletter
 \newcommand\ackname{Acknowledgements}
@@ -90,9 +54,9 @@
 \fi
 \makeatother
 
-\title{CuEira, Gene-Environment Interaction Analysis on GPU, a first draft}
+\title{Gene-Environment Interaction Analysis using GPU}
 \author{Daniel Berglund}
-\date{October 2014}
+\date{November 2014}
 
 \begin{document}
 \maketitle
@@ -102,7 +66,7 @@
 \thispagestyle{empty}
 \selectlanguage{english}
 \begin{abstract}
-Abstract
+
 \end{abstract}
 
 \clearpage
@@ -138,8 +102,7 @@ One type of study to find associations between genetic markers and diseases or o
 \\
 GWAS usually has a study design that is either cohort or case-control\cite{rothman2008modern}. In cohort study a sample of a population is followed and over time some individuals will develop the disease of interest\cite{mann_observational}. In case-control studies two groups are compared with each other to find the risk factors\cite{mann_observational}. One of these two groups consists of individuals with the disease and the other group consists of individuals similar to the first group but who do not have the disease\cite{mann_observational}.\\
 \\
-\newpage
-A typical GWAS consists of tens of thousands of individuals and up to several millions of genetic markers\cite{cordell_detect_review, burton2007genome}. In gene-gene interaction GWAS   few studies investigate more than the second order interaction because of the high number of possible combinations. There are some algorithms that can investigae higher order interactions however these have drawbacks\cite{gwis,high_order_2012,fast_high_order_cluster}.
+A typical GWAS consists of tens of thousands of individuals and up to several millions of genetic markers\cite{cordell_detect_review, burton2007genome}. In gene-gene interaction GWAS   few studies investigate more than the second order interaction because of the high number of possible combinations. There are some algorithms that can investigate higher order interactions however these have drawbacks\cite{gwis,high_order_2012,fast_high_order_cluster}.
 
 %Problem vs gene-gene and gene-env
 %focuses on gene-env, datatyp etc
@@ -147,8 +110,7 @@ A typical GWAS consists of tens of thousands of individuals and up to several mi
 \section{Genetics}
 The genetic information is stored in \emph{chromosomes} each consisting of a \emph{DNA molecule}\cite{sadava_life}. Each chromosome comes in a pair where both chromosomes are nearly identical, except for the chromosomes related to gender\cite{sadava_life}. The DNA molecule is a double stranded helix of four nucleotide bases, \emph{adenine}(A),\emph{cytosine}(C),\emph{guanine}(G) and \emph{thymine}(T). They are always paired as A-T and G-C. \emph{Genes} are sections of these DNA molecules. The pair of genes in the chromosomes is a \emph{genotype}. The observable product of the genotype is called \emph{phenotype}, e.g. eye colour, fur patters.\\
 \\
-A position of the DNA or a gene is a \emph{locus}\cite{sadava_life}. A variation of the same gene or locus is an \emph{allele}\cite{sadava_life}. The effect of an allele on a phenotype can be either \emph{dominant}, \emph{recessive} or \emph{co-dominant}. Dominant means that the effect occurs if the allele only needs to be present in one of the chromosomes in the pair, recessive is when the allele needs to be present in both chromosomes \cite{sadava_life}. Co-dominant is when both alleles effect the phenotype, when different alleles are present this usually produce some kind of intermediate state\cite{sadava_life}.
-%TODO fix it, dominat, reccessive etc
+A position of the DNA or a gene is a \emph{locus}\cite{sadava_life}. A variation of the same gene or locus is an \emph{allele}\cite{sadava_life}. The effect of an allele on a phenotype can be either \emph{dominant}, \emph{recessive} or \emph{co-dominant}. Dominant means that if the allele is present the phenotype is expressed. For recessive the allele needs to be present in both chromosomes to be expressed\cite{sadava_life}. Co-dominant is when both alleles are expressed, when different alleles are present this usually produce some kind of intermediate state\cite{sadava_life}. An example of co-dominance is the human blood groups\cite{sadava_life}.
 
 \begin{table}[h]
 \begin{tabular}{| l l l |}
@@ -173,7 +135,6 @@ A simpler equivalent definition is that the risk allele is the allele which freq
 \\
 The presence of genetic risk based on the risk allele and the genetic model can be coded as a variable than then be can used in a statistical model. For dominant or recessive genetic model this means that the variable is binary since the risk is either present or not. See table \ref{table:genetic} for how the coding is based on the model. There is an alternative way to code using co-dominant genetic model. In this case the number of risk alleles in the individual used as the variable, so either 0, 1 or 2. %TODO reference
 
-\newpage
 \section{Defining Interaction}
 \label{interaction}
 There are several ways to define interaction. The overall goal is often to detect if \emph{biological} interactions are present. \emph{Biological} interaction is when different factors co-operate through a physiological or biological mechanism and cause the effect, e.g. the disease. The information about the factors can then be used to explain the mechanisms involved in causing the disease and possibly help to find cures for them. However biological interaction is not well defined and thus it is not possible to calculate it directly from data.\cite{interaction_confusion, rothman2008modern,rothman2002intro_epidemiology}\\
@@ -190,10 +151,8 @@ $c$ is the product term that represents multiplicative interaction between varia
 
 \section{GEIRA, JEIRA and GEISA, the Aim of the Project}
 \label{jeira}
-To search for interaction in data various tools can be used. \emph{GEIRA}\cite{geira} is one such tool which uses logistic regression, additive interaction and with bootstrap to asses the quality of the models\cite{geira}. It comes in two versions, one made in R and one in SAS. To improve speed up it was later implemented in Java and called \emph{JEIRA}\cite{uvehag_master_thesis}. It is parallel which made it significantly faster\cite{uvehag_master_thesis}. \emph{GEISA}\cite{geisa} is another tool based on JEIRA however it uses permutation testing instead of bootstrap to asses the certainty of the models\cite{geisa}. The programs structure is explained in section \ref{implementation}, the algorithms are explained in section \ref{algorithm_background}.\\
+To search for interaction in data various tools can be used. \emph{GEIRA}\cite{geira} is one such tool which uses logistic regression, additive interaction and with bootstrap to asses the quality of the models\cite{geira}. It comes in two versions, one made in R and one in SAS. To improve speed up it was later implemented in Java and called \emph{JEIRA}\cite{uvehag_master_thesis}. It is parallel which made it significantly faster\cite{uvehag_master_thesis}. \emph{GEISA}\cite{geisa} is another tool based on JEIRA however it uses permutation testing instead of bootstrap to asses the certainty of the models\cite{geisa}. The programs structure is explained in section \ref{implementation}, the algorithms are explained in section \ref{algorithm_background}. Bootstrap calculates the certainty by resampling the data\cite{agresti_categorical}. Permutation tests works in a similar way but only randomizes the outcomes \cite{lindgren1993statistical}.\\
 \\
-%Bootstrap permutation testing
-
 The aim of this project is to make the gene-environment interaction analysis faster by using graphics processors and to be able to handle larger amounts of data. The program is written in C++ and CUDA.
 
 %\\
@@ -207,24 +166,6 @@ This section will go through some of it starting with the algorithms and statist
 \section{Statistical Background}
 This section will %TODO
 
-\subsection{Confounders and Covariates}
-\emph{Confounding} is one of the central issues in design of epidemiological studies. It is when the effect of the exposure is mixed with the effect of another variable. So if we do not measure the second variable, the effect of the first would be estimated as stronger than it really is. The second variable is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorporated into the models. \emph{Covariates} are possible confounders or other variables that one wants to adjust for in the model. Sometimes covariates are called \emph{control variables}.\cite{rothman2002intro_epidemiology,rothman2008modern}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=5cm]{Simple_Confounding_Case.png}
-    \caption{Illustration of a simple case of confounding. If we do not observe Z we might falsely find an association between X and Y}
-    \label{fig:confunding}
-\end{figure}
-
-For instance if a study would look into the effects of yellow teeth on lung cancer they would likely find an effect. However it would be due to the confounder smoking since smoking causes yellow teeth and lung cancer. %TODO cite
-
-\subsection{The Multiple Testing Problem}
-It is not uncommon to test many hypothesis on the same data and in the case of GWAS it can be billions of tests. If one continues to test one should eventually find something that is significant due to random chance. With the common significance threshold of 5\% it is expected to get 1 in 20 false positives under the assumption that the null hypothesis is true. The problem arises from the fact that the hypothesis tests are dependent on each other since they use parts of the same data. This is the multiple testing problem and if it is not corrected for many false positives might be found.\cite{bonferroni_multiple}\\
-\\
-Bonferroni correction is the simplest method and viewed as a conservative way to correct for this problem. It simply divides the significance threshold by the number of hypothesis tested. However the number of hypothesis made is not always clear. With a two-stage analysis, is the number of hypothesis the number of tests done in both stages combined, the number made in the first stage or the second stage?\cite{bonferroni_multiple}
-
-\newpage
 \subsection{Contingency Tables}
 A contingency table is a matrix used to describe categorical data. Each cell contains a count of occurrences for a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 2 table. From this table we can for instance see that 688 smokers got lung cancer. Contingency tables are the basis for various statistical tests to model the data.\cite{agresti_categorical}
 
@@ -241,7 +182,7 @@ A contingency table is a matrix used to describe categorical data. Each cell con
 \label{table:contingency_table}
 \end{table}
 
-\subsubsection{Relative Risk and Odds Ratio}
+\subsection{Relative Risk and Odds Ratio}
 \label{rr_or}
 From a contingency table it is possible to calculate some useful measures such as the risk of getting the outcome based on exposure. The risk for a row $i$ in the table will be referred to as $\pi_i$. For table \ref{table:contingency_table} the risks $\pi_1$ and $\pi_2$ is
 
@@ -281,9 +222,36 @@ The odds are non-negative and $\Omega>1$ when the outcome is more likely than no
 
 In the case when the outcome is a disease or similar variables with odds ratio below one are called \emph{protective} and when it is above one it is a \emph{risk factor}\cite{recoding_2011}.
 
-\subsubsection{Statistic Measures for interaction}
-%TODO inte helt korrekt? eftersom baseras på additive interaction så kan inte placeras här? interaction ej definerad än
-Based on the statistcal model and its corresponding ORs there are some measures that can be calculated. These measures show various properties of the additive interaction. They are defined using $RR$ however as mentioned before in section \ref{rr_or} $OR$ can be used to approximate $RR$.\\
+\subsection{Additive Interaction}
+\label{additive}
+Interaction was talked about in section \ref{interaction}. The more precise definition of additive interaction is the divergence from additive effects on a logarithmic scale, e.g\cite{rothman2008modern}.
+
+\begin{equation}
+OR_{both\:factors\:present}>OR_{first\:factor\:present}+OR_{second\:factor\:present}-1
+\end{equation}
+
+A third variable is used to model the interaction for both multiplicative and additive interaction. Multiplicative interaction as explained in section \ref{interaction} does not include the effects from the factors, i.e. the main effects, in the interaction variable. However for additive interaction the interaction variable models the whole effect including the main effects. This means that the third variable for multiplicative and additive interaction are identical, however for additive interaction the first and second variable is zero when both factors are present. The coding for additive interaction is summarized in table \ref{table:coding}\cite{uvehag_master_thesis}.
+
+\begin{table}[h]
+\begin{tabular}{| l | c c c|}
+  \hline
+  Factor present & First variable & Second variable & Interaction \\
+  \hline
+  None & 0 & 0 & 0 \\
+  \hline 
+  First & 1 & 0 & 0 \\
+  \hline
+  Second & 0 & 1 & 0 \\
+  \hline
+  Both & 0 & 0 & 1 \\
+  \hline
+\end{tabular}
+\caption{Coding of the variables for LR}
+\label{table:coding}
+\end{table}
+
+\subsection{Statistic Measures for interaction}
+Based on the statistical model and its corresultponding ORs there are some measures that can be calculated. These measures show various properties of the additive interaction. They are defined using $RR$ however as mentioned before in section \ref{rr_or} $OR$ can be used to approximate $RR$.\\
 \\
 \emph{Relative  excess risk due to interaction}(RERI) is how much of the risk is due to interaction\cite{rothman2008modern, recoding_2011}. It is defined as\cite{rothman2008modern, recoding_2011}
 \begin{equation}
@@ -302,8 +270,7 @@ AP=\frac{RERI}{RR_{11}}=\frac{1}{RR_{11}}-\frac{RR_{10}}{RR_{11}}-\frac{RR_{01}}
 
 By using the definition of additive interaction it can be shown that additive interaction is present when $RERI>0$, $AP>0$ and $SI>0$\cite{recoding_2011}.
 
-\newpage
-\subsubsection{Recoding of Protective Effects}
+\subsection{Recoding of Protective Effects}
 \label{recode}
 The measures for additive interaction RERI, AP and SI explained in the previous section are developed for risk factors, i.e. $OR>1$, which causes problems if a factor is protective\cite{recoding_2011}. This can be solved by \emph{recoding}, it switches the group of individuals without both factors, i.e. the \emph{reference group}, with the group that has the lowest  $OR$\cite{recoding_2011}. There are three possible combinations of the factors excluding the reference group shown in table \ref{table:recoding_cases}. Switching a group changes the level of the factors for all in individuals in the group to the reference groups level, and switches the individuals in the reference group with the groups level.
 
@@ -322,12 +289,28 @@ The measures for additive interaction RERI, AP and SI explained in the previous 
 \label{table:recoding_cases}
 \end{table}
 
+\subsection{Confounders and Covariates}
+\emph{Confounding} is one of the central issues in design of epidemiological studies. It is when the effect of the exposure is mixed with the effect of another variable. So if we do not measure the second variable, the effect of the first would be estimated as stronger than it really is. The second variable is then a \emph{confounder}. Several methods in epidemiology are about avoiding or adjusting for confounding. Sometimes these variables needs to be incorporated into the models. \emph{Covariates} are possible confounders or other variables that one wants to adjust for in the model. Sometimes covariates are called \emph{control variables}.\cite{rothman2002intro_epidemiology,rothman2008modern}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=5cm]{Simple_Confounding_Case.png}
+    \caption{Illustration of a simple case of confounding. If we do not observe Z we might falsely find an association between X and Y}
+    \label{fig:confunding}
+\end{figure}
+
+For instance if a study would look into the effects of yellow teeth on lung cancer they would likely find an effect. However it would be due to the confounder smoking since smoking causes yellow teeth and lung cancer. %TODO cite
+
+\subsection{The Multiple Testing Problem}
+It is not uncommon to test many hypothesis on the same data and in the case of GWAS it can be billions of tests. If one continues to test one should eventually find something that is significant due to random chance. With the common significance threshold of 5\% it is expected to get 1 in 20 false positives under the assumption that the null hypothesis is true. The problem arises from the fact that the hypothesis tests are dependent on each other since they use parts of the same data. This is the multiple testing problem and if it is not corrected for many false positives might be found.\cite{bonferroni_multiple}\\
+\\
+Bonferroni correction is the simplest method and viewed as a conservative way to correct for this problem. It simply divides the significance threshold by the number of hypothesis tested. However the number of hypothesis made is not always clear. With a two-stage analysis, is the number of hypothesis the number of tests done in both stages combined, the number made in the first stage or the second stage?\cite{bonferroni_multiple}
+
 \section{Computer Architecture Background}
 This section explains some of the computer architectures used to perform tasks in a thesis. A large part of this chapter is focused on the optimization techniques that are in use. For the purpose of this thesis it is best to think of the computer consisting of four main parts, the processor, the data storage, the memory and the accelerator.
 
 \subsection{Central Processing Unit}
-Central processing unit(CPU) is the part of the computer that executes instructions one by one in its core\cite{introduction_hpc_hager}.%TODO what is core
-Most modern CPUs have multi-core architecture\cite{introduction_hpc_hager}. Each core can perform tasks independent of each other.
+Central processing unit(CPU) is the part of the computer that executes instructions one by one\cite{introduction_hpc_hager}. Most modern CPUs have multi-core architecture meaning they consist of several processors\cite{introduction_hpc_hager}. Each core can perform tasks independent of each other.
 \\
 The figures \ref{fig:cpu_scheme} and \ref{fig:core_die} shows how the CPU is divided into areas and that most of it is not used for calculations. A large part of the area is used for various optimizations.
 
@@ -365,7 +348,6 @@ The problem is that this set of instructions can lead to a state where everyone 
 \\
 There are also other potential problems that can arise when using concurrency. A \emph{race condition} occurs when the result depends on what affects it first, it is a race between them on who can reach it first\cite{introduction_hpc_hager}. \emph{Locks} can be used to prevent situations as the ones described above by making sure only one thread at a time can access the object\cite{introduction_hpc_hager}.
 
-\newpage
 In computer science concurrency occurs when instructions are separated in different \emph{threads}. The architectures can be divided in a taxonomy with four categories including the sequential. They are illustrated in figure \ref{fig:flynn_taxonomy}.
 
 \begin{itemize}
@@ -403,7 +385,6 @@ In computer science concurrency occurs when instructions are separated in differ
         \caption{Flynns taxonomy of parallel architectures\cite{introduction_hpc_hager}}\label{fig:flynn_taxonomy}
 \end{figure}
 
-\newpage
 \subsection{Memory, Caching and Optimizations}
 \label{optimizations}
 Various optimizations have been introduce to the CPUs over the years\cite{drepper2007cpumemory, introduction_hpc_hager}. Some are common and almost all CPUs have them, others are unique to a specific vendor or CPU\cite{introduction_hpc_hager}. Figure \ref{fig:core_die} show the layout of a CPU core. This section explains some of the more common optimizations.
@@ -426,29 +407,75 @@ When a program iterates over an array the first value is a cache miss since it i
 \\
 Below is an example of how prefectching can have an large impact on performance. 
 
-In section 6.2.1 in What Every Programmer Should Know About Memory\cite{drepper2007cpumemory} an example of how much speed that can be gained by optimizing matrix matrix multiplication. The simple version of it is shown in algorithm \ref{alg:matmatmult} and the version with prefectching is shown in \ref{alg:matmatmultopt}
+In section 6.2.1 in What Every Programmer Should Know About Memory\cite{drepper2007cpumemory} an example of how much speed that can be gained by optimizing matrix matrix multiplication. The variables have been renamed for clarity. The simple version of it is shown in algorithm \ref{alg:matmatmult} and the version with improved cache use is shown in \ref{alg:matmatmultopt}.
 
-\begin{algorithmCode}{Matrix matrix multiplication} {alg:matmatmult}
-for (i = 0; i < N; ++i)
-  for (j = 0; j< N; ++j)
-    for (k = 0;k < N; ++k)
-      res[i][j]+= mul1[i][k] * mul2[k][j];
-\end{algorithmCode}
-%TODO describe variables and things here under algorithm
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{Three $N \times N$ matrices, \textit{matrix1}, \textit{matrix2} and \textit{result}}
+
+\BlankLine \BlankLine
+\For{i = 0; i < N; ++i}{
+  \For{j = 0; j< N; ++j}{
+    \For{k = 0;k < N; ++k}{
+      $result[i][j]+= matrix1[i][k] * matrix2[k][j]$;\;
+    }
+  }
+}
+
+\caption{Basic algorithm for matrix matrix multiplication of two $N \times N$ matrices}
+\label{alg:matmatmult}
+\end{algorithm}
 
 By transposing the mul2 matrix it becomes more cache friendly by using prefectching of surrounding data the way that mul1 already is\cite{drepper2007cpumemory}. The transpose itself can be eliminated while also making it use the cache better by reading in the correct amount of data, this is the size SM in the code\cite{drepper2007cpumemory}. The optimized version is shown in \ref{alg:matmatmultopt}. It took 17.3\% of the original time\cite{drepper2007cpumemory}.
 
-\begin{algorithmCode}{Matrix matrix multiplication optimized} {alg:matmatmultopt}
-#define SM (CLS / sizeof (double))
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
 
-for (i = 0; i < N; i += SM)
-  for (j = 0; j < N; j += SM)
-    for (k = 0; k < N; k += SM)
-      for (i2 = 0, rres = &res[i][j], rmul1 = &mul1[i][k]; i2 < SM; ++i2, rres += N, rmul1 += N)
-	for (k2 = 0, rmul2 = &mul2[k][j]; k2 < SM; ++k2, rmul2 += N)
-	  for (j2 = 0; j2 < SM; ++j2)
-	    rres[j2] += rmul1[k2] * rmul2[j2];
-\end{algorithmCode}
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+%TODO
+\data{Three $N \times N$ matrices, \textit{matrix1}, \textit{matrix2} and \textit{result}\\
+$SM$ is the number of matrix elements that fits in the cache.
+}
+
+%TODO define & char
+\BlankLine \BlankLine
+
+\For{i = 0; i < N; i += SM}{
+  \For{j = 0; j < N; j += SM}{
+    \For{k = 0; k < N; k += SM}{
+      \For{i2 = 0, rresult = \&result[i][j], rmatrix1 = \&matrix1[i][k]; i2 < SM; ++i2, rresult += N, rmatrix1 += N}{
+        \For{k2 = 0, rmatrix2 = \&matrix2[k][j]; k2 < SM; ++k2, rmatrix2 += N}{
+          \For{j2 = 0; j2 < SM; ++j2}{
+            $rresult[j2] += rmatrix1[k2] * rmatrix2[j2]$;\;
+          }
+        }
+      }
+    }
+  }
+}
+\caption{Matrix matrix multiplication optimized}
+\label{alg:matmatmultopt}
+\end{algorithm}
 
 On top of that by using some additional features of the CPU such as doing multiple instructions at once more speed up is gained increasing it to 9.47\% of the original time\cite{drepper2007cpumemory}. \\
 \\
@@ -458,20 +485,63 @@ Sometimes there can be several independent instructions, e.g. when adding two ve
 \\
 In the example \ref{ex:independent_instructions} the instructions are independent because they use different variables so they can be executed in any order. If the variables $b$ and $c$ needs to be fetched but $e$ and $f$ are available due to previous instructions then the CPU could execute the second addition first by using out of order execution. However if an operation later depends on the variable $a$ or $d$ then that instruction would have to wait until the additions have been executed.
 
-\begin{example}{Independent Instructions}{ex:independent_instructions}
-a = b + c;
-d = e + f;
-\end{example}
+\stepcounter{ExamplesCounter}
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+
+\SetAlgoRefName{\arabic{ExamplesCounter}}
+\SetAlgorithmName{Example}{List of Examples}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{Six int variables, $a,..,f$}
+
+\BlankLine \BlankLine
+$a = b + c$\;
+$d = e + f$\;
+
+\caption{Independent Instructions}
+\label{ex:independent_instructions}
+\end{algorithm}
 
 \emph{Pointer aliasing} can prevent the compiler from making certain optimizations, e.g. out of order execution mentioned above. Pointer aliasing is when the same memory area can be accessed using different variables\cite{introduction_hpc_hager}. This becomes a problem if an set of instructions use these variables in the same area of the program. The relative order of operations between these operations then has to be preserved. The compiler does have the information if aliasing occurs or not which means the compiler has to treat all situations where it can occur as if it does\cite{introduction_hpc_hager}.\\
 \\
 If the integers in example \ref{ex:independent_instructions} are changed to pointers then aliasing can occur because some of these pointers could point to the same memory. For instance if a and e points to the same memory then the result would be wrong if the second line is executed before the first. This would force the instructions to be executed in order or the result would likely be incorrect.
 
-\begin{example}{Pointer Aliasing}{ex:aliasing}
-//All variables are pointers %TODO move to below as comment
-*a = *b + *c;
-*d = *e + *f;
-\end{example}
+\stepcounter{ExamplesCounter}
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+
+\SetAlgoRefName{\arabic{ExamplesCounter}}
+\SetAlgorithmName{Example}{List of Examples}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{Six int pointers, $a,..,f$}
+
+\BlankLine \BlankLine
+$*a = *b + *c$\;
+$*d = *e + *f$\;
+
+\caption{Pointer Aliasing}
+\label{ex:pointer_aliasing}
+\end{algorithm}
 
 Some programming languages, e.g. Fortran, disallow some types of aliasing while others, e.g. C/C++, allows aliasing\cite{introduction_hpc_hager}. The compilers for the languages in the second case commonly have an option to disable aliasing. However for languages that don't allow aliasing, or if it is disabled, it is then the programmers responsibility to make sure that aliasing does not occur or the results can be wrong\cite{introduction_hpc_hager}.
 
@@ -495,7 +565,7 @@ Accelerators are separate parts made to do one task and do it well. They are usu
 
 GPUs are made to process images in a fast manner so that games and similar tasks runs smoothly\cite{cuda}. Because GPUs are made for image processing they are GPUs have a large number of cores(~1000-2000)\cite{cuda, nvtesla}. Each core is slower than a core in a CPU, however the number of cores makes up for it. The downside is that it's slower than a normal CPU for sequential tasks so the program has to take advantage of the extreme parallelism to get good speed\cite{cuda_best_practice}. The memory of the GPU is separate from the computers main memory which means that the data needs to be transferred between the memories which increases the programs complexity\cite{cuda}.\\
 \\
-The GPU cores work in a manner that is similar to SIMD\cite{cuda}. The cores also have fewer optimizations than CPUs, this means that they can then devote a larger portion of the chip to the calculations as seen in figure \ref{fig:gpu_scheme}. For instance NVIDIAs GPUs lack optimizations such as branch prediction and speculative execution talked about in section \ref{optimizations} \cite{cuda}. Their caches are also much smaller than the CPUs\cite{cuda}. Another inheritance from the image processing is that they are much faster with single precision than with double precision datatypes\cite{cuda, nvtesla}. A CPU drops slightly in performance when using double precision but much less than a GPU as seen in figure \ref{fig:gpu_vs_cpu}. Single and double precision refers to how many bytes are used to store numbers, fewer bytes means less numerical precision.
+The GPU cores work in a manner that is similar to SIMD\cite{cuda}. The cores also have fewer optimizations than CPUs, this means that they can then devote a larger portion of the chip to the calculations as seen in figure \ref{fig:gpu_scheme}. For instance NVIDIAs GPUs lack optimizations such as branch prediction and speculative execution talked about in section \ref{optimizations} \cite{cuda}. Their caches are also much smaller than the CPUs\cite{cuda}. Another inheritance from the image processing is that they are much faster with single precision than with double precision data types\cite{cuda, nvtesla}. A CPU drops slightly in performance when using double precision however much less than a GPU as seen in figure \ref{fig:gpu_vs_cpu}. Single and double precision refers to how many bytes are used to store the decimal numbers, fewer bytes means less numerical precision.
 
 \begin{figure}[h]
     \centering
@@ -508,9 +578,9 @@ Intels answer to the increasing popularity of GPUs for general computing is Xeon
 
 \subsubsection{GPU vs Xeon Phi, Why use GPUs for Interaction?}
 \label{gpu_gwas}
-What is most efficient depends largely on the algorithm and if there is any previous existing code. For instance if the algorithm contains many points of divergence Xeon Phi is likely faster because Xeon Phi is MIMD while GPU is SIMT. Xeon Phi can be applied to a broader set of problems due to using a MIMD architecture\cite{jeffers2013intel}. A one on one comparison of speed might not be entirely relevant because the algorithm used for the test might simply be better suited for one the architectures. Speed per cost, either power consumption or the price on the hardware, can also be more relevant. If one is half the cost of the other then comparing two versus one would be a better comparison. CUDA is also more mature than Xeon Phi since Xeon Phi is only a few years old while CUDA is almost ten\cite{cuda, jeffers2013intel}.\\
+Which is most efficient depends largely on the algorithm and if there is any previous existing code. For instance if the algorithm contains many points of divergence Xeon Phi is likely faster because Xeon Phi is MIMD while GPU is SIMT. Xeon Phi can be applied to a broader set of problems due to using a MIMD architecture\cite{jeffers2013intel}. A one on one comparison of speed might not be entirely relevant because the algorithm used for the test might simply be better suited for one the architectures. Speed per cost, either power consumption or the price on the hardware, can also be more relevant. If one is half the cost of the other then comparing two versus one would be a better comparison. CUDA is also more mature than Xeon Phi since Xeon Phi is only a few years old while CUDA is almost ten years old\cite{cuda, jeffers2013intel}.\\
 \\
-So what suits best needs to be looked at using a case by case basis by examining the specifics of the algorithm and what type of computers that might already be available. It is also important to think about how important maximum speed is and how much time there is to spend. If extremely high speed is of importance and time is not a concern then a GPU is likely to get higher performance, unless the algorithm is badly suited for GPUs. However Xeon Phi might reach similar speed but with less effort.\\
+Which suits best needs to be examined by a case by case basis and depending on the specifics of the algorithm and what type of computers that might already be available. It is also important to think about how important maximum speed is and how much time there is to spend. If extremely high speed is of importance and time is not a concern then a GPU is likely to get higher performance, unless the algorithm is badly suited for GPUs. However Xeon Phi might reach similar speed but with less effort.\\
 \\
 %Why GPU for GWAS
 GPUs are good for interaction algorithms because most methods consider each combination independently and also in this case that LR consists of linear algebra operations. A new combination can be transferred while another is calculated. Linear algebra with sufficiently large matrices and vectors work very well on GPUs\cite{cublas, cuda}. Several studies got high gains from implementing their algorithms on GPU\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}. However most studies had CPU versions that were not parallel so it is likely that the gains would have been less if they would have been compared to an optimized and parallel CPU version, especially if a Xeon Phi co-processor was used. One study did make a comparison of a CPU cluster version and a GPU version of their algorithm, they found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.
@@ -551,24 +621,71 @@ Clusters are collections of computers that can work together in several ways and
 \label{cuda_programming_model}
 This section is about GPU programming in more detail using NVIDIAs CUDA(Compute Unified Device Architecture)\cite{cuda}. CUDA extends C and C++ with some additional functionality that can be used to perform operations on NVIDAs GPUs. It provides a separate compiler to compile the GPU code called nvcc\cite{cuda}. Different GPUs support different CUDA functions, each NVIDIA GPU has a value called computational capability. The higher the value the more features of CUDA are supported on that GPU. Some properties also vary between the different underlying architectures. This means that it is important to know what kind of capability the GPU to be used has so that the program does not need features that are not there. The things described here might not apply to GPUs with compute capability below 3. There are GPUs made specifically for calculations rather than games. This section is an summary of how CUDA works from the CUDA programming guide\cite{cuda} and CUDA best practices guide\cite{cuda_best_practice}.\\
 \\
-In CUDA the GPU is called \emph{device} and systems CPU and memory is the \emph{host}. To perform operations on the device a type of function called \emph{kernel} is used. A kernel is works mostly as a normal C/C++ function with the addition of some specifiers to provided options to set number of threads and so on. Example \ref{simple_kernel} is an example of a kernel and how it can be called from the host code. The kernel add each element of the arrays A and B storing it in C. Each thread performs on addition and knows why elements to use based on it's id. The call to the kernel is made by giving three arrays and the number of threads to be used as N. In this case N needs to be the length of the arrays.\\
+In CUDA the GPU is called \emph{device} and systems CPU and memory is the \emph{host}. To perform operations on the device a type of function called \emph{kernel} is used. A kernel is works mostly as a normal C/C++ function with the addition of some specifiers to provided options to set number of threads and so on. Example \ref{ex:simple_kernel_device} is an example of a simple kernel definition and example \ref{ex:simple_kernel_host} shows how it can be called from the host code. The kernel add each element of the arrays A and B storing it in C. Each thread performs on addition and knows why elements to use based on it's id. The call to the kernel is made by giving three arrays and the number of threads to be used as N. In this case N needs to be the length of the arrays.\\
 \\
 The \_\_global\_\_ keyword in front of the function declaration tells nvcc that it is a kernel. The $<<<N,M>>>$ specifier tells the compiler how many $N$ blocks and how many $M$ threads per block that the kernel should use\cite{cuda}. A block is a group of threads and shares some memory and resources. The blocks can be executed in any order so they need to be completely independent from each other but variables can be shared among threads inside a block\cite{cuda}. This allows the program to scale to different GPUs as shown in figure \ref{fig:blocks_scaling}. The blocks are  organized in a one, two or three dimensional \emph{grid}. These can be accessed by each thread so it knows which grid it is in as illustrated in figure \ref{fig:grid_2d}. This can be used to make it easier to assign the threads to the correct bit of the calculation. For instance using a two dimensional grid is good for matrices\cite{cuda, cuda_best_practice}.
 
-\begin{example}{Simple Kernel}{simple_kernel}
-// Kernel definition
-@__global__@ void Add(float* A, float* B, float* C)
-{
-  int i = threadIdx.x;
-  C[i] = A[i] + B[i];
+\stepcounter{ExamplesCounter}
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
+\SetKwFor{For}{for}{}{}
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
+\SetKwFor{While}{while}{}{}
+\SetKwRepeat{Repeat}{repeat}{until}
+\AlgoDisplayBlockMarkers
+\SetAlgoNoLine
+\SetFuncSty{}
+\SetArgSty{}
+
+\SetAlgoRefName{\arabic{ExamplesCounter}}
+\SetAlgorithmName{Example}{List of Examples}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{Vectors \textit{A, B, C} as C-style arrays}
+
+\BlankLine \BlankLine
+
+\SetKwFunction{KwFn}{\textcolor{kernel}{\_\_global\_\_} void \KwSty{Add}}
+
+\Fn(){\KwFn{\textcolor{keyword}{float}* $A$, \textcolor{keyword}{float}* $B$, \textcolor{keyword}{float}* $C$}}{
+\textcolor{keyword}{int} $i$ = threadIdx.$x$;\;
+$C[i]$ = $A[i]$ $+$ $B[i]$;\;
 }
 
-// In the host code
-// Kernel invocation with N threads
-Add@<<<1, N>>>@(A, B, C);
-\end{example}
+\caption{Example of a declaration of a simple kernel}
+\label{ex:simple_kernel_device}
+\end{algorithm}
 
-\newpage
+\stepcounter{ExamplesCounter}
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+
+\SetAlgoRefName{\arabic{ExamplesCounter}}
+\SetAlgorithmName{Example}{List of Examples}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{Vectors \textit{A, B, C} of length $N$ as C-style arrays}
+
+\BlankLine \BlankLine
+
+\textbf{Add}\textcolor{kernel}{$<<<$1,$N>>>$}($A, B, C$);\;
+
+\caption{Host code to call the kernel in example \ref{ex:simple_kernel_device} with $N$ threads}
+\label{ex:simple_kernel_host}
+\end{algorithm}
 
 \begin{figure}[h]
     \centering
@@ -620,7 +737,6 @@ Streams are also important for asynchronous transfers. These transfers are execu
 \\
 However there is problem that asynchronous transfers can cause depending on the GPUs architecture\cite{overlap_transfers_cuda, cuda_fortran_overlap}. Some older GPUs only have one copy engine while newer have one for each direction, one to the GPU and one from the GPU\cite{overlap_transfers_cuda, cuda_fortran_overlap}. This can affect how the calls should be ordered and using the wrong one can make the performance worse than without using asynchronous transfers\cite{overlap_transfers_cuda, cuda_fortran_overlap}.
 
-\newpage
 There is an example of this in \cite{cuda_fortran_overlap} which illustrates the problem. They have four versions of the same code, a sequential transfer version and three asynchronous transfer versions. Two different GPUs were used, one had one copy engine the other had two. In the asynchronous the data is split over four streams coloured differently in the figure \ref{fig:ascynchronous}. Version 1 initiates the calls by looping over the streams one by one and doing the transfer and kernel calls on that stream before moving on to the next\cite{cuda_fortran_overlap}. Version 2 makes all the host to device transfer calls for all streams first, then the kernels and then the device to host transfer call\cite{cuda_fortran_overlap}. Version 3 is the same as version 2 but with a dummy even after each kernel\cite{cuda_fortran_overlap}. The figure \ref{fig:ascynchronous} shows how the transfers and kernels are executed on the GPU.
 
 \begin{figure}[h]
@@ -637,7 +753,6 @@ There is an example of this in \cite{cuda_fortran_overlap} which illustrates the
     \label{fig:ascynchronous}
 \end{figure}
 
-\newpage
 \subsection{Efficient CUDA}
 One of the main criticism against GPUs for general computing purposes is that it is hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. This section is a summary of things that can be good to consider for CUDA programs from the CUDA programming guide\cite{cuda}, CUDA best practices guide \cite{cuda_best_practice} and a similar list as this one, however slightly outdated now since it is from 2010, from a master thesis about GPU in GWAS\cite{plink_gpu}.
 \\
@@ -707,6 +822,7 @@ Dependency injection is one way to implement dependency inversion principle\cite
 \subsection{Unit Tests and Mocks}
 \emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work. \emph{Integration testing} is used to test several units together to find possible errors  
 
+%TODO integration tests
 
 \cite{cleancode2008}\\
 \\
@@ -793,7 +909,7 @@ There are applications called profilers that are made to assess the programs per
 %  - Current state - Basic algorithm, Data structure, memory consumption, parallelization, load balancing and scalability
 %  - And the same for own your implementation
 
-This section starts with the algorithms and then the implemenations.
+This section starts with the algorithms and then the implementations.
 
 %OTHERS
 %problem with exathsutive
@@ -851,7 +967,7 @@ This means that $\exp{\beta}$ is the odds ratio since the odds increase by $\exp
 \theta=\frac{e^{\alpha+\beta (x+1)}}{e^{\alpha+\beta x}}=e^{\alpha+\beta (x+1)-\alpha-\beta x}=e^{\beta}
 \end{equation}
 
-Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models \cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. The pseudo code for the algorithm using Newtons method can be found in algorithm \ref{alg:lr} \cite{uvehag_master_thesis}. * is elemet by element multiplication. $X$ is an $NxM$ matrix that contains the variables, $Y$ is the outcomes with length $N$.
+Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models \cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. The pseudo code for the algorithm using Newtons method can be found in algorithm \ref{alg:lr} \cite{uvehag_master_thesis}.
 
 \begin{figure}[h]
     \centering
@@ -860,10 +976,22 @@ Finding the $\beta$ coefficients are done in a similar way as with other linear 
     \label{fig:logit}
 \end{figure}
 
-\stepcounter{algorithmCode}
 \begin{algorithm}
-\begin{algorithmic}
-\State $\boldsymbol{X}\gets
+\DontPrintSemicolon
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+\SetKwInOut{note}{Note}
+
+\data{$N$ number of data points\\
+$M$ number of variables, excluding the intercept\\
+$\boldsymbol{X}$ is an $N \times M$ matrix that contains the variables\\
+$\boldsymbol{Y}$ is the outcomes with length $N$\\
+$\beta$ has length $M$ and contains the initial values of $\beta$}
+
+\note{$*$ is element by element multiplication}
+
+\BlankLine \BlankLine
+$\boldsymbol{X}\longleftarrow
 \begin{pmatrix}
 \begin{matrix}
   1\\
@@ -871,60 +999,36 @@ Finding the $\beta$ coefficients are done in a similar way as with other linear 
   1
 \end{matrix} & \boldsymbol{X}
 \end{pmatrix}
-$
+$\;
 
-\State $\beta\gets
+\BlankLine \BlankLine
+$\beta\longleftarrow
 \begin{pmatrix}
   0\\
   \beta
 \end{pmatrix}
-$
+$\;
 
-\State $iter\gets 0$
-\State $diff\gets 1$
-\\
-\While{$iter < max\_iter \; \boldsymbol{and} \; diff > threshold$}
-\State $\beta_{old}\gets\beta$
-\State $p\gets \frac{e^{\boldsymbol{X} \cdot \beta}}{1+e^{\boldsymbol{X} \cdot \beta}}$
-\State $s\gets \boldsymbol{X^T}\cdot (\boldsymbol{Y}-p)$
-\State $\boldsymbol{J}\gets (\boldsymbol{X^T}\cdot (p*(1-p)))\cdot \boldsymbol{X}$
-\State $\beta\gets \beta_{old}+\boldsymbol{J}^{-1} \cdot s$
-\State $diff\gets \sum |\beta-\beta_{old}|$
-\State $iter\gets iter+1$
-\EndWhile
-\State $log \; likelihood\gets \sum (\boldsymbol{Y}*ln p+(1-\boldsymbol{Y})*ln(1-p))$
-\end{algorithmic}
-  \caption{Logistic regression using maximum likelihood and Newtons method}
-  \label{alg:lr}
+\BlankLine \BlankLine
+$iter\longleftarrow 0$\;
+$diff\longleftarrow 1$\;
+
+\BlankLine \BlankLine
+\While{$iter < max\_iter \; \boldsymbol{and} \; diff > threshold$}{
+  $\beta_{old}\longleftarrow\beta$\;
+  $p\longleftarrow \frac{e^{\boldsymbol{X} \cdot \beta}}{1+e^{\boldsymbol{X} \cdot \beta}}$\;
+  $s\longleftarrow \boldsymbol{X^T}\cdot (\boldsymbol{Y}-p)$\;
+  $\boldsymbol{J}\longleftarrow (\boldsymbol{X^T}\cdot (p*(1-p)))\cdot \boldsymbol{X}$\;
+  $\beta\longleftarrow \beta_{old}+\boldsymbol{J}^{-1} \cdot s$\;
+  $diff\longleftarrow \sum |\beta-\beta_{old}|$\;
+  $iter\longleftarrow iter+1$\;
+}
+\BlankLine \BlankLine
+$log \; likelihood\longleftarrow \sum (\boldsymbol{Y}*ln p+(1-\boldsymbol{Y})*ln(1-p))$\;
+
+\caption{Logistic regression using maximum likelihood and Newtons method}
+\label{alg:lr}
 \end{algorithm}
-
-\subsubsection{Mathematical Definition of Interaction for LR}
-\label{additive}
-Interaction was talked about in section \ref{interaction}. The more precise definition of additive interaction is the divergence from additive effects on a logarithmic scale, e.g\cite{rothman2008modern}.
-
-\begin{equation}
-OR_{both\:factors\:present}>OR_{first\:factor\:present}+OR_{second\:factor\:present}-1
-\end{equation}
-
-A third variable is used to model the interaction for both multiplicative and additive interaction. Multiplicative interaction as explained in section \ref{interaction} does not include the effects from the factors, i.e. the main effects, in the interaction variable. However for additive interaction the interaction variable models the whole effect including the main effects. This means that the third variable for multiplicative and additive interaction are identical, however for additive interaction the first and second variable is zero when both factors are present. The coding for additive interaction is summarized in table \ref{table:coding}\cite{uvehag_master_thesis}.
-
-\begin{table}[h]
-\begin{tabular}{| l | c c c|}
-  \hline
-  Factor present & First variable & Second variable & Interaction \\
-  \hline
-  None & 0 & 0 & 0 \\
-  \hline 
-  First & 1 & 0 & 0 \\
-  \hline
-  Second & 0 & 1 & 0 \\
-  \hline
-  Both & 0 & 0 & 1 \\
-  \hline
-\end{tabular}
-\caption{Coding of the variables for LR}
-\label{table:coding}
-\end{table}
 
 \subsection{Data Mining and Machine Learning Approaches}
 \label{data_machine_learning}
@@ -980,7 +1084,7 @@ A simple example of MDR using exclusive or (XOR). XOR is an logical operator tha
 \subsubsection{Random Forest}
 RF is an ensemble learning method\cite{random_forest}. Ensemble methods combine multiple models to improve performance. RF takes randomized samples of the data and builds decision trees on each of them. These trees are then combined to form the classifier. Usually hundreds or thousands of trees are used depending on the problem\cite{random_forest}. One of the most popular variants of Random Forest for GWAS is Random Jungle\cite{random_jungle}.\\
 \\
-It has been shown in high dimensional data that RF tends to only rank interacting factors high if they have strong marginal effects\cite{winham_rf_2012}. Also the ranking of the variables does not indicate which factor it is interacting with either since it is based on the joint distributions\cite{gene_enviroment_2013}. How to incorporate the environmental factors in RF is also not obvious and using variables with very different scales can bias RFs results\cite{gene_enviroment_2013}.
+It has been shown in high dimensional data that RF tends to only rank interacting factors high if they have strong marginal effects\cite{winham_rf_2012}. Also the ranking of the variables does not indicate which factor it is interacting with either since it is based on the joint distributions\cite{gene_enviroment_2013}. How to incorporate the environmental factors in RF is also not obvious and using variables with very different scales can bias the results\cite{gene_enviroment_2013}.
 
 \begin{figure}[h]
     \centering
@@ -994,6 +1098,18 @@ It has been shown in high dimensional data that RF tends to only rank interactin
 \label{implementation}
 This section will briefly explain the structure of the JEIRA/GEISA program.
 
+why LR
+%-less sever drawbakcs for non binary
+%-can handle non binary data(however statistical problems needs to be solved)
+%-slow but is not too slow for gene-environment interaction
+
+for the performance measures with comparisons against GEISA a few things were changed in cueira so they are more similar
+using no recode on mult
+setting the risk allele the way JEIRA does
+maf threshold =0
+cell count threshold =10
+
+\subsection{General structure of JEIRA and GEISA}
 JEIRA and GEISA uses Java and its built-in functions for concurrency. Since GEISA is based on JEIRA, as talked about in section \ref{jeira}, the underlying design is the same.\\
 \\
 The implementation uses the producer consumer pattern described in section \ref{design_pattern}. The main thread creates a queue of tasks. All the result producers iterates over this shared queue and outputs results. These results are placed in a queue a consumed by another thread that prints the results. The program reads all data at the start which means it can get memory problems for large datasets.
@@ -1008,11 +1124,6 @@ The implementation uses the producer consumer pattern described in section \ref{
     \label{fig:jeira_structure}
 \end{figure}
 
-why LR
-%-less sever drawbakcs for non binary
-%-can handle non binary data(however statistical problems needs to be solved)
-%-slow but is not too slow for gene-environment interaction
-
 \subsection{General structure of CuEira}
 This section will
 
@@ -1022,9 +1133,11 @@ Libraries and dependencies
 
 Two three stages
 
-Each SNP handle independently
+Each SNP+env combination handle independently
 
 \subsection{Storage}
+JEIRA is ? major
+
 column major
 
 snp queue
@@ -1057,11 +1170,14 @@ snp queue
 %$6*10^9/124 approx 48*10^6$
 
 \subsection{File I/O}
+both take plink, CuEira only reads binary plink
+
 the readers
 
 resultwriter
+lock
 
-\subsection{GPU}
+\subsection{GPU and Blas}
 wrappers
 
 \subsection{Model}
@@ -1071,6 +1187,8 @@ wrappers
 %Why?
 
 \subsection{Testing}
+JEIRA have some unit tests.
+
 mocks, protected constructors
 
 integration tests
@@ -1114,8 +1232,8 @@ Each thread asks the queue for a SNP, reads its information and launches the cal
 
 %personHandler is slow
 
-%TODO performance measures, 1,2,3,4 gpus
-%vary streams per gpu 1-4, on several gpus and on ones
+%performance measures, 1,2,3,4 gpus
+%vary streams per gpu 1-6, on several gpus and on ones
 
 %kepler vs fermi stuff
 %kepler vs fermi queue problem, problem described in section \ref{streams}
@@ -1215,7 +1333,15 @@ Each thread asks the queue for a SNP, reads its information and launches the cal
 %however will get problems with large data amounts, can't fit in device memory
 %own kernels more than simple elemntwise, probably hard to optimize. unknowish
 
-\chapter{Appendix}
+\newpage
+\bibliographystyle{ieeetr}
+\bibliography{hpc.bib,statistics.bib,misc.bib}
+
+\begin{appendices}
+
+\chapter{Some Appendix}
+The contents...
+
 \section{List of Variables}
 
 \begin{description}
@@ -1275,41 +1401,78 @@ Each thread asks the queue for a SNP, reads its information and launches the cal
 % a t g c
 \end{description}
 
-%List of figs
-%List of tables
+\cleardoublepage
+\addcontentsline{toc}{chapter}{List of Algorithms}
+\listofalgorithms
 
-\section{Plink binary data format}
+%\listofexamples
+
+\cleardoublepage
+\listoffigures
+
+\cleardoublepage
+\listoftables
+
+\chapter{File Formats}
+
+\section{Plink Binary Data Format}
 %TODO
 
 \section{Environmental and Covariates File Format}
 The environmental factors and covariates are stored in separate files with the same format, one file for environmental factors and one for the covariates if any. One of the columns needs to contain the individual ids, the rest of the columns should be data. The delimiter can be anything of the usual ones and there is an option to provided it to the program. The default is tab delimited.
 
-\section{Risk Allele Code from GEIRA, JEIRA and GEISA}
-%\label{geira_jeira_risk_allele}
-%GEISA(vesion 0.13) has the same code as JEIRA to determine the risk allele.\\
-%\\
-%CaMaxn and CoMaxn is the frequency for the cases and controls. CaMax and CoMax is the name of the allele that has the highest frequency in cases and controls.
-%\begin{algorithmCode}{GEIRA code to determine the risk allele} {alg:geira_risk}
-%if (CaMaxn>CoMaxn & CaMax==CoMax){
-%  crisk<-CaMax
-%} else if (CaMaxn<=CoMaxn & CaMin==CoMin){
-%  crisk<-CaMin
-%} else if (CaMaxn>CoMaxn & CaMax!=CoMax){
-%  crisk<-CaMax
-%} else if (CaMaxn<=CoMaxn & CaMin!=CoMin){
-%  crisk<-CaMin
-%}
-%\end{algorithmCode}
+\chapter{Bugs and Issues}
 
-%\begin{algorithmCode}{JEIRA code to determine the risk allele} {alg:jeira_risk}
-%if (caseMaxRatio > controlMaxRatio && caseMaxAllele.equals(controlMaxAllele))
-%  summary.setRiskAllele(caseMaxAllele);
-%else
-%  summary.setRiskAllele(caseMinAllele);
-%\end{algorithmCode}
+\section{Risk Allele Code from GEIRA, JEIRA and GEISA}
+\label{geira_jeira_risk_allele}
+The code for how GEIRA, JEIRA and GEISA calculates the risk allele is not the same as it is define in \cite{geira, uvehag_master_thesis}.
+
+%TODO coloring and format geira code
+\begin{algorithm}
+\DontPrintSemicolon
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{CaMaxn and CoMaxn is the frequency for the cases and controls. CaMax and CoMax is the name of the allele that has the highest frequency in cases and controls.}
+
+\BlankLine \BlankLine
+
+\If{$CaMaxn > CoMaxn$ \& $CaMax == CoMax$}{
+  $crisk \longleftarrow CaMax$\;
+}\ElseIf{$CaMaxn <= CoMaxn$ \& $CaMin == CoMin$}{
+  $crisk \longleftarrow CaMin$\;
+}\ElseIf{$CaMaxn > CoMaxn$ \& $CaMax != CoMax$}{
+  $crisk \longleftarrow CaMax$\;
+}\ElseIf{$CaMaxn <= CoMaxn$ \& $CaMin != CoMin$}{
+  $crisk \longleftarrow CaMin$\;
+}
+
+\caption{GEIRA source code to determine the risk allele}
+\label{alg:geira_risk_allele}
+\end{algorithm}
+
+%TODO coloring and format jeira/geisa code
+\begin{algorithm}
+\DontPrintSemicolon
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{Asdf} %TODO
+
+\BlankLine \BlankLine
+
+\If{$caseMaxRatio > controlMaxRatio$ \&\& $caseMaxAllele.equals(controlMaxAllele)$}{
+  summary.setRiskAllele(caseMaxAllele)\;
+}\Else{
+  summary.setRiskAllele(caseMinAllele)\;
+}
+
+\caption{JEIRA and GEISA source code to determine the risk allele}
+\label{alg:jeira_geisa_risk_allele}
+\end{algorithm}
 
 \subsection{Risk Allele Difference Results}
-Example of recode diference on data sample
+Example of recode difference on data sample
 
 \begin{table}[h]
 \begin{tabular}{| l l |}
@@ -1332,7 +1495,7 @@ There are several problems with Intel compilers and libraries. Most libraries wo
 \\
 Nvcc can not compile c+11 code, no interface included in the code that nvcc compiles can use c++11. This problem can largely be avoided by using separate compilation. The CUDA find package module for CMake(included in version 2.8 and later) has a default flag that should be removed as it can cause problems. The flag tells nvcc to propagate the host code flags, if the compiler for the host code then uses c++11 that flag is propagated to nvcc and it will not compile The flag is disabled in CMake by using set(CUDA\_PROPAGATE\_HOST\_FLAGS off).
 
-\section{How to Compile CuEira}
+\chapter{How to Compile and Use CuEira}
 \label{compile_cueira}
 The source code for the program is available at github, \url{https://github.com/Berjiz/CuEira}.
 
@@ -1357,7 +1520,6 @@ The program should now be compiling. CMake might complain about not finding a de
 
 %TODO how to set cuda
 
-\newpage
-\bibliographystyle{ieeetr}
-\bibliography{hpc.bib,statistics.bib,misc.bib}
+\end{appendices}
+
 \end{document}

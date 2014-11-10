@@ -14,6 +14,7 @@
 \usepackage{xcolor}
 \usepackage[ruled,vlined]{algorithm2e}
 \usepackage[toc,page]{appendix}
+\usepackage{tocloft}
 
 \setcounter{secnumdepth}{5}
 \setlength{\parindent}{0in}
@@ -26,6 +27,22 @@
 \definecolor{kernel}{RGB}{139,0,0}
 
 \newcounter{ExamplesCounter}
+
+\newcommand{\listexamplename}{List of Examples}
+\newlistof{example}{ex}{\listexamplename}
+\newcommand{\example}[1]{%
+\refstepcounter{example}
+%\par\noindent\textbf{Example \theexample. #1}
+\addcontentsline{ex}{example}
+{\protect\numberline{\thechapter.\theexample}#1}\par}
+
+\newcommand{\listalgorithmslistname}{List of Algorithms}
+\newlistof{algorithmslist}{alg}{\listalgorithmslistname}
+\newcommand{\algorithmslist}[1]{%
+\refstepcounter{algorithmslist}
+%\par\noindent\textbf{Algorithm \thealgorithmslist. #1}
+\addcontentsline{alg}{algorithmslist}
+{\protect\numberline{\thechapter.\thealgorithmslist}#1}\par}
 
 \makeatletter
 \newcommand\ackname{Acknowledgements}
@@ -73,7 +90,7 @@
 \thispagestyle{empty}
 \selectlanguage{english}
 \begin{abstract}
-Abstract
+
 \end{abstract}
 
 %\clearpage
@@ -127,6 +144,7 @@ A position of the DNA or a gene is a \emph{locus}\cite{sadava_life}. A variation
 \end{table}
 
 \subsection{Major, Minor and Risk Allele}
+\label{risk_allele}
 The the allele that is least common using all individuals(both cases and controls) is the \emph{minor allele}, the one that is most common is the \emph{major allele}. The frequency of the minor allele is the \emph{minor allele frequency}(MAF)\cite{uvehag_master_thesis, geira}. If the MAF is too low an analysis often will be of little value so all SNPs with MAF below a threshold are usually skipped. 5\% is common value of the threshold\cite{burton2007genome, geira}.\\
 \\
 To determine if the genetic risk is present for each individual one of the alleles needs to be chosen as the \emph{risk allele}. GEIRA and JEIRA determines the risk allele by comparing the MAFs of case and control\cite{geisa, uvehag_master_thesis}. If MAF of cases is greater or equal to the MAF of controls the minor allele is used as the risk otherwise the other allele\cite{geisa, uvehag_master_thesis}.\\
@@ -145,7 +163,7 @@ That is why statistical interaction is used and it is assumed that the presence 
 \begin{equation}
 f(x,y)=ax+by+cxy+d
 \end{equation}
-$c$ is the product term that represents multiplicative interaction between variables x and y. \cite{geira, interaction_confusion, rothman2008modern}\\
+$c$ is the product term that represents multiplicative interaction between variables x and y so the test for multiplicative interaction is to test if c=0 \cite{geira, interaction_confusion, rothman2008modern}. In some cases it is instead tested as a=b=c=0, this is testing for \emph{association allowing for interaction}\cite{cordell_detect_review}.\\
 \\
 \emph{Additive} interaction is another kind of statistical interaction that is broader than multiplicative interaction. It is when the total effect of the interacting factors present is larger than the sum of their separate effects. A more precise definition can be found in section \ref{additive}. It implies biological interaction as defined by Rothman\cite{rothman2008modern}, which is sometimes called \emph{causal interdependence} or \emph{causal interaction}\cite{causal_bounds_arvid}. Additive interaction can find more possible interactions than multiplicative and since it is closer to biological interaction it is often chosen in epidemiological studies\cite{interaction_confusion}.  
 
@@ -160,11 +178,11 @@ The aim of this project is to make the gene-environment interaction analysis fas
 
 \clearpage
 \chapter{Background}
-%TODO
+%TODO intro background
 This section will go through some of it starting with the algorithms and statistical background. And continuing with computer architecture and software design after that.
 
 \section{Statistical Background}
-This section will %TODO
+This section will explain some of the statistical background of categorical statistics.
 
 \subsection{Contingency Tables}
 A contingency table is a matrix used to describe categorical data. Each cell contains a count of occurrences for a specific combination of variables. Table \ref{table:contingency_table} is an example of an 2 x 2 table. From this table we can for instance see that 688 smokers got lung cancer. Contingency tables are the basis for various statistical tests to model the data.\cite{agresti_categorical}
@@ -250,8 +268,8 @@ A third variable is used to model the interaction for both multiplicative and ad
 \label{table:coding}
 \end{table}
 
-\subsection{Statistic Measures for interaction}
-Based on the statistical model and its corresultponding ORs there are some measures that can be calculated. These measures show various properties of the additive interaction. They are defined using $RR$ however as mentioned before in section \ref{rr_or} $OR$ can be used to approximate $RR$.\\
+\subsection{Statistic Measures for Additive Interaction}
+Based on the statistical model and its corresponding ORs there are some measures that can be calculated. These measures show various properties of the additive interaction. They are defined using $RR$ however as mentioned before in section \ref{rr_or} $OR$ can be used to approximate $RR$.\\
 \\
 \emph{Relative  excess risk due to interaction}(RERI) is how much of the risk is due to interaction\cite{rothman2008modern, recoding_2011}. It is defined as\cite{rothman2008modern, recoding_2011}
 \begin{equation}
@@ -270,7 +288,7 @@ AP=\frac{RERI}{RR_{11}}=\frac{1}{RR_{11}}-\frac{RR_{10}}{RR_{11}}-\frac{RR_{01}}
 
 By using the definition of additive interaction it can be shown that additive interaction is present when $RERI>0$, $AP>0$ and $SI>0$\cite{recoding_2011}.
 
-\subsection{Recoding of Protective Effects}
+\subsubsection{Recoding of Protective Effects}
 \label{recode}
 The measures for additive interaction RERI, AP and SI explained in the previous section are developed for risk factors, i.e. $OR>1$, which causes problems if a factor is protective\cite{recoding_2011}. This can be solved by \emph{recoding}, it switches the group of individuals without both factors, i.e. the \emph{reference group}, with the group that has the lowest  $OR$\cite{recoding_2011}. There are three possible combinations of the factors excluding the reference group shown in table \ref{table:recoding_cases}. Switching a group changes the level of the factors for all in individuals in the group to the reference groups level, and switches the individuals in the reference group with the groups level.
 
@@ -321,7 +339,7 @@ The figures \ref{fig:cpu_scheme} and \ref{fig:core_die} shows how the CPU is div
     \label{fig:cpu_scheme}
 \end{figure}
 
-%TODO
+%TODO cpu to parralelle stuff
 so the programs need to be parallel to get maximum speed. Parallel means that the program issues multiple instructions at the same time, more about this in section \ref{concurrency}.
 
 \subsection{Concurrency and Threads}
@@ -434,6 +452,7 @@ In section 6.2.1 in What Every Programmer Should Know About Memory\cite{drepper2
 }
 
 \caption{Basic algorithm for matrix matrix multiplication of two $N \times N$ matrices}
+\algorithmslist{Basic algorithm for matrix matrix multiplication of two $N \times N$ matrices}
 \label{alg:matmatmult}
 \end{algorithm}
 
@@ -452,12 +471,11 @@ By transposing the mul2 matrix it becomes more cache friendly by using prefectch
 \SetKwInOut{data}{Data}
 \BlankLine \BlankLine
 
-%TODO
+%TODO define & char
 \data{Three $N \times N$ matrices, \textit{matrix1}, \textit{matrix2} and \textit{result}\\
 $SM$ is the number of matrix elements that fits in the cache.
 }
 
-%TODO define & char
 \BlankLine \BlankLine
 
 \For{i = 0; i < N; i += SM}{
@@ -474,6 +492,7 @@ $SM$ is the number of matrix elements that fits in the cache.
   }
 }
 \caption{Matrix matrix multiplication optimized}
+\algorithmslist{Matrix matrix multiplication optimized}
 \label{alg:matmatmultopt}
 \end{algorithm}
 
@@ -509,6 +528,7 @@ $a = b + c$\;
 $d = e + f$\;
 
 \caption{Independent Instructions}
+\example{Independent Instructions}
 \label{ex:independent_instructions}
 \end{algorithm}
 
@@ -540,12 +560,13 @@ $*a = *b + *c$\;
 $*d = *e + *f$\;
 
 \caption{Pointer Aliasing}
+\example{Pointer Aliasing}
 \label{ex:pointer_aliasing}
 \end{algorithm}
 
 Some programming languages, e.g. Fortran, disallow some types of aliasing while others, e.g. C/C++, allows aliasing\cite{introduction_hpc_hager}. The compilers for the languages in the second case commonly have an option to disable aliasing. However for languages that don't allow aliasing, or if it is disabled, it is then the programmers responsibility to make sure that aliasing does not occur or the results can be wrong\cite{introduction_hpc_hager}.
 
-\subsection{Accelerators, GPUs and Xeon Phi}
+\subsection{Accelerators, GPU and Xeon Phi}
 \label{gpu}
 Accelerators are separate parts made to do one task and do it well. They are usually highly specialised and perform badly outside of the tasks they were designed for. The two accelerators explained here is graphical processing unit(GPU) and Intel Xeon Phi\cite{cuda, jeffers2013intel}. GPUs have mostly been used for games and other graphics related problems however have become more popular for general computing the last 10 years due to their high number of cores\cite{cuda}.  Intel Mic is much more recent with prototypes in 2010 and the first generation released in 2010\cite{jeffers2013intel}. It is Intels response to the GPUs and has elements of both GPU and CPU\cite{jeffers2013intel}. This section will focus on explaining some parts of the architecture of the GPUs and Xeon Phi. How to use the GPUs are talked about in more detail in section \ref{cuda_programming_model}.
 
@@ -586,9 +607,10 @@ Which suits best needs to be examined by a case by case basis and depending on t
 GPUs are good for interaction algorithms because most methods consider each combination independently and also in this case that LR consists of linear algebra operations. A new combination can be transferred while another is calculated. Linear algebra with sufficiently large matrices and vectors work very well on GPUs\cite{cublas, cuda}. Several studies got high gains from implementing their algorithms on GPU\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}. However most studies had CPU versions that were not parallel so it is likely that the gains would have been less if they would have been compared to an optimized and parallel CPU version, especially if a Xeon Phi co-processor was used. One study did make a comparison of a CPU cluster version and a GPU version of their algorithm, they found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.
 
 \subsection{Data Storage}
-%TODO
+%TODO write about data storage
 
 \subsection{Clusters}
+%TODO fix cluster section
 \label{clusers}
 
 \begin{figure}[h]
@@ -657,6 +679,7 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 }
 
 \caption{Example of a declaration of a simple kernel}
+\example{Example of a declaration of a simple kernel}
 \label{ex:simple_kernel_device}
 \end{algorithm}
 
@@ -684,6 +707,7 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 \textbf{Add}\textcolor{kernel}{$<<<$1,$N>>>$}($A, B, C$);\;
 
 \caption{Host code to call the kernel in example \ref{ex:simple_kernel_device} with $N$ threads}
+\example{Host code to call the kernel in example \ref{ex:simple_kernel_device} with $N$ threads}
 \label{ex:simple_kernel_host}
 \end{algorithm}
 
@@ -818,6 +842,9 @@ There are ways to design the program and code in such a way that it is easier to
 \end{table}
 
 Dependency injection is one way to implement dependency inversion principle\cite{cleancode2008}. Injection is passing the dependency to the dependent object. This is used instead of allowing the dependent object to construct or find the dependency.
+
+\subsubsection{Basci C++ stuff}
+%TODO write about inheritance, namespaces, pointers, memory, enums
 
 \subsection{Unit Tests and Mocks}
 \emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work. \emph{Integration testing} is used to test several units together to find possible errors  
@@ -967,7 +994,7 @@ This means that $\exp{\beta}$ is the odds ratio since the odds increase by $\exp
 \theta=\frac{e^{\alpha+\beta (x+1)}}{e^{\alpha+\beta x}}=e^{\alpha+\beta (x+1)-\alpha-\beta x}=e^{\beta}
 \end{equation}
 
-Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models \cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. The pseudo code for the algorithm using Newtons method can be found in algorithm \ref{alg:lr} \cite{uvehag_master_thesis}.
+Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models \cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. The pseudo code for the algorithm using Newtons method can be found in algorithm \ref{alg:lr} \cite{uvehag_master_thesis}. Line 13 is sometimes inside the loop, however since it is not needed for the actual iteration calculating it for every loop wastes time.
 
 \begin{figure}[h]
     \centering
@@ -981,6 +1008,7 @@ Finding the $\beta$ coefficients are done in a similar way as with other linear 
 \SetKwInOut{data}{Data}
 \BlankLine \BlankLine
 \SetKwInOut{note}{Note}
+\LinesNumbered
 
 \data{$N$ number of data points\\
 $M$ number of variables, excluding the intercept\\
@@ -1027,6 +1055,7 @@ $diff\longleftarrow 1$\;
 $log \; likelihood\longleftarrow \sum (\boldsymbol{Y}*ln p+(1-\boldsymbol{Y})*ln(1-p))$\;
 
 \caption{Logistic regression using maximum likelihood and Newtons method}
+\algorithmslist{Logistic regression using maximum likelihood and Newtons method}
 \label{alg:lr}
 \end{algorithm}
 
@@ -1096,26 +1125,32 @@ It has been shown in high dimensional data that RF tends to only rank interactin
 \newpage
 \section{Implementation}
 \label{implementation}
-This section will briefly explain the structure of the JEIRA/GEISA program.
+Here bla bla
 
 why LR
 %-less sever drawbakcs for non binary
 %-can handle non binary data(however statistical problems needs to be solved)
 %-slow but is not too slow for gene-environment interaction
 
-for the performance measures with comparisons against GEISA a few things were changed in cueira so they are more similar
-using no recode on mult
-setting the risk allele the way JEIRA does
-maf threshold =0
-cell count threshold =10
+All the programs read Plink data files except CuEira which can only read the binary Plink files. They also read a separate file that contains the environmental data and covariates if any. For CuEira the covariates and environmental data is split in two different files with the same structure. %TODO cite plink file stuff
 
-\subsection{General structure of JEIRA and GEISA}
-JEIRA and GEISA uses Java and its built-in functions for concurrency. Since GEISA is based on JEIRA, as talked about in section \ref{jeira}, the underlying design is the same.\\
+\subsection{JEIRA and GEISA}
+This section will briefly explain the structure of the GEISA program. Almost everything applies to JEIRA as well. It is written in Java and uses Javas built-in functions for concurrency. Since GEISA is based on JEIRA, as talked about in section \ref{jeira}, the underlying design is the same.\\
 \\
-The implementation uses the producer consumer pattern described in section \ref{design_pattern}. The main thread creates a queue of tasks. All the result producers iterates over this shared queue and outputs results. These results are placed in a queue a consumed by another thread that prints the results. The program reads all data at the start which means it can get memory problems for large datasets.
+Why Java
 
-%However the source code for GEIRA and JEIRA does not calculate the risk allele according to that definition. The current version of GEISA(0.13) has no changes to the part of the code that determines the risk allele compared to JEIRA. The code from the programs can be found in appendix \ref{geira_jeira_risk_allele}. What the code does in both cases is to compare the frequency of the most common allele in both groups and if the frequency 
-%\\
+GEISA has three dependencies, two are provided as JAR files in the distribution so the user doesn't need to get them. Maven is only needed if the user wants to compile the program from the source.
+
+\begin{description}
+  \item[Apache Commons CLI] \hfill \\
+  Provides command line interface, e.g. it parses the options when using the program.
+  \item[Apache Commons Math] \hfill \\
+  Provides matrix and vector classes, linear algebra, etc.
+  \item[Apache Maven] \hfill \\
+  Used to compile Java programs.
+\end{description}
+
+The implementation uses the producer consumer pattern described in section \ref{design_pattern}. The main thread creates a queue of tasks. All the result producers iterates over this shared queue and outputs results. These results are placed in a queue a consumed by another thread that prints the results. The program reads all data at the start which means it can get memory problems for large datasets.
 
 \begin{figure}[h]
     \centering
@@ -1124,104 +1159,341 @@ The implementation uses the producer consumer pattern described in section \ref{
     \label{fig:jeira_structure}
 \end{figure}
 
-\subsection{General structure of CuEira}
-This section will
+GEISA have a few unit tests for some of the basic storage classes and the binary file reader.\\
+
+\subsection{CuEira}
+\label{cueira}
+This section will explain the structure of CuEira and how it works starting with a general overview and how it is compiled.\\
+\\
+C++ was chosen because 
 
 Why C++
+good memory handling with pointers
+fast
+blas, cuda commonly C and Fortran interface
 
-Libraries and dependencies
+CuEira have some dependencies. The dependency on MKL and Intels compiler is something that can be changed. BLAS shares the interface so another BLAS library could work with updates to the CMake file.
+\begin{description}
+  \item[Make] \hfill \\
+  Used for compiling
+  \item[CMake] \hfill \\
+  Used to create Make files
+  \item[Boost] \hfill \\
+  Boost is a collections of libraries
+  \item[CUDA] \hfill \\
+  NVIDIAs library for GPU, explained in section \ref{cuda_programming_model}
+  \item[CUBLAS] \hfill \\
+  BLAS for CUDA
+  \item[MKL] \hfill \\
+  Intels BLAS library
+  \item[Intel Compiler] \hfill \\
+  Intels C/C++ compiler
+  \item[Google Test and Google Mock] \hfill \\
+  Unit test and mocking framework. They are provided in the CuEira source so the user does not need to install them separably.
+\end{description}
 
-Two three stages
+CuEira is compiled by using CMake and Make. CMake generates Make files from a CMakeLists file. Make is 
 
-Each SNP+env combination handle independently
+One of the main advantages of CMake is 
+find package
 
-\subsection{Storage}
-JEIRA is ? major
-
-column major
-
-snp queue
-
-%memory usage on GPU
-%memory things, how many individuals before we get problems?
-%modern GPUs for general computing got about 6gb ram\cite{nvtesla}
-%what is needed to store one set of data?
-%n number of persons
-%m number of variables, 4+number of covariates
-%a single float needs 4 bytes
-%3 streams
-
-%shared
-%outcomes, vector length n
-
-%per stream
-%predictors, n*m
-%probabilities n
-%score m
-%beta m
-%work area n
-%work area n*m
-%information matrix m*m
-
-%number of floats=n+3(2*n*m+2*n+2*m+m*m)=6nm+mm+6m+7n
-
-%number of bytes with m=4(no covariates)
-%124n+160 approx 124n since n large
-%$6*10^9/124 approx 48*10^6$
-
-\subsection{File I/O}
-both take plink, CuEira only reads binary plink
-
-the readers
-
-resultwriter
-lock
-
-\subsection{GPU and Blas}
-wrappers
-
-\subsection{Model}
-%LR
-%Some parts on GPU, some parts on CPU
-%Which parts?
-%Why?
-
-\subsection{Testing}
-JEIRA have some unit tests.
-
-mocks, protected constructors
-
-integration tests
-need more
-
-
-
-
-CuEira was designed and developed as a part of this thesis. It is written in C++. Information about dependencies and how to compile can be found in appendix \ref{compile_cueira}.\\
+The main CMake file needs to know what and where all the source files are. This is done by using nested CMake files, each directory has an CMakeLists file that adds it's sub directories and sets all the source files to the previous level. There are four types of lists of source files each is compiled into a library and then linked together. There is one list for all the tests, one for the files that needs to be compiled with nvcc, one for other GPU related code and then one with the host code.\\
 \\
-The program has two steps, an initialisation step and a calculation step. In the initialisation step it reads all the data except the information for the individuals in the SNPs, i.e. it doesn't read the bed file at that stage. For the calculations the main thread starts a number of threads, one for each CUDA stream. The number of streams depends on how many GPUs the computer have, CuEira starts three streams per GPU. The threads share the data that has been read in the initialisation, among them is an queue of the SNPs. The queue has an lock to prevent more than one thread at a time to fetch a SNP.\\
+By changing an option in the main CMake file the program can be compiled with either single and double precision. More specific details on how to compile CuEira can be found in appendix \ref{compile_cueira}.\\ %TODO more preproccessor variable stuff, PRECISION, DEBUG, CPU
 \\
-Each thread asks the queue for a SNP, reads its information and launches the calculations. When its done it prints the results and asks the queue for a new SNP until the queue is empty. The calculations are done mostly on GPU however some small parts are done on the CPU. This was done for two reasons, to not to do small taks on the GPU and prevent it from doing larger kernels instead. When thread reaches parts where it mostly use the CPU another thread can use the GPU, this one of the reasons to use streams. Secondly one of the operations(the singular value decomposition, SVD) was not available in CUBLAS and turned out to be tricky to do. The matrix in question is small so it was decided to do the SVD operation using the CPU where a library was available. A future examination where more these parts are done on GPUs to would be interesting and could increase performance by minimizing transfers.
+The program itself is split into two stages, initialisation and calculations. The initialisation part reads all the information except the genetic data of the individuals and creates some of the classes. In the calculation step the worker threads are started and takes a SNP from the queue, reads its data and calculates the model.
+
+Avoiding copy
+
+Most classes have copy and move operator deleted to prevent mistakes since the default copy is naive and therefore usually flawed when dealing with classes with pointers.
+
+\subsubsection{Namespaces}
+Namespaces are used in CuEira to 
+
+\subsubsection{Storage}
+A set of container classes holds the data. There are two types of them, the basic matrix and vector classes and data containers. The data containers are responsible for handling the data for the model and performing the recoding. They use the vector classes for the actual storage.\\
+\\
+There is three types of matrix and vector classes which are all stored in column major format. The set with the Device prefix is for storage on the device and the other two are for storage on the host and shares a common interface. The difference between the host sets is that the ones with Pinned prefix uses pinned memory while Regular does not.\\
+\\
+Other basic information such as the information about individuals, environmental factors and SNPs are stored in simple classes where each individual, environmental factor or SNP is a single object. \emph{Enums} are used to store some of them. An enum is a data type consisting of a set of named values. This is useful when the variable has a distinct set of values that makes more sense as text rather than something else. For instance in CuEira the individuals gender is stored as enum with the two values MALE and FEMALE. The named enum values are commonly write in only capital letters. The gender could be stored an int, however MALE is easier to read than an int value and it also avoids potential errors with incorrect values. An enum can only have one of it's possible values while an int is not restricted in the same way. 
+
+data vectors
+
+DataHandler %TODO probably not here
+
+EnvironmentFactorHandler
+
+The SNPs are stored in a vector in the class DataQueue. DataQueue provides a single function that removes and returns a SNP from the vector. It has a lock so it can be shared among all worker threads. 
+
+\subsubsection{File I/O}
+The 
+
+CSVReader can read csv files, both the file with the covariates and the file with the environmental data are csv files.
+
+The EnvironmentCSVReader inherits CSVReader, its purpose is to convert the data matrix to EnvironmentFactorHandler.
+
+There is just one writer, the ResultWriter, as its name suggest its responsibility is to write the results. The results are written immediately and then discarded to save memory. There is an lock on the writing so several threads can share it. The results will therefore be written in the order they are completed. 
+
+%TODO picture of the whole readers thing
+
+\subsubsection{Recoding}
+DataHandler has the responsibility of recoding and delegates it to the data containers. 
+
+\subsubsection{Model}
+intro
+
+easy to extend
+
+4 types
+
+Model
+ModelConfiguration
+ModelResult
+ModelHandler
+
+Also
+ModelInformation
+CombinedResults
+
+Example of extending as basic ExampleModel
+
+Pictures
+
+\subsubsection{Wrappers}
+CUDA and BLAS functions and interfaces is in C style. For this reason they were wrapped in classes that are C++ style. These wrappers do the actual function calls to CUDA and BLAS. Since they contain a lot of different functions this was done when a function was needed to save time.\\
+\\
+MKL, e.g. Intels BLAS is wrapped in MKLWrapper. The BLAS interface standard is not object oriented which makes %TODO
+
+Matrix vector multiplication with MKL is shown in \ref{ex:mkl_mv}. The function call uses 12 parameters, most of which are of similar types. As is sometimes common it also has gone a bit too far in the shortening of the function name. The $s$ stands for single precision, $ge$ for general, $m$ for matrix and $v$ for vector. General means that it is standard matrices and vectors, e.g. not triangular or banded etc. The equivalent function in MKLWrapper can be found in \ref{ex:mkl_wrap_mv}. The name matrixVectorMultiply instantly tells the user what it does. As mentioned earlier in section \ref{cueira} the CuEira is either single or double precision depending on an option when compiling so MKLWrapper doesn't mention the precision. All matrices and vectors are also general. However even if the function name would contain that information too it would still not be so long that it was in the way. A possible name and by using namespaces could be:\\
+General::SinglePrecision::matrixVectorMultiply\\
+
+One time during the thesis it took several days to find an error that was in one of the CUBLAS calls. Due to a 1 instead of 0 it performed the operation $y=z*x+y$ instead of $y=z*x$. These types of errors are much easier to make when a function has a larger number of similar parameters.\\
+
+\stepcounter{ExamplesCounter}
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+
+\SetAlgoRefName{\arabic{ExamplesCounter}}
+\SetAlgorithmName{Example}{List of Examples}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{$layout$, storage type of the matrix, either column major(CblasColMajor) or row major(CblasRowMajor)\\
+$trans$, use transpose, conjugate or neither on the matrix\\
+$matrix$, $vector$ and $result$ are float pointers\\
+$\alpha$ and $\beta$ are constants\\
+$m$, number of rows in the matrix\\
+$n$, number of columns in the matrix\\
+$ld\_matrix$, leading dimension of the matrix\\
+$inc\_vector$ and $inc\_result$ are the increments of the elements
+}
+
+\BlankLine \BlankLine
+
+\textbf{cblas\_sgemv}($layout$, $trans$, $m$, $n$, $\alpha$, $matrix$, $ld\_matrix$, $vector$, $inc\_vector$,
+      $\beta$, $result$, $inc\_result$);
+
+\caption{Single precision matrix vector multiplication using MKL, $result=\alpha*matrix*vector+\beta*result$}
+\example{Single precision matrix vector multiplication using MKL, $result=\alpha*matrix*vector+\beta*result$}
+\label{ex:mkl_mv}
+\end{algorithm}
+
+\stepcounter{ExamplesCounter}
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+
+\SetAlgoRefName{\arabic{ExamplesCounter}}
+\SetAlgorithmName{Example}{List of Examples}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{$matrix$, HostMatrix\\
+$vector$, HostVector\\
+$result$, HostVector\\
+$\alpha$, constant, default 1\\
+$\beta$, constant, default 0\\
+}
+
+\BlankLine \BlankLine
+
+\textbf{matrixVectorMultiply}($matrix$, $vector$, $result$, $\alpha$, $\beta$);
+
+\caption{Matrix vector multiplication using MKLWrapper, $result=\alpha*matrix*vector+\beta*result$}
+\example{Matrix vector multiplication using MKLWrapper, $result=\alpha*matrix*vector+\beta*result$}
+\label{ex:mkl_wrap_mv}
+\end{algorithm}
+
+CUBLAS is wrapped together with the created kernels in KernelWrapper in a similar way to how MKL is wrapped in MKLWrapper. KernelWrapper is explained in \ref{kernelwrapper} Other CUBLAS utility and CUDA functions are wrapped in CudaAdapter.
+
+Stream class
+
+Device class
+
+The transfers to and from the device is handle by two classes, DeviceToHost and HostToDevice. They perform asynchronous transfers on the corresponding matrix and vector class. It can either create a new container to transfer to or transfer to an given place in the memory. The former is useful for instance when transferring different vectors to into a combined matrix.
+
+\subsection{Kernels}
+\label{kernelwrapper}
+kernelwrapper
+
+same structure, all do operation on elements of vector
+
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
+\SetKwFor{For}{for}{}{}
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
+\SetKwFor{While}{while}{}{}
+\SetKwRepeat{Repeat}{repeat}{until}
+\AlgoDisplayBlockMarkers
+\SetAlgoNoLine
+\SetFuncSty{}
+\SetArgSty{}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{Asdf}
+
+\BlankLine \BlankLine
+
+\SetKwFunction{KwFn}{\textcolor{kernel}{\_\_global\_\_} void \KwSty{ElementWiseAddition}}
+
+\Fn(){\KwFn{const \textcolor{keyword}{PRECISION*} $vector1$, const \textcolor{keyword}{PRECISION*} $vector2$, \textcolor{keyword}{PRECISION*} $result$,
+    const \textcolor{keyword}{int} $length$}}{
+    
+ \textcolor{keyword}{int} threadId = blockDim.x * blockIdx.x + threadIdx.x;
+
+ \BlankLine \BlankLine
+ 
+  \If{threadId < $length$}{
+    $result$[threadId] = $vector1$[threadId] + $vector2$[threadId];
+  }
+}
+
+\caption{Kernel for vector addition}
+\label{alg:kernel_elemenwise_add}
+\end{algorithm}
+
+\subsection{GPU stuff}
+3 threads per GPU
+Each thread has one CUDA stream
+Each thread gets a snp from the queue, reads in the snp data, calculates the models and writes the results
+
+Outcomes shared over whole GPU
+
+\subsubsection{Logistic Regression}
+Structure things, inheritance
+
+Some parts on GPU, some parts on CPU
+Lines 10 and 11 is done on CPU in algorithm \ref{alg:lr}
+
+The CPU parts of GPU LR is shared by using inheritance with CPU LR
+
+This is because two reasons, the size is small and CUBLAS does not provided an SVD implementation. CULA tools and MAGMA does but CULA tools synchronises over the whole device and MAGMA uses both CPU and GPU is optimized for large matrices.
+
+Other parts are done by using CUBLAS or custom kernels with elementwsie operations.
+
+syncing
+
+\subsubsection{Memory Usage}
+The memory usage is low because only the SNPs whose models currently is being calculated is stored in memory. This also means that most of the memory usage depends on the number of individuals not the number of SNPs especially since the SNP class is small. The memory is also bound by the GPU rather than host memory because of the relative size and that the GPU and host need about the same about of memory. However it does depend on the number of GPUs. A Tesla GPU has 6GB of memory\cite{nvtesla}, how many individuals can it fit at most?\\
+\\
+Float=4 bytes, double=8
+With $n$ number of individuals and $m$, $m=4+$ number of covariates, one set of memory for the LR model needs:\\
+The outcomes, size n, shared for all streams
+
+Predictors, n*m
+Probabilities n
+Score m
+Beta m
+Work area n
+Work area n*m
+Information matrix m*m
+
+With three streams the number of floats needed is
+
+\begin{equation}
+6GB=(n+3(2*n*m+2*n+2*m+m^2))*precsion
+\end{equation}
+
+Breaking out n
+\begin{equation}
+n=\frac{\frac{6GB}{6m+7}-m^2-6m}{precision}
+\end{equation}
+
+See table \ref{table:gpu_mem}. Even with 100 covariates and double precision it can store 1.2 million individuals.
+
+\begin{table}[h]
+\begin{tabular}{| l | l l |}
+  \hline
+  Number of covariates & Single precision & Double precision\\
+  \hline
+  0 & 48.4 & 24.2 \\
+  5 & 24.6 & 12.3 \\
+  10 & 16.5 & 8.2 \\
+  20 & 9.0 & 5.0 \\
+  100 & 2.4 & 1.2 \\
+  \hline  
+\end{tabular}
+\caption{The number of individuals in millions needed to fill 6GB with the given precision, number of covariates and three streams.}
+\label{table:gpu_mem}
+\end{table}
+
+%TODO host memory
+
+n individuals
+s snps
+e env
+c cov
+
+shared
+outcomes
+s snps
+e environment factors
+n*e storage of env
+n*c storage of cov
+
+per thread
+2*n snpvector
+n envfactor
+n interaction
 
 
-%\subsection{Design of the Program}
-%C++ is row major but CuEira is write as column major. This was easier because BLAS and CUBLAS are column major.
+\subsubsection{Testing}
+Almost all classes have a corresponding unit test that tests its functionality in isolation. However the matrix and vector classes are never mocked out because they are too basic and fundamental. It does mean that if there are multiple errors when testing and the tests for the matrix and vectors failed the fault likely is with those. However the number of integration tests are few and there is a need to create more.\\
+\\
+Since mocks are created by inheritance from the class to be mocked all functions need to be virtual. Some classes also have empty protected constructors to be used by the mock, others have helper functions to construct the mock. This goes against some parts of clean code but is necessary because of how C++ and mocking works. It could potentially be improved by using private constructors and friends to give the mock access.
 
-%In the initialisation step it reads all the data except the information for the individuals in the SNPs, i.e. it doesn't read the bed file at that stage.
-%Shared blocking queue and a result writer
-%3 threads per GPU
-%Each thread has one CUDA stream
-%Each thread gets a snp from the queue, reads in the snp data, calculates the models and writes the results
-
-%Outcomes shared over whole GPU
+%Each thread asks the queue for a SNP, reads its information and launches the calculations. When its done it prints the results and asks the queue for a new SNP until the queue is empty. The calculations are done mostly on GPU however some small parts are done on the CPU. This was done for two reasons, to not to do small taks on the GPU and prevent it from doing larger kernels instead. When thread reaches parts where it mostly use the CPU another thread can use the GPU, this one of the reasons to use streams. Secondly one of the operations(the singular value decomposition, SVD) was not available in CUBLAS and turned out to be tricky to do. The matrix in question is small so it was decided to do the SVD operation using the CPU where a library was available. A future examination where more these parts are done on GPUs to would be interesting and could increase performance by minimizing transfers.
 
 \chapter{Results}
+Intro\\
+
 %What was used
 %Zorn specs
 %compiler intel 14.0
 %cmake 2.8
 %mkl 13.1
 %cuda 5.5
+
+To make the comparison of the performance of the programs more fair a couple of details in CuEira was changed. With the changes CuEira assigns the risk allele the same way as the older programs and doesn't use recoding on the multiplicative model. The MAF threshold was also set to zero. The way the risk allele is calculated in GEIRA, JEIRA and GEISA is not according to the definition earlier in section \ref{risk_allele}, the actual way it is done is shown in appendix \ref{geira_jeira_risk_allele}.
 
 %single vs double precision
 
@@ -1252,7 +1524,7 @@ Each thread asks the queue for a SNP, reads its information and launches the cal
 %Using two separate compilers did cost some time. For instance there was a problem with nvcc because it does not support c++11 host code. Mostly it is not a problem because the code %can be compiled with different compilers separately and then put together\cite{cuda}. However the interfaces(e.g. function signatures) that are included in the code for nvcc needs to %be c++11 free. However compared to the total time spent on the project it was not much.
 
 
-
+%recoding on GPU instead of cpu
 
 %math stuff for add
 
@@ -1339,10 +1611,9 @@ Each thread asks the queue for a SNP, reads its information and launches the cal
 
 \begin{appendices}
 
-\chapter{Some Appendix}
-The contents...
+\chapter{Lists}
 
-\section{List of Variables}
+\section*{List of Variables}
 
 \begin{description}
 %anything with hat is estimate
@@ -1360,7 +1631,7 @@ The contents...
   Odds
 \end{description}
 
-\section{List of Abbreviations}
+\section*{List of Abbreviations}
 
 \begin{description}
 \item[MAF] \hfill \\
@@ -1402,10 +1673,12 @@ The contents...
 \end{description}
 
 \cleardoublepage
-\addcontentsline{toc}{chapter}{List of Algorithms}
-\listofalgorithms
+\addcontentsline{toc}{section}{List of Algorithms}
+\listofalgorithmslist
 
-%\listofexamples
+\cleardoublepage
+\addcontentsline{toc}{section}{List of Examples}
+\listofexample
 
 \cleardoublepage
 \listoffigures
@@ -1425,67 +1698,71 @@ The environmental factors and covariates are stored in separate files with the s
 
 \section{Risk Allele Code from GEIRA, JEIRA and GEISA}
 \label{geira_jeira_risk_allele}
-The code for how GEIRA, JEIRA and GEISA calculates the risk allele is not the same as it is define in \cite{geira, uvehag_master_thesis}.
+The code for how GEIRA, JEIRA and GEISA calculates the risk allele is not the same as it is define in \cite{geira, uvehag_master_thesis}. The risk allele is different when the most common allele in case and control is different
 
-%TODO coloring and format geira code
 \begin{algorithm}
 \DontPrintSemicolon
 \SetKwInOut{data}{Data}
 \BlankLine \BlankLine
 
-\data{CaMaxn and CoMaxn is the frequency for the cases and controls. CaMax and CoMax is the name of the allele that has the highest frequency in cases and controls.}
+\data{caseMaxn and controlMaxn is the frequency for the cases and controls.\\
+caseMax and controlMax is the name of the allele that has the highest frequency in cases and controls.}
 
 \BlankLine \BlankLine
 
-\If{$CaMaxn > CoMaxn$ \& $CaMax == CoMax$}{
-  $crisk \longleftarrow CaMax$\;
-}\ElseIf{$CaMaxn <= CoMaxn$ \& $CaMin == CoMin$}{
-  $crisk \longleftarrow CaMin$\;
-}\ElseIf{$CaMaxn > CoMaxn$ \& $CaMax != CoMax$}{
-  $crisk \longleftarrow CaMax$\;
-}\ElseIf{$CaMaxn <= CoMaxn$ \& $CaMin != CoMin$}{
-  $crisk \longleftarrow CaMin$\;
+\If{$caseMaxn > controlMaxn$ \KwSty{and} $caseMax = controlMax$}{
+  $riskAllele \longleftarrow caseMax$\;
+}\ElseIf{$caseMaxn \le controlMaxn$ \KwSty{and} $caseMin = controlMin$}{
+  $riskAllele \longleftarrow caseMin$\;
+}\ElseIf{$caseMaxn > controlMaxn$ \KwSty{and} $caseMax \neq controlMax$}{
+  $riskAllele \longleftarrow caseMax$\;
+}\ElseIf{$caseMaxn \le controlMaxn$ \KwSty{and} $caseMin \neq controlMin$}{
+  $riskAllele \longleftarrow caseMin$\;
 }
 
-\caption{GEIRA source code to determine the risk allele}
+\caption{GEIRA pseudo code to determine the risk allele}
+\algorithmslist{GEIRA pseudo code to determine the risk allele}
 \label{alg:geira_risk_allele}
 \end{algorithm}
 
-%TODO coloring and format jeira/geisa code
 \begin{algorithm}
 \DontPrintSemicolon
 \SetKwInOut{data}{Data}
 \BlankLine \BlankLine
 
-\data{Asdf} %TODO
+\data{
+$caseMaxAllele$ is the most common allele in case and $controlMaxAllele$ is the most common in control\\
+$caseMaxRatio$ and $controlMaxRatio$ is the frequency of $caseMaxAllele$ and $controlMaxAllele$ respectively.\\
+}
 
 \BlankLine \BlankLine
 
-\If{$caseMaxRatio > controlMaxRatio$ \&\& $caseMaxAllele.equals(controlMaxAllele)$}{
-  summary.setRiskAllele(caseMaxAllele)\;
+\If{$caseMaxRatio > controlMaxRatio$ \KwSty{and} $caseMaxAllele=controlMaxAllele$}{
+  $riskAllele \longleftarrow caseMaxAllele$\;
 }\Else{
-  summary.setRiskAllele(caseMinAllele)\;
+  $riskAllele \longleftarrow caseMinAllele$\;
 }
 
-\caption{JEIRA and GEISA source code to determine the risk allele}
+\caption{JEIRA and GEISA pseudo code to determine the risk allele}
+\algorithmslist{JEIRA and GEISA pseudo code to determine the risk allele}
 \label{alg:jeira_geisa_risk_allele}
 \end{algorithm}
 
-\subsection{Risk Allele Difference Results}
-Example of recode difference on data sample
+%\subsection{Risk Allele Difference Results}
+%Example of recode difference on data sample
 
-\begin{table}[h]
-\begin{tabular}{| l l |}
-  \hline
-  Recode Geisa & Recode CuEira \\
-  \hline
-  0 & 0 \\
-  0 & 0 \\
-  \hline  
-\end{tabular}
-\caption{Recode difference}
-\label{table:recode_difference}
-\end{table}
+%\begin{table}[h]
+%\begin{tabular}{| l l |}
+%  \hline
+%  Recode Geisa & Recode CuEira \\
+%  \hline
+%  0 & 0 \\
+%  0 & 0 \\
+%  \hline  
+%\end{tabular}
+%\caption{Recode difference}
+%\label{table:recode_difference}
+%\end{table}
 
 \section{Encountered Bugs}
 \label{found_bugs}

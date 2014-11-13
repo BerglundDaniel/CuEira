@@ -27,6 +27,13 @@ DataHandler::DataHandler(const Configuration& configuration) :
 }
 
 DataHandler::~DataHandler() {
+#ifdef PROFILE
+  std::cerr << "DataHandler, time spent recode: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentRecode) << std::endl;
+  std::cerr << "DataHandler, time spent next: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentNext) << std::endl;
+  std::cerr << "DataHandler, time spent read snp: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentSNPRead) << std::endl;
+  std::cerr << "DataHandler, time spent statistic model: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentStatModel) << std::endl;
+#endif
+
   delete interactionVector;
   delete snpVector;
   delete environmentVector;
@@ -37,6 +44,10 @@ DataHandler::~DataHandler() {
 }
 
 DataHandlerState DataHandler::next() {
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point before = boost::chrono::system_clock::now();
+#endif
+
   currentRecode = ALL_RISK;
   appliedStatisticModel = false;
 
@@ -61,6 +72,11 @@ DataHandlerState DataHandler::next() {
 
     currentSNP = dataQueue->next();
     if(currentSNP == nullptr){
+#ifdef PROFILE
+      boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
+      timeSpentNext+=after - before;
+#endif
+
       return DONE;
     }
 
@@ -68,6 +84,11 @@ DataHandlerState DataHandler::next() {
     if(!include){
       modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *(*environmentInformation)[0],
           *alleleStatistics);
+#ifdef PROFILE
+      boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
+      timeSpentNext+=after - before;
+#endif
+
       return SKIP;
     }
     currentEnvironmentFactorPos = 0;
@@ -87,6 +108,12 @@ DataHandlerState DataHandler::next() {
     if(!currentSNP->shouldInclude()){
       modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
           *alleleStatistics, *contingencyTable);
+
+#ifdef PROFILE
+      boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
+      timeSpentNext+=after - before;
+#endif
+
       return SKIP;
     }
   }
@@ -99,10 +126,19 @@ DataHandlerState DataHandler::next() {
         *alleleStatistics);
   }
 
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
+  timeSpentNext+=after - before;
+#endif
+
   return CALCULATE;
 }
 
 void DataHandler::applyStatisticModel(StatisticModel statisticModel) {
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point before = boost::chrono::system_clock::now();
+#endif
+
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
     throw InvalidState("Before using applyStatisticModel run next() at least once.");
@@ -119,9 +155,18 @@ void DataHandler::applyStatisticModel(StatisticModel statisticModel) {
 
   appliedStatisticModel = true;
   currentStatisticModel = statisticModel;
+
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
+  timeSpentStatModel+=after - before;
+#endif
 }
 
 void DataHandler::recode(Recode recode) {
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point before = boost::chrono::system_clock::now();
+#endif
+
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
     throw InvalidState("Before using recode run next() at least once.");
@@ -129,6 +174,11 @@ void DataHandler::recode(Recode recode) {
 #endif
 
   if(recode == currentRecode){
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
+  timeSpentRecode+=after - before;
+#endif
+
     return;
   }
 #ifdef DEBUG
@@ -151,10 +201,25 @@ void DataHandler::recode(Recode recode) {
     modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
         *alleleStatistics, *contingencyTable);
   }
+
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
+  timeSpentRecode+=after - before;
+#endif
 }
 
 bool DataHandler::readSNP(SNP& nextSnp) {
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeRead = boost::chrono::system_clock::now();
+#endif
+
   std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = bedReader->readSNP(nextSnp);
+
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterRead = boost::chrono::system_clock::now();
+  timeSpentSNPRead+=afterRead - beforeRead;
+#endif
+
   alleleStatistics = pair->first;
   snpVector = pair->second;
 

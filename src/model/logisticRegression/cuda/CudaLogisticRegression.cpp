@@ -26,10 +26,20 @@ CudaLogisticRegression::CudaLogisticRegression() :
 }
 
 CudaLogisticRegression::~CudaLogisticRegression() {
+#ifdef PROFILE
+  std::cerr << "CudaLogisticRegression, time spent total: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentTotal) << std::endl;
+  std::cerr << "CudaLogisticRegression, time spent GPU: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentGPU) << std::endl;
+  std::cerr << "CudaLogisticRegression, time spent CPU: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentCPU) << std::endl;
+#endif
+
   delete oneVector;
 }
 
 LogisticRegressionResult* CudaLogisticRegression::calculate() {
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point before = boost::chrono::system_clock::now();
+#endif
+
   PRECISION diffSumHost = 0;
   logLikelihood = 0;
 
@@ -42,14 +52,27 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
   Container::RegularHostMatrix* inverseInformationMatrixHost = new Container::RegularHostMatrix(numberOfPredictors,
       numberOfPredictors);
 
+  kernelWrapper->syncStream();
+
   int iterationNumber = 1;
   for(iterationNumber = 1; iterationNumber < maxIterations; ++iterationNumber){
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeGPU = boost::chrono::system_clock::now();
+#endif
+
     calcuateProbabilites(*predictorsDevice, *betaCoefficentsDevice, *probabilitesDevice, *workVectorNx1Device);
 
     calculateScores(*predictorsDevice, *outcomesDevice, *probabilitesDevice, *scoresDevice, *workVectorNx1Device);
 
     calculateInformationMatrix(*predictorsDevice, *probabilitesDevice, *workVectorNx1Device, *informationMatrixDevice,
         *workMatrixNxMDevice);
+
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterGPU = boost::chrono::system_clock::now();
+  timeSpentGPU+=afterGPU - beforeGPU;
+
+  boost::chrono::system_clock::time_point beforeCPU = boost::chrono::system_clock::now();
+#endif
 
     //Copy beta to old beta
     blasWrapper->copyVector(*betaCoefficentsHost, *betaCoefficentsOldHost);
@@ -66,20 +89,46 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
 
     calculateDifference(*betaCoefficentsHost, *betaCoefficentsOldHost, diffSumHost);
 
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterCPU = boost::chrono::system_clock::now();
+  timeSpentCPU+=afterCPU - beforeCPU;
+#endif
+
     if(diffSumHost < convergenceThreshold){
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeGPU_likeli = boost::chrono::system_clock::now();
+#endif
       calculateLogLikelihood(*outcomesDevice, *oneVector, *probabilitesDevice, *workVectorNx1Device, logLikelihood);
 
       //Transfer the information matrix again since it was destroyed during the SVD.
       deviceToHost->transferMatrix(*informationMatrixDevice, informationMatrixHost->getMemoryPointer());
 
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterGPU_likeli = boost::chrono::system_clock::now();
+  timeSpentGPU+=afterGPU_likeli - beforeGPU_likeli;
+#endif
+
       break;
     }else{
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeGPU_new_it = boost::chrono::system_clock::now();
+#endif
       hostToDevice->transferVector(*betaCoefficentsHost, betaCoefficentsDevice->getMemoryPointer());
       kernelWrapper->syncStream();
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterGPU_new_it = boost::chrono::system_clock::now();
+  timeSpentGPU+=afterGPU_new_it - beforeGPU_new_it;
+#endif
     }
   } /* for iterationNumber */
 
   kernelWrapper->syncStream();
+
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
+  timeSpentTotal+=after - before;
+#endif
+
   return new LogisticRegressionResult(betaCoefficentsHost, informationMatrixHost, inverseInformationMatrixHost,
       iterationNumber, logLikelihood);
 }

@@ -23,6 +23,10 @@
 #include <RegularHostVector.h>
 #include <RegularHostMatrix.h>
 
+#ifdef PROFILE
+#include <boost/chrono/chrono_io.hpp>
+#endif
+
 namespace CuEira {
 namespace Model {
 namespace LogisticRegression {
@@ -88,6 +92,12 @@ private:
   Container::DeviceVector* workVectorNx1Device;
 
   const Container::PinnedHostVector* defaultBetaCoefficents; //LRConfig owns it
+
+#ifdef PROFILE
+  boost::chrono::duration<long long, boost::nano> timeSpentTotal;
+  boost::chrono::duration<long long, boost::nano> timeSpentGPU;
+  boost::chrono::duration<long long, boost::nano> timeSpentCPU;
+#endif
 };
 
 } /* namespace CUDA */

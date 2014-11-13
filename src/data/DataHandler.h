@@ -32,6 +32,10 @@
 #include <ModelInformationFactory.h>
 #include <StatisticModel.h>
 
+#ifdef PROFILE
+#include <boost/chrono/chrono_io.hpp>
+#endif
+
 namespace CuEira {
 class DataHandlerTest;
 
@@ -105,6 +109,13 @@ private:
   const EnvironmentFactor* currentEnvironmentFactor;
   const int cellCountThreshold;
   bool appliedStatisticModel;
+
+#ifdef PROFILE
+  boost::chrono::duration<long long, boost::nano> timeSpentRecode;
+  boost::chrono::duration<long long, boost::nano> timeSpentNext;
+  boost::chrono::duration<long long, boost::nano> timeSpentSNPRead;
+  boost::chrono::duration<long long, boost::nano> timeSpentStatModel;
+#endif
 };
 
 } /* namespace CuEira */

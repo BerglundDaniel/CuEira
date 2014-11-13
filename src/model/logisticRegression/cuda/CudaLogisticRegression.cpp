@@ -5,6 +5,14 @@ namespace Model {
 namespace LogisticRegression {
 namespace CUDA {
 
+#ifdef PROFILE
+  boost::chrono::duration<long long, boost::nano> timeSpentTotal;
+  boost::chrono::duration<long long, boost::nano> timeSpentGPU;
+  boost::chrono::duration<long long, boost::nano> timeSpentCPU;
+  std::mutex mutex;
+  bool firstDestroy = true;
+#endif
+
 CudaLogisticRegression::CudaLogisticRegression(CudaLogisticRegressionConfiguration* lrConfiguration) :
     LogisticRegression(lrConfiguration), hostToDevice(&lrConfiguration->getHostToDevice()), deviceToHost(
         &lrConfiguration->getDeviceToHost()), kernelWrapper(&lrConfiguration->getKernelWrapper()), lrConfiguration(
@@ -27,9 +35,17 @@ CudaLogisticRegression::CudaLogisticRegression() :
 
 CudaLogisticRegression::~CudaLogisticRegression() {
 #ifdef PROFILE
-  std::cerr << "CudaLogisticRegression, time spent total: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentTotal) << std::endl;
-  std::cerr << "CudaLogisticRegression, time spent GPU: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentGPU) << std::endl;
-  std::cerr << "CudaLogisticRegression, time spent CPU: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentCPU) << std::endl;
+  mutex.lock();
+
+  if(firstDestroy){
+    firstDestroy = false;
+    mutex.unlock():
+    std::cerr << "CudaLogisticRegression, time spent total: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentTotal) << std::endl;
+    std::cerr << "CudaLogisticRegression, time spent GPU: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentGPU) << std::endl;
+    std::cerr << "CudaLogisticRegression, time spent CPU: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentCPU) << std::endl;
+  }else{
+    mutex.unlock():
+  }
 #endif
 
   delete oneVector;

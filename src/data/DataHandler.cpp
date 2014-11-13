@@ -2,6 +2,15 @@
 
 namespace CuEira {
 
+#ifdef PROFILE
+  boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentRecode;
+  boost::chrono::duration<long long, boost::nano> timeSpentNext;
+  boost::chrono::duration<long long, boost::nano> timeSpentSNPRead;
+  boost::chrono::duration<long long, boost::nano> timeSpentStatModel;
+  std::mutex mutex;
+  bool firstDestroy = true;
+#endif
+
 DataHandler::DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
     const ContingencyTableFactory& contingencyTableFactory,
     const Model::ModelInformationFactory& modelInformationFactory,
@@ -28,10 +37,19 @@ DataHandler::DataHandler(const Configuration& configuration) :
 
 DataHandler::~DataHandler() {
 #ifdef PROFILE
-  std::cerr << "DataHandler, time spent recode: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentRecode) << std::endl;
-  std::cerr << "DataHandler, time spent next: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentNext) << std::endl;
-  std::cerr << "DataHandler, time spent read snp: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentSNPRead) << std::endl;
-  std::cerr << "DataHandler, time spent statistic model: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeSpentStatModel) << std::endl;
+  mutex.lock();
+
+  if(firstDestroy){
+    firstDestroy = false;
+    mutex.unlock():
+    std::cerr << "DataHandler, time spent recode: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentRecode) << std::endl;
+    std::cerr << "DataHandler, time spent next: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentNext) << std::endl;
+    std::cerr << "DataHandler, time spent read snp: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentSNPRead) << std::endl;
+    std::cerr << "DataHandler, time spent statistic model: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentStatModel) << std::endl;
+  }else{
+    mutex.unlock():
+  }
+
 #endif
 
   delete interactionVector;

@@ -25,6 +25,8 @@
 
 #ifdef PROFILE
 #include <boost/chrono/chrono_io.hpp>
+#include <thread>
+#include <mutex>
 #endif
 
 namespace CuEira {
@@ -94,9 +96,11 @@ private:
   const Container::PinnedHostVector* defaultBetaCoefficents; //LRConfig owns it
 
 #ifdef PROFILE
-  boost::chrono::duration<long long, boost::nano> timeSpentTotal;
-  boost::chrono::duration<long long, boost::nano> timeSpentGPU;
-  boost::chrono::duration<long long, boost::nano> timeSpentCPU;
+  static boost::chrono::duration<long long, boost::nano> timeSpentTotal;
+  static boost::chrono::duration<long long, boost::nano> timeSpentGPU;
+  static boost::chrono::duration<long long, boost::nano> timeSpentCPU;
+  static std::mutex mutex;
+  static bool firstDestroy;
 #endif
 };
 

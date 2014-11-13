@@ -34,6 +34,8 @@
 
 #ifdef PROFILE
 #include <boost/chrono/chrono_io.hpp>
+#include <thread>
+#include <mutex>
 #endif
 
 namespace CuEira {
@@ -111,10 +113,12 @@ private:
   bool appliedStatisticModel;
 
 #ifdef PROFILE
-  boost::chrono::duration<long long, boost::nano> timeSpentRecode;
-  boost::chrono::duration<long long, boost::nano> timeSpentNext;
-  boost::chrono::duration<long long, boost::nano> timeSpentSNPRead;
-  boost::chrono::duration<long long, boost::nano> timeSpentStatModel;
+  static boost::chrono::duration<long long, boost::nano> timeSpentRecode;
+  static boost::chrono::duration<long long, boost::nano> timeSpentNext;
+  static boost::chrono::duration<long long, boost::nano> timeSpentSNPRead;
+  static boost::chrono::duration<long long, boost::nano> timeSpentStatModel;
+  static std::mutex mutex;
+  static bool firstDestroy;
 #endif
 };
 

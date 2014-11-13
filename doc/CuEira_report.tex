@@ -147,11 +147,9 @@ A position of the DNA or a gene is a \emph{locus}\cite{sadava_life}. A variation
 \label{risk_allele}
 The the allele that is least common using all individuals(both cases and controls) is the \emph{minor allele}, the one that is most common is the \emph{major allele}. The frequency of the minor allele is the \emph{minor allele frequency}(MAF)\cite{uvehag_master_thesis, geira}. If the MAF is too low an analysis often will be of little value so all SNPs with MAF below a threshold are usually skipped. 5\% is common value of the threshold\cite{burton2007genome, geira}.\\
 \\
-To determine if the genetic risk is present for each individual one of the alleles needs to be chosen as the \emph{risk allele}. GEIRA and JEIRA determines the risk allele by comparing the MAFs of case and control\cite{geisa, uvehag_master_thesis}. If MAF of cases is greater or equal to the MAF of controls the minor allele is used as the risk otherwise the other allele\cite{geisa, uvehag_master_thesis}.\\
+To determine if the genetic risk is present for each individual one of the alleles needs to be chosen as the \emph{risk allele}. GEIRA and JEIRA determines the risk allele by comparing the MAFs of case and control\cite{geisa, uvehag_master_thesis}. If MAF of cases is greater or equal to the MAF of controls the minor allele is used as the risk otherwise the other allele\cite{geisa, uvehag_master_thesis}. In this thesis the risk allele will be defined as the allele that has higher frequency in cases than controls. It is similar to the definition using MAF in most cases. Appendix \ref{risk_allele_diff} has more detailed comparisons.\\
 \\
-A simpler equivalent definition is that the risk allele is the allele which frequency is higher in case than in controls. This definition means that the allele chosen as risk might not be the most common in either case or control, however the portion of the population that has the allele is higher among cases than controls. This hints that it might be a reason behind the outcomes. This definition is equivalent to the definition using MAF because if the minor allele has a higher frequency in cases then it the risk is the minor allele according to both definitions. If that is not the case the first definition sets the major allele as the risk. Also due to symmetrical reasons(the total frequency is always 1) this means that the major allele has higher frequency in cases than in controls, which according to the second definition means it is the risk allele.\\
-\\
-The presence of genetic risk based on the risk allele and the genetic model can be coded as a variable than then be can used in a statistical model. For dominant or recessive genetic model this means that the variable is binary since the risk is either present or not. See table \ref{table:genetic} for how the coding is based on the model. There is an alternative way to code using co-dominant genetic model. In this case the number of risk alleles in the individual used as the variable, so either 0, 1 or 2. %TODO reference
+The presence of genetic risk based on the risk allele and the genetic model can be coded as a variable than then be can used in a statistical model. For dominant or recessive genetic model this means that the variable is binary since the risk is either present or not\cite{geira}. See table \ref{table:genetic} for how the coding is based on the model. For co-dominant model the number of risk alleles in the individual is used as the variable, 0, 1 or 2 \cite{geira}.
 
 \section{Defining Interaction}
 \label{interaction}
@@ -1556,6 +1554,7 @@ numberOfThreadsPerBlock is 256 }
 \subsection{Model}
 %TODO write model stuff
 
+%TODO possibly move, write something about that it uses builder pattern as talked about in clean code stuff
 Configuration pattern classes are used to reduce the number of parameters to functions. Instead of having a number of parameters to a function the parameters are put in a Configuration class. The Configuration class has two functions for each parameter, a \textbf{set} function and a \textbf{get} function. The \textbf{set} is used to set the parameter while \textbf{get} is used to get the parameter. 
 
 Model
@@ -1564,45 +1563,27 @@ easy to extend
 
 A group of base classes
 
+%TODO description list thing
+
 Model
 ModelConfiguration
 ModelResult
 ModelHandler
 CombinedResults
 
-Also
 ModelInformation. It has the ContingencyTable and AlleleStatistics
 
 The basic ModelHandler has next to switch DataHandler to the next combination and to updated it's own pointers to the new data.
 
-Example of extending as basic ExampleModel
+The next section will explain how the base classes here were extended to form the classes for the LR.
 
-Pictures
-
-ostream operator cant be virtual so delegates to function that is
-
-\subsection{Logistic Regression}
-The LR model is implemented using the Model base classes talked about in the previous section. There is a CPU version and a GPU version using CUDA. They share some classes 
-
-The structure is shown in figure \ref{fig:lr_inheritance}.
-
-CUDALR
-CUDALRConf
-CPULR
-CPULRConf
-
-LRConfig
-LR
-LRResult
-
-LRModelHandler
-
-CombinedResultsLogisticRegression
+\subsubsection{Logistic Regression}
+The LR model is implemented using the Model base classes talked about in the previous section. There is a CPU version and a GPU version using CUDA. Some classes are shared between them because of common elements. The structure is shown in figure \ref{fig:lr_inheritance}.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=10cm]{lr_structure.png}
-    \caption{Structure of the logistic regression classes}
+    \includegraphics[width=12cm]{lr_structure.png}
+    \caption{Overview of the logistic regression classes. White arrow is inheritance. Diamond is that the class with the diamond has instances of the other class.}
     \label{fig:lr_inheritance}
 \end{figure}
 
@@ -1867,25 +1848,6 @@ To make the comparison of the performance of the programs more fair a couple of 
 
 \chapter{Lists}
 
-\section*{List of Variables}
-%TODO remove this?
-
-\begin{description}
-%anything with hat is estimate
-\item[$\theta_{ij}$]
-  Odds ratio with exposure levels i and j
-\item[$RR_{ij}$]
-  Relative risk with exposure levels i and j
-\item[X]
-  Predictors
-\item[Y]
-  The outcome, binary variable
-\item[$\pi(x)$]
-  = $P(Y=1)$
-\item[$\Omega$]
-  Odds
-\end{description}
-
 \section*{List of Abbreviations}
 
 \begin{description}
@@ -1974,8 +1936,11 @@ Contingency table stuff is recoded
 
 \chapter{Bugs and Issues}
 
-\section{Risk Allele Code from GEIRA, JEIRA and GEISA}
+\section{Risk Allele}
+\label{risk_allele_diff}
 \label{geira_jeira_risk_allele}
+%TODO fix risk allele stuff. comparasions
+
 The code for how GEIRA, JEIRA and GEISA calculates the risk allele is not the same as it is define in \cite{geira, uvehag_master_thesis}. The risk allele is different when the most common allele in case and control is different
 
 \begin{algorithm}

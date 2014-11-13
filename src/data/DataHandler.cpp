@@ -4,11 +4,11 @@ namespace CuEira {
 
 #ifdef PROFILE
   boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentRecode;
-  boost::chrono::duration<long long, boost::nano> timeSpentNext;
-  boost::chrono::duration<long long, boost::nano> timeSpentSNPRead;
-  boost::chrono::duration<long long, boost::nano> timeSpentStatModel;
-  std::mutex mutex;
-  bool firstDestroy = true;
+  boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentNext;
+  boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentSNPRead;
+  boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentStatModel;
+  std::mutex DataHandler::mutex;
+  bool DataHandler::firstDestroy = true;
 #endif
 
 DataHandler::DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
@@ -41,13 +41,13 @@ DataHandler::~DataHandler() {
 
   if(firstDestroy){
     firstDestroy = false;
-    mutex.unlock():
-    std::cerr << "DataHandler, time spent recode: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentRecode) << std::endl;
-    std::cerr << "DataHandler, time spent next: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentNext) << std::endl;
-    std::cerr << "DataHandler, time spent read snp: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentSNPRead) << std::endl;
-    std::cerr << "DataHandler, time spent statistic model: " << boost::chrono::duration_cast<boost::chrono::millioseconds>(timeSpentStatModel) << std::endl;
+    mutex.unlock();
+    std::cerr << "DataHandler, time spent recode: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentRecode) << std::endl;
+    std::cerr << "DataHandler, time spent next: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentNext) << std::endl;
+    std::cerr << "DataHandler, time spent read snp: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentSNPRead) << std::endl;
+    std::cerr << "DataHandler, time spent statistic model: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentStatModel) << std::endl;
   }else{
-    mutex.unlock():
+    mutex.unlock();
   }
 
 #endif

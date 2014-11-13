@@ -819,6 +819,7 @@ One of the main criticism against GPUs for general computing purposes is that it
 
 \clearpage
 \section{Software Design Background}
+%TODO facade interface, more pattern stuff? adapter, wrapper
 How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software. Badly organized and written code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. Fixing those bugs are likely to time consuming because it can be hard to find where they originated from. All code gather problems overtime, however a well designed system will degenerate significantly slower than one that was designed carelessly. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in. \cite{cleancode2008, design_patterns}\\
 \\
 This is also important in science where others might wish to use the tools or repeat the experiments. A recent study\cite{comp_repro_2013} found that the repeatability in computer science is low. They used the term reproducibility however repeatability is a more fitting term because they didn't try to reproduce the results from scratch, they tried to repeat it using the same code. Of 513 articles they received the code from 231, 108 failed to build, 21 failed to run properly\cite{comp_repro_2013}. The remaing 102 compiled and ran, however they did not check if the results of the program was correct\cite{comp_repro_2013}.\\
@@ -844,7 +845,7 @@ There are ways to design the program and code in such a way that it is easier to
 Dependency injection is one way to implement dependency inversion principle\cite{cleancode2008}. Injection is passing the dependency to the dependent object. This is used instead of allowing the dependent object to construct or find the dependency.
 
 \subsubsection{Basci C++ stuff}
-%TODO write about inheritance, namespaces, pointers, memory, enums
+%TODO write about inheritance, namespaces, pointers, memory, enums, exceptions
 
 \subsection{Unit Tests and Mocks}
 \emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work. \emph{Integration testing} is used to test several units together to find possible errors  
@@ -858,6 +859,7 @@ It can be easy to denote test code as less important than the main code but they
 \emph{Mocking} is to replace a real object with a fake object called a \emph{mock} that for the code is indistinguishable from the real object. This allows one to create situations and test with more control and without depending on the real objects code. The second is important for unit tests since it enables one to test units that normally depend on others in isolation. In the first case it is useful in situations such as when one wants to test a class handling of a rare failure. Such failures can be hard and time consuming to induce. It is then easier to use a mock object that behaves like the failure has occurred. However mocking requires that the code for the class doesn't create the object itself since there is no way to replace the object with the mock. This is one of the reasons why dependency injection should be use.\cite{cleancode2008}
 
 \subsection{Design Patterns}
+%TODO builder pattern, adapter pattern
 \label{design_pattern}
 A \emph{design pattern} in software design is a reusable general solution to a common recurring problem in a given context. It is templates and structures to solve the problem, however it is not code. However they are partially dependent on the programming language since different languages have different features and limitations.\cite{design_patterns}\\
 \\
@@ -922,21 +924,24 @@ $$S(p)=p+(1-F)(1-p)$$
 \end{figure}
 
 \subsection{Profilers}
-There are applications called profilers that are made to assess the programs performance and resource consumption. They calculate some of the measures mentioned earlier and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlenecks and other problems in the program. It does not matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products.\cite{introduction_hpc_hager, cuda_best_practice}
+There are applications called profilers that are made to assess the programs performance and resource consumption. They calculate some of the measures mentioned earlier and they also check hardware usage and how much time the program spends at various parts of the program. This is very useful for finding bottlenecks and other problems in the program. It does not matter if the algorithm is super fast if all the data is stuck in network transfers. The profilers can be hardware dependent so the manufactures usually provided them for their products.\cite{introduction_hpc_hager, cuda_best_practice}\\
+\\
+Nsight\cite{nvidia_nsight} is a combined profiler and integrated development environment(IDE) based on either Visual Studio or Eclipse. For this thesis Nsight Eclipse edition was used. It works as the usual Eclipse but has added functionality for CUDA and CUDA profiling\cite{nvidia_nsight}.
 
-%TODO lite om nsight
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{nsight_profiler.png}
+    \caption{Screenshot of Nsight Eclipse Editions profiling section, from \cite{nvidia_nsight}}
+    \label{fig:nsight_profiler}
+\end{figure}
 
-%TODO screenshot av nsight
-
-%TODO cite nsight
-
-\clearpage
-\chapter{Algorithms and Implementation}
+%\clearpage
+%\chapter{Algorithms and Implementation}
 %Algorithm (up till 20 pages)
 %  - Current state - Basic algorithm, Data structure, memory consumption, parallelization, load balancing and scalability
 %  - And the same for own your implementation
 
-This section starts with the algorithms and then the implementations.
+%This section starts with the algorithms and then the implementations.
 
 %OTHERS
 %problem with exathsutive
@@ -949,7 +954,7 @@ This section starts with the algorithms and then the implementations.
 
 %plink data format
 
-\section{Algorithmic Background}
+\section{Algorithms}
 \label{algorithm_background}
 There are many algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned\cite{gene_enviroment_2013}. One of the challenges of gene-environment interaction is that environmental factors can be of any variable type(i.e. binary, continuous, categorical) which creates problems in various ways\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variables to be binary or have other problems since they weren't designed for environmental interaction\cite{gene_enviroment_2013}.\\
 \\
@@ -1059,6 +1064,9 @@ $log \; likelihood\longleftarrow \sum (\boldsymbol{Y}*ln p+(1-\boldsymbol{Y})*ln
 \label{alg:lr}
 \end{algorithm}
 
+%TODO write about LR matrix inverse
+The inverse of the information matrix, or Jacobian, on line 10 is generally not possible with normal matrix inverse because it is not defined for a general matrix. However the \emph{pseudo-inverse} is.  
+
 \subsection{Data Mining and Machine Learning Approaches}
 \label{data_machine_learning}
 Approaches based on Data Mining and Machine Learning have been a popular choice for GWAS. MDR\cite{mdr_2001} and Random Forest(RF)\cite{random_forest} are among the most common ones\cite{gene_enviroment_2013,cordell_detect_review}. There are other methods as well such as clustering approaches \cite{fast_high_order_cluster}. Most of them are used for screening the data for possible interactions\cite{gene_enviroment_2013,cordell_detect_review}.\\
@@ -1123,21 +1131,19 @@ It has been shown in high dimensional data that RF tends to only rank interactin
 \end{figure}
 
 \newpage
-\section{Implementation}
+\chapter{Implementation}
 \label{implementation}
-Here bla bla
-
-why LR
+This section will explain the implementation of the program starting with a short summary of how JEIRA and GEISA works. After that is a more thorough look at the structure and implementation of CuEira.\\
+\\
+%why LR
 %-less sever drawbakcs for non binary
 %-can handle non binary data(however statistical problems needs to be solved)
 %-slow but is not too slow for gene-environment interaction
+%\\
+The input files for all these programs are Plink data files. However CuEira can only read the Plink files in binary format. They also read a separate tab delimited file that contains the environmental data and covariates if any. For CuEira the covariates and environmental data is split in two files.
 
-All the programs read Plink data files except CuEira which can only read the binary Plink files. They also read a separate file that contains the environmental data and covariates if any. For CuEira the covariates and environmental data is split in two different files with the same structure. %TODO cite plink file stuff
-
-\subsection{JEIRA and GEISA}
-This section will briefly explain the structure of the GEISA program. Almost everything applies to JEIRA as well. It is written in Java and uses Javas built-in functions for concurrency. Since GEISA is based on JEIRA, as talked about in section \ref{jeira}, the underlying design is the same.\\
-\\
-Why Java
+\section{JEIRA and GEISA}
+The descriptions and structures here apply to both JEIRA and GEISA since their underlying structure is the same, however the focus is on GEISA. They are written in Java and uses Javas built-in functions for concurrency. Java was chosen because it is %TODO \cite{uvehag_master_thesis}
 
 GEISA has three dependencies, two are provided as JAR files in the distribution so the user doesn't need to get them. Maven is only needed if the user wants to compile the program from the source.
 
@@ -1152,18 +1158,11 @@ GEISA has three dependencies, two are provided as JAR files in the distribution 
 
 The implementation uses the producer consumer pattern described in section \ref{design_pattern}. The main thread creates a queue of tasks. All the result producers iterates over this shared queue and outputs results. These results are placed in a queue a consumed by another thread that prints the results. The program reads all data at the start which means it can get memory problems for large datasets.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{jeira_structure.png}
-    \caption{JEIRA structure}
-    \label{fig:jeira_structure}
-\end{figure}
+There are a few unit tests for some of the basic storage classes and the binary file reader.\\
 
-GEISA have a few unit tests for some of the basic storage classes and the binary file reader.\\
-
-\subsection{CuEira}
+\section{CuEira}
 \label{cueira}
-This section will explain the structure of CuEira and how it works starting with a general overview and how it is compiled.\\
+This section will explain the structure of CuEira and how it works starting with a general overview. Later the parts are explained and finally how the parts are combined to form the program.\\
 \\
 C++ was chosen because 
 
@@ -1172,14 +1171,29 @@ good memory handling with pointers
 fast
 blas, cuda commonly C and Fortran interface
 
+The basis of the program is that each SNP is handled independently and a SNP is only read from the file when its needed to reduce memory usage. A number of worker threads share a queue of the SNPs and with each worker thread corresponding to a stream on a GPU. The program is split into two stages, initialisation and calculations. The initialisation part is done by the main thread and reads all the information except the SNP data. In the calculation step each worker threads fetches a SNP from the queue, reads its data, calculates the model, writes the results and then starts again with the next SNP until the queue is empty.\\
+\\
+Copying of the classes is avoided
+
+Most classes have copy and move operator deleted to prevent mistakes since the default copy is naive and therefore usually flawed when dealing with classes with pointers.
+
+Factories are used were needed to help satisfy the dependency inversion principle.
+
+Namespaces are used in CuEira to 
+
+Comments are used very sparsely for several reasons. The names and could so be clear and readable so that they should not be needed and it is also easy to forget to update them.
+%TODO add comment stuff to clean code?
+
+\subsection{Dependency and Compiling}
 CuEira have some dependencies. The dependency on MKL and Intels compiler is something that can be changed. BLAS shares the interface so another BLAS library could work with updates to the CMake file.
+
 \begin{description}
   \item[Make] \hfill \\
   Used for compiling
   \item[CMake] \hfill \\
   Used to create Make files
   \item[Boost] \hfill \\
-  Boost is a collections of libraries
+  Boost is a collections of C++ libraries. For CuEira it is used for file handling, string operations and parsing the command line options.
   \item[CUDA] \hfill \\
   NVIDIAs library for GPU, explained in section \ref{cuda_programming_model}
   \item[CUBLAS] \hfill \\
@@ -1199,75 +1213,182 @@ find package
 
 The main CMake file needs to know what and where all the source files are. This is done by using nested CMake files, each directory has an CMakeLists file that adds it's sub directories and sets all the source files to the previous level. There are four types of lists of source files each is compiled into a library and then linked together. There is one list for all the tests, one for the files that needs to be compiled with nvcc, one for other GPU related code and then one with the host code.\\
 \\
-By changing an option in the main CMake file the program can be compiled with either single and double precision. More specific details on how to compile CuEira can be found in appendix \ref{compile_cueira}.\\ %TODO more preproccessor variable stuff, PRECISION, DEBUG, CPU
-\\
-The program itself is split into two stages, initialisation and calculations. The initialisation part reads all the information except the genetic data of the individuals and creates some of the classes. In the calculation step the worker threads are started and takes a SNP from the queue, reads its data and calculates the model.
+By changing an option in the main CMake file the program can be compiled with either single and double precision. 
 
-Avoiding copy
+%TODO more preproccessor variable stuff, PRECISION, DEBUG, CPU
 
-Most classes have copy and move operator deleted to prevent mistakes since the default copy is naive and therefore usually flawed when dealing with classes with pointers.
+More details on how to compile and use CuEira can be found in appendix \ref{compile_cueira}.
 
-\subsubsection{Namespaces}
-Namespaces are used in CuEira to 
-
-\subsubsection{Storage}
+\subsection{Storage}
 A set of container classes holds the data. There are two types of them, the basic matrix and vector classes and data containers. The data containers are responsible for handling the data for the model and performing the recoding. They use the vector classes for the actual storage.\\
 \\
 There is three types of matrix and vector classes which are all stored in column major format. The set with the Device prefix is for storage on the device and the other two are for storage on the host and shares a common interface. The difference between the host sets is that the ones with Pinned prefix uses pinned memory while Regular does not.\\
 \\
-Other basic information such as the information about individuals, environmental factors and SNPs are stored in simple classes where each individual, environmental factor or SNP is a single object. \emph{Enums} are used to store some of them. An enum is a data type consisting of a set of named values. This is useful when the variable has a distinct set of values that makes more sense as text rather than something else. For instance in CuEira the individuals gender is stored as enum with the two values MALE and FEMALE. The named enum values are commonly write in only capital letters. The gender could be stored an int, however MALE is easier to read than an int value and it also avoids potential errors with incorrect values. An enum can only have one of it's possible values while an int is not restricted in the same way. 
+Other basic information such as the information about individuals, environment factors and SNPs are stored in simple classes where each individual, environmental factor or SNP is a single object. \emph{Enums} are used to store some of them. An enum is a data type consisting of a set of named values. This is useful when the variable has a distinct set of values that makes more sense as text rather than something else. For instance in CuEira the individuals gender is stored as enum with the two values MALE and FEMALE. The named enum values are commonly write in only capital letters. The gender could be stored an int, however MALE is easier to read than an int value and it also avoids potential errors with incorrect values. An enum can only have one of it's possible values while an int is not restricted in the same way.\\
+\\
+The SNPs are stored in the class DataQueue. DataQueue provides the function \textbf{next()} that fetches a SNP from the queue and returns it. It has a lock so it can be shared among all worker threads.\\
+\\
+The EnvironmentFactorHandler is responsible for keeping track of the EnvironmentFactors and it's corresponding data. When constructed it updates the EnvironmentFactors variable type. This is done because it can sometimes be needed to know if a variable is binary or not. It also provides functions to access the EnvironmentFactors and the corresponding vectors.\\
+\\
+There is three data container classes, SNPVector, EnvironmentVector and InteractionVector. They all have the responsibility to keep track of the recoded data and to perform the recoding when their \textbf{recode()} function is used. The \textbf{recode()} function takes an Recode enum which tells it which type of recoding it shoudl perform. The SNPVector also holds the original SNP data. EnvironmentVector doesn't need to since EnvironmentFactorHandler has that responsibility and InteractionVector does not have any kind of original data.\\
+\\
+The DataHandler is responsible for keeping track of the current combination of data containers being used and to iterate to the next one when its \textbf{next()} function is called. When the \textbf{next()} function is used a couple of things happen. If all environment factors have been calculated together with the current SNP it deletes the SNPs information, asks the queue for a new one and reads its data and switches to the first environment factor. Otherwise it moves on to the next environment factor. It then updates the InteractionVector and the Statistics classes to create the contingency table and the allele frequencies. After that the next set of variables is ready to be used.
 
-data vectors
-
-DataHandler %TODO probably not here
-
-EnvironmentFactorHandler
-
-The SNPs are stored in a vector in the class DataQueue. DataQueue provides a single function that removes and returns a SNP from the vector. It has a lock so it can be shared among all worker threads. 
-
-\subsubsection{File I/O}
-The 
-
-CSVReader can read csv files, both the file with the covariates and the file with the environmental data are csv files.
-
-The EnvironmentCSVReader inherits CSVReader, its purpose is to convert the data matrix to EnvironmentFactorHandler.
-
-There is just one writer, the ResultWriter, as its name suggest its responsibility is to write the results. The results are written immediately and then discarded to save memory. There is an lock on the writing so several threads can share it. The results will therefore be written in the order they are completed. 
+\subsection{File I/O}
+%TODO coviariates outside too
+CuEira reads five files that are in four different formats. The reading of all files except one is handled by the facade pattern class %TODO pattern name?
+DataFilesReader. DataFilesReader and how it delegates is shown in figure\\% \ref{fig:data_files_reader}.\\ TODO
+\\
+Three of the files are binary Plink files, of which one is binary. The fam file has the information about the individuals, the bim file has the names of the SNPs and their alleles. The genetic information for each individual is in the binary bed file. More details on Plink files can be found in appendix \ref{plink_file}.\\
+\\
+The other two files are CSV files. One of them contains the covariates and the other the environmental factors. CSVReader is responsible for reading them and storing the data in a matrix. The fifth reader class is EnvironmentCSVReader which inherits CSVReader. Its purpose is to convert the matrix read by CSVReader with the environment data to EnvironmentFactorHandler.\\
+\\
+The BedReader class is outside DataFilesReader because it needs some of the information that is inside the other Plink files. It is also a different because it is the only reader that is continuously used during the whole execution of the program.\\
+\\
+There is only one writer, the ResultWriter, and as its name suggests its responsibility is to write the results. The results are written immediately and then discarded to save memory. There is an lock on the writing so several threads can share it. The results will therefore be written in the order they are completed. 
 
 %TODO picture of the whole readers thing
 
-\subsubsection{Recoding}
-DataHandler has the responsibility of recoding and delegates it to the data containers. 
-
-\subsubsection{Model}
-intro
-
-easy to extend
-
-4 types
-
-Model
-ModelConfiguration
-ModelResult
-ModelHandler
-
-Also
-ModelInformation
-CombinedResults
-
-Example of extending as basic ExampleModel
-
-Pictures
-
-\subsubsection{Wrappers}
-CUDA and BLAS functions and interfaces is in C style. For this reason they were wrapped in classes that are C++ style. These wrappers do the actual function calls to CUDA and BLAS. Since they contain a lot of different functions this was done when a function was needed to save time.\\
+\subsection{Initialisation of the variables, Recoding and Statistic Model}
+The initialisation of the SNPVector and EnvironmentVector is done by calling the recoding with ALL\_RISK from the Recode enum. The \textbf{recode()} function calls different functions based on the enum. If it is ALL\_RISK it calls a function that copies the data from the vector holding the original data to vector that holds the data that will be used for the model. InteractionVector does recoding and initialisation the same way because in both cases the interaction data is the multiplication of the elements of the SNPVector and EnvironmentVector. InteractionVector recode is shown in algorithm \ref{alg:inter_recode}. SNPVector recode is shown in algorithm \ref{alg:snp_recode} and EnvironmentVector recode is shown in algorithm \ref{alg:env_recode}.\\
 \\
-MKL, e.g. Intels BLAS is wrapped in MKLWrapper. The BLAS interface standard is not object oriented which makes %TODO
+For the additive statistical model all the elements in SNPVector and EnvironmentVector needs to be set to 0 when the corresponding element in InteractionVector is 1. Both have an function named \textbf{applyStatisticModel()} that does it. It takes the InteractionVector as an parameter and the algorithm is the same for both SNPVector and EnvironmentVector. The algorithm is shown in algorithm \ref{alg:app_stat_model}.\\
+\\
+DataHandler has the overall responsibility for recoding and applying the statistical model, it calls the data containers functions as needed. It also updates the ContingencyTable after recoding since the distribution of the groups changes when recoding.
 
-Matrix vector multiplication with MKL is shown in \ref{ex:mkl_mv}. The function call uses 12 parameters, most of which are of similar types. As is sometimes common it also has gone a bit too far in the shortening of the function name. The $s$ stands for single precision, $ge$ for general, $m$ for matrix and $v$ for vector. General means that it is standard matrices and vectors, e.g. not triangular or banded etc. The equivalent function in MKLWrapper can be found in \ref{ex:mkl_wrap_mv}. The name matrixVectorMultiply instantly tells the user what it does. As mentioned earlier in section \ref{cueira} the CuEira is either single or double precision depending on an option when compiling so MKLWrapper doesn't mention the precision. All matrices and vectors are also general. However even if the function name would contain that information too it would still not be so long that it was in the way. A possible name and by using namespaces could be:\\
-General::SinglePrecision::matrixVectorMultiply\\
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
+\SetKwFor{For}{for}{}{}
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
+\SetKwFor{While}{while}{}{}
+\SetKwRepeat{Repeat}{repeat}{until}
+\AlgoDisplayBlockMarkers
+\SetAlgoNoLine
+\SetFuncSty{}
+\SetArgSty{}
 
-One time during the thesis it took several days to find an error that was in one of the CUBLAS calls. Due to a 1 instead of 0 it performed the operation $y=z*x+y$ instead of $y=z*x$. These types of errors are much easier to make when a function has a larger number of similar parameters.\\
+\SetKwInOut{data}{Data}
+
+\BlankLine \BlankLine
+
+\data{Asdf}
+
+\BlankLine \BlankLine
+
+%TODO snpvector recoding
+
+\caption{SNPVector protective recoding}
+\label{alg:snp_recode}
+\end{algorithm}
+
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
+\SetKwFor{For}{for}{}{}
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
+\SetKwFor{While}{while}{}{}
+\SetKwRepeat{Repeat}{repeat}{until}
+\AlgoDisplayBlockMarkers
+\SetAlgoNoLine
+\SetFuncSty{}
+\SetArgSty{}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{Two vectors, $originalData$ and $recodedData$}
+
+\BlankLine \BlankLine
+
+\For{\textcolor{keyword}{int} $i$ = 0; $i$ $<$ $numberOfIndividualsToInclude$; ++$i$}{
+  \If{(*$originalData$)($i$) == 0}{
+    (*$recodedData$)($i$) = 1;
+  }\Else{
+    (*$recodedData$)($i$) = 0;
+  }
+}
+
+\caption{EnvironmentVector protective recoding}
+\label{alg:env_recode}
+\end{algorithm}
+
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
+\SetKwFor{For}{for}{}{}
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
+\SetKwFor{While}{while}{}{}
+\SetKwRepeat{Repeat}{repeat}{until}
+\AlgoDisplayBlockMarkers
+\SetAlgoNoLine
+\SetFuncSty{}
+\SetArgSty{}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{$EnvironmentVector$ and $SNPVector$}
+
+\BlankLine \BlankLine
+
+const \textcolor{keyword}{HostVector\&} envData = environmentVector.getRecodedData();\;
+const \textcolor{keyword}{HostVector\&} snpData = snpVector.getRecodedData();\;
+
+\BlankLine \BlankLine
+
+\For{\textcolor{keyword}{int} $i$ = 0; $i$ $<$ $numberOfIndividualsToInclude$; ++$i$}{
+  (*$interactionVector$)($i$) = $envData$($i$) * $snpData$($i$);\;
+}
+
+\caption{InteractionVector recoding}
+\label{alg:inter_recode}
+\end{algorithm}
+
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
+\SetKwFor{For}{for}{}{}
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
+\SetKwFor{While}{while}{}{}
+\SetKwRepeat{Repeat}{repeat}{until}
+\AlgoDisplayBlockMarkers
+\SetAlgoNoLine
+\SetFuncSty{}
+\SetArgSty{}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{$recodedData$, vector with the variable\\
+$interactionVector$, vector with the interaction variable}
+
+\BlankLine \BlankLine
+
+\For{\textcolor{keyword}{int} $i$ = 0; $i$ < $numberOfIndividualsToInclude$; ++$i$}{
+  \If{$interactionVector$($i$) != 0}{
+    (*$recodedData$)($i$) = 0;
+  }
+}
+
+\caption{Applying statistic model}
+\label{alg:app_stat_model}
+\end{algorithm}
+
+%\subsection{Statistics}
+%The statistics classes are responsible for calculating based on the results and to calculate the distribution of the groups, for instance the contingency table. 
+
+\subsection{Wrappers}
+CUDA and BLAS functions and interfaces are in C style. To make it easier to use and fit better with the rest of the programs they were put in wrappers. These wrappers are in C++ style and do the actual function calls to CUDA and BLAS. Since CUDA and BLAS contains a lot of various functions they were added as needed. There are several reasons to use wrappers. One is that some of the functions does not use exceptions but returns an error code instead. This forces the program to check these error codes. This is hidden by using a wrapper that can throw the correct exception based on the error code. Exceptions are also better for performance because it removes the need for if statements checking the returned error codes. The compiler can optimize better with checks for exceptions(e.g. try catch statements) because it can assume that the occurrence of exceptions is low. However usually checks for exceptions are not needed because they commonly signify a critical error.\\ %TODO cite exception performance
+\\
+Another reason is the lack of object orientation. For instance the BLAS interface standard is not object oriented which causes its functions to have a lot of parameters. Matrix vector multiplication with MKL(Intels version of BLAS) is shown in \ref{ex:mkl_mv}. The function call uses 12 parameters, most of which are of similar types. One time during the thesis it took a day to find an error that was in one of the CUBLAS calls. Due to a parameter being 1 instead of 0 it performed the operation $y=z*x+y$ instead of $y=z*x$. These types of errors are much easier to make when a function has a larger number of similar parameters. MKL is wrapped in MKLWrapper. Its wrapped version of matrix vector multiplication, shown in \ref{ex:mkl_wrap_mv}, has 5 parameters of which two have default values.\\
+\\
+As is sometimes common BLAS function names are heavily abbreviated. For instance a function for matrix vector multiplication is \textbf{sgemv}, the $s$ stands for single precision, $ge$ for general, $m$ for matrix and $v$ for vector. General means that it is standard matrices and vectors, e.g. not triangular or banded etc. The equivalent function in MKLWrapper can be found in \ref{ex:mkl_wrap_mv}. The name matrixVectorMultiply instantly tells the user what it does. As mentioned earlier in section \ref{cueira} the CuEira is either single or double precision depending on an option when compiling so MKLWrapper doesn't mention the precision. All matrices and vectors are also general. However even if the function name would contain that information too it would still not be so long that it was in the way. A possible name by using namespaces for the precision and type could be General::SinglePrecision::matrixVectorMultiply. In CuEira the namespaces are not used since they all are of the same precision and type.\\
+\\
 
 \stepcounter{ExamplesCounter}
 \begin{algorithm}
@@ -1339,19 +1460,15 @@ $\beta$, constant, default 0\\
 \label{ex:mkl_wrap_mv}
 \end{algorithm}
 
-CUBLAS is wrapped together with the created kernels in KernelWrapper in a similar way to how MKL is wrapped in MKLWrapper. KernelWrapper is explained in \ref{kernelwrapper} Other CUBLAS utility and CUDA functions are wrapped in CudaAdapter.
-
-Stream class
-
-Device class
-
-The transfers to and from the device is handle by two classes, DeviceToHost and HostToDevice. They perform asynchronous transfers on the corresponding matrix and vector class. It can either create a new container to transfer to or transfer to an given place in the memory. The former is useful for instance when transferring different vectors to into a combined matrix.
+CUBLAS is wrapped together with the kernels made for CuEira in KernelWrapper in a similar way to how MKL is wrapped in MKLWrapper. Other CUBLAS utility and CUDA functions are wrapped in CudaAdapter.\\
+\\
+The CUDA streams are managed by a Stream class and its factory. When the StreamFactory creates a new Stream object it creates a new CUDA stream, a new CUBLAS handle and associates the CUBLAS handle with the new stream. The Stream class has functions to retrieve them and if the Stream object is destroyed it destroys both the CUDA stream and the CUBLAS handle. Each Stream object is associated with an Device object. The Device class represents an device(i.e. GPU) and since a thread can only issue commands to one device at a time the Device class has functions to set it as the active one and check if itself is the device active or not. The outcomes of the individuals does not change so it can be shared between all streams on the device and the Device class is responsible for the vector with the outcomes on the device.\\
+\\
+The transfers to and from the device are handle by two classes, DeviceToHost and HostToDevice. They perform asynchronous transfers on the corresponding matrix and vector class. It can either create a new container to transfer to or transfer to an given place in the memory. The former is useful for instance when transferring different vectors to into a combined matrix.
 
 \subsection{Kernels}
 \label{kernelwrapper}
-kernelwrapper
-
-same structure, all do operation on elements of vector
+All the kernels are wrapped together with the CUBLAS kernels in KernelWrapper. All the kernels made for CuEira are of the same type, they all do operations on each element of vectors. This makes their structure simple, each thread does the operations on one index. An example of one of the kernels and its wrapper function can be found in algorithm \ref{alg:kernel_elemenwise_add_device} and algorithm \ref{alg:kernel_elemenwise_add_host}.
 
 \begin{algorithm}
 \DontPrintSemicolon
@@ -1369,7 +1486,8 @@ same structure, all do operation on elements of vector
 \SetKwInOut{data}{Data}
 \BlankLine \BlankLine
 
-\data{Asdf}
+\data{$vector1$, $vector2$ and $result$ are vectors as pointers,\\
+$length$ is the length of the vectors}
 
 \BlankLine \BlankLine
 
@@ -1388,31 +1506,125 @@ same structure, all do operation on elements of vector
 }
 
 \caption{Kernel for vector addition}
-\label{alg:kernel_elemenwise_add}
+\label{alg:kernel_elemenwise_add_device}
 \end{algorithm}
 
-\subsection{GPU stuff}
+\begin{algorithm}
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+\SetAlgoNoLine
+\SetFuncSty{}
+\SetArgSty{}
+
+\SetKwInOut{data}{Data}
+\BlankLine \BlankLine
+
+\data{$vector1$, $vector2$ and $result$ are DeviceVectors of same length\\
+cudaStream is the stream for the kernel\\
+numberOfThreadsPerBlock is 256 }
+
+\BlankLine \BlankLine
+
+\SetKwFunction{KwFn}{void \KwSty{elementWiseAddition}}
+
+\Fn(){\KwFn{const \textcolor{keyword}{DeviceVector\&} $vector1$, const \textcolor{keyword}{DeviceVector\&} $vector2$,
+  \textcolor{keyword}{DeviceVector\&} $result$}}{
+  
+  \textit{//Error check for the length of the vectors in the source code removed}\;
+  
+  \BlankLine \BlankLine
+    
+  const \textcolor{keyword}{int} $numberOfBlocks$ = std::ceil(((\textcolor{keyword}{double}) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);\;
+
+  \BlankLine \BlankLine
+  
+  \textbf{Kernel::ElementWiseAddition}\textcolor{kernel}{$<<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>$}\;
+  \BlankLine
+  ($vector1$.getMemoryPointer(), $vector2$.getMemoryPointer(), $result$.getMemoryPointer(), $vector1$.getNumberOfRows());\;
+}
+
+\caption{Wrapper for the kernel in algorithm \ref{alg:kernel_elemenwise_add_device}}
+\label{alg:kernel_elemenwise_add_host}
+\end{algorithm}
+
+\subsection{Model}
+%TODO write model stuff
+
+Configuration pattern classes are used to reduce the number of parameters to functions. Instead of having a number of parameters to a function the parameters are put in a Configuration class. The Configuration class has two functions for each parameter, a \textbf{set} function and a \textbf{get} function. The \textbf{set} is used to set the parameter while \textbf{get} is used to get the parameter. 
+
+Model
+
+easy to extend
+
+A group of base classes
+
+Model
+ModelConfiguration
+ModelResult
+ModelHandler
+CombinedResults
+
+Also
+ModelInformation. It has the ContingencyTable and AlleleStatistics
+
+The basic ModelHandler has next to switch DataHandler to the next combination and to updated it's own pointers to the new data.
+
+Example of extending as basic ExampleModel
+
+Pictures
+
+ostream operator cant be virtual so delegates to function that is
+
+\subsection{Logistic Regression}
+The LR model is implemented using the Model base classes talked about in the previous section. There is a CPU version and a GPU version using CUDA. They share some classes 
+
+The structure is shown in figure \ref{fig:lr_inheritance}.
+
+CUDALR
+CUDALRConf
+CPULR
+CPULRConf
+
+LRConfig
+LR
+LRResult
+
+LRModelHandler
+
+CombinedResultsLogisticRegression
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{lr_structure.png}
+    \caption{Structure of the logistic regression classes}
+    \label{fig:lr_inheritance}
+\end{figure}
+
+To make testing easier the LR algorithm is split into several protected functions that are then used in the \textbf{calculate()} function. For the CudaLogisticRegression some of these parts are done on the host. It is the parts that perform line 10 and 11 in algorithm \ref{alg:lr}. All the other parts of the LR algorithm are done by using CUBLAS or the kernels explained in section \ref{kernelwrapper}. The calculations for line 10 and 11 are in the LogisticRegression class so the code is shared between CpuLogisticRegression and CudaLogisticRegression. It is done on the host instead of the device because two reasons.\\
+\\
+The size of the vectors and matrices used there is small, their size is 4 + the number of covariates. The second reasons is that the inverse of the information matrix(variable \textbf{J} in the algorithm) is done by singular value decomposition(SVD). The reason for using SVD instead of normal matrix inverse was previously explained in section %\ref{}. %TODO
+However CUBLAS does not provide an SVD function. There are other libraries that do, CULA Tools\cite{culatools} and MAGMA\cite{magma_2010}, however neither could be used.\\
+\\
+CULA Tools could not be used because it uses streams internally in the functions so it can not be executed on streams\cite{cula_forum_q}. It also uses device synchronisation which means that the all streams will be synchronised every time the function is used\cite{cula_forum_q}. MAGMA can use streams for its BLAS functions, however it does not for the other functions including the SVD\cite{magma_stream}.\\
+\\
+After transfers it is necessary to wait for it to finish to prevent errors with using the data before it has been transferred completely. This is done by syncing the thread with the stream, it forces the thread to wait until all current kernels and transfers on the stream is complete. However due to the problem with asynchronous transfers and older architectures described in section \ref{streams} there is also an option when compiling to synchronise after each kernel.
+
+\subsection{Combining the Parts and Threading}
 3 threads per GPU
 Each thread has one CUDA stream
 Each thread gets a snp from the queue, reads in the snp data, calculates the models and writes the results
 
 Outcomes shared over whole GPU
 
-\subsubsection{Logistic Regression}
-Structure things, inheritance
+Pictures
 
-Some parts on GPU, some parts on CPU
-Lines 10 and 11 is done on CPU in algorithm \ref{alg:lr}
-
-The CPU parts of GPU LR is shared by using inheritance with CPU LR
-
-This is because two reasons, the size is small and CUBLAS does not provided an SVD implementation. CULA tools and MAGMA does but CULA tools synchronises over the whole device and MAGMA uses both CPU and GPU is optimized for large matrices.
-
-Other parts are done by using CUBLAS or custom kernels with elementwsie operations.
-
-syncing
-
-\subsubsection{Memory Usage}
+\subsection{Memory Usage}
 The memory usage is low because only the SNPs whose models currently is being calculated is stored in memory. This also means that most of the memory usage depends on the number of individuals not the number of SNPs especially since the SNP class is small. The memory is also bound by the GPU rather than host memory because of the relative size and that the GPU and host need about the same about of memory. However it does depend on the number of GPUs. A Tesla GPU has 6GB of memory\cite{nvtesla}, how many individuals can it fit at most?\\
 \\
 Float=4 bytes, double=8
@@ -1464,30 +1676,70 @@ e env
 c cov
 
 shared
-outcomes
+%p*n outcomes
 s snps
 e environment factors
-n*e storage of env
-n*c storage of cov
+n persons
+%p*n*e storage of env
+%p*n*c storage of cov
 
 per thread
-2*n snpvector
-n envfactor
-n interaction
+%p*2*n snpvector
+%p*n envfactor
+%p*n interaction
 
+lr
+%p*(4+c)*3
+%p*(4+c)^2*3
 
-\subsubsection{Testing}
+snp
+string
+vector int max längd=4
+string
+string
+int
+int
+bool
+%=27+3*string
+
+envfactor
+string
+int
+%=4+string
+
+person
+string
+int
+int 
+bool
+%=9+string
+
+The strings are short but there is significant overhead probably.
+
+%p*n+s*(27+3*string)+e*(4+string)+n*(9+string)+p*n*e+p*n*c+3*4*p*(4*n+(4+c)*3+(4+c)^2*3)
+
+alt form:
+%c*(36*c*p+n*p+324*p)+n*(p*e+49*p+9)+string*(n+e+3*s)+720*p+4*e+27*s
+
+\subsection{Testing}
 Almost all classes have a corresponding unit test that tests its functionality in isolation. However the matrix and vector classes are never mocked out because they are too basic and fundamental. It does mean that if there are multiple errors when testing and the tests for the matrix and vectors failed the fault likely is with those. However the number of integration tests are few and there is a need to create more.\\
 \\
 Since mocks are created by inheritance from the class to be mocked all functions need to be virtual. Some classes also have empty protected constructors to be used by the mock, others have helper functions to construct the mock. This goes against some parts of clean code but is necessary because of how C++ and mocking works. It could potentially be improved by using private constructors and friends to give the mock access.
 
-%Each thread asks the queue for a SNP, reads its information and launches the calculations. When its done it prints the results and asks the queue for a new SNP until the queue is empty. The calculations are done mostly on GPU however some small parts are done on the CPU. This was done for two reasons, to not to do small taks on the GPU and prevent it from doing larger kernels instead. When thread reaches parts where it mostly use the CPU another thread can use the GPU, this one of the reasons to use streams. Secondly one of the operations(the singular value decomposition, SVD) was not available in CUBLAS and turned out to be tricky to do. The matrix in question is small so it was decided to do the SVD operation using the CPU where a library was available. A future examination where more these parts are done on GPUs to would be interesting and could increase performance by minimizing transfers.
+%TODO thread stuff, not needed mostly because so few things are shared. Most of them doesn't have any kind of state or anything that can be affected so different threads can't affect each other.
 
 \chapter{Results}
 Intro\\
 
 %What was used
 %Zorn specs
+
+%login node
+
+%regular node
+
+%kepler node
+
 %compiler intel 14.0
 %cmake 2.8
 %mkl 13.1
@@ -1523,6 +1775,9 @@ To make the comparison of the performance of the programs more fair a couple of 
 
 %Using two separate compilers did cost some time. For instance there was a problem with nvcc because it does not support c++11 host code. Mostly it is not a problem because the code %can be compiled with different compilers separately and then put together\cite{cuda}. However the interfaces(e.g. function signatures) that are included in the code for nvcc needs to %be c++11 free. However compared to the total time spent on the project it was not much.
 
+%need to change mkl to any blas and remove dependency on intel compiler
+
+%amdahl vs gustafson, gustafson probably more right on this stuff since with more power data can increase. also even without larger data there is higher order interactions
 
 %recoding on GPU instead of cpu
 
@@ -1574,6 +1829,7 @@ To make the comparison of the performance of the programs more fair a couple of 
 %In case 4 it is monotone decreasing
 
 %TODO make some plots of it
+%TODO actually case 4 probably not possible, point x=0 is at 0? x=1 is <0 so no point >0 after x>0
 
 %Which means both pass 0 at one point.(Unless all equal 1 which means all 0)
 
@@ -1596,8 +1852,6 @@ To make the comparison of the performance of the programs more fair a couple of 
 %Outlook (up to one page)
 %more statistics for non binary
 
-%need to change mkl to any blas and remove dependency on intel compiler
-
 %clusters
 %kinda possible by splitting the input files
 
@@ -1614,6 +1868,7 @@ To make the comparison of the performance of the programs more fair a couple of 
 \chapter{Lists}
 
 \section*{List of Variables}
+%TODO remove this?
 
 \begin{description}
 %anything with hat is estimate
@@ -1669,7 +1924,7 @@ To make the comparison of the performance of the programs more fair a couple of 
 \item[MIDSD] \hfill \\
   Random Forest
 
-% a t g c
+% a t g c IDE SVD
 \end{description}
 
 \cleardoublepage
@@ -1687,12 +1942,35 @@ To make the comparison of the performance of the programs more fair a couple of 
 \listoftables
 
 \chapter{File Formats}
+\label{file_formats}
 
 \section{Plink Binary Data Format}
+\label{plink_file}
 %TODO
 
 \section{Environmental and Covariates File Format}
-The environmental factors and covariates are stored in separate files with the same format, one file for environmental factors and one for the covariates if any. One of the columns needs to contain the individual ids, the rest of the columns should be data. The delimiter can be anything of the usual ones and there is an option to provided it to the program. The default is tab delimited.
+The environmental factors and covariates are stored in separate files with the same format, one file for environmental factors and one for the covariates if any. One of the columns needs to contain the individual ids, the rest of the columns should be data. The delimiter can be any reasonable string(e.g. something that is not part of a name or number) and there is an option to set the delimiter in the program. The default is tab delimited.
+
+\section{CuEira Result File Format}
+%TODO
+Consists of X columns
+
+\begin{description}
+\item[Asdf] \hfill \\
+  Asdf
+\item[Asdf] \hfill \\
+  Asdf
+\end{description}
+
+Each line after header is a SNP environment factor combination.
+No specific order
+Column Y contains an number of the SNP, sort based on it and gets same order as bim file
+
+Multiplicative model is recoded
+
+RiskAllele is according to first set, no recode
+
+Contingency table stuff is recoded
 
 \chapter{Bugs and Issues}
 
@@ -1772,6 +2050,11 @@ There are several problems with Intel compilers and libraries. Most libraries wo
 \\
 Nvcc can not compile c+11 code, no interface included in the code that nvcc compiles can use c++11. This problem can largely be avoided by using separate compilation. The CUDA find package module for CMake(included in version 2.8 and later) has a default flag that should be removed as it can cause problems. The flag tells nvcc to propagate the host code flags, if the compiler for the host code then uses c++11 that flag is propagated to nvcc and it will not compile The flag is disabled in CMake by using set(CUDA\_PROPAGATE\_HOST\_FLAGS off).
 
+%TODO JEIRA risk allele
+%TODO JEIRA wrong columns
+%TODO badly documented output
+%TODO plink is a mess
+
 \chapter{How to Compile and Use CuEira}
 \label{compile_cueira}
 The source code for the program is available at github, \url{https://github.com/Berjiz/CuEira}.
@@ -1796,6 +2079,10 @@ make\\
 The program should now be compiling. CMake might complain about not finding a dependency. If it does you need to tell CMake where it is. The path to boost is set by using EXPORT BOOST\_ROOT = /path/to/boost/. The path to the compilers is done with CXX = cmake /path/to/source for the C++ compiler and C = cmake /path/to/source for the C compiler.
 
 %TODO how to set cuda
+
+%TODO usage
+
+%TODO tests in separate execution file
 
 \end{appendices}
 

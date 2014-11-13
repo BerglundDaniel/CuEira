@@ -2,7 +2,7 @@
 #define COMBINEDRESULTSFACTORY_H_
 
 #include <CombinedResults.h>
-#include <CombinedResultsLogisticRegression.h>
+#include <LogisticRegressionCombinedResults.h>
 #include <InteractionStatistics.h>
 #include <ModelStatistics.h>
 #include <OddsRatioStatistics.h>

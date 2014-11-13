@@ -26,7 +26,7 @@ CombinedResults* CombinedResultsFactory::constructCombinedResults(
   ModelStatistics* multiplicativeInteractionStatistics = modelStatisticsFactory->constructModelStatistics(
       multiplicativeLogisticRegressionResult, MULTIPLICATIVE);
 
-  return new CombinedResultsLogisticRegression((InteractionStatistics*)additiveInteractionStatistics, (OddsRatioStatistics*)multiplicativeInteractionStatistics,
+  return new LogisticRegression::LogisticRegressionCombinedResults((InteractionStatistics*)additiveInteractionStatistics, (OddsRatioStatistics*)multiplicativeInteractionStatistics,
       recode);
 }
 

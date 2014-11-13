@@ -66,12 +66,12 @@ void SNPVector::recodeAllRisk() {
 }
 
 void SNPVector::recodeSNPProtective() {
-  currentGeneticModel = RECESSIVE;
+  currentGeneticModel = RECESSIVE; //TODO invert genetic
   snp.setRiskAllele(invertRiskAllele(originalRiskAllele));
 }
 
 void SNPVector::recodeInteractionProtective() {
-  currentGeneticModel = RECESSIVE;
+  currentGeneticModel = RECESSIVE; //TODO invert genetic
   snp.setRiskAllele(invertRiskAllele(originalRiskAllele));
 }
 

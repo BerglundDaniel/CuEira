@@ -14,7 +14,8 @@ namespace Kernel {
  * This is ...
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
- */__global__ void ElementWiseAddition(const PRECISION* vector1, const PRECISION* vector2, PRECISION* result, const int length) {
+ */__global__ void ElementWiseAddition(const PRECISION* vector1, const PRECISION* vector2, PRECISION* result,
+    const int length) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
   if(threadId < length){

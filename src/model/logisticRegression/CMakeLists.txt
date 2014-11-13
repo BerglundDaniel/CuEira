@@ -25,6 +25,7 @@ set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegression.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionConfiguration.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionResult.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionCombinedResults.cpp
   PARENT_SCOPE
 )
 

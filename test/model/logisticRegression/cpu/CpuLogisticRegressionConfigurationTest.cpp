@@ -118,7 +118,7 @@ TEST_F(CpuLogisticRegressionConfigurationTest, ConstructorCov) {
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
   EXPECT_EQ(convergenceThreshold, lrConfig.getConvergenceThreshold());
   EXPECT_EQ(numberOfRows, lrConfig.getNumberOfRows());
-  EXPECT_EQ(numberOfPredictorsNoCov, lrConfig.getNumberOfPredictors());
+  EXPECT_EQ(numberOfPredictorsWithCov, lrConfig.getNumberOfPredictors());
 
   const HostVector& outcomesReturn = lrConfig.getOutcomes();
 
@@ -198,7 +198,7 @@ TEST_F(CpuLogisticRegressionConfigurationTest, CovGetSNPEnvInteract) {
   EXPECT_EQ(numberOfMaxLRIterations, lrConfig.getNumberOfMaxIterations());
   EXPECT_EQ(convergenceThreshold, lrConfig.getConvergenceThreshold());
   EXPECT_EQ(numberOfRows, lrConfig.getNumberOfRows());
-  EXPECT_EQ(numberOfPredictorsNoCov, lrConfig.getNumberOfPredictors());
+  EXPECT_EQ(numberOfPredictorsWithCov, lrConfig.getNumberOfPredictors());
 
   //Set snp
   lrConfig.setSNP(snpData);

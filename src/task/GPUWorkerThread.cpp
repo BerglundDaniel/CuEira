@@ -39,6 +39,10 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
       combinedResultsFactory, dataHandler, *logisticRegressionConfiguration, logisticRegression);
   CUDA::handleCudaStatus(cudaGetLastError(), "Error with initialisation in GPUWorkerThread ");
 
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point startCalc = boost::chrono::system_clock::now();
+#endif
+
   DataHandlerState dataHandlerState = modelHandler->next();
   while(dataHandlerState != DONE){
 
@@ -64,8 +68,10 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
 #ifdef PROFILE
   boost::chrono::system_clock::time_point stopPoint = boost::chrono::system_clock::now();
   boost::chrono::duration<double> diffThreadSec = stopPoint - startPoint;
+  boost::chrono::duration<double> calcTime = stopPoint - startCalc;
 
-  std::cerr << "Time for thread " << std::this_thread::get_id() << ": " << diffThreadSec << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " TotalTime " << diffThreadSec << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " CalcTime " << calcTime << std::endl;
 #endif
 }
 

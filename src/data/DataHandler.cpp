@@ -3,12 +3,7 @@
 namespace CuEira {
 
 #ifdef PROFILE
-  boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentRecode;
-  boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentNext;
-  boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentSNPRead;
-  boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentStatModel;
-  std::mutex DataHandler::mutex;
-  bool DataHandler::firstDestroy = true;
+std::mutex DataHandler::mutex;
 #endif
 
 DataHandler::DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
@@ -39,17 +34,13 @@ DataHandler::~DataHandler() {
 #ifdef PROFILE
   mutex.lock();
 
-  if(firstDestroy){
-    firstDestroy = false;
-    mutex.unlock();
-    std::cerr << "DataHandler, time spent recode: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentRecode) << std::endl;
-    std::cerr << "DataHandler, time spent next: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentNext) << std::endl;
-    std::cerr << "DataHandler, time spent read snp: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentSNPRead) << std::endl;
-    std::cerr << "DataHandler, time spent statistic model: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentStatModel) << std::endl;
-  }else{
-    mutex.unlock();
-  }
+  std::cerr << "Thread: " << std::this_thread::get_id() << " DataHandler" << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent recode: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentRecode) << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent next: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentNext) << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent read snp: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentSNPRead) << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent statistic model: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentStatModel) << std::endl;
 
+  mutex.unlock();
 #endif
 
   delete interactionVector;
@@ -193,8 +184,8 @@ void DataHandler::recode(Recode recode) {
 
   if(recode == currentRecode){
 #ifdef PROFILE
-  boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
-  timeSpentRecode+=after - before;
+    boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
+    timeSpentRecode+=after - before;
 #endif
 
     return;

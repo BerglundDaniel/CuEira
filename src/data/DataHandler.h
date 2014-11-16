@@ -113,12 +113,11 @@ private:
   bool appliedStatisticModel;
 
 #ifdef PROFILE
-  static boost::chrono::duration<long long, boost::nano> timeSpentRecode;
-  static boost::chrono::duration<long long, boost::nano> timeSpentNext;
-  static boost::chrono::duration<long long, boost::nano> timeSpentSNPRead;
-  static boost::chrono::duration<long long, boost::nano> timeSpentStatModel;
+  boost::chrono::duration<long long, boost::nano> timeSpentRecode;
+  boost::chrono::duration<long long, boost::nano> timeSpentNext;
+  boost::chrono::duration<long long, boost::nano> timeSpentSNPRead;
+  boost::chrono::duration<long long, boost::nano> timeSpentStatModel;
   static std::mutex mutex;
-  static bool firstDestroy;
 #endif
 };
 

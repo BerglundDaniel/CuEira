@@ -244,7 +244,7 @@ TEST_F(CpuLogisticRegressionTest, calculateInformationMatrix) {
   EXPECT_THAT(informationMatrix(0, 2), Ge(l));
   EXPECT_THAT(informationMatrix(0, 2), Le(h));
 
-  x = 1; //FIXME
+  x = 2.73;
   l = x - e;
   h = x + e;
   EXPECT_THAT(informationMatrix(0, 3), Ge(l));
@@ -262,7 +262,7 @@ TEST_F(CpuLogisticRegressionTest, calculateInformationMatrix) {
   EXPECT_THAT(informationMatrix(1, 2), Ge(l));
   EXPECT_THAT(informationMatrix(1, 2), Le(h));
 
-  x = 1; //FIXME
+  x = 2.73;
   l = x - e;
   h = x + e;
   EXPECT_THAT(informationMatrix(1, 3), Ge(l));
@@ -274,13 +274,13 @@ TEST_F(CpuLogisticRegressionTest, calculateInformationMatrix) {
   EXPECT_THAT(informationMatrix(2, 2), Ge(l));
   EXPECT_THAT(informationMatrix(2, 2), Le(h));
 
-  x = 1; //FIXME
+  x = 0.978;
   l = x - e;
   h = x + e;
   EXPECT_THAT(informationMatrix(2, 3), Ge(l));
   EXPECT_THAT(informationMatrix(2, 3), Le(h));
 
-  x = 1; //FIXME
+  x = 14.61;
   l = x - e;
   h = x + e;
   EXPECT_THAT(informationMatrix(3, 3), Ge(l));

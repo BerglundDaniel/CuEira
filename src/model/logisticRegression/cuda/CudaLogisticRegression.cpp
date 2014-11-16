@@ -6,11 +6,7 @@ namespace LogisticRegression {
 namespace CUDA {
 
 #ifdef PROFILE
-  boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentTotal;
-  boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentGPU;
-  boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentCPU;
-  std::mutex CudaLogisticRegression::mutex;
-  bool CudaLogisticRegression::firstDestroy = true;
+std::mutex CudaLogisticRegression::mutex;
 #endif
 
 CudaLogisticRegression::CudaLogisticRegression(CudaLogisticRegressionConfiguration* lrConfiguration) :
@@ -37,15 +33,12 @@ CudaLogisticRegression::~CudaLogisticRegression() {
 #ifdef PROFILE
   mutex.lock();
 
-  if(firstDestroy){
-    firstDestroy = false;
-    mutex.unlock();
-    std::cerr << "CudaLogisticRegression, time spent total: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentTotal) << std::endl;
-    std::cerr << "CudaLogisticRegression, time spent GPU: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentGPU) << std::endl;
-    std::cerr << "CudaLogisticRegression, time spent CPU: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentCPU) << std::endl;
-  }else{
-    mutex.unlock();
-  }
+  std::cerr << "Thread: " << std::this_thread::get_id() << " CudaLogisticRegression" << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent total: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentTotal) << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent GPU: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentGPU) << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent CPU: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentCPU) << std::endl;
+
+  mutex.unlock();
 #endif
 
   delete oneVector;
@@ -73,7 +66,7 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
   int iterationNumber = 1;
   for(iterationNumber = 1; iterationNumber < maxIterations; ++iterationNumber){
 #ifdef PROFILE
-  boost::chrono::system_clock::time_point beforeGPU = boost::chrono::system_clock::now();
+    boost::chrono::system_clock::time_point beforeGPU = boost::chrono::system_clock::now();
 #endif
 
     calcuateProbabilites(*predictorsDevice, *betaCoefficentsDevice, *probabilitesDevice, *workVectorNx1Device);
@@ -84,10 +77,10 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
         *workMatrixNxMDevice);
 
 #ifdef PROFILE
-  boost::chrono::system_clock::time_point afterGPU = boost::chrono::system_clock::now();
-  timeSpentGPU+=afterGPU - beforeGPU;
+    boost::chrono::system_clock::time_point afterGPU = boost::chrono::system_clock::now();
+    timeSpentGPU+=afterGPU - beforeGPU;
 
-  boost::chrono::system_clock::time_point beforeCPU = boost::chrono::system_clock::now();
+    boost::chrono::system_clock::time_point beforeCPU = boost::chrono::system_clock::now();
 #endif
 
     //Copy beta to old beta
@@ -106,13 +99,13 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
     calculateDifference(*betaCoefficentsHost, *betaCoefficentsOldHost, diffSumHost);
 
 #ifdef PROFILE
-  boost::chrono::system_clock::time_point afterCPU = boost::chrono::system_clock::now();
-  timeSpentCPU+=afterCPU - beforeCPU;
+    boost::chrono::system_clock::time_point afterCPU = boost::chrono::system_clock::now();
+    timeSpentCPU+=afterCPU - beforeCPU;
 #endif
 
     if(diffSumHost < convergenceThreshold){
 #ifdef PROFILE
-  boost::chrono::system_clock::time_point beforeGPU_likeli = boost::chrono::system_clock::now();
+      boost::chrono::system_clock::time_point beforeGPU_likeli = boost::chrono::system_clock::now();
 #endif
       calculateLogLikelihood(*outcomesDevice, *oneVector, *probabilitesDevice, *workVectorNx1Device, logLikelihood);
 
@@ -120,20 +113,20 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
       deviceToHost->transferMatrix(*informationMatrixDevice, informationMatrixHost->getMemoryPointer());
 
 #ifdef PROFILE
-  boost::chrono::system_clock::time_point afterGPU_likeli = boost::chrono::system_clock::now();
-  timeSpentGPU+=afterGPU_likeli - beforeGPU_likeli;
+      boost::chrono::system_clock::time_point afterGPU_likeli = boost::chrono::system_clock::now();
+      timeSpentGPU+=afterGPU_likeli - beforeGPU_likeli;
 #endif
 
       break;
     }else{
 #ifdef PROFILE
-  boost::chrono::system_clock::time_point beforeGPU_new_it = boost::chrono::system_clock::now();
+      boost::chrono::system_clock::time_point beforeGPU_new_it = boost::chrono::system_clock::now();
 #endif
       hostToDevice->transferVector(*betaCoefficentsHost, betaCoefficentsDevice->getMemoryPointer());
       kernelWrapper->syncStream();
 #ifdef PROFILE
-  boost::chrono::system_clock::time_point afterGPU_new_it = boost::chrono::system_clock::now();
-  timeSpentGPU+=afterGPU_new_it - beforeGPU_new_it;
+      boost::chrono::system_clock::time_point afterGPU_new_it = boost::chrono::system_clock::now();
+      timeSpentGPU+=afterGPU_new_it - beforeGPU_new_it;
 #endif
     }
   } /* for iterationNumber */

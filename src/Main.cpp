@@ -226,6 +226,6 @@ int main(int argc, char* argv[]) {
 #endif
 
   boost::chrono::duration<double> diffSec = endPoint - startPoint;
-  std::cerr << "Complete, time elapsed is " << diffSec << std::endl;
+  std::cerr << "Complete, time: " << diffSec << std::endl;
 
 }

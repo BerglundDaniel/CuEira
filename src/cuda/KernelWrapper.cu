@@ -36,6 +36,10 @@ void KernelWrapper::logisticTransform(const DeviceVector& logitVector, DeviceVec
 
   const int numberOfBlocks = std::ceil(((double) logitVector.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::LogisticTransform<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(logitVector.getMemoryPointer(), probabilites.getMemoryPointer(), logitVector.getNumberOfRows());
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::elementWiseDivision(const DeviceVector& numeratorVector, const DeviceVector& denomitorVector,
@@ -53,6 +57,10 @@ void KernelWrapper::elementWiseDivision(const DeviceVector& numeratorVector, con
   const int numberOfBlocks = std::ceil(((double) numeratorVector.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::ElementWiseDivision<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(numeratorVector.getMemoryPointer(), denomitorVector.getMemoryPointer(),
       result.getMemoryPointer(), numeratorVector.getNumberOfRows());
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::elementWiseAddition(const DeviceVector& vector1, const DeviceVector& vector2,
@@ -69,6 +77,10 @@ void KernelWrapper::elementWiseAddition(const DeviceVector& vector1, const Devic
 
   const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::ElementWiseAddition<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer(), vector1.getNumberOfRows());
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::elementWiseMultiplication(const DeviceVector& vector1, const DeviceVector& vector2,
@@ -85,6 +97,10 @@ void KernelWrapper::elementWiseMultiplication(const DeviceVector& vector1, const
 
   const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::ElementWiseMultiplication<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer(), vector1.getNumberOfRows());
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::logLikelihoodParts(const DeviceVector& outcomesVector, const DeviceVector& probabilites,
@@ -102,6 +118,10 @@ void KernelWrapper::logLikelihoodParts(const DeviceVector& outcomesVector, const
   const int numberOfBlocks = std::ceil(((double) outcomesVector.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::LogLikelihoodParts<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(outcomesVector.getMemoryPointer(), probabilites.getMemoryPointer(),
       result.getMemoryPointer(), outcomesVector.getNumberOfRows());
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::elementWiseAbsoluteDifference(const DeviceVector& vector1, const DeviceVector& vector2,
@@ -118,6 +138,10 @@ void KernelWrapper::elementWiseAbsoluteDifference(const DeviceVector& vector1, c
 
   const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::ElementWiseAbsoluteDifference<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer(), vector1.getNumberOfRows());
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::copyVector(const DeviceVector& vectorFrom, DeviceVector& vectorTo) const {
@@ -138,6 +162,10 @@ void KernelWrapper::copyVector(const DeviceVector& vectorFrom, DeviceVector& vec
   cublasScopy(cublasHandle, vectorFrom.getNumberOfRows(), vectorFrom.getMemoryPointer(), 1, vectorTo.getMemoryPointer(),
       1);
 #endif
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::probabilitesMultiplyProbabilites(const DeviceVector& probabilitesDevice,
@@ -154,6 +182,10 @@ void KernelWrapper::probabilitesMultiplyProbabilites(const DeviceVector& probabi
 
   const int numberOfBlocks = std::ceil(((double) probabilitesDevice.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::VectorMultiply1MinusVector<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(probabilitesDevice.getMemoryPointer(), result.getMemoryPointer(), probabilitesDevice.getNumberOfRows());
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::elementWiseDifference(const DeviceVector& vector1, const DeviceVector& vector2,
@@ -170,6 +202,10 @@ void KernelWrapper::elementWiseDifference(const DeviceVector& vector1, const Dev
 
   const int numberOfBlocks = std::ceil(((double) vector1.getNumberOfRows()) / numberOfThreadsPerBlock);
   Kernel::ElementWiseDifference<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer(), vector1.getNumberOfRows());
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::matrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
@@ -191,6 +227,10 @@ void KernelWrapper::matrixVectorMultiply(const DeviceMatrix& matrix, const Devic
   cublasSgemv(cublasHandle, CUBLAS_OP_N, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), constOne,
       matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, constZero,
       result.getMemoryPointer(), 1);
+#endif
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
 #endif
 }
 
@@ -214,6 +254,10 @@ void KernelWrapper::matrixTransVectorMultiply(const DeviceMatrix& matrix, const 
       matrix.getMemoryPointer(), matrix.getNumberOfRows(), vector.getMemoryPointer(), 1, constZero,
       result.getMemoryPointer(), 1);
 #endif
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const DeviceMatrix& matrix2,
@@ -235,6 +279,10 @@ void KernelWrapper::matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const
       matrix1.getNumberOfRows(), constOne, matrix1.getMemoryPointer(), matrix1.getNumberOfRows(),
       matrix2.getMemoryPointer(), matrix2.getNumberOfRows(), constZero, result.getMemoryPointer(),
       result.getNumberOfRows());
+#endif
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
 #endif
 }
 
@@ -267,6 +315,10 @@ void KernelWrapper::columnByColumnMatrixVectorElementWiseMultiply(const DeviceMa
     delete columnVector;
     delete columnResultVector;
   }
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
+#endif
 }
 
 void KernelWrapper::sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector,
@@ -277,6 +329,10 @@ void KernelWrapper::sumResultToHost(const DeviceVector& vector, const DeviceVect
 #else
   cublasSdot(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, oneVector.getMemoryPointer(), 1,
       &sumHost);
+#endif
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
 #endif
 }
 

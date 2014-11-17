@@ -34,7 +34,7 @@ CudaLogisticRegression::~CudaLogisticRegression() {
   mutex.lock();
 
   std::cerr << "Thread: " << std::this_thread::get_id() << " CudaLogisticRegression" << std::endl;
-  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent total: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentTotal) << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent CudaLR: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentTotal) << std::endl;
   std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent GPU: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentGPU) << std::endl;
   std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent CPU: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentCPU) << std::endl;
 

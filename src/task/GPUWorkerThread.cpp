@@ -70,8 +70,8 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
   boost::chrono::duration<double> diffThreadSec = stopPoint - startPoint;
   boost::chrono::duration<double> calcTime = stopPoint - startCalc;
 
-  std::cerr << "Thread: " << std::this_thread::get_id() << " TotalTime " << diffThreadSec << std::endl;
-  std::cerr << "Thread: " << std::this_thread::get_id() << " CalcTime " << calcTime << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " TotalTime: " << diffThreadSec << std::endl;
+  std::cerr << "Thread: " << std::this_thread::get_id() << " CalcTime: " << calcTime << std::endl;
 #endif
 }
 

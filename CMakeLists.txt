@@ -21,9 +21,9 @@ set(Boost_USE_STATIC_LIBS off)
 set(Boost_USE_MULTITHREADED off)
 
 #Options
-option(VERBOSE "Set CMake and compilation to verbose" on) #FIXME Change to off later
+option(VERBOSE "Set CMake and compilation to verbose" off)
 set(PRECISION single) #single or double
-#set(TARGET_ARCHITECTURE fermi) #fermi or kepler
+set(TARGET_ARCHITECTURE fermi) #fermi or kepler #TODO probably remove this later
 option(CPU "Use CPU only" off)
 option(CLUSTER "Use cluster" off) #TODO not implemented
 option(ENABLE_MKL "Enable MKL flag" on)
@@ -48,6 +48,10 @@ if(${CLUSTER})
   add_definitions(-DCLUSTER=1)
 endif(${CLUSTER})
 
+if(${TARGET_ARCHITECTURE} MATCHES fermi)
+  add_definitions(-DFERMI=1
+endif()
+
 MESSAGE( STATUS "Building CuEira:" )
 
 #Set preproccessor variables
@@ -55,12 +59,11 @@ add_definitions(-DCuEira_VERSION_MAJOR=${CuEira_VERSION_MAJOR})
 add_definitions(-DCuEira_VERSION_MINOR=${CuEira_VERSION_MINOR})
 add_definitions(-DCuEira_BUILD_DIR="${TEST_DATA_DIR}")
 
-#FIXME later
-#IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+if(CMAKE_BUILD_TYPE MATCHES DEBUG)
   MESSAGE( STATUS "Debug build." )
   add_definitions(-DDEBUG=1)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-#endif (CMAKE_BUILD_TYPE MATCHES DEBUG)
+endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
 if(${PRECISION} MATCHES single)
   add_definitions(-DPRECISION=float)

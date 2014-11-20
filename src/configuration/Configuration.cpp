@@ -171,7 +171,7 @@ int Configuration::getNumberOfMaxLRIterations() const {
 }
 
 double Configuration::getLRConvergenceThreshold() const {
-  return 1e-5; //FIXME set as option
+  return 1e-3; //FIXME set as option
 }
 
 int Configuration::getCellCountThreshold() const {

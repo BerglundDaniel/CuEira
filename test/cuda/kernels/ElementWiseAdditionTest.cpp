@@ -100,6 +100,7 @@ TEST_F(ElementWiseAdditionTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
+#ifdef DEBUG
 TEST_F(ElementWiseAdditionTest, KernelException) {
   const int numberOfRows = 5;
 
@@ -163,6 +164,7 @@ TEST_F(ElementWiseAdditionTest, KernelException) {
   delete deviceVector2;
   delete resultDeviceVector;
 }
+#endif
 
 }
 /* namespace CUDA */

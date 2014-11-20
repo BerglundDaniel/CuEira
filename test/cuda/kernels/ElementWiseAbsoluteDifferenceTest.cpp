@@ -99,6 +99,7 @@ TEST_F(ElementWiseAbsoluteDifferenceTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
+#ifdef DEBUG
 TEST_F(ElementWiseAbsoluteDifferenceTest, KernelException) {
   const int numberOfRows = 5;
 
@@ -168,6 +169,7 @@ TEST_F(ElementWiseAbsoluteDifferenceTest, KernelException) {
   delete deviceVector2;
   delete resultDeviceVector;
 }
+#endif
 
 }
 /* namespace CUDA */

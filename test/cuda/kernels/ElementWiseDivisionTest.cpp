@@ -100,6 +100,7 @@ TEST_F(ElementWiseDivisionTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
+#ifdef DEBUG
 TEST_F(ElementWiseDivisionTest, KernelException) {
   const int numberOfRows = 5;
 
@@ -180,6 +181,7 @@ TEST_F(ElementWiseDivisionTest, KernelException) {
   delete denomitorDeviceVector;
   delete resultDeviceVector;
 }
+#endif
 
 }
 /* namespace CUDA */

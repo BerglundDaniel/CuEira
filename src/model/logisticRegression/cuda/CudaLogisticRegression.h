@@ -96,9 +96,10 @@ private:
   const Container::PinnedHostVector* defaultBetaCoefficents; //LRConfig owns it
 
 #ifdef PROFILE
-  boost::chrono::duration<long long, boost::nano> timeSpentTotal;
-  boost::chrono::duration<long long, boost::nano> timeSpentGPU;
-  boost::chrono::duration<long long, boost::nano> timeSpentCPU;
+  static boost::chrono::duration<long long, boost::nano> timeSpentTotal;
+  static boost::chrono::duration<long long, boost::nano> timeSpentGPU;
+  static boost::chrono::duration<long long, boost::nano> timeSpentCPU;
+  static bool firstDestroy;
   static std::mutex mutex;
 #endif
 };

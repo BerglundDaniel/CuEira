@@ -49,8 +49,8 @@ protected:
 };
 
 LogisticTransformTest::LogisticTransformTest() :
-        device(0), streamFactory(), stream(streamFactory.constructStream(device)), hostToDeviceStream1(*stream), deviceToHostStream1(
-            *stream), kernelWrapper(*stream) {
+    device(0), streamFactory(), stream(streamFactory.constructStream(device)), hostToDeviceStream1(*stream), deviceToHostStream1(
+        *stream), kernelWrapper(*stream) {
 }
 
 LogisticTransformTest::~LogisticTransformTest() {
@@ -101,7 +101,8 @@ TEST_F(LogisticTransformTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
-TEST_F(LogisticTransformTest, KernelException) {
+#ifdef DEBUG
+TEST_F(LogisticTransformTest, KernelException){
   const int numberOfRows = 5;
 
   Container::DeviceVector* logitDeviceVector = new Container::DeviceVector(numberOfRows + 1);
@@ -128,6 +129,7 @@ TEST_F(LogisticTransformTest, KernelException) {
   delete logitDeviceVector;
   delete probDeviceVector;
 }
+#endif
 
 TEST_F(LogisticTransformTest, KernelLargeVector) {
   const int numberOfRows = 10000;

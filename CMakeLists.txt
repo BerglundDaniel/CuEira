@@ -23,7 +23,7 @@ set(Boost_USE_MULTITHREADED off)
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" off)
 set(PRECISION single) #single or double
-set(TARGET_ARCHITECTURE fermi) #fermi or kepler #TODO probably remove this later
+set(TARGET_ARCHITECTURE kepler) #fermi or kepler #TODO probably remove this later
 option(CPU "Use CPU only" off)
 option(CLUSTER "Use cluster" off) #TODO not implemented
 option(ENABLE_MKL "Enable MKL flag" on)
@@ -36,11 +36,10 @@ if(${VERBOSE})
 endif(${VERBOSE})
 
 if(${CPU})
-  #set (PRECISION double) FIXME DOES THIS WORK?
   add_definitions(-DCPU=1)
 endif(${CPU})
   
-if(PROFILE)
+if(${PROFILE})
   add_definitions(-DPROFILE=1)
 endif()
 
@@ -49,7 +48,7 @@ if(${CLUSTER})
 endif(${CLUSTER})
 
 if(${TARGET_ARCHITECTURE} MATCHES fermi)
-  add_definitions(-DFERMI=1
+  add_definitions(-DFERMI=1)
 endif()
 
 MESSAGE( STATUS "Building CuEira:" )
@@ -100,7 +99,7 @@ else()
 
   #Set somethings for CUDA compilation
   set(CUDA_PROPAGATE_HOST_FLAGS off) #Some c++ flags that gets passed to NVCC -Xcompiler will cause errors, for instance c++11 flag 
-  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
+  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_30,code=sm_30)
 
   #Possibly wrong place FIXME
 

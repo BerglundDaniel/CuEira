@@ -3,6 +3,12 @@
 namespace CuEira {
 
 #ifdef PROFILE
+boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentRecode;
+boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentNext;
+boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentSNPRead;
+boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentStatModel;
+std::mutex DataHandler::mutex;
+bool DataHandler::firstDestroy = true;
 std::mutex DataHandler::mutex;
 #endif
 
@@ -34,11 +40,18 @@ DataHandler::~DataHandler() {
 #ifdef PROFILE
   mutex.lock();
 
-  std::cerr << "Thread: " << std::this_thread::get_id() << " DataHandler" << std::endl;
-  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent recode: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentRecode) << std::endl;
-  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent next: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentNext) << std::endl;
-  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent read snp: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentSNPRead) << std::endl;
-  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent statistic model: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentStatModel) << std::endl;
+  if(firstDestroy){
+    firstDestroy = false;
+    mutex.unlock();
+
+    std::cerr << "DataHandler" << std::endl;
+    std::cerr << "Time spent recode: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentRecode) << std::endl;
+    std::cerr << "Time spent next: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentNext) << std::endl;
+    std::cerr << "Time spent read snp: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentSNPRead) << std::endl;
+    std::cerr << "Time spent statistic model: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentStatModel) << std::endl;
+  } else{
+    mutex.unlock();
+  }
 
   mutex.unlock();
 #endif

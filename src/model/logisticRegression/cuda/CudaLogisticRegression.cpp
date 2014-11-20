@@ -6,6 +6,11 @@ namespace LogisticRegression {
 namespace CUDA {
 
 #ifdef PROFILE
+boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentTotal;
+boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentGPU;
+boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentCPU;
+std::mutex CudaLogisticRegression::mutex;
+bool CudaLogisticRegression::firstDestroy = true;
 std::mutex CudaLogisticRegression::mutex;
 #endif
 
@@ -33,10 +38,17 @@ CudaLogisticRegression::~CudaLogisticRegression() {
 #ifdef PROFILE
   mutex.lock();
 
-  std::cerr << "Thread: " << std::this_thread::get_id() << " CudaLogisticRegression" << std::endl;
-  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent CudaLR: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentTotal) << std::endl;
-  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent GPU: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentGPU) << std::endl;
-  std::cerr << "Thread: " << std::this_thread::get_id() << " Time spent CPU: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentCPU) << std::endl;
+  if(firstDestroy){
+    firstDestroy = false;
+    mutex.unlock();
+
+    std::cerr << " CudaLogisticRegression" << std::endl;
+    std::cerr << " Time spent CudaLR: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentTotal) << std::endl;
+    std::cerr << " Time spent GPU: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentGPU) << std::endl;
+    std::cerr << " Time spent CPU: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeSpentCPU) << std::endl;
+  } else{
+    mutex.unlock();
+  }
 
   mutex.unlock();
 #endif
@@ -88,6 +100,10 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
 
     //Transfer needed data to host
     deviceToHost->transferMatrix(*informationMatrixDevice, informationMatrixHost->getMemoryPointer());
+#ifdef FERMI
+    kernelWrapper->syncStream();
+#endif
+
     deviceToHost->transferVector(*scoresDevice, scoresHost->getMemoryPointer());
     kernelWrapper->syncStream();
 

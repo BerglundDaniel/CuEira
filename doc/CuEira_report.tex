@@ -4,7 +4,7 @@
 \usepackage{graphicx}
 \usepackage{lmodern}
 \usepackage[font=small,format=plain,labelfont=bf,up,textfont=it,up]{caption}
-\usepackage[nottoc]{tocbibind}
+\usepackage[nottoc,notlof,notlot]{tocbibind}
 \usepackage{url}
 \usepackage{courier}
 \usepackage[T1]{fontenc}
@@ -25,6 +25,7 @@
 
 \definecolor{keyword}{RGB}{70,100,200}
 \definecolor{kernel}{RGB}{139,0,0}
+\definecolor{arrow}{RGB}{200,0,0}
 
 \newcounter{ExamplesCounter}
 
@@ -43,6 +44,30 @@
 %\par\noindent\textbf{Algorithm \thealgorithmslist. #1}
 \addcontentsline{alg}{algorithmslist}
 {\protect\numberline{\thechapter.\thealgorithmslist}#1}\par}
+
+\def\nese{\mathrel{%
+    \mathchoice{\NESE}{\NESE}{\scriptsize\NESE}{\tiny\NESE}%
+}}
+\def\NESE{{%
+    \setbox0\hbox{$\nearrow$}%
+    \rlap{\hbox to \wd0{\hss $\searrow$ \hss}}\box0
+}}
+
+\def\nesecol{\mathrel{%
+    \mathchoice{\NESECOL}{\NESECOL}{\scriptsize\NESECOL}{\tiny\NESECOL}%
+}}
+\def\NESECOL{{%
+    \setbox0\hbox{$\nearrow$}%
+    \rlap{\hbox to \wd0{\hss \textcolor{arrow}{$\searrow$} \hss}}\box0
+}}
+
+\def\nwsw{\mathrel{%
+    \mathchoice{\NWSW}{\NWSW}{\scriptsize\NWSW}{\tiny\NWSW}%
+}}
+\def\NWSW{{%
+    \setbox0\hbox{\textcolor{arrow}{$\nwarrow$}}%
+    \rlap{\hbox to \wd0{\hss $\swarrow$ \hss}}\box0
+}}
 
 \makeatletter
 \newcommand\ackname{Acknowledgements}
@@ -108,7 +133,7 @@
 \chapter{Introduction}
 
 \section{Outline}
-The first chapter contains a short introduction to the area and the terminology. The second chapter gives the theoretical background. It starts with the statistics and algorithms and then describes the computer architecture and software design. The third algorithm section explains the structure of the current algorithms and also explains the design of the program that was developed in this thesis called CuEira. Section four provides the results and compariasions of the program performance. The fifth section is the discussion of these results. The last section dicusses the future work.
+The first chapter contains a short introduction to the area and the terminology. The second chapter gives the theoretical background. It starts with the statistics and algorithms and then describes the computer architecture and software design. The third algorithm section explains the structure of the current algorithms and also explains the design of the program that was developed in this thesis called CuEira. Section four provides the results and comparisons of the program performance. The fifth section is the discussion of these results. The last section discusses the future work.
 
 %Aim of thesis
 
@@ -147,7 +172,7 @@ A position of the DNA or a gene is a \emph{locus}\cite{sadava_life}. A variation
 \label{risk_allele}
 The the allele that is least common using all individuals(both cases and controls) is the \emph{minor allele}, the one that is most common is the \emph{major allele}. The frequency of the minor allele is the \emph{minor allele frequency}(MAF)\cite{uvehag_master_thesis, geira}. If the MAF is too low an analysis often will be of little value so all SNPs with MAF below a threshold are usually skipped. 5\% is common value of the threshold\cite{burton2007genome, geira}.\\
 \\
-To determine if the genetic risk is present for each individual one of the alleles needs to be chosen as the \emph{risk allele}. GEIRA and JEIRA determines the risk allele by comparing the MAFs of case and control\cite{geisa, uvehag_master_thesis}. If MAF of cases is greater or equal to the MAF of controls the minor allele is used as the risk otherwise the other allele\cite{geisa, uvehag_master_thesis}. In this thesis the risk allele will be defined as the allele that has higher frequency in cases than controls. It is similar to the definition using MAF in most cases. Appendix \ref{risk_allele_diff} has more detailed comparisons.\\
+To determine if the genetic risk is present for each individual one of the alleles needs to be chosen as the \emph{risk allele}. GEIRA and JEIRA defines the risk allele as the minor allele in cases if the MAF of cases is greater than the MAF of controls, otherwise the major allele in cases is used\cite{geisa, uvehag_master_thesis}. However JEIRA and GEISA does not calculate the risk allele according to that definition, see appendix \ref{risk_allele_appendix} for the details. In this thesis the risk allele will be defined as the allele that has higher frequency in cases than controls. It is similar to the definition using MAF in most cases. Appendix \ref{risk_allele_appendix} has more detailed comparisons.\\
 \\
 The presence of genetic risk based on the risk allele and the genetic model can be coded as a variable than then be can used in a statistical model. For dominant or recessive genetic model this means that the variable is binary since the risk is either present or not\cite{geira}. See table \ref{table:genetic} for how the coding is based on the model. For co-dominant model the number of risk alleles in the individual is used as the variable, 0, 1 or 2 \cite{geira}.
 
@@ -167,7 +192,7 @@ $c$ is the product term that represents multiplicative interaction between varia
 
 \section{GEIRA, JEIRA and GEISA, the Aim of the Project}
 \label{jeira}
-To search for interaction in data various tools can be used. \emph{GEIRA}\cite{geira} is one such tool which uses logistic regression, additive interaction and with bootstrap to asses the quality of the models\cite{geira}. It comes in two versions, one made in R and one in SAS. To improve speed up it was later implemented in Java and called \emph{JEIRA}\cite{uvehag_master_thesis}. It is parallel which made it significantly faster\cite{uvehag_master_thesis}. \emph{GEISA}\cite{geisa} is another tool based on JEIRA however it uses permutation testing instead of bootstrap to asses the certainty of the models\cite{geisa}. The programs structure is explained in section \ref{implementation}, the algorithms are explained in section \ref{algorithm_background}. Bootstrap calculates the certainty by resampling the data\cite{agresti_categorical}. Permutation tests works in a similar way but only randomizes the outcomes \cite{lindgren1993statistical}.\\
+To search for interaction in data various tools can be used. \emph{GEIRA}\cite{geira} is one such tool which uses logistic regression, additive interaction and with bootstrap to asses the quality of the models\cite{geira}. It comes in two versions, one made in R and one in SAS. To improve speedup it was later implemented in Java and called \emph{JEIRA}\cite{uvehag_master_thesis}. It is parallel which made it significantly faster\cite{uvehag_master_thesis}. \emph{GEISA}\cite{geisa} is another tool based on JEIRA however it uses permutation testing instead of bootstrap to asses the certainty of the models\cite{geisa}. The programs structure is explained in section \ref{implementation}, the algorithms are explained in section \ref{algorithm_background}. Bootstrap calculates the certainty by resampling the data\cite{agresti_categorical}. Permutation tests works in a similar way but only randomizes the outcomes \cite{lindgren1993statistical}.\\
 \\
 The aim of this project is to make the gene-environment interaction analysis faster by using graphics processors and to be able to handle larger amounts of data. The program is written in C++ and CUDA.
 
@@ -176,8 +201,7 @@ The aim of this project is to make the gene-environment interaction analysis fas
 
 \clearpage
 \chapter{Background}
-%TODO intro background
-This section will go through some of it starting with the algorithms and statistical background. And continuing with computer architecture and software design after that.
+This section will go through some of the background starting with the statistical background, continuing with computer architecture and software design after that. Last is a section about the algorithms.
 
 \section{Statistical Background}
 This section will explain some of the statistical background of categorical statistics.
@@ -267,6 +291,7 @@ A third variable is used to model the interaction for both multiplicative and ad
 \end{table}
 
 \subsection{Statistic Measures for Additive Interaction}
+\label{statistic_measures}
 Based on the statistical model and its corresponding ORs there are some measures that can be calculated. These measures show various properties of the additive interaction. They are defined using $RR$ however as mentioned before in section \ref{rr_or} $OR$ can be used to approximate $RR$.\\
 \\
 \emph{Relative  excess risk due to interaction}(RERI) is how much of the risk is due to interaction\cite{rothman2008modern, recoding_2011}. It is defined as\cite{rothman2008modern, recoding_2011}
@@ -315,7 +340,7 @@ The measures for additive interaction RERI, AP and SI explained in the previous 
     \label{fig:confunding}
 \end{figure}
 
-For instance if a study would look into the effects of yellow teeth on lung cancer they would likely find an effect. However it would be due to the confounder smoking since smoking causes yellow teeth and lung cancer. %TODO cite
+For instance if a study would look into the effects of yellow teeth on lung cancer they would likely find an effect. However it would be due to the confounder smoking since smoking causes yellow teeth and lung cancer\cite{smoking_teeth}.
 
 \subsection{The Multiple Testing Problem}
 It is not uncommon to test many hypothesis on the same data and in the case of GWAS it can be billions of tests. If one continues to test one should eventually find something that is significant due to random chance. With the common significance threshold of 5\% it is expected to get 1 in 20 false positives under the assumption that the null hypothesis is true. The problem arises from the fact that the hypothesis tests are dependent on each other since they use parts of the same data. This is the multiple testing problem and if it is not corrected for many false positives might be found.\cite{bonferroni_multiple}\\
@@ -326,7 +351,7 @@ Bonferroni correction is the simplest method and viewed as a conservative way to
 This section explains some of the computer architectures used to perform tasks in a thesis. A large part of this chapter is focused on the optimization techniques that are in use. For the purpose of this thesis it is best to think of the computer consisting of four main parts, the processor, the data storage, the memory and the accelerator.
 
 \subsection{Central Processing Unit}
-Central processing unit(CPU) is the part of the computer that executes instructions one by one\cite{introduction_hpc_hager}. Most modern CPUs have multi-core architecture meaning they consist of several processors\cite{introduction_hpc_hager}. Each core can perform tasks independent of each other.
+Central processing unit(CPU) is the part of the computer that executes instructions one by one\cite{introduction_hpc_hager}. Most modern CPUs have multi-core architecture meaning they consist of several processors\cite{introduction_hpc_hager}. Each core can perform tasks independent of each other. Multi-core architecture affects the way the programs are made because they need to be parallel to get maximum speed. More about this in section \ref{concurrency}.
 \\
 The figures \ref{fig:cpu_scheme} and \ref{fig:core_die} shows how the CPU is divided into areas and that most of it is not used for calculations. A large part of the area is used for various optimizations.
 
@@ -336,9 +361,6 @@ The figures \ref{fig:cpu_scheme} and \ref{fig:core_die} shows how the CPU is div
     \caption{The layout of the Haswell architecture i7-5960x, from \cite{intel_haswell_2014}}
     \label{fig:cpu_scheme}
 \end{figure}
-
-%TODO cpu to parralelle stuff
-so the programs need to be parallel to get maximum speed. Parallel means that the program issues multiple instructions at the same time, more about this in section \ref{concurrency}.
 
 \subsection{Concurrency and Threads}
 \label{concurrency}
@@ -412,8 +434,7 @@ Various optimizations have been introduce to the CPUs over the years\cite{dreppe
     \label{fig:core_die}
 \end{figure}
 
-In general retrieving data from memory is relatively slow compared to how fast the processor works\cite{introduction_hpc_hager,drepper2007cpumemory}. %TODO something about the  maginitude
-To solve this problem a \emph{cache} was introduced\cite{drepper2007cpumemory}. It stores recently used data in a very small and very fast memory that resides on the CPU chip itself\cite{drepper2007cpumemory}. The caches varies in sizes, the latest ones are around 16-20 mB, for instance Intels i7-5960x with 20 mB \cite{intel_haswell_2014_5960x}. The cached data can then be reused without waiting for the main memory to fetch it. However when the data is not in the cache it costs time to fetch it from the main memory, that is a \emph{cache miss}\cite{drepper2007cpumemory}. Avoiding cache misses is important for the speed up\cite{drepper2007cpumemory}. Modern CPUs commonly have more than one cache, most have three\cite{introduction_hpc_hager}. They are named L1 to L3, with L1 being the one fastest and smallest and L3 the largest and slowest\cite{introduction_hpc_hager}.\\
+In general retrieving data from memory is relatively slow compared to how fast the processor works\cite{introduction_hpc_hager,drepper2007cpumemory}. To solve this problem a \emph{cache} was introduced\cite{drepper2007cpumemory}. It stores recently used data in a very small and very fast memory that resides on the CPU chip itself\cite{drepper2007cpumemory}. The caches varies in sizes, the latest ones are around 16-20 mB, for instance Intels i7-5960x with 20 mB \cite{intel_haswell_2014_5960x}. The cached data can then be reused without waiting for the main memory to fetch it. However when the data is not in the cache it costs time to fetch it from the main memory, that is a \emph{cache miss}\cite{drepper2007cpumemory}. Avoiding cache misses is important for the speedup\cite{drepper2007cpumemory}. Modern CPUs commonly have more than one cache, most have three\cite{introduction_hpc_hager}. They are named L1 to L3, with L1 being the one fastest and smallest and L3 the largest and slowest\cite{introduction_hpc_hager}.\\
 \\
 Modern multi-core processors have several L1 caches, one per core\cite{introduction_hpc_hager}. Commonly each core has a L2 cache as well, however it can be shared in some architectures\cite{introduction_hpc_hager}. The L3 cache is almost always shared between all cores\cite{introduction_hpc_hager}. The multiple caches used causes a problem called \emph{cache coherency}. It is when the data modified in one cache needs to be updated in all the caches in order for them to use the new value\cite{introduction_hpc_hager}.\\
 \\
@@ -421,8 +442,8 @@ One of the memory optimization methods somewhat related to caches is \emph{prefe
 \\
 When a program iterates over an array the first value is a cache miss since it is not in the cache. The following values are prefected and cached as well. However if the array is too long to be prefetched and cached completely and the CPU hits a position not in the cache then a new cache miss happens\cite{drepper2007cpumemory}. Usually matrices are stored sequential in memory\cite{drepper2007cpumemory}. For instance a two dimensional matrix is stored as a one dimensional array. Different programming languages store them differently, either column by column or row by row\cite{drepper2007cpumemory}. Row by row is called \emph{row major} and column by column is \emph{column major.}\\
 \\
-Below is an example of how prefectching can have an large impact on performance. 
-
+Below is an example of how prefectching can have an large impact on performance.\\
+\\
 In section 6.2.1 in What Every Programmer Should Know About Memory\cite{drepper2007cpumemory} an example of how much speed that can be gained by optimizing matrix matrix multiplication. The variables have been renamed for clarity. The simple version of it is shown in algorithm \ref{alg:matmatmult} and the version with improved cache use is shown in \ref{alg:matmatmultopt}.
 
 \begin{algorithm}
@@ -469,7 +490,6 @@ By transposing the mul2 matrix it becomes more cache friendly by using prefectch
 \SetKwInOut{data}{Data}
 \BlankLine \BlankLine
 
-%TODO define & char
 \data{Three $N \times N$ matrices, \textit{matrix1}, \textit{matrix2} and \textit{result}\\
 $SM$ is the number of matrix elements that fits in the cache.
 }
@@ -494,7 +514,7 @@ $SM$ is the number of matrix elements that fits in the cache.
 \label{alg:matmatmultopt}
 \end{algorithm}
 
-On top of that by using some additional features of the CPU such as doing multiple instructions at once more speed up is gained increasing it to 9.47\% of the original time\cite{drepper2007cpumemory}. \\
+On top of that by using some additional features of the CPU such as doing multiple instructions at once more speedup is gained increasing it to 9.47\% of the original time\cite{drepper2007cpumemory}. \\
 \\
 If the operation instructions diverge, e.g. the \emph{if} statements, the CPU would have to wait for the results to see what instructions load and do next\cite{drepper2007cpumemory}. This can mean a significant loss of time, however because of an optimizations called \emph{branch prediction} and \emph{speculative execution} the loss of time can be prevented in some cases\cite{drepper2007cpumemory}. A dedicated part of the CPU stores the results from these divergences and when they are encountered again it uses them to make a guess of what do to next\cite{drepper2007cpumemory}. It then loads the instructions and tries to fetch the needed data\cite{drepper2007cpumemory}. The CPU then speculatively executes the instructions, i.e it executes instructions that might not actually be needed\cite{drepper2007cpumemory}. If the guess was correct the results are kept, on the other hand if it was wrong the CPU starts again from the correct path and discards the incorrect results\cite{drepper2007cpumemory}.\\
 \\
@@ -597,6 +617,7 @@ Intels answer to the increasing popularity of GPUs for general computing is Xeon
 
 \subsubsection{GPU vs Xeon Phi, Why use GPUs for Interaction?}
 \label{gpu_gwas}
+%TODO rewrite this part
 Which is most efficient depends largely on the algorithm and if there is any previous existing code. For instance if the algorithm contains many points of divergence Xeon Phi is likely faster because Xeon Phi is MIMD while GPU is SIMT. Xeon Phi can be applied to a broader set of problems due to using a MIMD architecture\cite{jeffers2013intel}. A one on one comparison of speed might not be entirely relevant because the algorithm used for the test might simply be better suited for one the architectures. Speed per cost, either power consumption or the price on the hardware, can also be more relevant. If one is half the cost of the other then comparing two versus one would be a better comparison. CUDA is also more mature than Xeon Phi since Xeon Phi is only a few years old while CUDA is almost ten years old\cite{cuda, jeffers2013intel}.\\
 \\
 Which suits best needs to be examined by a case by case basis and depending on the specifics of the algorithm and what type of computers that might already be available. It is also important to think about how important maximum speed is and how much time there is to spend. If extremely high speed is of importance and time is not a concern then a GPU is likely to get higher performance, unless the algorithm is badly suited for GPUs. However Xeon Phi might reach similar speed but with less effort.\\
@@ -604,7 +625,7 @@ Which suits best needs to be examined by a case by case basis and depending on t
 %Why GPU for GWAS
 GPUs are good for interaction algorithms because most methods consider each combination independently and also in this case that LR consists of linear algebra operations. A new combination can be transferred while another is calculated. Linear algebra with sufficiently large matrices and vectors work very well on GPUs\cite{cublas, cuda}. Several studies got high gains from implementing their algorithms on GPU\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}. However most studies had CPU versions that were not parallel so it is likely that the gains would have been less if they would have been compared to an optimized and parallel CPU version, especially if a Xeon Phi co-processor was used. One study did make a comparison of a CPU cluster version and a GPU version of their algorithm, they found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.
 
-\subsection{Data Storage}
+%\subsection{Data Storage}
 %TODO write about data storage
 
 \subsection{Clusters}
@@ -817,7 +838,6 @@ One of the main criticism against GPUs for general computing purposes is that it
 
 \clearpage
 \section{Software Design Background}
-%TODO facade interface, more pattern stuff? adapter, wrapper
 How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software. Badly organized and written code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. Fixing those bugs are likely to time consuming because it can be hard to find where they originated from. All code gather problems overtime, however a well designed system will degenerate significantly slower than one that was designed carelessly. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in. \cite{cleancode2008, design_patterns}\\
 \\
 This is also important in science where others might wish to use the tools or repeat the experiments. A recent study\cite{comp_repro_2013} found that the repeatability in computer science is low. They used the term reproducibility however repeatability is a more fitting term because they didn't try to reproduce the results from scratch, they tried to repeat it using the same code. Of 513 articles they received the code from 231, 108 failed to build, 21 failed to run properly\cite{comp_repro_2013}. The remaing 102 compiled and ran, however they did not check if the results of the program was correct\cite{comp_repro_2013}.\\
@@ -857,11 +877,16 @@ It can be easy to denote test code as less important than the main code but they
 \emph{Mocking} is to replace a real object with a fake object called a \emph{mock} that for the code is indistinguishable from the real object. This allows one to create situations and test with more control and without depending on the real objects code. The second is important for unit tests since it enables one to test units that normally depend on others in isolation. In the first case it is useful in situations such as when one wants to test a class handling of a rare failure. Such failures can be hard and time consuming to induce. It is then easier to use a mock object that behaves like the failure has occurred. However mocking requires that the code for the class doesn't create the object itself since there is no way to replace the object with the mock. This is one of the reasons why dependency injection should be use.\cite{cleancode2008}
 
 \subsection{Design Patterns}
-%TODO builder pattern, adapter pattern
 \label{design_pattern}
 A \emph{design pattern} in software design is a reusable general solution to a common recurring problem in a given context. It is templates and structures to solve the problem, however it is not code. However they are partially dependent on the programming language since different languages have different features and limitations.\cite{design_patterns}\\
 \\
-\emph{Consumer producer} is a concurrency pattern for when there are a number of consumers/workers and producers. They share a common queue for products. The producer generates some product and put it into the queue, while the the consumers consume the products. The problem is that the producers should not add to an non empty slot and that each product should only be consumed once.\cite{cleancode2008, design_patterns}
+\emph{Consumer producer} is a concurrency pattern for when there are a number of consumers/workers and producers. They share a common queue for products. The producer generates some product and put it into the queue, while the the consumers consume the products. The problem is that the producers should not add to an non empty slot and that each product should only be consumed once.\cite{cleancode2008, design_patterns}\\
+\\
+%TODO builder pattern
+Configuration pattern classes are used to reduce the number of parameters to functions. Instead of having a number of parameters to a function the parameters are put in a Configuration class. The Configuration class has two functions for each parameter, a \textbf{set} function and a \textbf{get} function. The \textbf{set} is used to set the parameter while \textbf{get} is used to get the parameter.\\
+\\
+%TODO adapter pattern
+%TODO factories Factories allow the a class to delegate the construction 
 
 \subsection{Version Control Software}
 Backups for data, code, text and so on is important if something happens. One way to backup text and code projects is to use a version control software and is usually an important tool in developing\cite{git_book}. For this project Git was used and the source code can be found at \url{https://github.com/Berjiz/CuEira}. Version control software allows several developers to share a common \emph{repository} which allows them to work on different parts at the same time, it could even be in the same file\cite{git_book}. However changes at the same place causes \emph{merge conflicts} which usually needs to be solved manually\cite{git_book}. A version control software keeps track of all the changes made so if a part later turns out to be wrong that part can reverted to an older correct version\cite{git_book}. Version control software also have many other features\cite{git_book}.
@@ -874,22 +899,22 @@ There are two ways to measure how long a program takes to execute\cite{introduct
 \\
 Speed up is a measure of how much faster then program is with a certain number of threads compared to the serial version. It's defined as\cite{introduction_hpc_hager}
 $$S(p)=\frac{T(1)}{T(p)}$$
-Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speed up is when S(p)=p\cite{introduction_hpc_hager}.\\
+Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speedup is when S(p)=p\cite{introduction_hpc_hager}.\\
 \\
 Efficiency reflects how efficient the program is using p threads. Linear speed has efficiency 1. It's defined as\cite{introduction_hpc_hager}
 $$E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}$$
 \\
-Strong scaling refers to how the program handles a fixed problem size and increased number of processors\cite{introduction_hpc_hager}. An program with strong scaling has linear speed up\cite{introduction_hpc_hager}. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased\cite{introduction_hpc_hager, cuda_best_practice}.\\
+Strong scaling refers to how the program handles a fixed problem size and increased number of processors\cite{introduction_hpc_hager}. An program with strong scaling has linear speedup\cite{introduction_hpc_hager}. Weak scaling refers to the execution time of the program when there is a fixed problem size \emph{per processor} and the number of processors is increased\cite{introduction_hpc_hager, cuda_best_practice}.\\
 \\
 It can be a good idea to plot these measures while varying p, this can show when a bottleneck occurs. Looking at the measures at node level can also be useful to get an idea of how increased number of nodes and therefore increased communication over the network affects the performance.
 
 \newpage
 \subsection{Amdahl's Law and Gustafson's Law}
-Amdahl's Law is used to find the expected speed up of a system when parts of it are made concurrent. Simply it says that as the number of processors increases the parts that aren't parallel will start taking up more and more of the wall clock time and that the speed up for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts\cite{introduction_hpc_hager}. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
+Amdahl's Law is used to find the expected speedup of a system when parts of it are made concurrent. Simply it says that as the number of processors increases the parts that aren't parallel will start taking up more and more of the wall clock time and that the speedup for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts\cite{introduction_hpc_hager}. It's closely related to strong scaling.\cite{cuda_best_practice,2010_reevaluating_amdahl}\\
 \\
-It says that the expected speed up with F fraction of the code parallel and p threads is\cite{introduction_hpc_hager} 
+It says that the expected speedup with F fraction of the code parallel and p threads is\cite{introduction_hpc_hager} 
 $$S(p)=\frac{1}{(1-F)+\frac{F}{p}(1-F)}$$
-As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F}$. If we have 90\% of a code parallel then even with infinite number of threads we won't get a better speed up than ten.\cite{2010_reevaluating_amdahl}
+As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F}$. If we have 90\% of a code parallel then even with infinite number of threads we won't get a better speedup than ten.\cite{2010_reevaluating_amdahl}
 
 \begin{figure}[h]
     \centering
@@ -902,7 +927,7 @@ There are limitation to Amdahl's Law since it makes a couple of assumptions.
 
 \begin{itemize}
   \item The number of executing threads remain constant over the course of the program.
-  \item The parallel portion has perfect speed up. Often not true due to shared resources,eg caches, memory bandwidth, and shared data.
+  \item The parallel portion has perfect speedup. Often not true due to shared resources,eg caches, memory bandwidth, and shared data.
   \item The parallel portion has infinite scaling, not true due to similar limits as above. More threads will not increase performance after a while or might even decrease it.
   \item There is no overhead for creation and destruction of threads.
   \item The length of the serial portion is independent of the number of threads. Often the serial work is to divided the work to the threads, this work will obviously increase as the number of threads go up. More threads can also lead to more communication overhead.
@@ -911,7 +936,7 @@ There are limitation to Amdahl's Law since it makes a couple of assumptions.
 
 This means it is most accurate with programs that are of the fork-join type, e.g. both serial and parallel parts\cite{gustafson1988reevaluating}.\\
 \\
-Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law\cite{gustafson1988reevaluating}. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, e.g. increased precision by reducing grid size for simulations, higher frame rate for graphics and so on\cite{gustafson1988reevaluating, introduction_hpc_hager}. The second is that the parallel portion of the program tends to expand faster than the serial part, e.g. for matrix multiplication the initialization scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$\cite{gustafson1988reevaluating, introduction_hpc_hager}. The former means that it is closely related to weak scaling\cite{introduction_hpc_hager}. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speed up with p threads and F fraction of the code that is parallel is\cite{gustafson1988reevaluating, cuda_best_practice, introduction_hpc_hager}
+Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law\cite{gustafson1988reevaluating}. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, e.g. increased precision by reducing grid size for simulations, higher frame rate for graphics and so on\cite{gustafson1988reevaluating, introduction_hpc_hager}. The second is that the parallel portion of the program tends to expand faster than the serial part, e.g. for matrix multiplication the initialization scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$\cite{gustafson1988reevaluating, introduction_hpc_hager}. The former means that it is closely related to weak scaling\cite{introduction_hpc_hager}. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speedup with p threads and F fraction of the code that is parallel is\cite{gustafson1988reevaluating, cuda_best_practice, introduction_hpc_hager}
 $$S(p)=p+(1-F)(1-p)$$
 
 \begin{figure}[h]
@@ -933,25 +958,7 @@ Nsight\cite{nvidia_nsight} is a combined profiler and integrated development env
     \label{fig:nsight_profiler}
 \end{figure}
 
-%\clearpage
-%\chapter{Algorithms and Implementation}
-%Algorithm (up till 20 pages)
-%  - Current state - Basic algorithm, Data structure, memory consumption, parallelization, load balancing and scalability
-%  - And the same for own your implementation
-
-%This section starts with the algorithms and then the implementations.
-
-%OTHERS
-%problem with exathsutive
-
-%memory problems(GENIE, CUDALR and so on), possibly JEIRA/GEISA
-
-%2 bit 3 bit data storage
-
-%two stage analysis
-
-%plink data format
-
+\newpage
 \section{Algorithms}
 \label{algorithm_background}
 There are many algorithms and programs proposed for searching for interaction, most have focused on gene-gene interaction as already mentioned\cite{gene_enviroment_2013}. One of the challenges of gene-environment interaction is that environmental factors can be of any variable type(i.e. binary, continuous, categorical) which creates problems in various ways\cite{gene_enviroment_2013}. Gene-gene interaction tools can sometimes be used to find gene-environment interaction, however they usually require the variables to be binary or have other problems since they weren't designed for environmental interaction\cite{gene_enviroment_2013}.\\
@@ -968,12 +975,21 @@ The methods can be roughly classified into four categories, exhaustive, stochast
 \\
 \emph{Stepwise} methods uses a filtering stage and a search stage. At the filtering stage uninteresting combinations are filtered out by using some exhaustive method. The other SNPs are the examined more carefully in the search stage. BOOST\cite{boost_gene_gene} is an example which uses succinct data structures and a likelihood ratio test to filter the data before applying log-linear models.
 
+\newpage
 \subsection{Logistic Regression}
+\label{logistic_regression}
 One way to model the contingency tables is by using \emph{logistic regression}. Logistic regression is a type of linear regression model for classification that models a latent probability for the outcomes. The outcomes are binary, however the method can be extended to multiple outcomes. In this work we will only consider them as binary. Logistic regression transforms the probability by using the \emph{logit} transformation. The logit transformation with probability $\pi$ is \cite{agresti_categorical}
 
 \begin{equation}\label{eq:logit}
 \log(\frac{\pi}{1-\pi})
 \end{equation}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{logit.png}
+    \caption{Graph of the logit transformation. Wikipedia Commons}
+    \label{fig:logit}
+\end{figure}
 
 The probability with a set of predictor variables \emph{X} is $\pi(X)=P(Y=1)$. The linear regression model with n predictors $X=(x_1,x_2,....,x_n)$, coefficients $\beta=(\beta_1, \beta_2,....,\beta_n)$ and by using the logit transformation is then\cite{agresti_categorical}
 \begin{equation}\label{eq:logit_lr}
@@ -998,13 +1014,6 @@ This means that $\exp{\beta}$ is the odds ratio since the odds increase by $\exp
 \end{equation}
 
 Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models \cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. The pseudo code for the algorithm using Newtons method can be found in algorithm \ref{alg:lr} \cite{uvehag_master_thesis}. Line 13 is sometimes inside the loop, however since it is not needed for the actual iteration calculating it for every loop wastes time.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=10cm]{logit.png}
-    \caption{Graph of the logit transformation. Wikipedia Commons}
-    \label{fig:logit}
-\end{figure}
 
 \begin{algorithm}
 \DontPrintSemicolon
@@ -1062,8 +1071,41 @@ $log \; likelihood\longleftarrow \sum (\boldsymbol{Y}*ln p+(1-\boldsymbol{Y})*ln
 \label{alg:lr}
 \end{algorithm}
 
-%TODO write about LR matrix inverse
-The inverse of the information matrix, or Jacobian, on line 10 is generally not possible with normal matrix inverse because it is not defined for a general matrix. However the \emph{pseudo-inverse} is.  
+\newpage
+\newpage
+\subsubsection{Matrix Inverse and Matrix Decomposition}
+\label{matrix_inverse}
+%TODO cite mattrix inverse stuff
+
+The inverse of the \emph{information matrix}, \textbf{J}, on line 10 in algorithm \ref{alg:lr} is generally not possible to do with normal matrix inversion because it is not defined for a general matrix. However the \emph{pseudoinverse} is defined for a general matrix, it is denoted as $A^+$ for the matrix $A$. There are several types of pseudoinverse, one of the more common is the \emph{Moore-Penrose pseudoinverse} where $A^+$ is the matrix that satisfies equations \ref{eq:pseudo_1} to \ref{eq:pseudo_4}.
+
+\begin{equation}\label{eq:pseudo_1}
+AA^+A=A
+\end{equation}
+
+\begin{equation}\label{eq:pseudo_2}
+A^+AA^+=A^+
+\end{equation}
+
+\begin{equation}\label{eq:pseudo_3}
+(AA^+)^T=AA^+
+\end{equation}
+
+\begin{equation}\label{eq:pseudo_4}
+(A^+A)^T=A^+A
+\end{equation}
+
+\emph{Matrix decomposition}, also called \emph{matrix factorisation}, are methods to factorize a matrix into products of matrices. Some of the decomposition methods can be used to find the pseudoinverse. \emph{Singular value decomposition}(SVD) is one of them and works for general matrices. It's factorization of a  $n \times m$ matrix $A$ is shown in equation \ref{eq:svd}.
+
+\begin{equation}\label{eq:svd}
+A=U \Sigma V^T
+\end{equation}
+
+Where $\Sigma$ is a diagonal matrix with non negative numbers, its diagonal values are the \emph{singular values} of $A$. Using SVD the pseudoinverse is shown in equation \ref{eq:pseudo_svd}. $\Sigma^+$ is the pseudoinverse of $\Sigma$. This is done by inverting each non zero element of the diagonal and transposing the matrix.
+
+\begin{equation}\label{eq:pseudo_svd}
+A^+=V \Sigma^+ U^T
+\end{equation}
 
 \subsection{Data Mining and Machine Learning Approaches}
 \label{data_machine_learning}
@@ -1133,16 +1175,11 @@ It has been shown in high dimensional data that RF tends to only rank interactin
 \label{implementation}
 This section will explain the implementation of the program starting with a short summary of how JEIRA and GEISA works. After that is a more thorough look at the structure and implementation of CuEira.\\
 \\
-%why LR
-%-less sever drawbakcs for non binary
-%-can handle non binary data(however statistical problems needs to be solved)
-%-slow but is not too slow for gene-environment interaction
-%\\
-The input files for all these programs are Plink data files. However CuEira can only read the Plink files in binary format. They also read a separate tab delimited file that contains the environmental data and covariates if any. For CuEira the covariates and environmental data is split in two files.
+The input files for all these programs are PLINK data files. However CuEira can only read the PLINK files in binary format. They also read a separate tab delimited file that contains the environmental data and covariates if any. For CuEira the covariates and environmental data is split in two files.
 
 \section{JEIRA and GEISA}
-The descriptions and structures here apply to both JEIRA and GEISA since their underlying structure is the same, however the focus is on GEISA. They are written in Java and uses Javas built-in functions for concurrency. Java was chosen because it is %TODO \cite{uvehag_master_thesis}
-
+The descriptions and structures in this section applies to both JEIRA and GEISA since their underlying structure is the same, however the focus is on GEISA. They are written in Java and uses Javas built-in functions for concurrency.\\
+\\
 GEISA has three dependencies, two are provided as JAR files in the distribution so the user doesn't need to get them. Maven is only needed if the user wants to compile the program from the source.
 
 \begin{description}
@@ -1154,33 +1191,20 @@ GEISA has three dependencies, two are provided as JAR files in the distribution 
   Used to compile Java programs.
 \end{description}
 
-The implementation uses the producer consumer pattern described in section \ref{design_pattern}. The main thread creates a queue of tasks. All the result producers iterates over this shared queue and outputs results. These results are placed in a queue a consumed by another thread that prints the results. The program reads all data at the start which means it can get memory problems for large datasets.
+The implementation uses the producer consumer pattern described in section \ref{design_pattern}. The main thread creates a queue of tasks. All the result producers iterates over this shared queue and outputs results. These results are placed in a queue a consumed by another thread that handles the results. The program reads all data at the start which means it can get memory problems for large datasets. JEIRA and GEISA are both largely without tests. However there are a few unit tests for some of the basic storage classes and the binary file reader.\\
 
-There are a few unit tests for some of the basic storage classes and the binary file reader.\\
-
+\newpage
 \section{CuEira}
 \label{cueira}
-This section will explain the structure of CuEira and how it works starting with a general overview. Later the parts are explained and finally how the parts are combined to form the program.\\
+This section will explain the structure of CuEira and how it works starting with a general overview. Later the parts are explained and finally how the parts are combined to form the program. C++ was chosen because it is generally fast and have good memory handling.\\ %TODO more about C++ reasons?
 \\
-C++ was chosen because 
-
-Why C++
-good memory handling with pointers
-fast
-blas, cuda commonly C and Fortran interface
-
 The basis of the program is that each SNP is handled independently and a SNP is only read from the file when its needed to reduce memory usage. A number of worker threads share a queue of the SNPs and with each worker thread corresponding to a stream on a GPU. The program is split into two stages, initialisation and calculations. The initialisation part is done by the main thread and reads all the information except the SNP data. In the calculation step each worker threads fetches a SNP from the queue, reads its data, calculates the model, writes the results and then starts again with the next SNP until the queue is empty.\\
 \\
-Copying of the classes is avoided
-
-Most classes have copy and move operator deleted to prevent mistakes since the default copy is naive and therefore usually flawed when dealing with classes with pointers.
-
-Factories are used were needed to help satisfy the dependency inversion principle.
-
-Namespaces are used in CuEira to 
-
-Comments are used very sparsely for several reasons. The names and could so be clear and readable so that they should not be needed and it is also easy to forget to update them.
-%TODO add comment stuff to clean code?
+Copying of the classes is avoided to save performance. Most of the classes have the copy and move constructor and operator deleted to prevent mistakes since the default copy and move is naive and therefore usually flawed when dealing with classes with pointers. Since they are not needed allowing the default ones to be there will likely cause errors if they are used by accident.\\
+\\
+Factories are used at several places to help satisfy the dependency inversion principle. Without the factories some objects can not be mocked and therefore a proper unit test can not be performed.\\
+\\
+To improve readability several things were done. There are several namespaces to separate different parts of the program and to reduce clutter. For the same reason all classes have appropriate names and abbreviations were avoided in most cases. Comments were used sparsely because the names should be clear enough and explain what the code does that way. Comments are also easy to forget to update when the code is changed.
 
 \subsection{Dependency and Compiling}
 CuEira have some dependencies. The dependency on MKL and Intels compiler is something that can be changed. BLAS shares the interface so another BLAS library could work with updates to the CMake file.
@@ -1204,18 +1228,11 @@ CuEira have some dependencies. The dependency on MKL and Intels compiler is some
   Unit test and mocking framework. They are provided in the CuEira source so the user does not need to install them separably.
 \end{description}
 
-CuEira is compiled by using CMake and Make. CMake generates Make files from a CMakeLists file. Make is 
-
-One of the main advantages of CMake is 
-find package
-
+CuEira is compiled by using CMake and Make. CMake generates Make files from a CMakeLists file. Make files sets rules for how the program should be compiled. Compiling can be complicated and using CMake is one way to make it easier.  One of the main advantages of CMake is the modules and the command \emph{find package} which can find libraries by searching for them using common paths. They also help with linking the library with the program and can sometimes also provided other functions. For instance the find package for CUDA has commands to compile CUDA code.\\
+\\
 The main CMake file needs to know what and where all the source files are. This is done by using nested CMake files, each directory has an CMakeLists file that adds it's sub directories and sets all the source files to the previous level. There are four types of lists of source files each is compiled into a library and then linked together. There is one list for all the tests, one for the files that needs to be compiled with nvcc, one for other GPU related code and then one with the host code.\\
 \\
-By changing an option in the main CMake file the program can be compiled with either single and double precision. 
-
-%TODO more preproccessor variable stuff, PRECISION, DEBUG, CPU
-
-More details on how to compile and use CuEira can be found in appendix \ref{compile_cueira}.
+The CMake file contains several options for how CuEira can be compiled. For instance one of them sets if it should be single or double precision. Others tell the program information about the target GPU architecture, debug mode and so on. More details on how to compile and use CuEira can be found in appendix \ref{compile_cueira}.
 
 \subsection{Storage}
 A set of container classes holds the data. There are two types of them, the basic matrix and vector classes and data containers. The data containers are responsible for handling the data for the model and performing the recoding. They use the vector classes for the actual storage.\\
@@ -1232,20 +1249,16 @@ There is three data container classes, SNPVector, EnvironmentVector and Interact
 \\
 The DataHandler is responsible for keeping track of the current combination of data containers being used and to iterate to the next one when its \textbf{next()} function is called. When the \textbf{next()} function is used a couple of things happen. If all environment factors have been calculated together with the current SNP it deletes the SNPs information, asks the queue for a new one and reads its data and switches to the first environment factor. Otherwise it moves on to the next environment factor. It then updates the InteractionVector and the Statistics classes to create the contingency table and the allele frequencies. After that the next set of variables is ready to be used.
 
-\subsection{File I/O}
-%TODO coviariates outside too
-CuEira reads five files that are in four different formats. The reading of all files except one is handled by the facade pattern class %TODO pattern name?
-DataFilesReader. DataFilesReader and how it delegates is shown in figure\\% \ref{fig:data_files_reader}.\\ TODO
+\subsection{File Input and Output}
+CuEira reads five files that are in four different formats. There is one class for each file that takes care of reading the files contents.\\
 \\
-Three of the files are binary Plink files, of which one is binary. The fam file has the information about the individuals, the bim file has the names of the SNPs and their alleles. The genetic information for each individual is in the binary bed file. More details on Plink files can be found in appendix \ref{plink_file}.\\
+Three of the files are PLINK files in binary format. The fam file has the information about the individuals, the bim file has the names of the SNPs and their alleles. The genetic information for each individual is in the binary bed file. More details on PLINK files can be found in appendix \ref{plink_file}. The classes used to read them are BimReader, BedReader and FamReader.\\
 \\
 The other two files are CSV files. One of them contains the covariates and the other the environmental factors. CSVReader is responsible for reading them and storing the data in a matrix. The fifth reader class is EnvironmentCSVReader which inherits CSVReader. Its purpose is to convert the matrix read by CSVReader with the environment data to EnvironmentFactorHandler.\\
 \\
-The BedReader class is outside DataFilesReader because it needs some of the information that is inside the other Plink files. It is also a different because it is the only reader that is continuously used during the whole execution of the program.\\
+All the information except the genetic data in the bed file is read during the programs initialisation. When a new SNP is being used for calculations its data is read from the bed file. Most of the memory needed to store the data is in the bed file so only reading it when needed save a lot of memory.\\
 \\
-There is only one writer, the ResultWriter, and as its name suggests its responsibility is to write the results. The results are written immediately and then discarded to save memory. There is an lock on the writing so several threads can share it. The results will therefore be written in the order they are completed. 
-
-%TODO picture of the whole readers thing
+There is only one writer, the ResultWriter, and as its name suggests its responsibility is to write the results. The results are written immediately and then discarded to save memory. There is an lock on the writing so several threads can share it. The results will therefore be written in the order they are completed. The format of the output file is described in appendix \ref{file_formats}.
 
 \subsection{Initialisation of the variables, Recoding and Statistic Model}
 The initialisation of the SNPVector and EnvironmentVector is done by calling the recoding with ALL\_RISK from the Recode enum. The \textbf{recode()} function calls different functions based on the enum. If it is ALL\_RISK it calls a function that copies the data from the vector holding the original data to vector that holds the data that will be used for the model. InteractionVector does recoding and initialisation the same way because in both cases the interaction data is the multiplication of the elements of the SNPVector and EnvironmentVector. InteractionVector recode is shown in algorithm \ref{alg:inter_recode}. SNPVector recode is shown in algorithm \ref{alg:snp_recode} and EnvironmentVector recode is shown in algorithm \ref{alg:env_recode}.\\
@@ -1381,7 +1394,7 @@ $interactionVector$, vector with the interaction variable}
 %The statistics classes are responsible for calculating based on the results and to calculate the distribution of the groups, for instance the contingency table. 
 
 \subsection{Wrappers}
-CUDA and BLAS functions and interfaces are in C style. To make it easier to use and fit better with the rest of the programs they were put in wrappers. These wrappers are in C++ style and do the actual function calls to CUDA and BLAS. Since CUDA and BLAS contains a lot of various functions they were added as needed. There are several reasons to use wrappers. One is that some of the functions does not use exceptions but returns an error code instead. This forces the program to check these error codes. This is hidden by using a wrapper that can throw the correct exception based on the error code. Exceptions are also better for performance because it removes the need for if statements checking the returned error codes. The compiler can optimize better with checks for exceptions(e.g. try catch statements) because it can assume that the occurrence of exceptions is low. However usually checks for exceptions are not needed because they commonly signify a critical error.\\ %TODO cite exception performance
+CUDA and BLAS functions and interfaces are in C style. To make it easier to use and fit better with the rest of the programs they were put in wrappers. These wrappers are in C++ style and do the actual function calls to CUDA and BLAS. Since CUDA and BLAS contains a lot of various functions they were added as needed. There are several reasons to use wrappers. One is that some of the functions does not use exceptions but returns an error code instead. This forces the program to check these error codes. This is hidden by using a wrapper that can throw the correct exception based on the error code. Exceptions are also better for performance because it removes the need for if statements checking the returned error codes. The compiler can optimize better with checks for exceptions(e.g. try catch statements) because it can assume that the occurrence of exceptions is low. However usually checks for exceptions are not needed because they commonly signify an error that the program can not recover from.\\
 \\
 Another reason is the lack of object orientation. For instance the BLAS interface standard is not object oriented which causes its functions to have a lot of parameters. Matrix vector multiplication with MKL(Intels version of BLAS) is shown in \ref{ex:mkl_mv}. The function call uses 12 parameters, most of which are of similar types. One time during the thesis it took a day to find an error that was in one of the CUBLAS calls. Due to a parameter being 1 instead of 0 it performed the operation $y=z*x+y$ instead of $y=z*x$. These types of errors are much easier to make when a function has a larger number of similar parameters. MKL is wrapped in MKLWrapper. Its wrapped version of matrix vector multiplication, shown in \ref{ex:mkl_wrap_mv}, has 5 parameters of which two have default values.\\
 \\
@@ -1552,33 +1565,27 @@ numberOfThreadsPerBlock is 256 }
 \end{algorithm}
 
 \subsection{Model}
-%TODO write model stuff
+The calculations are done by using a group of Model classes. A list of these classes and their responsibilities is shown below.
 
-%TODO possibly move, write something about that it uses builder pattern as talked about in clean code stuff
-Configuration pattern classes are used to reduce the number of parameters to functions. Instead of having a number of parameters to a function the parameters are put in a Configuration class. The Configuration class has two functions for each parameter, a \textbf{set} function and a \textbf{get} function. The \textbf{set} is used to set the parameter while \textbf{get} is used to get the parameter. 
+\begin{description}
+  \item[Model] \hfill \\
+  The model to calculate.
+  \item[ModelConfiguration] \hfill \\
+  Holds the data for the Model by using the builder pattern.
+  \item[ModelResult] \hfill \\
+  Contains the results from one Model on one set of data.
+  \item[CombinedResults] \hfill \\
+  The results for one set can consist of more than one ModelResult. CombinedResults have that responsibility.
+  \item[ModelHandler] \hfill \\
+  Has a \textbf{next} function to iterate over the data delegating it to DataHandler. It also has a pure virutal function \textbf{calculate} which should be used for calculating the Models and collecting the results.
+  \item[ModelInformation] \hfill \\
+  Contains the ContingencyTable and AlleleStatistics. 
+\end{description}
 
-Model
-
-easy to extend
-
-A group of base classes
-
-%TODO description list thing
-
-Model
-ModelConfiguration
-ModelResult
-ModelHandler
-CombinedResults
-
-ModelInformation. It has the ContingencyTable and AlleleStatistics
-
-The basic ModelHandler has next to switch DataHandler to the next combination and to updated it's own pointers to the new data.
-
-The next section will explain how the base classes here were extended to form the classes for the LR.
+The point of these classes is that they provided common interfaces and are easy to extend. This makes it easy to later add or change which models are calculated and how their results are handled. The next section will explain how the Model base classes were extended to form the classes for the LR model.
 
 \subsubsection{Logistic Regression}
-The LR model is implemented using the Model base classes talked about in the previous section. There is a CPU version and a GPU version using CUDA. Some classes are shared between them because of common elements. The structure is shown in figure \ref{fig:lr_inheritance}.
+The LR model is implemented using the Model base classes talked about in the previous section. There is a CPU version and a GPU version using CUDA. Some classes are shared between them because of common elements. The structure is shown in figure \ref{fig:lr_inheritance}. A more detailed layout of the ModelHandler for LogisticRegression is shown in figure \ref{fig:lr_modelhandler}.
 
 \begin{figure}[h]
     \centering
@@ -1587,23 +1594,57 @@ The LR model is implemented using the Model base classes talked about in the pre
     \label{fig:lr_inheritance}
 \end{figure}
 
-To make testing easier the LR algorithm is split into several protected functions that are then used in the \textbf{calculate()} function. For the CudaLogisticRegression some of these parts are done on the host. It is the parts that perform line 10 and 11 in algorithm \ref{alg:lr}. All the other parts of the LR algorithm are done by using CUBLAS or the kernels explained in section \ref{kernelwrapper}. The calculations for line 10 and 11 are in the LogisticRegression class so the code is shared between CpuLogisticRegression and CudaLogisticRegression. It is done on the host instead of the device because two reasons.\\
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=6cm]{modelhandler_lr_layout.png}
+    \caption{Asdf}
+    \label{fig:lr_modelhandler}
+\end{figure}
+
+LR algorithm is split into several protected functions so that each part can be tested individually. The parts are then used in the \textbf{calculate} function. For CudaLogisticRegression the parts corresponding to line 10 and 11 in algorithm \ref{alg:lr} are done on the host. All the other parts of the LR algorithm are done by using CUBLAS or the kernels explained in section \ref{kernelwrapper}. The calculations for line 10 and 11 are in the LogisticRegression class so the code is shared between CpuLogisticRegression and CudaLogisticRegression. Line 10 and 11 are done on the host instead of the device because two reasons.\\
 \\
-The size of the vectors and matrices used there is small, their size is 4 + the number of covariates. The second reasons is that the inverse of the information matrix(variable \textbf{J} in the algorithm) is done by singular value decomposition(SVD). The reason for using SVD instead of normal matrix inverse was previously explained in section %\ref{}. %TODO
-However CUBLAS does not provide an SVD function. There are other libraries that do, CULA Tools\cite{culatools} and MAGMA\cite{magma_2010}, however neither could be used.\\
+The size of the vectors and matrices used there is small, their size is 4 + the number of covariates. The second reasons is that the inverse of the information matrix(variable \textbf{J} in the algorithm) is done by SVD. The reason for using SVD instead of normal matrix inverse was previously explained in section \ref{logistic_regression}. However CUBLAS does not provide an SVD function. There are other libraries that do, CULA Tools\cite{culatools} and MAGMA\cite{magma_2010}, however neither could be used.\\
 \\
 CULA Tools could not be used because it uses streams internally in the functions so it can not be executed on streams\cite{cula_forum_q}. It also uses device synchronisation which means that the all streams will be synchronised every time the function is used\cite{cula_forum_q}. MAGMA can use streams for its BLAS functions, however it does not for the other functions including the SVD\cite{magma_stream}.\\
 \\
 After transfers it is necessary to wait for it to finish to prevent errors with using the data before it has been transferred completely. This is done by syncing the thread with the stream, it forces the thread to wait until all current kernels and transfers on the stream is complete. However due to the problem with asynchronous transfers and older architectures described in section \ref{streams} there is also an option when compiling to synchronise after each kernel.
 
 \subsection{Combining the Parts and Threading}
+
+Main described in figure \ref{fig:main_layout}
+
+Thread described in figure \ref{fig:thread_layout}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=3cm]{main_layout.png}
+    \caption{Structure of main thread}
+    \label{fig:main_layout}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{thread_layout.png}
+    \caption{Structure of the worker thread}
+    \label{fig:thread_layout}
+\end{figure}
+
 3 threads per GPU
 Each thread has one CUDA stream
 Each thread gets a snp from the queue, reads in the snp data, calculates the models and writes the results
 
 Outcomes shared over whole GPU
 
-Pictures
+\subsection{Timers}
+%TODO write about timers stuff
+There is an option in the CMake file to add clocks that measures how long time different parts of the code takes. 
+
+\subsection{Testing}
+Almost all classes have a corresponding unit test that tests its functionality in isolation. However the matrix and vector classes are never mocked out because they are too basic and fundamental. It does mean that if there are multiple errors when testing and the tests for the matrix and vectors failed the fault likely is with those. However the number of integration tests are few and there is a need to create more.\\
+\\
+Since mocks are created by inheritance from the class to be mocked all functions need to be virtual. Some classes also have empty protected constructors to be used by the mock, others have helper functions to construct the mock. This goes against some parts of clean code but is necessary because of how C++ and mocking works. It could potentially be improved by using private constructors and friends to give the mock access.\\
+\\
+The data for the tests where calculated by hand or by using Matlab.
 
 \subsection{Memory Usage}
 The memory usage is low because only the SNPs whose models currently is being calculated is stored in memory. This also means that most of the memory usage depends on the number of individuals not the number of SNPs especially since the SNP class is small. The memory is also bound by the GPU rather than host memory because of the relative size and that the GPU and host need about the same about of memory. However it does depend on the number of GPUs. A Tesla GPU has 6GB of memory\cite{nvtesla}, how many individuals can it fit at most?\\
@@ -1702,46 +1743,100 @@ The strings are short but there is significant overhead probably.
 alt form:
 %c*(36*c*p+n*p+324*p)+n*(p*e+49*p+9)+string*(n+e+3*s)+720*p+4*e+27*s
 
-\subsection{Testing}
-Almost all classes have a corresponding unit test that tests its functionality in isolation. However the matrix and vector classes are never mocked out because they are too basic and fundamental. It does mean that if there are multiple errors when testing and the tests for the matrix and vectors failed the fault likely is with those. However the number of integration tests are few and there is a need to create more.\\
-\\
-Since mocks are created by inheritance from the class to be mocked all functions need to be virtual. Some classes also have empty protected constructors to be used by the mock, others have helper functions to construct the mock. This goes against some parts of clean code but is necessary because of how C++ and mocking works. It could potentially be improved by using private constructors and friends to give the mock access.
-
-%TODO thread stuff, not needed mostly because so few things are shared. Most of them doesn't have any kind of state or anything that can be affected so different threads can't affect each other.
-
 \chapter{Results}
 Intro\\
+\\
+To make the comparison of the performance of the programs more fair a couple of details in CuEira was changed. With the changes CuEira assigns the risk allele the same way as the older programs and doesn't use recoding on the multiplicative model. The MAF threshold was also set to zero. The way the risk allele is calculated in JEIRA and GEISA is not according to the definition earlier in section \ref{risk_allele}, the way JEIRA and GEISA does it is shown in appendix \ref{risk_allele_appendix}.
 
-%What was used
-%Zorn specs
+\section{Data}
+Acpapos, missing data problem
+
+Simulated data, random, varying sizes
+python script
+
+\section{Hardware Specifications}
+Cluster Zorn at PDC was used\cite{zorn_pdc}.
+
+Zorn specs
+
+8 nodes
+92 gb ram
+2 Intel Xeon E5620, 2.4 ghz, 4 cores
+3 tesla m2090
+
+Due to errors only one 1 GPU can be accessed. Because of this the login node had to be used for testing with multiple GPUs. It's specs are
 
 %login node
+4 tesla c2050
+50 gb ram?
 
-%regular node
+\section{CuEira vs GEISA}
+Bla bla bla
 
-%kepler node
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{geisa_vs_cueira_nocluster_10ksnps.png}
+    \caption{Speedup GEISA vs CuEira. 10 000 SNPs.}
+    \label{fig:geisa_vs_cueira_nocluster_10ksnps}
+\end{figure}
 
-%compiler intel 14.0
-%cmake 2.8
-%mkl 13.1
-%cuda 5.5
+speedup 1 gpu normal node
 
-To make the comparison of the performance of the programs more fair a couple of details in CuEira was changed. With the changes CuEira assigns the risk allele the same way as the older programs and doesn't use recoding on the multiplicative model. The MAF threshold was also set to zero. The way the risk allele is calculated in GEIRA, JEIRA and GEISA is not according to the definition earlier in section \ref{risk_allele}, the actual way it is done is shown in appendix \ref{geira_jeira_risk_allele}.
+\section{More detailed CuEira stuff}
+speedup for gpu
 
-%single vs double precision
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{cueira_speedup_vs_1gpu_nocluster_10ksnps.png}
+    \caption{Speedup vs 1 GPU. 10 000 SNPs.}
+    \label{fig:speedup_vs_1gpu}
+\end{figure}
+
+efficency
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{cueira_efficency_vs_1gpu_nocluster_10ksnps.png}
+    \caption{Efficiency vs 1 GPU. 10 000 SNPs.}
+    \label{fig:efficency_vs_1gpu}
+\end{figure}
+
+\section{Number of streams}
+vary number of streams
+
+\section{Single vs Double Precision}
+no difference in the results.
+time increased
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{single_vs_double_10ksnps_4gpu.png}
+    \caption{Execution time with 4 GPUs with either single or double precision. 10 000 SNPs.}
+    \label{fig:single_vs_double}
+\end{figure}
+
+\section{Syncing}
+%kepler vs fermi queue problem, problem described in section \ref{streams}
+minor increase with syncing
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{ferm_vs_nofermi_10ksnps_4gpu.png}
+    \caption{Execution time with 4 GPUs with either synchronisation or not. 10 00 SNPs.}
+    \label{fig:sync_vs_no_sync}
+\end{figure}
+
+\section{Profiling}
+
+\subsection{Locks}
+Very little time spent
 
 %compiler stuff
 %no aliasing
 %fast math
 %-opt2 and such options
 
-%personHandler is slow
-
-%performance measures, 1,2,3,4 gpus
-%vary streams per gpu 1-6, on several gpus and on ones
-
-%kepler vs fermi stuff
-%kepler vs fermi queue problem, problem described in section \ref{streams}
+%k20 gpu if time allows
 
 \chapter{Discussion and Conclusions}
 %Discussion and Conclusions (up to 3 pages)
@@ -1848,6 +1943,7 @@ To make the comparison of the performance of the programs more fair a couple of 
 
 \chapter{Lists}
 
+\addcontentsline{toc}{section}{List of Abbreviations}
 \section*{List of Abbreviations}
 
 \begin{description}
@@ -1898,75 +1994,73 @@ To make the comparison of the performance of the programs more fair a couple of 
 \listofexample
 
 \cleardoublepage
+\addcontentsline{toc}{section}{List of Figures}
 \listoffigures
 
 \cleardoublepage
+\addcontentsline{toc}{section}{List of Tables}
 \listoftables
 
 \chapter{File Formats}
 \label{file_formats}
 
-\section{Plink Binary Data Format}
+\section{PLINK Data Format}
 \label{plink_file}
-%TODO
+%TODO plink file stuff
+
+The PLINK files can be in different formats. 
+
+The binary format consists of three files. Bed, bim and fam. The 
+
+\cite{plink_format}
 
 \section{Environmental and Covariates File Format}
 The environmental factors and covariates are stored in separate files with the same format, one file for environmental factors and one for the covariates if any. One of the columns needs to contain the individual ids, the rest of the columns should be data. The delimiter can be any reasonable string(e.g. something that is not part of a name or number) and there is an option to set the delimiter in the program. The default is tab delimited.
 
 \section{CuEira Result File Format}
-%TODO
-Consists of X columns
+The results from CuEira are written in an csv file. It has 48 columns described below.
 
 \begin{description}
-\item[Asdf] \hfill \\
+\item[snp\_id] \hfill \\
+  The id of the SNP from the bim file.
+\item[pos] \hfill \\
+  The row which the SNP had in the plink files.
+\item[skip] \hfill \\
+  Numbers explaining why the SNP was excluded from calculation. 1=missing data. 2=low MAF, 3=low cell count, 4=negative position in bim file
+\item[risk\_allele] \hfill \\
+  The risk allele, not changed based on recoding
+\item[minor] \hfill \\
+  The minor allele
+\item[major] \hfill \\
+  The major allele
+\item[env\_id] \hfill \\
+  The id of the environment factor, it is the column form the environment file.
+\item[no\_alleles\_X] \hfill \\
+  The numbers of the alleles in group X
+\item[freq\_alleles\_X] \hfill \\
+  The frequencies of the alleles group X
+\item[no\_snpX\_envY] \hfill \\
+  Cell distribution with exposure X and Y.
+\item[ap] \hfill \\
+  The AP value for the additive model described in \ref{statistic_measures}
+\item[reri] \hfill \\
+  The RERI value for the additive model described in \ref{statistic_measures}
+\item[OR] \hfill \\
   Asdf
-\item[Asdf] \hfill \\
-  Asdf
+\item[recode] \hfill \\
+  Case of recoding, 0=no recoding, 1=snp protective, 2=environment protective, 3=interaction protective
 \end{description}
 
-Each line after header is a SNP environment factor combination.
-No specific order
-Column Y contains an number of the SNP, sort based on it and gets same order as bim file
+Each line after the header is a combination of a SNP and an environment factor. Because of the parallel nature of the program the rows are not in any specific order. The column pos contains the row number that the SNP had in the plink files. This can be used to sort the data in.\\
+\\
+The data in some columns are changed depending on the recoding. The multiplicative model is calculated using the recode from the additive model. The cell frequencies are also changed. However the risk allele is not changed.
 
-Multiplicative model is recoded
-
-RiskAllele is according to first set, no recode
-
-Contingency table stuff is recoded
-
-\chapter{Bugs and Issues}
-
-\section{Risk Allele}
-\label{risk_allele_diff}
-\label{geira_jeira_risk_allele}
+\chapter{Risk Allele}
+\label{risk_allele_appendix}
 %TODO fix risk allele stuff. comparasions
-
-The code for how GEIRA, JEIRA and GEISA calculates the risk allele is not the same as it is define in \cite{geira, uvehag_master_thesis}. The risk allele is different when the most common allele in case and control is different
-
-\begin{algorithm}
-\DontPrintSemicolon
-\SetKwInOut{data}{Data}
-\BlankLine \BlankLine
-
-\data{caseMaxn and controlMaxn is the frequency for the cases and controls.\\
-caseMax and controlMax is the name of the allele that has the highest frequency in cases and controls.}
-
-\BlankLine \BlankLine
-
-\If{$caseMaxn > controlMaxn$ \KwSty{and} $caseMax = controlMax$}{
-  $riskAllele \longleftarrow caseMax$\;
-}\ElseIf{$caseMaxn \le controlMaxn$ \KwSty{and} $caseMin = controlMin$}{
-  $riskAllele \longleftarrow caseMin$\;
-}\ElseIf{$caseMaxn > controlMaxn$ \KwSty{and} $caseMax \neq controlMax$}{
-  $riskAllele \longleftarrow caseMax$\;
-}\ElseIf{$caseMaxn \le controlMaxn$ \KwSty{and} $caseMin \neq controlMin$}{
-  $riskAllele \longleftarrow caseMin$\;
-}
-
-\caption{GEIRA pseudo code to determine the risk allele}
-\algorithmslist{GEIRA pseudo code to determine the risk allele}
-\label{alg:geira_risk_allele}
-\end{algorithm}
+intro\\
+\\
+The code for how JEIRA and GEISA calculates the risk allele is not the same as its definition \cite{geira, uvehag_master_thesis} talked about previously in section \ref{risk_allele}. The algorithm JEIRA and GEISA uses is shown in algorithm \ref{alg:jeira_geisa_risk_allele}.
 
 \begin{algorithm}
 \DontPrintSemicolon
@@ -1991,34 +2085,66 @@ $caseMaxRatio$ and $controlMaxRatio$ is the frequency of $caseMaxAllele$ and $co
 \label{alg:jeira_geisa_risk_allele}
 \end{algorithm}
 
-%\subsection{Risk Allele Difference Results}
-%Example of recode difference on data sample
+The allele frequencies can be shown in an 2x2 table. The row sums always sums to 1 because it has to be 100\%.
+It can be split in 4 cases depending on where the max and min is. Due to rotations(it's the same if the alleles are switched).
+Red arrow is the interesting one, the rest are based on it
 
-%\begin{table}[h]
-%\begin{tabular}{| l l |}
-%  \hline
-%  Recode Geisa & Recode CuEira \\
-%  \hline
-%  0 & 0 \\
-%  0 & 0 \\
-%  \hline  
-%\end{tabular}
-%\caption{Recode difference}
-%\label{table:recode_difference}
-%\end{table}
+\begin{table}[h]
+\centering
+\begin{tabular}{| l | c c c | c | c c c |}
+  \hline
+   & Allele1 & & Allele2 & & Allele1 & & Allele2  \\
+  \hline
+  Case & Max & $\rightarrow$ & Min & & Max & $\rightarrow$ & Min \\
+   & \textcolor{arrow}{$\downarrow$} & $\nese$ & $\uparrow$ & & \textcolor{arrow}{$\uparrow$} & $\nese$ & $\downarrow$ \\
+  Control & Max & $\rightarrow$ & Min & & Max & $\rightarrow$ & Min \\
+  \hline 
+  & & & & & & &\\
+  \hline
+  Case & Max & $\rightarrow$ & Min & & Max & $\rightarrow$ & Min \\
+   & $\downarrow$ & $\nesecol$ & $\uparrow$ & & $\downarrow$ & $\nwsw$ & $\uparrow$ \\
+  Control & Min & $\leftarrow$ & Max & & Min & $\leftarrow$ & Max \\
+  \hline  
+\end{tabular}
+\caption{The four cases of allele frequencies}
+\label{table:risk_allele_cases}
+\end{table}
 
-\section{Encountered Bugs}
+For the definition in section \ref{risk_allele} using MAF. The arrow from min to min sets the risk. If the case points to control then case minor is risk.
+
+For JEIRA and GEISA if the M for case points down to M for control then it is risk. This only happens in case 1. All the others either fail at max case < max control or not same allele
+
+For increase frequency in case vs control it is the vertical arrow pointing towards control, i.e. case is larger
+
+\begin{table}[h]
+\centering
+\begin{tabular}{| l | c c c c |}
+  \hline
+  Definition & Case 1 & Case 3 & Case 2 & Case 4  \\
+  \hline
+  MAF & Allele1 & Allele2 & Allele1 & Allele2 \\
+  JEIRA GEISA code & Allele1 & Allele2 & Allele2 & Allele2 \\
+  Increased in case & Allele1 & Allele2 & Allele1 & Allele1 \\
+  \hline  
+\end{tabular}
+\caption{Risk alleles for the cases in table \ref{table:risk_allele_cases} based on the different definitions}
+\label{table:risk_allele_comp}
+\end{table}
+
+Looking at case 4 because different there. Extreme case: 0.9 1 0 1
+Clearly allele 1 is risk, but maf sets allele 2
+
+\chapter{Bugs and Issues}
+This is a small collection of various bugs and limitations encountered in the course of the project that can be good to know for anyone that wants to compile CuEira or if the libraries are used in other projects.
+
+\section{Bugs}
 \label{found_bugs}
-This is a small collection of various bugs and limitations encountered in the course of the project that can be good to know for anyone that wants to compile CuEira or if the libraries are used in other projects.\\
-\\
 There are several problems with Intel compilers and libraries. Most libraries work fine with gnu C/C++ compiler but have problems with Intel compilers. Boost 1.55 does not work with Intel compilers, 1.54 works. AllOf in Google Test also does not work together with Intel compilers.\\
 \\
-Nvcc can not compile c+11 code, no interface included in the code that nvcc compiles can use c++11. This problem can largely be avoided by using separate compilation. The CUDA find package module for CMake(included in version 2.8 and later) has a default flag that should be removed as it can cause problems. The flag tells nvcc to propagate the host code flags, if the compiler for the host code then uses c++11 that flag is propagated to nvcc and it will not compile The flag is disabled in CMake by using set(CUDA\_PROPAGATE\_HOST\_FLAGS off).
+JEIRA prints the wrong results for the multiplicative model and as mentioned in appendix \ref{risk_allele_appendix} the risk allele algorithm JEIRA uses is not the same as the definition.
 
-%TODO JEIRA risk allele
-%TODO JEIRA wrong columns
-%TODO badly documented output
-%TODO plink is a mess
+\section{Issues}
+Nvcc can not compile c+11 code and no interface included in the code that nvcc compiles can use c++11. This problem can largely be avoided by using separate compilation. The CUDA find package module for CMake(included in version 2.8 and later) has a default flag that should be removed as it can cause problems. The flag tells nvcc to propagate the host code flags, if the compiler for the host code then uses c++11 that flag is propagated to nvcc and it will not compile The flag is disabled in CMake by using set(CUDA\_PROPAGATE\_HOST\_FLAGS off).
 
 \chapter{How to Compile and Use CuEira}
 \label{compile_cueira}
@@ -2041,13 +2167,13 @@ cmake /path/to/CuEira/\\
 Then type:\\
 make\\
 \\
-The program should now be compiling. CMake might complain about not finding a dependency. If it does you need to tell CMake where it is. The path to boost is set by using EXPORT BOOST\_ROOT = /path/to/boost/. The path to the compilers is done with CXX = cmake /path/to/source for the C++ compiler and C = cmake /path/to/source for the C compiler.
+The program should now be compiling. CMake might complain about not finding a dependency. If it does you need to tell CMake where it is. The path to boost is set by using EXPORT BOOST\_ROOT = /path/to/boost/. The path to the compilers is done with CXX = cmake /path/to/source for the C++ compiler and C = cmake /path/to/source for the C compiler.\\
+\\
 
 %TODO how to set cuda
 
+In the build/bin directory there is two executable files, CuEira and CuEira\_Test. CuEira is the program itself while CuEira\_Test runs all the tests for the program. 
 %TODO usage
-
-%TODO tests in separate execution file
 
 \end{appendices}
 

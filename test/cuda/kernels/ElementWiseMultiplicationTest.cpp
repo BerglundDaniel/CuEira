@@ -100,6 +100,7 @@ TEST_F(ElementWiseMultiplicationTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
+#ifdef DEBUG
 TEST_F(ElementWiseMultiplicationTest, KernelException) {
   const int numberOfRows = 5;
 
@@ -169,6 +170,7 @@ TEST_F(ElementWiseMultiplicationTest, KernelException) {
   delete deviceVector2;
   delete resultDeviceVector;
 }
+#endif
 
 }
 /* namespace CUDA */

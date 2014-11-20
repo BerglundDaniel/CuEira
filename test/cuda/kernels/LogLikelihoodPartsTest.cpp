@@ -122,6 +122,7 @@ TEST_F(LogLikelihoodPartsTest, KernelSmallVector) {
   delete resultHostVector;
 }
 
+#ifdef DEBUG
 TEST_F(LogLikelihoodPartsTest, KernelException) {
   const int numberOfRows = 5;
 
@@ -176,6 +177,7 @@ TEST_F(LogLikelihoodPartsTest, KernelException) {
   delete probabilitesDeviceVector;
   delete resultDeviceVector;
 }
+#endif
 
 } /* namespace CUDA */
 } /* namespace CuEira */

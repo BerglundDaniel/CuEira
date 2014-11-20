@@ -45,13 +45,12 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
 
   DataHandlerState dataHandlerState = modelHandler->next();
   while(dataHandlerState != DONE){
+    const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation();
 
     if(dataHandlerState == SKIP){
-      const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation();
       resultWriter->writePartialResult(modelInformation);
     }else{
       Model::CombinedResults* combinedResults = modelHandler->calculateModel();
-      const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation();
 
       CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in GPUWorkerThread ");
 
@@ -70,8 +69,8 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
   boost::chrono::duration<double> diffThreadSec = stopPoint - startPoint;
   boost::chrono::duration<double> calcTime = stopPoint - startCalc;
 
-  std::cerr << "Thread: " << std::this_thread::get_id() << " TotalTime: " << diffThreadSec << std::endl;
-  std::cerr << "Thread: " << std::this_thread::get_id() << " CalcTime: " << calcTime << std::endl;
+  //std::cerr << "Thread: " << std::this_thread::get_id() << " TotalTime: " << diffThreadSec << std::endl;
+  //std::cerr << "Thread: " << std::this_thread::get_id() << " CalcTime: " << calcTime << std::endl;
 #endif
 }
 

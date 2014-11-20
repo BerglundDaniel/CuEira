@@ -98,8 +98,13 @@ else()
   endif(${CUDA_VERSION_MAJOR} EQUAL 5)
 
   #Set somethings for CUDA compilation
-  set(CUDA_PROPAGATE_HOST_FLAGS off) #Some c++ flags that gets passed to NVCC -Xcompiler will cause errors, for instance c++11 flag 
-  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_30,code=sm_30)
+  set(CUDA_PROPAGATE_HOST_FLAGS off) #Some c++ flags that gets passed to NVCC -Xcompiler will cause errors, for instance c++11 flag
+
+  if(${TARGET_ARCHITECTURE} MATCHES fermi)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
+  else()
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20) #TODO change to 30 later
+  endif()
 
   #Possibly wrong place FIXME
 

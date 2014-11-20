@@ -45,15 +45,17 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
 
   DataHandlerState dataHandlerState = modelHandler->next();
   while(dataHandlerState != DONE){
-    const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation();
+    //const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation(); //FIXME can't be here due to the delete ModelInformation at recode in DataHandler
 
     if(dataHandlerState == SKIP){
+      const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation();
       resultWriter->writePartialResult(modelInformation);
     }else{
       Model::CombinedResults* combinedResults = modelHandler->calculateModel();
 
       CUDA::handleCudaStatus(cudaGetLastError(), "Error with ModelHandler in GPUWorkerThread ");
 
+      const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation();
       resultWriter->writeFullResult(modelInformation, combinedResults);
     } //else
 

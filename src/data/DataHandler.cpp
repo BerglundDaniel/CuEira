@@ -7,7 +7,6 @@ boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentRecode;
 boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentNext;
 boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentSNPRead;
 boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentStatModel;
-std::mutex DataHandler::mutex;
 bool DataHandler::firstDestroy = true;
 std::mutex DataHandler::mutex;
 #endif

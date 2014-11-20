@@ -9,7 +9,6 @@ namespace CUDA {
 boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentTotal;
 boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentGPU;
 boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentCPU;
-std::mutex CudaLogisticRegression::mutex;
 bool CudaLogisticRegression::firstDestroy = true;
 std::mutex CudaLogisticRegression::mutex;
 #endif

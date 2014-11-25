@@ -15,10 +15,9 @@ numberOfIndividuals=0
 numberOfEnvironment=1
 numberOfCovariates=0
 seed=0
-outputfile = 'sim_data'
 
 try:
-   opts, args = getopt.getopt(argv,"hs:i:e:c:r:o:",[])
+   opts, args = getopt.getopt(argv,"hs:i:e:c:r:",[])
 except getopt.GetoptError:
    print message
    sys.exit(2)
@@ -37,16 +36,17 @@ for opt, arg in opts:
       numberOfCovariates = int(arg)
    elif opt == ("-r"):
       seed = int(arg)
-   elif opt == ("-o"):
-      outputfile = arg
 
 print 'Starting'
+
+outputfile = 's'+str(numberOfSNPs)+'_i'+str(numberOfIndividuals)+'_e'+str(numberOfEnvironment)+'_r'+str(seed)+'_c'+str(numberOfCovariates)
 
 random.seed(seed)
 stateRandom=random.getstate()
 
 #fam
 random.setstate(stateRandom)
+
 famFile=open(outputfile+'.fam','w')
 for i in range(0, numberOfIndividuals):
    #fam id 0 0 sex status
@@ -97,30 +97,35 @@ random.setstate(stateRandom)
 
 envCovFile=open(outputfile+'_env_cov.txt','w')
 envFile=open(outputfile+'_env.txt','w')
-covFile=open(outputfile+'_cov.txt','w')
+if numberOfCovariates!=0:
+   covFile=open(outputfile+'_cov.txt','w')
 
 #headers
 envCovFile.write('indid')
 envFile.write('indid')
-covFile.write('indid')
+if numberOfCovariates!=0:
+   covFile.write('indid')
 
 for j in range(0, numberOfEnvironment):
    envFile.write('\tenv')#+str(j))
    envCovFile.write('\tenv')#+str(j))
 
 for j in range(0, numberOfCovariates):
-   covFile.write('\tcov'+str(j))
+   if numberOfCovariates!=0:
+      covFile.write('\tcov'+str(j))
    envCovFile.write('\tcov'+str(j))
 
 envCovFile.write('\n')
 envFile.write('\n')
-covFile.write('\n')
+if numberOfCovariates!=0:
+   covFile.write('\n')
 
 #lines
 for i in range(0, numberOfIndividuals):
    envCovFile.write('per'+str(i))
    envFile.write('per'+str(i))
-   covFile.write('per'+str(i))
+   if numberOfCovariates!=0:
+      covFile.write('per'+str(i))
 
    for j in range(0, numberOfEnvironment):
       d=random.randint(0,1)
@@ -129,15 +134,18 @@ for i in range(0, numberOfIndividuals):
    for j in range(0, numberOfCovariates):
       d=random.randint(0,1)
       envCovFile.write('\t'+str(d))
-      covFile.write('\t'+str(d))
+      if numberOfCovariates!=0:
+         covFile.write('\t'+str(d))
 
    envCovFile.write('\n')
    envFile.write('\n')
-   covFile.write('\n')
+   if numberOfCovariates!=0:
+      covFile.write('\n')
 
 envCovFile.close()
 envFile.close()
-covFile.close()
+if numberOfCovariates!=0:
+   covFile.close()
 
 print 'Done'
 

@@ -10,6 +10,8 @@
 #include <DeviceMatrix.h>
 #include <HostVector.h>
 #include <HostMatrix.h>
+#include <PinnedHostVector.h>
+#include <PinnedHostMatrix.h>
 #include <DataHandler.h>
 #include <Stream.h>
 #include <CudaLogisticRegressionConfiguration.h>
@@ -43,7 +45,8 @@ namespace CUDA {
  * Thread to do work on GPU
  */
 void GPUWorkerThread(const Configuration* configuration, const Device* device,
-    const DataHandlerFactory* dataHandlerFactory, FileIO::ResultWriter* resultWriter);
+    const DataHandlerFactory* dataHandlerFactory, FileIO::ResultWriter* resultWriter,
+    const Container::PinnedHostMatrix* covariates);
 
 } /* namespace CUDA */
 } /* namespace CuEira */

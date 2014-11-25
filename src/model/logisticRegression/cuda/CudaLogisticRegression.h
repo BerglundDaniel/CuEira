@@ -25,8 +25,6 @@
 
 #ifdef PROFILE
 #include <boost/chrono/chrono_io.hpp>
-#include <thread>
-#include <mutex>
 #endif
 
 namespace CuEira {
@@ -63,6 +61,14 @@ public:
   CudaLogisticRegression& operator=(const CudaLogisticRegression&) = delete;
   CudaLogisticRegression& operator=(CudaLogisticRegression&&) = delete;
 
+#ifdef PROFILE
+  static boost::chrono::duration<long long, boost::nano> timeSpentTotal;
+  static boost::chrono::duration<long long, boost::nano> timeSpentGPU;
+  static boost::chrono::duration<long long, boost::nano> timeSpentCPU;
+  static boost::chrono::duration<long long, boost::nano> timeSpentTransferFromDevice;
+  static boost::chrono::duration<long long, boost::nano> timeSpentTransferToDevice;
+#endif
+
 protected:
   CudaLogisticRegression(); //For the mock
 
@@ -94,14 +100,6 @@ private:
   Container::DeviceVector* workVectorNx1Device;
 
   const Container::PinnedHostVector* defaultBetaCoefficents; //LRConfig owns it
-
-#ifdef PROFILE
-  static boost::chrono::duration<long long, boost::nano> timeSpentTotal;
-  static boost::chrono::duration<long long, boost::nano> timeSpentGPU;
-  static boost::chrono::duration<long long, boost::nano> timeSpentCPU;
-  static bool firstDestroy;
-  static std::mutex mutex;
-#endif
 };
 
 } /* namespace CUDA */

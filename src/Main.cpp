@@ -40,6 +40,11 @@
 #include <StreamFactory.h>
 #endif
 
+#ifdef PROFILE
+#include <CudaLogisticRegressionConfiguration.h>
+#include <LogisticRegressionConfiguration.h>
+#endif
+
 /**
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
@@ -76,13 +81,17 @@ int main(int argc, char* argv[]) {
 
 #ifndef CPU
   int numberOfDevices = -1;
-  cudaGetDeviceCount(&numberOfDevices);
+  if(configuration.isNumberOfGPUsSet()){
+    numberOfDevices = configuration.getNumberOfGPUs();
+  }else{
+    cudaGetDeviceCount(&numberOfDevices);
+    if(numberOfDevices == 0){
+      throw new CudaException("No CUDA devices found.");
+    }
+  }
+
   const int numberOfStreams = configuration.getNumberOfStreams();
   const int numberOfThreads = numberOfDevices * numberOfStreams;
-
-  if(numberOfDevices == 0){
-    throw new CudaException("No cuda devices found.");
-  }
   std::cerr << "Calculating using " << numberOfDevices << " with " << numberOfStreams << " each." << std::endl;
 
   CUDA::StreamFactory* streamFactory = new CUDA::StreamFactory();
@@ -100,7 +109,7 @@ int main(int argc, char* argv[]) {
 
     CUDA::HostToDevice hostToDevice(*stream);
 
-    device->setOutcomes(hostToDevice.transferVector((const PinnedHostVector&)outcomes));
+    device->setOutcomes(hostToDevice.transferVector((const PinnedHostVector&) outcomes));
   }
 #endif
 
@@ -136,9 +145,8 @@ int main(int argc, char* argv[]) {
   Container::HostMatrix* covariates = nullptr;
   std::vector<std::string>* covariatesNames = nullptr;
   if(configuration.covariateFileSpecified()){
-    throw InvalidState("Covariates no working atm"); //FIXME the thread doesn't take them at fix it
 #ifdef PROFILE
-    boost::chrono::system_clock::time_point beforeCovPoint = boost::chrono::system_clock::now();
+        boost::chrono::system_clock::time_point beforeCovPoint = boost::chrono::system_clock::now();
 #endif
     std::pair<Container::HostMatrix*, std::vector<std::string>*>* covPair = dataFilesReader->readCovariates(
         *personHandler);
@@ -163,7 +171,6 @@ int main(int argc, char* argv[]) {
 
 #ifdef CPU
   //TODO
-  //Model::ModelHandler* modelHandler = new Model::CpuModelHandler();
 #else
   //GPU
   for(int deviceNumber = 0; deviceNumber < numberOfDevices; ++deviceNumber){
@@ -175,9 +182,8 @@ int main(int argc, char* argv[]) {
 
     //Start threads
     for(int streamNumber = 0; streamNumber < numberOfStreams; ++streamNumber){
-      //TODO fix covariates
       std::thread* thread = new std::thread(CuEira::CUDA::GPUWorkerThread, &configuration, device, dataHandlerFactory,
-          resultWriter);
+          resultWriter, (Container::PinnedHostMatrix*)covariates);
       workers[deviceNumber * numberOfStreams + streamNumber] = thread;
     }
   }
@@ -198,6 +204,26 @@ int main(int argc, char* argv[]) {
 #endif
 
 #ifdef PROFILE
+  //Printing all the static timers
+  std::cerr << "DataHandler" << std::endl;
+  std::cerr << "Time spent recode: " << boost::chrono::duration_cast<boost::chrono::seconds>(DataHandler::timeSpentRecode) << std::endl;
+  std::cerr << "Time spent next: " << boost::chrono::duration_cast<boost::chrono::seconds>(DataHandler::timeSpentNext) << std::endl;
+  std::cerr << "Time spent read snp: " << boost::chrono::duration_cast<boost::chrono::seconds>(DataHandler::timeSpentSNPRead) << std::endl;
+  std::cerr << "Time spent statistic model: " << boost::chrono::duration_cast<boost::chrono::seconds>(DataHandler::timeSpentStatModel) << std::endl;
+
+  std::cerr << "CudaLogisticRegression" << std::endl;
+  std::cerr << "Time spent CudaLR: " << boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentTotal) << std::endl;
+  std::cerr << "Time spent GPU: " << boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentGPU) << std::endl;
+  std::cerr << "Time spent CPU: " << boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentCPU) << std::endl;
+  std::cerr << "Time spent LR transferFromDevice: " <<
+  boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentTransferFromDevice) << std::endl;
+  std::cerr << "Time spent LR transferToDevice: " <<
+  boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentTransferToDevice) << std::endl;
+
+  std::cerr << "CudaLogisticRegressionConfiguration" << std::endl;
+  std::cerr << "Time spent LRConfig transferToDevice: " <<
+  boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegressionConfiguration::timeSpentTransferToDevice) << std::endl;
+
   boost::chrono::system_clock::time_point afterCalcPoint = boost::chrono::system_clock::now();
   boost::chrono::duration<double> diffCalcSec = afterCalcPoint - afterInitPoint;
 
@@ -222,7 +248,7 @@ int main(int argc, char* argv[]) {
 
 #ifdef PROFILE
   boost::chrono::duration<double> diffCleanupSec = endPoint - afterCalcPoint;
-  std::cerr << "Time for cleanup: " << diffCleanupSec  << std::endl;
+  std::cerr << "Time for cleanup: " << diffCleanupSec << std::endl;
 #endif
 
   boost::chrono::duration<double> diffSec = endPoint - startPoint;

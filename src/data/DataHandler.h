@@ -34,8 +34,6 @@
 
 #ifdef PROFILE
 #include <boost/chrono/chrono_io.hpp>
-#include <thread>
-#include <mutex>
 #endif
 
 namespace CuEira {
@@ -80,6 +78,13 @@ public:
   DataHandler& operator=(const DataHandler&) = delete;
   DataHandler& operator=(DataHandler&&) = delete;
 
+#ifdef PROFILE
+  static boost::chrono::duration<long long, boost::nano> timeSpentRecode;
+  static boost::chrono::duration<long long, boost::nano> timeSpentNext;
+  static boost::chrono::duration<long long, boost::nano> timeSpentSNPRead;
+  static boost::chrono::duration<long long, boost::nano> timeSpentStatModel;
+#endif
+
 protected:
   DataHandler(const Configuration& configuration); //For the mock
 
@@ -111,15 +116,6 @@ private:
   const EnvironmentFactor* currentEnvironmentFactor;
   const int cellCountThreshold;
   bool appliedStatisticModel;
-
-#ifdef PROFILE
-  static boost::chrono::duration<long long, boost::nano> timeSpentRecode;
-  static boost::chrono::duration<long long, boost::nano> timeSpentNext;
-  static boost::chrono::duration<long long, boost::nano> timeSpentSNPRead;
-  static boost::chrono::duration<long long, boost::nano> timeSpentStatModel;
-  static bool firstDestroy;
-  static std::mutex mutex;
-#endif
 };
 
 } /* namespace CuEira */

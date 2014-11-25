@@ -107,7 +107,6 @@ else()
   endif()
 
   #Possibly wrong place FIXME
-
   if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
     if(ENABLE_MKL)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")

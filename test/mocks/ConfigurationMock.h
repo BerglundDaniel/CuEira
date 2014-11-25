@@ -24,6 +24,8 @@ public:
   }
 
   MOCK_CONST_METHOD0(getNumberOfStreams, int());
+  MOCK_CONST_METHOD0(getNumberOfGPUs, int());
+  MOCK_CONST_METHOD0(isNumberOfGPUsSet, bool());
   MOCK_CONST_METHOD0(getGeneticModel, GeneticModel());
   MOCK_CONST_METHOD0(getEnvironmentFilePath, std::string());
   MOCK_CONST_METHOD0(getCovariateFilePath, std::string());

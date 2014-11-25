@@ -5,6 +5,10 @@ namespace Model {
 namespace LogisticRegression {
 namespace CUDA {
 
+#ifdef PROFILE
+boost::chrono::duration<long long, boost::nano> CudaLogisticRegressionConfiguration::timeSpentTransferToDevice;
+#endif
+
 CudaLogisticRegressionConfiguration::CudaLogisticRegressionConfiguration(const Configuration& configuration,
     const HostToDevice& hostToDevice, const DeviceToHost& deviceToHost, const DeviceVector& deviceOutcomes,
     const KernelWrapper& kernelWrapper, const MKLWrapper& blasWrapper) :
@@ -17,12 +21,19 @@ CudaLogisticRegressionConfiguration::CudaLogisticRegressionConfiguration(const C
         new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), betaCoefficentsDefaultHost(
         new PinnedHostVector(numberOfPredictors)), scoresHost(new PinnedHostVector(numberOfPredictors)) {
 
-  kernelWrapper.syncStream();
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeTransfer = boost::chrono::system_clock::now();
+#endif
   transferIntercept();
 
   setDefaultBeta(*betaCoefficentsDefaultHost);
 
   kernelWrapper.syncStream();
+
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterTransfer = boost::chrono::system_clock::now();
+  timeSpentTransferToDevice+=afterTransfer - beforeTransfer;
+#endif
 }
 
 CudaLogisticRegressionConfiguration::CudaLogisticRegressionConfiguration(const Configuration& configuration,
@@ -33,12 +44,14 @@ CudaLogisticRegressionConfiguration::CudaLogisticRegressionConfiguration(const C
         &kernelWrapper), devicePredictors(new DeviceMatrix(numberOfRows, numberOfPredictors)), deviceOutcomes(
         &deviceOutcomes), devicePredictorsMemoryPointer(devicePredictors->getMemoryPointer()), betaCoefficentsDevice(
         new DeviceVector(numberOfPredictors)), probabilitesDevice(new DeviceVector(numberOfRows)), scoresDevice(
-        new DeviceVector(numberOfRows)), informationMatrixDevice(
+        new DeviceVector(numberOfPredictors)), informationMatrixDevice(
         new DeviceMatrix(numberOfPredictors, numberOfPredictors)), workMatrixNxMDevice(
         new DeviceMatrix(numberOfRows, numberOfPredictors)), workVectorNx1Device(new DeviceVector(numberOfRows)), betaCoefficentsDefaultHost(
         new PinnedHostVector(numberOfPredictors)), scoresHost(new PinnedHostVector(numberOfPredictors)) {
 
-  kernelWrapper.syncStream();
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point beforeTransfer = boost::chrono::system_clock::now();
+#endif
   transferIntercept();
 
   //Transfer covariates
@@ -48,6 +61,11 @@ CudaLogisticRegressionConfiguration::CudaLogisticRegressionConfiguration(const C
   setDefaultBeta(*betaCoefficentsDefaultHost);
 
   kernelWrapper.syncStream();
+
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterTransfer = boost::chrono::system_clock::now();
+  timeSpentTransferToDevice+=afterTransfer - beforeTransfer;
+#endif
 }
 
 CudaLogisticRegressionConfiguration::CudaLogisticRegressionConfiguration(const Configuration& configuration,
@@ -83,17 +101,50 @@ void CudaLogisticRegressionConfiguration::transferIntercept() {
 
 void CudaLogisticRegressionConfiguration::setEnvironmentFactor(const HostVector& environmentData) {
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 2; //Putting the environment as the third column
+
+#ifdef PROFILE
+      boost::chrono::system_clock::time_point beforeTransfer = boost::chrono::system_clock::now();
+#endif
+
   hostToDevice->transferVector((const PinnedHostVector&) environmentData, pos);
+  kernelWrapper->syncStream();
+
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterTransfer = boost::chrono::system_clock::now();
+  timeSpentTransferToDevice+=afterTransfer - beforeTransfer;
+#endif
 }
 
 void CudaLogisticRegressionConfiguration::setSNP(const HostVector& snpData) {
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 1; //Putting the snp column as the second column
+
+#ifdef PROFILE
+      boost::chrono::system_clock::time_point beforeTransfer = boost::chrono::system_clock::now();
+#endif
+
   hostToDevice->transferVector((const PinnedHostVector&) snpData, pos);
+  kernelWrapper->syncStream();
+
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterTransfer = boost::chrono::system_clock::now();
+  timeSpentTransferToDevice+=afterTransfer - beforeTransfer;
+#endif
 }
 
 void CudaLogisticRegressionConfiguration::setInteraction(const HostVector& interactionVector) {
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 3; //Putting the interaction column as the fourth column
+
+#ifdef PROFILE
+      boost::chrono::system_clock::time_point beforeTransfer = boost::chrono::system_clock::now();
+#endif
+
   hostToDevice->transferVector((const PinnedHostVector&) interactionVector, pos);
+  kernelWrapper->syncStream();
+
+#ifdef PROFILE
+  boost::chrono::system_clock::time_point afterTransfer = boost::chrono::system_clock::now();
+  timeSpentTransferToDevice+=afterTransfer - beforeTransfer;
+#endif
 }
 
 const KernelWrapper& CudaLogisticRegressionConfiguration::getKernelWrapper() const {

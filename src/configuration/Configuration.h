@@ -40,6 +40,16 @@ public:
   virtual int getNumberOfStreams() const;
 
   /**
+   * Get the number of GPUs to use
+   */
+  virtual int getNumberOfGPUs() const;
+
+  /**
+   * Was the number of GPUs option used
+   */
+  virtual bool isNumberOfGPUsSet() const;
+
+  /**
    * Get the genetic model
    */
   virtual GeneticModel getGeneticModel() const;

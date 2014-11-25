@@ -4,7 +4,8 @@ namespace CuEira {
 namespace CUDA {
 
 void GPUWorkerThread(const Configuration* configuration, const Device* device,
-    const DataHandlerFactory* dataHandlerFactory, FileIO::ResultWriter* resultWriter) {
+    const DataHandlerFactory* dataHandlerFactory, FileIO::ResultWriter* resultWriter,
+    const Container::PinnedHostMatrix* covariates) {
 #ifdef PROFILE
   boost::chrono::system_clock::time_point startPoint = boost::chrono::system_clock::now();
 #endif
@@ -26,8 +27,8 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
   Model::LogisticRegression::CUDA::CudaLogisticRegressionConfiguration* logisticRegressionConfiguration = nullptr;
 
   if(configuration->covariateFileSpecified()){
-    //logisticRegressionConfiguration = new Model::LogisticRegression::CUDA::CudaLogisticRegressionConfiguration(*configuration,
-    //hostToDevice, deviceToHost, deviceOutcomes, *kernelWrapper, blasWrapper, *covariates);
+    logisticRegressionConfiguration = new Model::LogisticRegression::CUDA::CudaLogisticRegressionConfiguration(
+        *configuration, hostToDevice, deviceToHost, deviceOutcomes, *kernelWrapper, blasWrapper, *covariates);
   }else{
     logisticRegressionConfiguration = new Model::LogisticRegression::CUDA::CudaLogisticRegressionConfiguration(
         *configuration, hostToDevice, deviceToHost, deviceOutcomes, *kernelWrapper, blasWrapper);

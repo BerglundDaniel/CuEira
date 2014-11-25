@@ -5,27 +5,33 @@ import sys, os
 sys.stderr.write('Starting batch\n')
 
 o_dir="/cfs/zorn/nobackup/d/dabergl/Results/"
+d_dir="/cfs/zorn/nobackup/d/dabergl/Data/Simulated_Data/"
 
-#prefix="/cfs/zorn/nobackup/d/dabergl/Data/Simulated_Data/s_100/"
-#files=["s100_i2000_e1_r0", "s100_i10000_e1_r0", "s100_i50000_e1_r0", "s100_i100000_e1_r0", "s100_i200000_e1_r0"]
+s_a=["10000","100000","500000"]
+i_a=["10000","100000","200000"]
+cov_a=["0","10","20"]
+gpu_a=["1","2","3","4"]
+streams_a=["1","2","3","4"]
 
-#prefix="/cfs/zorn/nobackup/d/dabergl/Data/Simulated_Data/s_10000/"
-#files=["s10000_i2000_e1_r0", "s10000_i10000_e1_r0", "s10000_i50000_e1_r0", "s10000_i100000_e1_r0", "s10000_i200000_e1_r0"]
+for s in s_a:
+   for i in i_a:
+      for cov in cov_a:
+         for gpu in gpu_a:
+            for stream in streams_a:
+               sys.stderr.write("next_file "+'s'+str(s)+' i'+str(i)+' e1'+' r0'+' c'+cov+" gpu"+gpu+" stream"+stream+"\n")
 
-prefix=""
-files=["/cfs/zorn/nobackup/d/dabergl/Data/Simulated_Data/s_100/s100_i10000_e1_r0", "/cfs/zorn/nobackup/d/dabergl/Data/Simulated_Data/s_10000/s10000_i10000_e1_r0", "/cfs/zorn/nobackup/d/dabergl/Data/Simulated_Data/s_100000/s100000_i10000_e1_r0", "/cfs/zorn/nobackup/d/dabergl/Data/Simulated_Data/s_500000/s500000_i10000_e1_r0"]
+               f='s'+str(s)+'_i'+str(i)+'_e1'+'_r0'+'_c0'
+               covF='s'+str(s)+'_i'+str(i)+'_e1'+'_r0'+'_c'+cov
 
-for f in files:
-   sys.stderr.write("next_file "+f+"\n")
-   file=prefix+f
+               infile=d_dir+"s_"+str(s)+"/"+f
+               covFile=d_dir+"s_"+str(s)+"/"+covF
+               outfile=o_dir+covF+"_gpu"+gpu+"_stream"+stream+"_out.txt"
 
-   #CuEira
-   sys.stderr.write("CuEira\n")
-   os.system("/cfs/zorn/nobackup/d/dabergl/CuEira_zorn/build/bin/CuEira -m 0 -b "+file+" -e "+file+"_env.txt -x indid -o "+o_dir+f+"_out.txt")
+               if cov=="0":
+                  os.system("/cfs/zorn/nobackup/d/dabergl/CuEira_zorn/build/bin/CuEira -m 0 -b "+infile+" -e "+infile+"_env.txt -x indid -o "+outfile+" --nstreams "+stream+" --ngpus "+gpu)
+               else:
+                  os.system("/cfs/zorn/nobackup/d/dabergl/CuEira_zorn/build/bin/CuEira -m 0 -b "+infile+" -e "+infile+"_env.txt -x indid -c "+covFile+"_cov.txt -z indid"+" -o "+outfile+" --nstreams "+stream+" --ngpus "+gpu)
 
-   #Geisa
-   #sys.stderr.write("Geisa\n")
-   #os.system("time -p /cfs/zorn/nobackup/d/dabergl/Geisa/Geisa/geisa_org/dist/geisa -b "+file+" -i "+file+"_env_cov.txt -o "+o_dir+f+"_geisa_output_dir")
+
 
 sys.stderr.write('Done batch\n')
-

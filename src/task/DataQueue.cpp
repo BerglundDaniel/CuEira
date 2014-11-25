@@ -11,7 +11,7 @@ DataQueue::DataQueue(std::vector<SNP*>* snpQueue) :
 DataQueue::~DataQueue() {
   delete snpQueue;
 #ifdef PROFILE
-  std::cerr << "DataQueue, time spent waiting at locks: " << boost::chrono::duration_cast<boost::chrono::microseconds>(timeWaitTotalLock) << std::endl;
+  std::cerr << "DataQueue, time spent waiting at locks: " << boost::chrono::duration_cast<boost::chrono::seconds>(timeWaitTotalLock) << std::endl;
 #endif
 }
 

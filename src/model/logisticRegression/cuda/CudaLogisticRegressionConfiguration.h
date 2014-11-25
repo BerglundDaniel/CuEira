@@ -21,6 +21,10 @@
 #include <MKLWrapper.h>
 #include <LogisticRegressionConfiguration.h>
 
+#ifdef PROFILE
+#include <boost/chrono/chrono_io.hpp>
+#endif
+
 namespace CuEira {
 namespace Model {
 namespace LogisticRegression {
@@ -80,6 +84,10 @@ public:
   CudaLogisticRegressionConfiguration(CudaLogisticRegressionConfiguration&&) = delete;
   CudaLogisticRegressionConfiguration& operator=(const CudaLogisticRegressionConfiguration&) = delete;
   CudaLogisticRegressionConfiguration& operator=(CudaLogisticRegressionConfiguration&&) = delete;
+
+#ifdef PROFILE
+  static boost::chrono::duration<long long, boost::nano> timeSpentTransferToDevice;
+#endif
 
 protected:
   CudaLogisticRegressionConfiguration(const Configuration& configuration, const MKLWrapper& blasWrapper); //For the mock

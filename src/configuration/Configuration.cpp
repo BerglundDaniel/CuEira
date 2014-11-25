@@ -17,9 +17,10 @@ Configuration::Configuration(int argc, char* argv[]) {
       "Set the name of the column in the enviromental file that holds the person ids.")("covariate_file,c",
       options::value<std::string>(), "Set the csv file with covariates.")("covariate_id_column,z",
       options::value<std::string>(), "Set the name of the column in the covariates file that holds the person ids.")(
-      "output,o", options::value<std::string>()->required(), "Set output file.")
-  //("nstreams,n",options::value<int>()->default_value(2), "Set number of streams to use for each GPU. Default 2.")
-  ("maf,m", options::value<double>()->default_value(0.05),
+      "output,o", options::value<std::string>()->required(), "Set output file.")("nstreams",
+      options::value<int>()->default_value(3), "Set number of streams to use for each GPU. Default 3.")("ngpus",
+      options::value<int>(), "Set number of GPUs to use. Default is number of available GPUs.")("maf,m",
+      options::value<double>()->default_value(0.05),
       "Set the threshold for minor allele frequency(MAF) in range 0 to 1. Any SNPs with MAF below the threshold will be excluded from the analysis. Default 0.05.")(
       "p", options::value<bool>()->zero_tokens(),
       "Use alternative coding for the phenotype, 0 for unaffected and 1 for affected instead of 1 for unaffected and 2 for affected.")(
@@ -33,12 +34,12 @@ Configuration::Configuration(int argc, char* argv[]) {
     std::exit(EXIT_SUCCESS);
   }
 
-  options::notify(optionsMap);
-
   if(optionsMap.count("version")){
     std::cerr << "Version " << CuEira_VERSION_MAJOR << "." << CuEira_VERSION_MINOR << std::endl;
     std::exit(EXIT_SUCCESS);
   }
+
+  options::notify(optionsMap);
 
   if(boost::filesystem::exists(optionsMap["output"].as<std::string>())){
     throw std::invalid_argument("Output file already exist");
@@ -77,6 +78,12 @@ Configuration::Configuration(int argc, char* argv[]) {
     throw std::invalid_argument("Minor allele frequency has to be between 0 and 1.");
   }
 
+  if(optionsMap.count("ngpus")){
+    if(optionsMap["ngpus"].as<int>()<=0){
+      throw std::invalid_argument("Number of GPUs has to be > 0");
+    }
+  }
+
 }
 
 Configuration::Configuration() {
@@ -88,8 +95,15 @@ Configuration::~Configuration() {
 }
 
 int Configuration::getNumberOfStreams() const {
-  //return optionsMap["nstreams"].as<int>();
-  return 3;
+  return optionsMap["nstreams"].as<int>();
+}
+
+int Configuration::getNumberOfGPUs() const {
+  return optionsMap["ngpus"].as<int>();
+}
+
+bool Configuration::isNumberOfGPUsSet() const {
+  return optionsMap.count("ngpus");
 }
 
 GeneticModel Configuration::getGeneticModel() const {

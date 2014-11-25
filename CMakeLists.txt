@@ -81,6 +81,10 @@ include_directories( ${Boost_INCLUDE_DIR} )
 
 #if boost 1.55 and intel, print warning TODO
 
+#Some optimizations
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-alias")
+
 if(${CPU})
 
 else()
@@ -106,10 +110,17 @@ else()
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20) #TODO change to 30 later
   endif()
 
-  #Possibly wrong place FIXME
+  if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-g)
+  endif()
+
+  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-restrict --use_fast_math)
+
+  #Wrong place FIXME
   if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
     if(ENABLE_MKL)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")
+      #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=sequential")
     else()
       message( FATAL_ERROR "Have to use MKL+intel" )
     endif()

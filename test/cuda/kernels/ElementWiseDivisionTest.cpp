@@ -22,6 +22,9 @@
 #include <Stream.h>
 #include <StreamFactory.h>
 
+using ::testing::Ge;
+using ::testing::Le;
+
 namespace CuEira {
 namespace CUDA {
 
@@ -64,6 +67,7 @@ void ElementWiseDivisionTest::TearDown() {
 
 TEST_F(ElementWiseDivisionTest, KernelSmallVector) {
   const int numberOfRows = 5;
+  double e = 10e-5;
 
   Container::PinnedHostVector* hostVectorNumerator = new Container::PinnedHostVector(numberOfRows);
   for(int i = 0; i < numberOfRows; ++i){
@@ -89,7 +93,11 @@ TEST_F(ElementWiseDivisionTest, KernelSmallVector) {
 
   for(int i = 0; i < numberOfRows; ++i){
     PRECISION x = (*hostVectorNumerator)(i) / (*hostVectorDenomitor)(i);
-    EXPECT_EQ(x, (*resultHostVector)(i));
+    double l = x - e;
+    double h = x + e;
+
+    EXPECT_THAT((*resultHostVector)(i), Ge(l));
+    EXPECT_THAT((*resultHostVector)(i), Le(h));
   }
 
   delete hostVectorNumerator;

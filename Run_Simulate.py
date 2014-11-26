@@ -28,9 +28,9 @@ for s in s_a:
                outfile=o_dir+covF+"_gpu"+gpu+"_stream"+stream+"_out.txt"
 
                if cov=="0":
-                  os.system("/cfs/zorn/nobackup/d/dabergl/CuEira_zorn/build/bin/CuEira -m 0 -b "+infile+" -e "+infile+"_env.txt -x indid -o "+outfile+" --nstreams "+stream+" --ngpus "+gpu)
+                  os.system("/cfs/zorn/nobackup/d/dabergl/CuEira_zorn/build/bin/CuEira -b "+infile+" -e "+infile+"_env.txt -x indid -o "+outfile+" --nstreams "+stream+" --ngpus "+gpu)
                else:
-                  os.system("/cfs/zorn/nobackup/d/dabergl/CuEira_zorn/build/bin/CuEira -m 0 -b "+infile+" -e "+infile+"_env.txt -x indid -c "+covFile+"_cov.txt -z indid"+" -o "+outfile+" --nstreams "+stream+" --ngpus "+gpu)
+                  os.system("/cfs/zorn/nobackup/d/dabergl/CuEira_zorn/build/bin/CuEira -b "+infile+" -e "+infile+"_env.txt -x indid -c "+covFile+"_cov.txt -z indid"+" -o "+outfile+" --nstreams "+stream+" --ngpus "+gpu)
 
 
 

@@ -98,7 +98,7 @@
 
 \title{Gene-Environment Interaction Analysis using GPU}
 \author{Daniel Berglund}
-\date{November 2014}
+\date{December 2014}
 
 \begin{document}
 \maketitle
@@ -833,7 +833,7 @@ One of the main criticism against GPUs for general computing purposes is that it
 \end{description}
 
 \clearpage
-\section{Software Design Background}
+\section{Software Design}
 How to design software so it can be maintained over time has been a problem for a long time. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software. Badly organized and written code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes. Fixing those bugs are likely to time consuming because it can be hard to find where they originated from. All code gather problems overtime, however a well designed system will degenerate significantly slower than one that was designed carelessly. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in. \cite{cleancode2008, design_patterns}\\
 \\
 This is also important in science where others might wish to use the tools or repeat the experiments. A recent study\cite{comp_repro_2013} found that the repeatability in computer science is low. They used the term reproducibility however repeatability is a more fitting term because they didn't try to reproduce the results from scratch, they tried to repeat it using the same code. Of 513 articles they received the code from 231, 108 failed to build, 21 failed to run properly\cite{comp_repro_2013}. The remaing 102 compiled and ran, however they did not check if the results of the program was correct\cite{comp_repro_2013}.\\
@@ -1168,11 +1168,11 @@ This section will explain the implementation of the program starting with a shor
 \\
 The input files for all these programs are PLINK data files. However CuEira can only read the PLINK files in binary format. They also read a separate tab delimited file that contains the environmental data and covariates if any. For CuEira the covariates and environmental data is split in two files.
 
-\section{Terminology}
-\label{basic_program_term}
+%\section{Terminology}
+%\label{basic_program_term}
 %TODO write about inheritance, namespaces, pointers, memory, enums, exceptions
 
-An enum is a data type consisting of a set of named values. This is useful when the variable has a distinct set of values that makes more sense as text rather than something else. For instance gender can be stored as enum with the two values MALE and FEMALE, the enum values are commonly write in capital letters. The gender could be stored an int, however it is easier to understand the meaning of MALE than just a number and it also avoids potential errors with incorrect values. An enum can only have one of it's possible values while an int is not restricted in the same way.
+%An enum is a data type consisting of a set of named values. This is useful when the variable has a distinct set of values that makes more sense as text rather than something else. For instance gender can be stored as enum with the two values MALE and FEMALE, the enum values are commonly write in capital letters. The gender could be stored an int, however it is easier to understand the meaning of MALE than just a number and it also avoids potential errors with incorrect values. An enum can only have one of it's possible values while an int is not restricted in the same way.
 
 \section{JEIRA and GEISA}
 The descriptions and structures in this section applies to both JEIRA and GEISA since their underlying structure is the same, however the focus is on GEISA. They are written in Java and uses Javas built-in functions for concurrency.\\
@@ -1252,7 +1252,7 @@ A set of container classes holds the data. There are two types of them, the basi
 \\
 There is three types of matrix and vector classes which are all stored in column major format. The set with the Device prefix is for storage on the device and the other two are for storage on the host and shares a common interface. The difference between the host sets is that the ones with Pinned prefix uses pinned memory while Regular does not.\\
 \\
-Other basic information such as the information about individuals, environment factors and SNPs are stored in simple classes where each individual, environmental factor or SNP is a single object. \emph{Enums} are used to store some of them, enums are a data type previously explained in section \ref{basic_program_term}.\\
+Other basic information such as the information about individuals, environment factors and SNPs are stored in simple classes where each individual, environmental factor or SNP is a single object. \emph{Enums} are used to store some of them.\\
 \\
 The SNPs are stored in the class \textbf{DataQueue}. \textbf{DataQueue} provides the function \textbf{next} that fetches a SNP from the queue and returns it. It has a lock so it can be shared among all worker threads.\\
 \\
@@ -1304,6 +1304,7 @@ For the additive statistical model all the elements in \textbf{SNPVector} and \t
 %TODO snpvector recoding
 
 \caption{SNPVector protective recoding}
+\algorithmslist{SNPVector protective recoding}
 \label{alg:snp_recode}
 \end{algorithm}
 
@@ -1336,6 +1337,7 @@ For the additive statistical model all the elements in \textbf{SNPVector} and \t
 }
 
 \caption{EnvironmentVector protective recoding}
+\algorithmslist{EnvironmentVector protective recoding}
 \label{alg:env_recode}
 \end{algorithm}
 
@@ -1369,6 +1371,7 @@ const \textcolor{keyword}{HostVector\&} snpData = snpVector.getRecodedData();\;
 }
 
 \caption{InteractionVector recoding}
+\algorithmslist{InteractionVector recoding}
 \label{alg:inter_recode}
 \end{algorithm}
 
@@ -1400,6 +1403,7 @@ $interactionVector$, vector with the interaction variable}
 }
 
 \caption{Applying statistic model}
+\algorithmslist{Applying statistic model}
 \label{alg:app_stat_model}
 \end{algorithm}
 
@@ -1528,6 +1532,7 @@ $length$ is the length of the vectors}
   }
 }
 
+\algorithmslist{Kernel for vector addition}
 \caption{Kernel for vector addition}
 \label{alg:kernel_elemenwise_add_device}
 \end{algorithm}
@@ -1572,10 +1577,12 @@ numberOfThreadsPerBlock is 256 }
   ($vector1$.getMemoryPointer(), $vector2$.getMemoryPointer(), $result$.getMemoryPointer(), $vector1$.getNumberOfRows());\;
 }
 
+\algorithmslist{Wrapper for the kernel in algorithm \ref{alg:kernel_elemenwise_add_device}}
 \caption{Wrapper for the kernel in algorithm \ref{alg:kernel_elemenwise_add_device}}
 \label{alg:kernel_elemenwise_add_host}
 \end{algorithm}
 
+\newpage
 \subsection{Model}
 The calculations are done by using a group of \textbf{Model} classes. A list of these classes and their responsibilities is shown below.
 
@@ -1643,33 +1650,37 @@ Since mocks are created by inheritance from the class to be mocked all functions
 The data for the tests where calculated by hand or by using Matlab.
 
 \subsection{Memory Usage}
-%TODO write about memory usage
-The memory usage is low because only the SNPs whose models currently is being calculated is stored in memory. This also means that most of the memory usage depends on the number of individuals not the number of SNPs especially since the SNP class is small. The memory is also bound by the GPU rather than host memory because of the relative size and that the GPU and host need about the same about of memory. However it does depend on the number of GPUs. A Tesla GPU has 6GB of memory\cite{nvtesla}, how many individuals can it fit at most?\\
+The memory usage is low because only the SNPs whose models currently is being calculated is stored in memory. This also means that most of the memory usage depends on the number of individuals not the number of SNPs especially since the SNP class is small. The memory is also bound by the GPU rather than host memory because of the relative larger size of the host memory. The amount used depends on the precision, single precision floating point numbers are four bytes while double precision numbers are eight bytes.
+
+\subsubsection{Device Memory}
+%TODO fix intro
+A Tesla GPU has 6 GB of memory\cite{nvtesla}.
+The variables used on the device and their number of elements are shown in table \ref{table:gpu_variable_sizes}. The amount of individuals than can fit inside 6GB of memory for different number of covariates and precision is shown in table \ref{table:gpu_mem}.\\
 \\
-Float=4 bytes, double=8
-With $n$ number of individuals and $m$, $m=4+$ number of covariates, one set of memory for the LR model needs:\\
-The outcomes, size n, shared for all streams
 
-Predictors, n*m
-Probabilities n
-Score m
-Beta m
-Work area n
-Work area n*m
-Information matrix m*m
+\begin{table}[h]
+\begin{tabular}{| l c c |}
+  \hline
+  Matrix/vector & Size & Instances\\
+  \hline
+  Outcomes & $N$ & 1 \\
+  Predictors & $N \times M$ & One per stream \\
+  Probabilities & $N$ & One per stream \\
+  Scores & $M$ & One per stream \\
+  Beta & $M$ & One per stream \\
+  Work Area & $N$ & One per stream \\
+  Work Area & $N \times M$ & One per stream \\
+  Information Matrix & $M \times M$ & One per stream \\
+  \hline  
+\end{tabular}
+\caption{Sizes of the variables stored on the device, $N=$ number of individuals, $M=4+$ number of covariates}
+\label{table:gpu_variable_sizes}
+\end{table}
 
-With three streams the number of floats needed is
-
-\begin{equation}
-6GB=(n+3(2*n*m+2*n+2*m+m^2))*precsion
-\end{equation}
-
-Breaking out n
-\begin{equation}
-n=\frac{\frac{6GB}{6m+7}-m^2-6m}{precision}
-\end{equation}
-
-See table \ref{table:gpu_mem}. Even with 100 covariates and double precision it can store 1.2 million individuals.
+%Breaking out n
+%\begin{equation}
+%n=\frac{\frac{6GB}{6m+7}-m^2-6m}{precision}
+%\end{equation}
 
 \begin{table}[h]
 \begin{tabular}{| l | l l |}
@@ -1687,29 +1698,51 @@ See table \ref{table:gpu_mem}. Even with 100 covariates and double precision it 
 \label{table:gpu_mem}
 \end{table}
 
+\subsubsection{Host Memory}
 %TODO host memory
 
-n individuals
-s snps
-e env
-c cov
+N individuals
+S snps
+E env
+C cov
 
-shared
-%p*n outcomes
-s snps
-e environment factors
-n persons
-%p*n*e storage of env
-%p*n*c storage of cov
+\begin{table}[h]
+\begin{tabular}{| l c c |}
+  \hline
+  Matrix/vector & Size & Instances\\
+  \hline
+  Outcomes & $N$ & 1 \\
+  Environment data & $N \times E$ & 1 \\
+  Covariates data & $N \times C$ & 1 \\
+  SNPVector & $2N$ & One per stream \\
+  EnvironmentVector & $N \times M$ & One per stream \\
+  InteractionVector & $N \times M$ & One per stream \\
+  Beta & $M$ & One per stream \\
+  Scores & $M$ & One per stream \\
+  Sigma & $M$ & One per stream \\
+  uSVD & $M \times M$ & One per stream \\
+  vSVD & $M \times M$ & One per stream \\
+  Work area & $M \times M$ & One per stream \\
+  \hline  
+\end{tabular}
+\caption{Sizes of the matrix/vector variables stored on the host}
+\label{table:host_mv_variable_sizes}
+\end{table}
 
-per thread
-%p*2*n snpvector
-%p*n envfactor
-%p*n interaction
+\begin{table}[h]
+\begin{tabular}{| l c c |}
+  \hline
+  Object & Size & Number\\
+  \hline
+  SNP & a & $S$\\
+  EnvironmentFactor & a & $E$\\
+  Persons & a & $N$\\
+  \hline  
+\end{tabular}
+\caption{Sizes of the other stuff variables stored on the host}
+\label{table:host_variable_sizes}
+\end{table}
 
-lr
-%p*(4+c)*3
-%p*(4+c)^2*3
 
 snp
 string
@@ -1743,10 +1776,9 @@ alt form:
 \chapter{Results}
 Intro\\
 \\
-To make the comparison of the performance of the programs more fair a couple of details in CuEira was changed. With the changes CuEira assigns the risk allele the same way as the older programs and doesn't use recoding on the multiplicative model. The MAF threshold was also set to zero. The way the risk allele is calculated in JEIRA and GEISA is not according to the definition earlier in section \ref{risk_allele}, the way JEIRA and GEISA does it is shown in appendix \ref{risk_allele_appendix}.
 
 \section{Data}
-Acpapos, missing data problem
+Acpapos
 
 Simulated data, random, varying sizes
 python script
@@ -1769,130 +1801,107 @@ Due to errors only one 1 GPU can be accessed. Because of this the login node had
 
 farliy old gpus
 
-\section{CuEira vs GEISA}
-Bla bla bla
-
-200k individuals extrapolate for GEISA. It was cut after about a hour and 1040 SNPs calculated. With shown in figure \ref{fig:geisa_vs_cueira_nocluster_10ksnps}, without shown in figure \ref{fig:geisa_vs_cueira_nocluster_10ksnps_exclude}
+\newpage
+\section{First look at speed}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=12cm]{geisa_vs_cueira_nocluster_10ksnps.png}
-    \caption{Speedup GEISA vs CuEira. GEIRA 200 000 individuals extrapolated. 10 000 SNPs.}
-    \label{fig:geisa_vs_cueira_nocluster_10ksnps}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{geisa_vs_cueira_nocluster_10ksnps_exclude.png}
-    \caption{Speedup GEISA vs CuEira. Without 200 000 individuals data. 10 000 SNPs.}
-    \label{fig:geisa_vs_cueira_nocluster_10ksnps_exclude}
-\end{figure}
-
-speedup 1 gpu normal node
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{geisa_vs_cueira_cluster_10ks.png}
-    \caption{Speedup GEISA vs CuEira. 10 000 SNPs.}
-    \label{fig:geisa_vs_cueira_cluster_10ks}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{geisa_vs_cueira_cluster_10ki.png}
-    \caption{Speedup GEISA vs CuEira. 10 000 Individuals.}
-    \label{fig:geisa_vs_cueira_cluster_10ki}
+    \includegraphics[width=9cm]{a1.png}
+    \caption{Speedup vs 1 GPU on login node. 10 000 SNPs.}
+    \label{fig:speed}
 \end{figure}
 
 \section{More detailed CuEira stuff}
+
+for satured streams:
 speedup for gpu
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{cueira_speedup_vs_1gpu_nocluster_10ksnps.png}
-    \caption{Speedup vs 1 GPU on login node. 10 000 SNPs.}
-    \label{fig:speedup_vs_1gpu}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=12cm]{cueira_speedup_vs_1gpu_nocluster_10ksnps.png}
+%    \caption{Speedup vs 1 GPU on login node. 10 000 SNPs.}
+%    \label{fig:speedup_vs_1gpu}
+%\end{figure}
 
 efficency
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{cueira_efficency_vs_1gpu_nocluster_10ksnps.png}
-    \caption{Efficiency vs 1 GPU on login node. 10 000 SNPs.}
-    \label{fig:efficency_vs_1gpu}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=12cm]{cueira_efficency_vs_1gpu_nocluster_10ksnps.png}
+%    \caption{Efficiency vs 1 GPU on login node. 10 000 SNPs.}
+%    \label{fig:efficency_vs_1gpu}
+%\end{figure}
 
 \section{Number of streams}
 vary number of streams
 
 \section{Single vs Double Precision}
-no difference in the results.
-time increased
+time increased slightly for double
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{single_vs_double_10ksnps_4gpu.png}
-    \caption{Execution time with 4 GPUs with either single or double precision. 10 000 SNPs.}
-    \label{fig:single_vs_double_10ks_4gpu}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=12cm]{single_vs_double_10ksnps_4gpu.png}
+%    \caption{Execution time with 4 GPUs with either single or double precision. 10 000 SNPs.}
+%    \label{fig:single_vs_double_10ks_4gpu}
+%\end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{single_vs_double_10ki_4gpu.png}
-    \caption{Execution time with 4 GPUs with either single or double precision. 10 000 individuals.}
-    \label{fig:single_vs_double_10ki_4gpu}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=12cm]{single_vs_double_10ki_4gpu.png}
+%    \caption{Execution time with 4 GPUs with either single or double precision. 10 000 individuals.}
+%    \label{fig:single_vs_double_10ki_4gpu}
+%\end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{single_vs_double_10ks_cluster.png}
-    \caption{Execution time with 1 GPU on login node with either single or double precision. 10 000 SNPs.}
-    \label{fig:single_vs_double_10ks_cluster}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=12cm]{single_vs_double_10ks_cluster.png}
+%    \caption{Execution time with 1 GPU on login node with either single or double precision. 10 000 SNPs.}
+%    \label{fig:single_vs_double_10ks_cluster}
+%\end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{single_vs_double_10ki_cluster.png}
-    \caption{Execution time with 1 GPU on login node with either single or double precision. 10 000 individuals.}
-    \label{fig:single_vs_double_10ki_cluster}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=12cm]{single_vs_double_10ki_cluster.png}
+%    \caption{Execution time with 1 GPU on login node with either single or double precision. 10 000 individuals.}
+%    \label{fig:single_vs_double_10ki_cluster}
+%\end{figure}
 
 \section{Syncing}
 %kepler vs fermi queue problem, problem described in section \ref{streams}
 minor increase with syncing
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{ferm_vs_nofermi_10ksnps_4gpu.png}
-    \caption{Execution time with 4 GPUs with either synchronisation or not. 10 000 SNPs.}
-    \label{fig:sync_vs_no_sync_4gpu_10ks}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=12cm]{ferm_vs_nofermi_10ksnps_4gpu.png}
+%    \caption{Execution time with 4 GPUs with either synchronisation or not. 10 000 SNPs.}
+%    \label{fig:sync_vs_no_sync_4gpu_10ks}
+%\end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{ferm_vs_nofermi_10ki_4gpu.png}
-    \caption{Execution time with 4 GPUs with either synchronisation or not. 10 000 individuals.}
-    \label{fig:sync_vs_no_sync_4gpu_10ki}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=12cm]{ferm_vs_nofermi_10ki_4gpu.png}
+%    \caption{Execution time with 4 GPUs with either synchronisation or not. 10 000 individuals.}
+%    \label{fig:sync_vs_no_sync_4gpu_10ki}
+%\end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{ferm_vs_nofermi_10ks_cluster.png}
-    \caption{Execution time with 1 GPU on cluster node with either synchronisation or not. 10 000 SNPs.}
-    \label{fig:sync_vs_no_sync_cluster_10ks}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=12cm]{ferm_vs_nofermi_10ks_cluster.png}
+%    \caption{Execution time with 1 GPU on cluster node with either synchronisation or not. 10 000 SNPs.}
+%    \label{fig:sync_vs_no_sync_cluster_10ks}
+%\end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{ferm_vs_nofermi_10ki_cluster.png}
-    \caption{Execution time with 1 GPU on cluster node with either synchronisation or not. 10 000 individuals.}
-    \label{fig:sync_vs_no_sync_cluster_10ki}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=12cm]{ferm_vs_nofermi_10ki_cluster.png}
+%    \caption{Execution time with 1 GPU on cluster node with either synchronisation or not. 10 000 individuals.}
+%    \label{fig:sync_vs_no_sync_cluster_10ki}
+%\end{figure}
 
 \section{Profiling}
+The reading of the fam file sometimes takes several seconds. It seems to happen with smaller files, no big deal
 
-personhandler, longer at random?
+Because of asynchronous and threads can be hard to draw conclussions even if one part takes time. Because can be hidden by GPU
 
 time spent at various parts
 1/2 gpu vs 4 gpu, cpu vs gpu on LR
@@ -1900,15 +1909,32 @@ time spent at various parts
 nsight, 100 snps, 2 gpu vs 4 gpu sync/vs no sync
 
 \subsection{Locks}
-Very little time spent
+The \textbf{ResultFileWriter} and \textbf{DataQueue} each has a lock to prevent race conditions. They also have a timer for how much time that has been spent waiting at the locks. 
+
+There was very little time spent at the locks, not more than a couple of seconds even for the larger files.
+good because clusters later
+
+\subsection{ModelHandler and DataHandler}
+some time on recode and app model
+
+however signficant on reading snp
+
+plot time \% spent
+
+\subsection{LR}
+additional syncs because of the timers to be accurate
+
+does it affect?
 
 \section{Compiler Optimizations}
-%no aliasing
-%fast math
-%-opt2 and such options
+no aliasing
+for both cuda and host
 
-\section{Other}
-mkl sequential
+fast math cuda
+
+-opt2 vs opt3
+
+mkl parallel vs sequential
 
 \chapter{Discussion and Conclusions}
 %Discussion and Conclusions (up to 3 pages)
@@ -1916,12 +1942,35 @@ mkl sequential
 %Need for methods for third order interaction and higher
 %more statistics for non binary
 
+\section{Scaling}
+
+snp scaling
+double the snps doulbe the calc time
+because completely independent
+
+individual scaling
+
+covariates scaling
+non linear, since lot of matrix stuff
+
+\section{Saturation of CPU}
+saturation of the cpus seems to have large impact
+shows with 4 gpu=12 streams>8 cores
+or with 1 gpu 1 stream vs 1 gpu 4 stream
+
+solution:more stuff to gpu, the SVD and the recoding
+->much less transfers
+
+if there is cpu power left could use separate cpu worker threads to fill the rest, cpu version is good to have too
+
+add mpi support and use several nodes
+
+split out the snp reading to separate threads. add another queue. 
+
 %TODO look back att efficent cuda part
 
 %TODO divergence problems, nothing now but could be with recoding on GPU or bootstrap
 %idea for solution using pointer architmic
-
-%Using two separate compilers did cost some time. For instance there was a problem with nvcc because it does not support c++11 host code. Mostly it is not a problem because the code %can be compiled with different compilers separately and then put together\cite{cuda}. However the interfaces(e.g. function signatures) that are included in the code for nvcc needs to %be c++11 free. However compared to the total time spent on the project it was not much.
 
 %need to change mkl to any blas and remove dependency on intel compiler
 
@@ -1929,83 +1978,85 @@ mkl sequential
 
 %recoding on GPU instead of cpu
 
-%math stuff for add
-
-%However there is a problem when both variables are non binary. Because LR models how the risk increases for each increase in the variable the interaction variable should preferably be in increased order of risk. However without doing extensive testing for the possible combinations it is not possible to know the order. It is easy in the binary case because the interaction only has two levels, both present or not. For an example take two variables with 3 levels, 0,1,2. For a single variable it is easy to assume that 2 is worse than 1. The problem with interaction occurs here because it is hard to know if 1,2 is worse than 2,1. In the case of continues variables it gets worse because scale starts to matter more.
-
-%However in gene-environment interaction the SNP variable is binary unless co-dominant model is used. This means that the coding isn't a problem for non binary environmental variables.
-
-
-%Extending to non binary.
-
-%OR>1 because recoding, see section \ref{recode}
-
-%\begin{equation}
-%OR_{both\:factors\:present}^x>OR_{first\:factor\:present}+OR_{second\:factor\:present}^x-1
-%\end{equation}
-%Where x is the number of steps from the base level.
-
-%This means that the interaction depends on the level of the factor. There are four cases
-
-%Using $\beta_{snp}$
-%$\beta_{environment}$
-%$\beta_{interaction}$
-
-%\begin{table}[h]
-%\begin{tabular}{| l | l | l |}
-%  \hline
-%  Case & Additive Interaction present, binary factor & Additive interaction present, non binary factor\\
-%  \hline
-%  $\beta_{interaction}>\beta_{snp} \; \beta_{interaction}>\beta_{environment}$ & Yes & Yes\\
-%  $\beta_{interaction}<\beta_{snp} \; \beta_{interaction}<\beta_{environment}$ & No & No\\
-%  $\beta_{interaction}>\beta_{snp} \; \beta_{interaction}<\beta_{environment}$ & No & For some x\\
-%  $\beta_{interaction}<\beta_{snp} \; \beta_{interaction}>\beta_{environment}$ & No & For some x\\
-%  \hline  
-%\end{tabular}
-%\caption{Additive interaction cases for non binary environmental factor}
-%\label{table:additive_interaction}
-%\end{table}
-
-%Can also be written as
-
-%\begin{equation}
-%OR_{both\:factors\:present}^x-OR_{second\:factor\:present}^x>OR_{first\:factor\:present}-1
-%\end{equation}
-
-%In case 3 it is monotone increasing
-
-%In case 4 it is monotone decreasing
-
-%TODO make some plots of it
-%TODO actually case 4 probably not possible, point x=0 is at 0? x=1 is <0 so no point >0 after x>0
-
-%Which means both pass 0 at one point.(Unless all equal 1 which means all 0)
-
-%That point can be found by solving
-
-%\begin{equation}
-%OR_{both\:factors\:present}^x-OR_{second\:factor\:present}^x=+OR_{first\:factor\:present}-1
-%\end{equation}
-
-%Case 3 has interaction for x>the point
-%Case 4 has interaction for x<the point
-
-%Depending on where the point is interaction might not be relevant, e.g. needs to smoke a million cigarettes a day and case 3. Or disappears to fast, eg 1 cigarette a year case 4.
-
-
-%Since the odds is an monotone function, switching lowest risk with highest means inverting the interval of the variable, e.g. minimum becomes maximum, maximum becomes minimum.
-
-
-\chapter{Outlook}
-%Outlook (up to one page)
-%more statistics for non binary
-
 %clusters
 %kinda possible by splitting the input files
 
 %cublas not that much harder than regular blas. A wrapper could enable simple and easy use without losing too much features.
 %however will get problems with large data amounts, can't fit in device memory
 %own kernels more than simple elemntwise, probably hard to optimize. unknowish
+
+\section{Extending Additive Interaction to Non Binary}
+More statistics needed 
+
+OR>1 because recoding, see section \ref{recode}
+
+\begin{equation}
+OR_{both\:factors\:present}^x>OR_{first\:factor\:present}+OR_{second\:factor\:present}^x-1
+\end{equation}
+Where x is the number of steps from the base level.
+
+This means that the interaction depends on the level of the factor. There are four cases
+
+Using $\beta_{snp}$
+$\beta_{environment}$
+$\beta_{interaction}$
+
+\begin{table}[h]
+\begin{tabular}{| l | l | l |}
+  \hline
+  Case & Additive Interaction present, binary factor & Additive interaction present, non binary factor\\
+  \hline
+  $\beta_{interaction}>\beta_{snp} \; \beta_{interaction}>\beta_{environment}$ & Yes & Yes\\
+  $\beta_{interaction}<\beta_{snp} \; \beta_{interaction}<\beta_{environment}$ & No & No\\
+  $\beta_{interaction}>\beta_{snp} \; \beta_{interaction}<\beta_{environment}$ & No & For some x\\
+  $\beta_{interaction}<\beta_{snp} \; \beta_{interaction}>\beta_{environment}$ & No & For some x\\
+  \hline  
+\end{tabular}
+\caption{Additive interaction cases for non binary environmental factor}
+\label{table:additive_interaction}
+\end{table}
+
+Can also be written as
+
+\begin{equation}
+OR_{both\:factors\:present}^x-OR_{second\:factor\:present}^x>OR_{first\:factor\:present}-1
+\end{equation}
+
+In case 3 it is monotone increasing
+
+In case 4 it is monotone decreasing
+
+%TODO make some plots of it
+
+Which means both pass 0 at one point.(Unless all equal 1 which means all 0)
+
+That point can be found by solving
+
+\begin{equation}
+OR_{both\:factors\:present}^x-OR_{second\:factor\:present}^x=+OR_{first\:factor\:present}-1
+\end{equation}
+
+Case 3 has interaction for x>the point
+Case 4 has interaction for x<the point
+
+However case 4: point x=0 is at 0? x=1 is <0 so no point >0 after x>0
+So only case 3
+
+Depending on where the point is interaction might not be relevant, e.g. needs to smoke a million cigarettes a day and case 3. Or disappears to fast, eg 1 cigarette a year case 4.
+
+Since the odds is an monotone function, switching lowest risk with highest means inverting the interval of the variable, e.g. minimum becomes maximum, maximum becomes minimum.
+
+
+\chapter{Outlook}
+%Outlook (up to one page)
+
+%more statistics for non binary
+%if binary possibly take inspiration from g-g?
+
+gpus good for interaction, how about xeon phi?
+depends on method, some methods diverge and stuff, for instance article thingy uses GPU but has divergence stuff, maybe xeon phi/cpu cluster better for them?
+
+small parts on cpu, not so good
 
 \newpage
 \bibliographystyle{ieeetr}
@@ -2152,12 +2203,11 @@ $caseMaxRatio$ and $controlMaxRatio$ is the frequency of $caseMaxAllele$ and $co
 }
 
 \caption{JEIRA and GEISA pseudo code to determine the risk allele}
-\algorithmslist{JEIRA and GEISA pseudo code to determine the risk allele}
+\algorithmslist{\quad JEIRA and GEISA pseudo code to determine the risk allele}
 \label{alg:jeira_geisa_risk_allele}
 \end{algorithm}
 
 The allele frequencies can be shown in an $2 \times 2$ table. The columns are the frequencies for the different alleles and the rows are the groups(case and control). It can be split into four cases shown in table \ref{table:risk_allele_cases}. The four cases comes from the four cases of possible directions of the inequality between the maximum frequencies of the two groups. There is up, down, down diagonally and up diagonally. The rest of the inequalities can be found by using that the sum of each row is 1.\\
-
 
 \begin{table}[h]
 \centering
@@ -2179,6 +2229,7 @@ The allele frequencies can be shown in an $2 \times 2$ table. The columns are th
 \caption{The four cases of allele frequencies}
 \label{table:risk_allele_cases}
 \end{table}
+%TODO clarify which case is which
 
 By using the previously mentioned definitions in section \ref{risk_allele} and the JEIRAs and GEISAs algorithm \ref{alg:jeira_geisa_risk_allele} what the risk allele is according to them for each case is shown in table \ref{table:risk_allele_comp}. Each definition correspond to examining the inequalities in the cases. For the definition using MAF the direction of the inequality from case minimum to control minimum determines it. If it points towards control the the case minor allele is the risk allele. For JEIRA and GEISA if the maximum for case points straight down to the maximum for control then the major case allele is the risk allele. This only happens in case 1. For increased frequency in case it is the allele which has the inequality pointing straight down.\\
 
@@ -2197,9 +2248,23 @@ By using the previously mentioned definitions in section \ref{risk_allele} and t
 \label{table:risk_allele_comp}
 \end{table}
 
-The results are different for case 3 and case 4.
+The risk allele is different for case 3 and case 4. For case 3 it is clear that it should be Allele1 because it has the highest frequency in case and also higher in case than control An extreme case of case 3 is shown in table \ref{table:risk_allele_extreme_case_3}.\\
+\\
+By examining a similar extreme case of case 4 it is clear that Allele1 should be the risk allele in that case too. The case is shown in table \ref{table:risk_allele_extreme_case_4}. Almost everyone in the case group has Allele1 while no one in the control group does, it is unlikely that Allele2 would increase the risk in that case.
 
-For case 4 it is clear that Allele1 should be the risk by looking at an extreme case. The case is shown in table \ref{table:risk_allele_extreme_case}. Almost everyone in the case group has Allele1 while no one in the control group does. The MAF based definition and JERIA/GEISA sets Allele2 as the risk for this case while increase in frequency sets Allele1.
+\begin{table}[h]
+\centering
+\begin{tabular}{| l | c c |}
+  \hline
+   & Allele1 & Allele2  \\
+  \hline
+  Case & 1 & 0.00  \\
+  Control & 0.01 & 0.99\\
+  \hline  
+\end{tabular}
+\caption{An extreme case of frequencies of case 3 in table \ref{table:risk_allele_cases}}
+\label{table:risk_allele_extreme_case_3}
+\end{table}
 
 \begin{table}[h]
 \centering
@@ -2211,8 +2276,8 @@ For case 4 it is clear that Allele1 should be the risk by looking at an extreme 
   Control & 0 & 1  \\
   \hline  
 \end{tabular}
-\caption{Example frequencies of case 4 in table \ref{table:risk_allele_cases}}
-\label{table:risk_allele_extreme_case}
+\caption{An extreme case of frequencies of case 4 in table \ref{table:risk_allele_cases}}
+\label{table:risk_allele_extreme_case_4}
 \end{table}
 
 \chapter{Bugs and Issues}

@@ -52,6 +52,7 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
   boost::chrono::system_clock::time_point beforeTransfer_beta = boost::chrono::system_clock::now();
 #endif
   hostToDevice->transferVector(*defaultBetaCoefficents, betaCoefficentsDevice->getMemoryPointer());
+  kernelWrapper->syncStream();
 #ifdef PROFILE
   boost::chrono::system_clock::time_point afterTransfer_beta = boost::chrono::system_clock::now();
   timeSpentTransferToDevice+=afterTransfer_beta - beforeTransfer_beta;
@@ -61,8 +62,6 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
       numberOfPredictors);
   Container::RegularHostMatrix* inverseInformationMatrixHost = new Container::RegularHostMatrix(numberOfPredictors,
       numberOfPredictors);
-
-  kernelWrapper->syncStream();
 
   int iterationNumber = 1;
   for(iterationNumber = 1; iterationNumber < maxIterations; ++iterationNumber){
@@ -78,10 +77,10 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
         *workMatrixNxMDevice);
 
 #ifdef PROFILE
+    kernelWrapper->syncStream();
+
     boost::chrono::system_clock::time_point afterGPU = boost::chrono::system_clock::now();
     timeSpentGPU+=afterGPU - beforeGPU;
-
-    kernelWrapper->syncStream();
 
     boost::chrono::system_clock::time_point beforeTransfer = boost::chrono::system_clock::now();
 #endif

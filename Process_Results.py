@@ -4,7 +4,7 @@ import sys
 
 sys.stderr.write('Processing results\n')
 
-fname="/home/daniel/Project/Results/run_out.txt"
+fname="/home/daniel/Project/Results/Timings/10_streams_nocluster_10ki_10ks_out.txt"
 
 outFile=open(fname+"_out.csv",'w')
 
@@ -156,7 +156,7 @@ with open(fname) as f:
 
       if("LRConfig transferToDevice" in line):
          index=line.find(":")
-         end=line.find("millisecond")
+         end=line.find("second")
          time=line[index+2:end-1]
 
          outFile.write(","+time)

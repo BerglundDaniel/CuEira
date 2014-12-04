@@ -53,6 +53,10 @@
 \author{Daniel Berglund}
 \date{December 2014}
 
+%Other Ideas:
+%Risk allele
+%Extending add
+
 \begin{document}
 
 \begin{frame}
@@ -66,16 +70,95 @@
 
 \section{Background}
 
-\subsection{Logistic Regression}
+%GWAS
+
+%Interaction
+
+\subsection{Statistics}
 
 \begin{frame}
-\frametitle{Asdf}
+\frametitle{Contingency Table}
+ \begin{table}[h]
+ \centering
+\begin{tabular}{| l c c |}
+  \hline
+  & Lung cancer & No lung cancer\\
+  \hline
+  Smoker & 688 & 650 \\
+  Non smoker & 21 & 59 \\
+  \hline  
+\end{tabular}
+\label{table:contingency_table}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Relative Risk}
+
+\begin{equation*}
+RR=\frac{\pi_1}{\pi_2}
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Odds and Odds Ratio}
+
+\begin{equation*}\label{eq:odds}
+\Omega=\frac{\pi}{1-\pi}
+\end{equation*}
+
+\begin{equation*}\label{eq:odds_ratio}
+\theta=\frac{\Omega_1}{\Omega_2}
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Additive Interaction}
+
+\begin{equation*}
+OR_{both\:factors\:present}>OR_{first\:factor\:present}+OR_{second\:factor\:present}-1
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Logistic Regression}
  Asdf
 \end{frame}
+
+%Measures
+
+%Recode
+
+%CUDA
+
+\begin{frame}
+
+\frametitle{Comp repro}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{comp_repro.png}
+    \label{fig:speed}
+\end{figure}
+
+\end{frame}
+
+%Clean code
+
+%performance stuff
 
 \section{Implementation}
 
 \section{Results}
 
+%Conclussions
+%-gpu is kinda nice for interaction
+%-don't do small stuff on cpu
+
+%reading tips
+
+%questions
 
 \end{document}

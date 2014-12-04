@@ -16,6 +16,7 @@
 \usepackage[toc,page]{appendix}
 \usepackage{tocloft}
 
+
 \setcounter{secnumdepth}{5}
 \setlength{\parindent}{0in}
 
@@ -621,9 +622,6 @@ The choice depends largely on the algorithm, performance requirements, etc. For 
 \\
 GPUs are good for interaction algorithms because most methods consider each combination independently and in this case also that LR consists of linear algebra operations. Linear algebra with sufficiently large matrices and vectors suits well with the GPUs SIMT architecture\cite{cublas, cuda}. Several studies got high gains from implementing their algorithms on GPU\cite{gwis,gboost,gmdr_gpu,cuda_lr,genie_2012,plink_gpu}. However most studies had CPU versions that were not parallel so it is likely that the gains would have been less if they had compared to an optimized and parallel CPU version. One study made a comparison of their algorithm between using a CPU cluster and using a GPU\cite{jiang_accelerating}. They found that 16 CPU nodes had the same performance as a single GTX 280 card\cite{jiang_accelerating}.
 
-%\subsection{Data Storage}
-%TODO write about data storage
-
 \subsection{Clusters}
 %TODO fix cluster section
 \label{clusers}
@@ -793,6 +791,7 @@ There is an example of this in \cite{cuda_fortran_overlap} which illustrates the
 \end{figure}
 
 \subsection{Efficient CUDA}
+\label{efficent_cuda}
 One of the main criticism against GPUs for general computing purposes is that it is hard to get good performance because it requires good knowledge about details of the GPU architecture, especially the memory architecture. This section is a summary of things that can be good to consider for CUDA programs from the CUDA programming guide\cite{cuda}, CUDA best practices guide \cite{cuda_best_practice} and a similar list as this one, however slightly outdated now since it is from 2010, from a master thesis about GPU in GWAS\cite{plink_gpu}.
 \\
 \begin{description}
@@ -856,30 +855,23 @@ There are ways to design the program and code in such a way that it is easier to
 \label{table:solid_table}
 \end{table}
 
-Dependency injection is one way to implement dependency inversion principle\cite{cleancode2008}. Injection is passing the dependency to the dependent object. This is used instead of allowing the dependent object to construct or find the dependency.
+Dependency injection is one way to implement dependency inversion principle\cite{cleancode2008}. Injection is passing the dependency to the dependent object. This is used instead of allowing the dependent object to construct or find the dependency. \emph{Factories} are used to allow for dependency injection when the class has some function that creates new instances of the class. Since the class creates them they can not be directly replace so instead the construction is delegated to a factory and the factory class can be used with dependency injection\cite{cleancode2008}. There are also other uses for factories such as eliminating code repetition from construction of classes that are constructed from a chain of classes(e.g. a house consists of windows, doors, walls, etc) or when there are several classes that inherit from the same base class\cite{cleancode2008,design_patterns}.
 
 \subsection{Unit Tests and Mocks}
-\emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work. \emph{Integration testing} is used to test several units together to find possible errors  
-
-%TODO integration tests
-
-\cite{cleancode2008}\\
+\emph{Unit testing} involves testing the program in small units in isolation. Testing in isolation means that the test should only depend on the part of the program that is tested. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work. \emph{Integration testing} is used to test several units together to find possible errors that occur when the smaller units are combined. \cite{cleancode2008}\\ %TODO cite integration tests
 \\
 It can be easy to denote test code as less important than the main code but they should be treated as equally important. Tests should also not be an inconvenience to use so they should be easy to run, take reasonable amount of time to complete and not require any outside interpretation whether they failed or not.\cite{cleancode2008}\\
 \\
 \emph{Mocking} is to replace a real object with a fake object called a \emph{mock} that for the code is indistinguishable from the real object. This allows one to create situations and test with more control and without depending on the real objects code. The second is important for unit tests since it enables one to test units that normally depend on others in isolation. In the first case it is useful in situations such as when one wants to test a class handling of a rare failure. Such failures can be hard and time consuming to induce. It is then easier to use a mock object that behaves like the failure has occurred. However mocking requires that the code for the class doesn't create the object itself since there is no way to replace the object with the mock. This is one of the reasons why dependency injection should be use.\cite{cleancode2008}
 
+\newpage
 \subsection{Design Patterns}
 \label{design_pattern}
 A \emph{design pattern} in software design is a reusable general solution to a common recurring problem in a given context. It is templates and structures to solve the problem, however it is not code. However they are partially dependent on the programming language since different languages have different features and limitations.\cite{design_patterns}\\
 \\
 \emph{Consumer producer} is a concurrency pattern for when there are a number of consumers/workers and producers. They share a common queue for products. The producer generates some product and put it into the queue, while the the consumers consume the products. The problem is that the producers should not add to an non empty slot and that each product should only be consumed once.\cite{cleancode2008, design_patterns}\\
 \\
-%TODO builder pattern
-Configuration pattern classes are used to reduce the number of parameters to functions. Instead of having a number of parameters to a function the parameters are put in a Configuration class. The Configuration class has two functions for each parameter, a \textbf{set} function and a \textbf{get} function. The \textbf{set} is used to set the parameter while \textbf{get} is used to get the parameter.\\
-\\
-%TODO adapter pattern
-%TODO factories Factories allow the a class to delegate the construction 
+An \emph{wrapper} is an interface used to \emph{wrap} another interface, it is also called \emph{adapter} pattern\cite{cleancode2008, design_patterns}. The wrapper does not perform the work, it delegates it to the other interface. This is useful for instance when a 3rd party interface is not in the same style as the program or has other problems but otherwise suits the needs\cite{cleancode2008}.
 
 \subsection{Version Control Software}
 Backups for data, code, text and so on is important if something happens. One way to backup text and code projects is to use a version control software and is usually an important tool in developing\cite{git_book}. For this project Git was used and the source code can be found at \url{https://github.com/Berjiz/CuEira}. Version control software allows several developers to share a common \emph{repository} which allows them to work on different parts at the same time, it could even be in the same file\cite{git_book}. However changes at the same place causes \emph{merge conflicts} which usually needs to be solved manually\cite{git_book}. A version control software keeps track of all the changes made so if a part later turns out to be wrong that part can reverted to an older correct version\cite{git_book}. Version control software also have many other features\cite{git_book}.
@@ -1168,12 +1160,6 @@ This section will explain the implementation of the program starting with a shor
 \\
 The input files for all these programs are PLINK data files. However CuEira can only read the PLINK files in binary format. They also read a separate tab delimited file that contains the environmental data and covariates if any. For CuEira the covariates and environmental data is split in two files.
 
-%\section{Terminology}
-%\label{basic_program_term}
-%TODO write about inheritance, namespaces, pointers, memory, enums, exceptions
-
-%An enum is a data type consisting of a set of named values. This is useful when the variable has a distinct set of values that makes more sense as text rather than something else. For instance gender can be stored as enum with the two values MALE and FEMALE, the enum values are commonly write in capital letters. The gender could be stored an int, however it is easier to understand the meaning of MALE than just a number and it also avoids potential errors with incorrect values. An enum can only have one of it's possible values while an int is not restricted in the same way.
-
 \section{JEIRA and GEISA}
 The descriptions and structures in this section applies to both JEIRA and GEISA since their underlying structure is the same, however the focus is on GEISA. They are written in Java and uses Javas built-in functions for concurrency.\\
 \\
@@ -1282,26 +1268,48 @@ For the additive statistical model all the elements in \textbf{SNPVector} and \t
 
 \begin{algorithm}
 \DontPrintSemicolon
-\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
-\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
-\SetKwFor{For}{for}{}{}
-\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
-\SetKwFor{While}{while}{}{}
-\SetKwRepeat{Repeat}{repeat}{until}
-\AlgoDisplayBlockMarkers
-\SetAlgoNoLine
-\SetFuncSty{}
-\SetArgSty{}
 
 \SetKwInOut{data}{Data}
 
 \BlankLine \BlankLine
 
-\data{Asdf}
+\data{Two vectors of length $N$, $originalData$ and $recodedData$}
 
 \BlankLine \BlankLine
 
-%TODO snpvector recoding
+\If{Dominant genetic model}{
+  \If{Risk allele is allele 1}{
+    $snpData0 \leftarrow 1$\;
+    $snpData1 \leftarrow 1$\;
+    $snpData2 \leftarrow 0$\;
+  }\ElseIf{Risk allele is allele 2}{
+    $snpData0 \leftarrow 0$\;
+    $snpData1 \leftarrow 1$\;
+    $snpData2 \leftarrow 1$\;
+  }
+}\ElseIf{Recessive genetic model}{
+  \If{Risk allele is allele 1}{
+    $snpData0 \leftarrow 1$\;
+    $snpData1 \leftarrow 0$\;
+    $snpData2 \leftarrow 0$\;
+  }\ElseIf{Risk allele is allele 2}{
+    $snpData0 \leftarrow 0$\;
+    $snpData1 \leftarrow 0$\;
+    $snpData2 \leftarrow 1$\;
+  }
+}
+
+\BlankLine \BlankLine
+
+\For{$i \leftarrow 0$ \KwTo $N$}{
+  \If{$originalData[i] = 0$}{
+    $recodedData[i] = snpData0$\;
+  }\ElseIf{$originalData[i] = 1$}{
+    $recodedData[i] = snpData1$\;
+  }\ElseIf{$originalData[i] = 2$}{
+    $recodedData[i] = snpData2$\;
+  }
+}
 
 \caption{SNPVector protective recoding}
 \algorithmslist{SNPVector protective recoding}
@@ -1310,29 +1318,19 @@ For the additive statistical model all the elements in \textbf{SNPVector} and \t
 
 \begin{algorithm}
 \DontPrintSemicolon
-\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
-\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
-\SetKwFor{For}{for}{}{}
-\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
-\SetKwFor{While}{while}{}{}
-\SetKwRepeat{Repeat}{repeat}{until}
-\AlgoDisplayBlockMarkers
-\SetAlgoNoLine
-\SetFuncSty{}
-\SetArgSty{}
 
 \SetKwInOut{data}{Data}
 \BlankLine \BlankLine
 
-\data{Two vectors, $originalData$ and $recodedData$}
+\data{Two vectors of length $N$, $originalData$ and $recodedData$}
 
 \BlankLine \BlankLine
 
-\For{\textcolor{keyword}{int} $i$ = 0; $i$ $<$ $numberOfIndividualsToInclude$; ++$i$}{
-  \If{(*$originalData$)($i$) == 0}{
-    (*$recodedData$)($i$) = 1;
+\For{$i \leftarrow 0$ \KwTo $N$}{
+  \If{$originalData[i] == 0$}{
+    $recodedData[i] = 1$\;
   }\Else{
-    (*$recodedData$)($i$) = 0;
+    $recodedData[i] = 0$\;
   }
 }
 
@@ -1343,31 +1341,16 @@ For the additive statistical model all the elements in \textbf{SNPVector} and \t
 
 \begin{algorithm}
 \DontPrintSemicolon
-\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
-\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
-\SetKwFor{For}{for}{}{}
-\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
-\SetKwFor{While}{while}{}{}
-\SetKwRepeat{Repeat}{repeat}{until}
-\AlgoDisplayBlockMarkers
-\SetAlgoNoLine
-\SetFuncSty{}
-\SetArgSty{}
 
 \SetKwInOut{data}{Data}
 \BlankLine \BlankLine
 
-\data{$EnvironmentVector$ and $SNPVector$}
+\data{Three vectors of length $N$, $interactionData$, $envData$ and $snpData$}
 
 \BlankLine \BlankLine
 
-const \textcolor{keyword}{HostVector\&} envData = environmentVector.getRecodedData();\;
-const \textcolor{keyword}{HostVector\&} snpData = snpVector.getRecodedData();\;
-
-\BlankLine \BlankLine
-
-\For{\textcolor{keyword}{int} $i$ = 0; $i$ $<$ $numberOfIndividualsToInclude$; ++$i$}{
-  (*$interactionVector$)($i$) = $envData$($i$) * $snpData$($i$);\;
+\For{$i \leftarrow 0$ \KwTo $N$}{
+  $interactionData[i] = envData[i] * snpData[i]$\;
 }
 
 \caption{InteractionVector recoding}
@@ -1377,28 +1360,17 @@ const \textcolor{keyword}{HostVector\&} snpData = snpVector.getRecodedData();\;
 
 \begin{algorithm}
 \DontPrintSemicolon
-\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
-\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
-\SetKwFor{For}{for}{}{}
-\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
-\SetKwFor{While}{while}{}{}
-\SetKwRepeat{Repeat}{repeat}{until}
-\AlgoDisplayBlockMarkers
-\SetAlgoNoLine
-\SetFuncSty{}
-\SetArgSty{}
 
 \SetKwInOut{data}{Data}
 \BlankLine \BlankLine
 
-\data{$recodedData$, vector with the variable\\
-$interactionVector$, vector with the interaction variable}
+\data{Two vectors of length $N$, $interactionData$ and $dataVector$}
 
 \BlankLine \BlankLine
 
-\For{\textcolor{keyword}{int} $i$ = 0; $i$ < $numberOfIndividualsToInclude$; ++$i$}{
-  \If{$interactionVector$($i$) != 0}{
-    (*$recodedData$)($i$) = 0;
+\For{$i \leftarrow 0$ \KwTo $N$}{
+  \If{$interactionData[i]$ \textbf{not} $0$}{
+    $dataVector[i] = 0$\;
   }
 }
 
@@ -1590,7 +1562,7 @@ The calculations are done by using a group of \textbf{Model} classes. A list of 
   \item[Model] \hfill \\
   The model to calculate.
   \item[ModelConfiguration] \hfill \\
-  Holds the data for the Model by using the builder pattern.
+  Holds the data for the Model.
   \item[ModelResult] \hfill \\
   Contains the results from one Model on one set of data.
   \item[CombinedResults] \hfill \\
@@ -1650,12 +1622,17 @@ Since mocks are created by inheritance from the class to be mocked all functions
 The data for the tests where calculated by hand or by using Matlab.
 
 \subsection{Memory Usage}
-The memory usage is low because only the SNPs whose models currently is being calculated is stored in memory. This also means that most of the memory usage depends on the number of individuals not the number of SNPs especially since the SNP class is small. The memory is also bound by the GPU rather than host memory because of the relative larger size of the host memory. The amount used depends on the precision, single precision floating point numbers are four bytes while double precision numbers are eight bytes.
+The memory usage is low because only the SNPs whose models currently is being calculated is stored in memory. This also means that most of the memory usage depends on the number of individuals not the number of SNPs. The memory is also bound by the GPU rather than host memory because of the relative larger size of the host memory. The amount used depends on the precision, single precision floating point numbers are four bytes while double precision numbers are eight bytes.
 
 \subsubsection{Device Memory}
-%TODO fix intro
-A Tesla GPU has 6 GB of memory\cite{nvtesla}.
-The variables used on the device and their number of elements are shown in table \ref{table:gpu_variable_sizes}. The amount of individuals than can fit inside 6GB of memory for different number of covariates and precision is shown in table \ref{table:gpu_mem}.\\
+%TODO fix device mem intro
+The variables used on the device and their number of elements are shown in table \ref{table:gpu_variable_sizes}. The memory need with $T$ number of streams is then
+
+\begin{equation}\label{eq:device_memory}
+(N+T(2NM+2N+2M+MM))*Element Size
+\end{equation}
+
+The amount of individuals than can fit inside 6GB(i.e. a typical GPU) with three streams for different number of covariates and precision is shown in table \ref{table:gpu_mem}.\\
 \\
 
 \begin{table}[h]
@@ -1677,11 +1654,6 @@ The variables used on the device and their number of elements are shown in table
 \label{table:gpu_variable_sizes}
 \end{table}
 
-%Breaking out n
-%\begin{equation}
-%n=\frac{\frac{6GB}{6m+7}-m^2-6m}{precision}
-%\end{equation}
-
 \begin{table}[h]
 \begin{tabular}{| l | l l |}
   \hline
@@ -1700,11 +1672,11 @@ The variables used on the device and their number of elements are shown in table
 
 \subsubsection{Host Memory}
 %TODO host memory
+The matrix and vector variables are shown in table \ref{table:host_mv_variable_sizes}. However there are also other data related information that needs to be stored and that potentially uses a significant amount of memory, they are shown in table \ref{table:host_variable_sizes}. Classes that only exist in few instances and similar are ignored because their effect on the memory is minimal compared to the actual data. With the sizes from the tables the needed amount of host memory is shown in \ref{eq:host_memory}.
 
-N individuals
-S snps
-E env
-C cov
+\begin{equation}\label{eq:host_memory}
+Asdf
+\end{equation}
 
 \begin{table}[h]
 \begin{tabular}{| l c c |}
@@ -1732,39 +1704,16 @@ C cov
 \begin{table}[h]
 \begin{tabular}{| l c c |}
   \hline
-  Object & Size & Number\\
+  Object & Contains & Number\\
   \hline
-  SNP & a & $S$\\
-  EnvironmentFactor & a & $E$\\
-  Persons & a & $N$\\
+  SNP & 3 strings, 6 int, 1 bool & $S$\\
+  EnvironmentFactor & 1 string, 1 int & $E$\\
+  Persons & 1 string, 2 int, 1 bool & $N$\\
   \hline  
 \end{tabular}
 \caption{Sizes of the other stuff variables stored on the host}
 \label{table:host_variable_sizes}
 \end{table}
-
-
-snp
-string
-vector int max längd=4
-string
-string
-int
-int
-bool
-%=27+3*string
-
-envfactor
-string
-int
-%=4+string
-
-person
-string
-int
-int 
-bool
-%=9+string
 
 The strings are short but there is significant overhead probably.
 
@@ -1774,14 +1723,14 @@ alt form:
 %c*(36*c*p+n*p+324*p)+n*(p*e+49*p+9)+string*(n+e+3*s)+720*p+4*e+27*s
 
 \chapter{Results}
-Intro\\
+%TODO results
+This section contains \\
 \\
+The data used are AcpaPos and simulated datasets.
 
-\section{Data}
-Acpapos
+Acpapos, the län variable was used as environment
 
-Simulated data, random, varying sizes
-python script
+The simulated data consists of randomized data with equal number of cases and controls.
 
 \section{Hardware Specifications}
 Cluster Zorn at PDC was used\cite{zorn_pdc}.
@@ -1801,140 +1750,225 @@ Due to errors only one 1 GPU can be accessed. Because of this the login node had
 
 farliy old gpus
 
-\newpage
-\section{First look at speed}
+\section{Timer stuff}
+All the execution times used here are the times the calculation part of the program took. This is because the initialisation varies a lot in time. The part of the code that varies greatly is when creating the vector of the outcomes(i.e. the individuals phenotypes) which. The total time for initialisation and the time to create the outcomes are shown in figure \ref{fig:10stream_init}. Except for the first execution the order does not seem to matter, figure \ref{fig:10stream_init_backward} shows the initialisation times for the same executions as figure \ref{fig:10stream_init} however they were performed in opposite order. To prevent a bias from this in the results all the plots use the calculation time instead of total run time.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=9cm]{a1.png}
-    \caption{Speedup vs 1 GPU on login node. 10 000 SNPs.}
-    \label{fig:speed}
+    \includegraphics[width=9cm]{less_sync_init.png}
+    \caption{10 000 SNPs and individuals with 1-4 GPUs with 1-10 streams. It was performed starting with 1 GPU and 1 stream and then increasing the streams and then the GPUs. I.e. from left to right in the figure.}
+    \label{fig:10stream_init}
 \end{figure}
 
-\section{More detailed CuEira stuff}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{less_sync_init_backward.png}
+    \caption{Same as figure \ref{fig:10stream_init} but calculating in opposite order.}
+    \label{fig:10stream_init_backward}
+\end{figure}
+
+additional syncs because of the timers to be accurate
+does it affect?
+
+\newpage
+\section{Scaling}
+%TODO scaling
+
+SNPs
+Therefore only 10k snps
+
+seconds plot
+
+reltive thing for it
+
+Individuals increase work but it does not increase so that double means double the work, shown in figure \ref{fig:individuals_cov_0_stream_4}. There are no major changes with the addition of covariates. With 20 covariates is shown in figure \ref{fig:individuals_cov_20_stream_4}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{individuals_cov_0_stream_4.png}
+    \caption{10ks 0 cov 4 stream}
+    \label{fig:individuals_cov_0_stream_4}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{individuals_cov_20_stream_4.png}
+    \caption{10ks 20 cov 4 stream}
+    \label{fig:individuals_cov_20_stream_4}
+\end{figure}
+
+relative thing ind
+
+Covariates
+large effect for small number of individuals, little to no effect on 200k i, see figure \ref{fig:cov_individuals2000_stream_4} and figure \ref{fig:cov_individuals2e+05_stream_4}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{cov_individuals2000_stream_4.png}
+    \caption{10ks 2ki}
+    \label{fig:cov_individuals2000_stream_4}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{cov_individuals2e+05_stream_4.png}
+    \caption{10ks 200ki}
+    \label{fig:cov_individuals2e+05_stream_4}
+\end{figure}
+
+relative thing for cov
+
+\section{Streams and Multi-GPU}
+as streams increase GPU gets full for 1 GPU
+however cpu full when streams*core>8
+shows cpu side is problem when >2 gpu, possibly for 2 gpu too
+
+number of streams with best speed is so that the number of streams * number of GPUs is slightly above the number of cores. However to many streams not a problem as long as memory is enough, slightly speed loss. It also depends on the data sizes. At some point the GPU will be full as figure \ref{fig:gpu_10streams_10ks_10ki} shows.
+
+A more zoomed in to see what happens with 5+ streams and 100k individuals is shown in figure \ref{fig:gpu_5to10streams_10ks_100ki}. The speed flattens out with nine streams which is one more than the number of cores.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{gpu_10streams_10ks_10ki.png}
+    \caption{1 to 10 streams with 10 000 SNPs and 10 000 individuals}
+    \label{fig:gpu_10streams_10ks_10ki}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{gpu_10streams_10ks_100ki.png}
+    \caption{1 to 10 streams with 10 000 SNPs and 100 000 individuals}
+    \label{fig:gpu_10streams_10ks_100ki}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{gpu_5to10streams_10ks_100ki.png}
+    \caption{5 to 10 streams with 10 000 SNPs and 100 000 individuals}
+    \label{fig:gpu_5to10streams_10ks_100ki}
+\end{figure}
 
 for satured streams:
-speedup for gpu
+for both cov and ind as x axis
 
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=12cm]{cueira_speedup_vs_1gpu_nocluster_10ksnps.png}
-%    \caption{Speedup vs 1 GPU on login node. 10 000 SNPs.}
-%    \label{fig:speedup_vs_1gpu}
-%\end{figure}
+normal seconds plot
+
+speedup for gpu
 
 efficency
 
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=12cm]{cueira_efficency_vs_1gpu_nocluster_10ksnps.png}
-%    \caption{Efficiency vs 1 GPU on login node. 10 000 SNPs.}
-%    \label{fig:efficency_vs_1gpu}
-%\end{figure}
-
-\section{Number of streams}
-vary number of streams
-
 \section{Single vs Double Precision}
-time increased slightly for double
+Using double precision increases the time in almost all cases. Multiple runs with 10 000 SNPs and varying number of individuals, covariates, GPUs and streams are shown in figure \ref{fig:single_vs_double}. Three points are significantly faster with double precision than single. However almost all the other points have reduced speed so using double precision is an bad idea. It is also possible that three points are outliers. %TODO something about the increase in snp reading time, rerun the three points
 
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=12cm]{single_vs_double_10ksnps_4gpu.png}
-%    \caption{Execution time with 4 GPUs with either single or double precision. 10 000 SNPs.}
-%    \label{fig:single_vs_double_10ks_4gpu}
-%\end{figure}
-
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=12cm]{single_vs_double_10ki_4gpu.png}
-%    \caption{Execution time with 4 GPUs with either single or double precision. 10 000 individuals.}
-%    \label{fig:single_vs_double_10ki_4gpu}
-%\end{figure}
-
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=12cm]{single_vs_double_10ks_cluster.png}
-%    \caption{Execution time with 1 GPU on login node with either single or double precision. 10 000 SNPs.}
-%    \label{fig:single_vs_double_10ks_cluster}
-%\end{figure}
-
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=12cm]{single_vs_double_10ki_cluster.png}
-%    \caption{Execution time with 1 GPU on login node with either single or double precision. 10 000 individuals.}
-%    \label{fig:single_vs_double_10ki_cluster}
-%\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{double_calc.png}
+    \caption{16 points inside each group}
+    \label{fig:single_vs_double}
+\end{figure}
 
 \section{Syncing}
-%kepler vs fermi queue problem, problem described in section \ref{streams}
-minor increase with syncing
+This relates to the queue problem described in section \ref{streams}
 
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=12cm]{ferm_vs_nofermi_10ksnps_4gpu.png}
-%    \caption{Execution time with 4 GPUs with either synchronisation or not. 10 000 SNPs.}
-%    \label{fig:sync_vs_no_sync_4gpu_10ks}
-%\end{figure}
+increased with more syncing except for large number of individuals
 
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=12cm]{ferm_vs_nofermi_10ki_4gpu.png}
-%    \caption{Execution time with 4 GPUs with either synchronisation or not. 10 000 individuals.}
-%    \label{fig:sync_vs_no_sync_4gpu_10ki}
-%\end{figure}
+interesting lines, higher number of gpu and streams gives better gain
+it is the calculation time so no due to initialisation thing
 
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=12cm]{ferm_vs_nofermi_10ks_cluster.png}
-%    \caption{Execution time with 1 GPU on cluster node with either synchronisation or not. 10 000 SNPs.}
-%    \label{fig:sync_vs_no_sync_cluster_10ks}
-%\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{ferm_calc.png}
+    \caption{16 points inside each group}
+    \label{fig:less_sync_vs_always_sync}
+\end{figure}
 
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=12cm]{ferm_vs_nofermi_10ki_cluster.png}
-%    \caption{Execution time with 1 GPU on cluster node with either synchronisation or not. 10 000 individuals.}
-%    \label{fig:sync_vs_no_sync_cluster_10ki}
-%\end{figure}
+Plot of the LR time dist with and without sync, 200ki 10ks, also 10ki, show that transfer times disappear for all num of individuals
+
+The fraction of the LR time spent on transfers are much lower with syncing as shown in figure ???
+But why is it only faster with 100k+ individuals then?
+
+possible explanation, gpu is full in both cases so same overall time, but where the wait time ends up differ
+without sync the transfer takes more time because behind kernel blocking
+with sync it doesn't get stuck instead kernel needs to wait for gpu to complete other kernel from other stream
 
 \section{Profiling}
-The reading of the fam file sometimes takes several seconds. It seems to happen with smaller files, no big deal
+It is not 
+Because of asynchronous and threads can be hard to draw conclusions even if one part takes time. Because can be hidden by GPU
+good example with the syncing, transfer times decrease but overall remains the same
 
-Because of asynchronous and threads can be hard to draw conclussions even if one part takes time. Because can be hidden by GPU
+with 4 gpu 3 stream nsight complains that overlap of kernel with kernel and mem transfer with transfer is bad, only a couple of \%
+does not happen with 2 gpu 4 stream
 
-time spent at various parts
-1/2 gpu vs 4 gpu, cpu vs gpu on LR
+Table \ref{table:gpu_profile_calc_dist} shows how the time for doing calculations on the GPU is used. Most of the time is spent on gemv2T which is matrix multiplication of a transposed and a normal matrix. It is used in the calculation of the information matrix.\\
+\\
+Since the custom kernel takes so little time there is small gains in optimizing them with either unrolling or varying block size. That time is likely better spent on optimizing a different part.
 
-nsight, 100 snps, 2 gpu vs 4 gpu sync/vs no sync
+%TODO add 5 10 20 cov
+% test diferent num of individuals too, 100k??, 10k
 
-\subsection{Locks}
-The \textbf{ResultFileWriter} and \textbf{DataQueue} each has a lock to prevent race conditions. They also have a timer for how much time that has been spent waiting at the locks. 
+\begin{table}[h]
+\centering
+\begin{tabular}{| l | c c |}
+  \hline
+  Percentage time spent & Kernel & Kernel type  \\
+  \hline
+  72.1 & gemv2T & CUBLAS\\
+  14.4 & block dot & CUBLAS\\
+  8.1 & gemv2N & CUBLAS\\
+  2.3 & ElementWiseMultiplication & Custom\\
+  0.9 & LogisticTransform & Custom\\
+  0.7 & LogLikelihoodParts & Custom\\
+  0.6 & ElementWiseDifference & Custom\\
+  0.5 & VectorMultiply1MinusVector & Custom\\
+  0.3 & dot kernel & CUBLAS\\
+  0.1 & reduce & CUBLAS\\
+  \hline  
+\end{tabular}
+\caption{Distribution of the time spent on GPU calculations}
+\label{table:gpu_profile_calc_dist}
+\end{table}
 
-There was very little time spent at the locks, not more than a couple of seconds even for the larger files.
-good because clusters later
+%TODO run with sync check lines stuff
+
+The \textbf{ResultFileWriter} and \textbf{DataQueue} each has a lock to prevent race conditions. They also have a timer for how much time that has been spent waiting at the locks. There was very little time spent at them, not more than a couple of seconds even for the larger files which takes 10-30 mins to perform. Overall very insignificant time
+The next sections will focus on some of the other parts.
 
 \subsection{ModelHandler and DataHandler}
-some time on recode and app model
+The time spent 
+some time on recode and app model, most of there time was spent reading the SNP. With more GPUs the read time is increased
 
-however signficant on reading snp
+hard to say if problem because threads so possibly hidden
 
-plot time \% spent
+plot relative time \% spent vs gpu
+seconds plot vs gpu
+10k and 100k individuals
+
+possibly plot read vs LR tot
+is the time to read a lot or little compared to LR GPU?
+
+plot next+trans+cpu vs LR gpu
 
 \subsection{LR}
-additional syncs because of the timers to be accurate
+As figure \ref{fig:timedist_LR_cov_10ks_2000i_gpu4} shows with increased number of covariates the CPU time of the LR algorithm increases. However with more individuals the effect of the covariates decreases see figure \ref{fig:timedist_LR_cov_10ks_2e+05i_gpu4}.
 
-does it affect?
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{timedist_LR_cov_10ks_2000i_gpu4.png}
+    \caption{LR distribution with 4 GPU 3 stream, 10k SNPs, 2k individuals}
+    \label{fig:timedist_LR_cov_10ks_2000i_gpu4}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{timedist_LR_cov_10ks_2e+05i_gpu4.png}
+    \caption{LR distribution with 4 GPU 3 stream, 10k SNPs, 200k individuals}
+    \label{fig:timedist_LR_cov_10ks_2e+05i_gpu4}
+\end{figure}
 
 \section{Compiler Optimizations}
-no aliasing
-for both cuda and host
-
-fast math cuda
-
--opt2 vs opt3
-
-mkl parallel vs sequential
+There are several compiler options than could affect the speed. They are disabling aliasing for both CUDA and CPU, fast math option for CUDA as talked about in section \ref{efficent_cuda} and general optimization options, O2 and O3.\\
+\\
+Results bla bla bla
 
 \chapter{Discussion and Conclusions}
 %Discussion and Conclusions (up to 3 pages)
@@ -1942,49 +1976,43 @@ mkl parallel vs sequential
 %Need for methods for third order interaction and higher
 %more statistics for non binary
 
-\section{Scaling}
+amdahl vs gustafson, gustafson probably more right on this stuff since with more power data can increase. also even without larger data there is higher order interactions
 
-snp scaling
-double the snps doulbe the calc time
-because completely independent
+gpu good, problem with scaling to 3-4 gpus
+likely due to cpu cannot give enough calculations to them
+moving cpu things to gpu would help
+however cpu to gpu might not do much for 1-2 gpu since the bottlneck is the gpu side depending on data size
 
-individual scaling
-
-covariates scaling
-non linear, since lot of matrix stuff
-
-\section{Saturation of CPU}
-saturation of the cpus seems to have large impact
-shows with 4 gpu=12 streams>8 cores
-or with 1 gpu 1 stream vs 1 gpu 4 stream
+however cpu to gpu improvment good for that too since less cpu work cold mean pure cpu threads
+if there is cpu power left could use separate cpu worker threads to fill the rest
+cpu version is good to have too
 
 solution:more stuff to gpu, the SVD and the recoding
-->much less transfers
+cpu threads possible
 
-if there is cpu power left could use separate cpu worker threads to fill the rest, cpu version is good to have too
+another potential idea:
+split out the snp reading to separate threads. add another queue.
+hard to say if it would actually give speed, might not be worth it
+it is likely be hidden by gpu calculations, especially if more work done on gpu
 
-add mpi support and use several nodes
+general gpu improvement would not give much since mostly cublas
+needs to be revisited after more things move to gpu
 
-split out the snp reading to separate threads. add another queue. 
+for more speed->clusters
 
 %TODO look back att efficent cuda part
+not much to say, most things don't apply that much because mostly cublas
+good to know for future stuff
 
-%TODO divergence problems, nothing now but could be with recoding on GPU or bootstrap
-%idea for solution using pointer architmic
+also need better validation, permutation tests or bootstrap
+divergence problems, nothing now but could be with recoding on GPU or bootstrap
+idea for solution using pointer architmic
 
-%need to change mkl to any blas and remove dependency on intel compiler
-
-%amdahl vs gustafson, gustafson probably more right on this stuff since with more power data can increase. also even without larger data there is higher order interactions
-
-%recoding on GPU instead of cpu
-
-%clusters
-%kinda possible by splitting the input files
-
-%cublas not that much harder than regular blas. A wrapper could enable simple and easy use without losing too much features.
+%cublas not that much harder than regular blas.
 %however will get problems with large data amounts, can't fit in device memory
 %own kernels more than simple elemntwise, probably hard to optimize. unknowish
 
+%TODO probably remove this
 \section{Extending Additive Interaction to Non Binary}
 More statistics needed 
 
@@ -2050,13 +2078,16 @@ Since the odds is an monotone function, switching lowest risk with highest means
 \chapter{Outlook}
 %Outlook (up to one page)
 
-%more statistics for non binary
-%if binary possibly take inspiration from g-g?
+more statistics for non binary
+if binary possibly take inspiration from g-g? lots of methods for filtering there
 
 gpus good for interaction, how about xeon phi?
 depends on method, some methods diverge and stuff, for instance article thingy uses GPU but has divergence stuff, maybe xeon phi/cpu cluster better for them?
 
 small parts on cpu, not so good
+
+use clusters and move more to gpu next step
+also need permutation tests or bootstrap, or other validation method
 
 \newpage
 \bibliographystyle{ieeetr}
@@ -2068,6 +2099,7 @@ small parts on cpu, not so good
 
 \addcontentsline{toc}{section}{List of Abbreviations}
 \section*{List of Abbreviations}
+%TODO either update list of abbreviations or remove
 
 \begin{description}
 \item[MAF] \hfill \\
@@ -2105,7 +2137,8 @@ small parts on cpu, not so good
 \item[MIDSD] \hfill \\
   Random Forest
 
-% a t g c IDE SVD
+%genetics a t g c
+%IDE SVD
 \end{description}
 
 \cleardoublepage
@@ -2207,7 +2240,7 @@ $caseMaxRatio$ and $controlMaxRatio$ is the frequency of $caseMaxAllele$ and $co
 \label{alg:jeira_geisa_risk_allele}
 \end{algorithm}
 
-The allele frequencies can be shown in an $2 \times 2$ table. The columns are the frequencies for the different alleles and the rows are the groups(case and control). It can be split into four cases shown in table \ref{table:risk_allele_cases}. The four cases comes from the four cases of possible directions of the inequality between the maximum frequencies of the two groups. There is up, down, down diagonally and up diagonally. The rest of the inequalities can be found by using that the sum of each row is 1.\\
+The allele frequencies can be shown in an $2 \times 2$ table. The columns are the frequencies for the different alleles and the rows are the groups(case and control). It can be split into four cases shown in table \ref{table:risk_allele_cases}. The four cases comes from the four cases of possible directions of the inequality between the maximum frequencies of the two groups. There is up, down, down diagonally and up diagonally, call them case 1 to 4. The rest of the inequalities can be found by using that the sum of each row is 1.\\
 
 \begin{table}[h]
 \centering
@@ -2226,10 +2259,9 @@ The allele frequencies can be shown in an $2 \times 2$ table. The columns are th
   Control & Min & $\leftarrow$ & Max & & Min & $\leftarrow$ & Max \\
   \hline  
 \end{tabular}
-\caption{The four cases of allele frequencies}
+\caption{The four cases of allele frequencies. Case 1 upper left, case 2 upper right, case 3 lower left, case 4 lower right}
 \label{table:risk_allele_cases}
 \end{table}
-%TODO clarify which case is which
 
 By using the previously mentioned definitions in section \ref{risk_allele} and the JEIRAs and GEISAs algorithm \ref{alg:jeira_geisa_risk_allele} what the risk allele is according to them for each case is shown in table \ref{table:risk_allele_comp}. Each definition correspond to examining the inequalities in the cases. For the definition using MAF the direction of the inequality from case minimum to control minimum determines it. If it points towards control the the case minor allele is the risk allele. For JEIRA and GEISA if the maximum for case points straight down to the maximum for control then the major case allele is the risk allele. This only happens in case 1. For increased frequency in case it is the allele which has the inequality pointing straight down.\\
 

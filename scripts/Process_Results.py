@@ -4,7 +4,7 @@ import sys
 
 sys.stderr.write('Processing results\n')
 
-fname="/home/daniel/Project/Results/Timings/10_streams_nocluster_10ki_10ks_out.txt"
+fname="/home/daniel/Project/Results/100streams/10ks_noferm_prof_100ki_0cov_10streams_out.txt"
 
 outFile=open(fname+"_out.csv",'w')
 

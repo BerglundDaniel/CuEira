@@ -8,8 +8,8 @@ o_dir="/cfs/zorn/nobackup/d/dabergl/Results/"
 d_dir="/cfs/zorn/nobackup/d/dabergl/Data/Simulated_Data/"
 
 s_a=["10000","100000","500000"]
-i_a=["10000","100000","200000"]
-cov_a=["0","10","20"]
+i_a=["2000","10000","100000","200000"]
+cov_a=["0","5","10","20"]
 gpu_a=["1","2","3","4"]
 streams_a=["1","2","3","4"]
 

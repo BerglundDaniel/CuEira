@@ -10,12 +10,14 @@
 \usepackage{subcaption}
 \usepackage{listings}
 \usepackage{xcolor}
-\usepackage[ruled,vlined]{algorithm2e}
+\usepackage[plain,vlined]{algorithm2e}
 
 \setcounter{secnumdepth}{5}
 \setlength{\parindent}{0in}
 
 \usetheme{Antibes}
+
+\newcommand{\squeezeup}{\vspace{0mm}}
 
 \renewcommand{\topfraction}{0.85}
 \renewcommand{\textfraction}{0.1}
@@ -53,10 +55,6 @@
 \author{Daniel Berglund}
 \date{December 2014}
 
-%Other Ideas:
-%Risk allele
-%Extending add
-
 \begin{document}
 
 \begin{frame}
@@ -65,44 +63,588 @@
 
 \section*{Outline}
 \begin{frame}
+\frametitle{Outline}
  \tableofcontents
 \end{frame}
 
 \section{Background}
 
-%GWAS
-
-%Interaction
-
-\subsection{Statistics}
-
 \begin{frame}
-\frametitle{Contingency Table}
- \begin{table}[h]
- \centering
-\begin{tabular}{| l c c |}
-  \hline
-  & Lung cancer & No lung cancer\\
-  \hline
-  Smoker & 688 & 650 \\
-  Non smoker & 21 & 59 \\
-  \hline  
-\end{tabular}
-\label{table:contingency_table}
-\end{table}
+\frametitle{Problem and Aim}
+
+\begin{itemize}
+ \item Genetic and environment factors are know to affect the risks of diseases
+ \item Interaction can exist between these factors
+ \item Logistic Regression can be used to search for interaction
+\begin{itemize}
+ \item Iterative method
+ \item Models hidden probabilities of the outcomes as a linear model
+\end{itemize}
+\end{itemize}
+
 \end{frame}
 
 \begin{frame}
-\frametitle{Relative Risk}
+\frametitle{Problem and Aim}
+
+\begin{itemize}
+ \item Data amounts are increasing
+ \item Need for more speed
+ \item GPUs have previously shown good results for gene-gene interaction
+\end{itemize}
+
+\end{frame}
+
+%\begin{frame}
+%\frametitle{The Data}
+ 
+%\begin{itemize}
+% \item The data consists of individuals
+%\end{itemize}
+
+%\end{frame}
+
+%\begin{frame}
+%\frametitle{Risk Allele}
+ 
+%\begin{itemize}
+% \item Asdf
+%\end{itemize}
+
+%\end{frame}
+
+\begin{frame}
+\frametitle{Recoding}
+
+\begin{itemize}
+ \item The measures for additive interaction are defined for positive odds ratios
+ \item Can be adjusted by recoding
+ \item Recoding switches the reference group with the group with lowest risks
+ \item Guarantees that $OR \geq 1$
+\end{itemize}
+
+\end{frame}
+
+%\subsection{Computer Architecture}
+
+%lots of optimizations CPU picture
+%knowing is imporant, take the matrix matrix multiplaction example
+
+\begin{frame}
+\frametitle{Concurrency and Dinning Philosophers}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=5cm]{../dining_philosophers.png}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{A Possible Solution} 
+
+\begin{itemize}
+ \item Think
+ \item Wait for a fork to become available and pick up that fork
+ \item Wait for and pick up the other fork
+ \item Eat
+ \item Put down the forks one by one
+ \item Go back to thinking
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Deadlock}
+
+\begin{itemize}
+ \item Stuck when everyone holds one fork
+ \item This is a deadlock
+ \item Can be solved with a mediator
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Concurrency Architectures}
+ \begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=3.5cm]{../SISD}
+                \caption*{SISD}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=3.5cm]{../MISD}
+                \caption*{MISD}
+        \end{subfigure}
+
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=3.5cm]{../SIMD}
+                \caption*{SIMD}
+        \end{subfigure}
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=3.5cm]{../MIMD}
+                \caption*{MIMD}
+        \end{subfigure}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{GPU Architecture}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=3.6cm]{../gpu_scheme.png}
+    \label{fig:gpu_scheme}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{GPU Architecture}
+
+\begin{itemize}
+ \item Separate memory from the normal RAM
+ \item Data has to be explicitly transferred to and from the GPU
+ \item Simpler cores than CPU cores
+ \item Single instruction, multiple thread(SIMT)
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{CUDA}
+
+\begin{itemize}
+ \item For NVIDIA GPUs by NVIDIA
+ \item Supported by various libraries, CUBLAS, ArrayFire, and so on
+ \item Calculations done by kernels
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Kernel Example}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}
+\SetKwFor{For}{for}{}{}
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}
+\SetKwFor{While}{while}{}{}
+\SetKwRepeat{Repeat}{repeat}{until}
+\AlgoDisplayBlockMarkers
+\SetAlgoNoLine
+\SetFuncSty{}
+\SetArgSty{}
+
+\BlankLine \BlankLine
+
+\SetKwFunction{KwFn}{\textcolor{kernel}{\_\_global\_\_} void \KwSty{Add}}
+
+\Fn(){\KwFn{\textcolor{keyword}{float}* $A$, \textcolor{keyword}{float}* $B$, \textcolor{keyword}{float}* $C$}}{
+\textcolor{keyword}{int} $i$ = threadIdx.$x$;\;
+$C[i]$ = $A[i]$ $+$ $B[i]$;\;
+}
+
+\end{algorithm}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+
+\BlankLine \BlankLine
+
+\textbf{Add}\textcolor{kernel}{$<<<N$,$M>>>$}($A, B, C$);\;
+
+\end{algorithm}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Blocks}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{../2D_grid.png}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Blocks}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{../grid_scale.png}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Streams}
+
+\begin{itemize}
+ \item Kernels and transfers can be performed on streams
+ \item Transfers and kernels can overlap when using streams
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Streams}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{../StreamsQueue.png}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Streams}
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+                \includegraphics[width=0.9cm]{../StreamsQueueStreamLoop.png}
+                \caption*{Looped over stream}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+                \includegraphics[width=0.9cm]{../StreamsQueueKernelLoop.png}
+                \caption*{Looped over kernel}
+        \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+\section{Implementation}
+
+%\begin{frame}
+%\tableofcontents[currentsection]
+%\end{frame}
+
+%\subsection{Clean Code and Software Design}
+
+%\begin{frame}
+%\frametitle{Repeatability in Computer Science}
+
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=9cm]{../comp_repro.png}
+%    \label{fig:speed}
+%\end{figure}
+
+%\end{frame}
+
+\begin{frame}
+\frametitle{Agile Development and Clean Code}
+\begin{itemize}
+ \item Code in small units, commonly classes
+ \item Unit testing, test the units in isolation
+ \item Mocks, i.e. fake objects
+ \item If a unit is working incorrectly only its corresponding unit test should fail
+ \item Integration tests can be used to test if the units work properly together
+\end{itemize}
+
+\end{frame}
+
+%why clean code/good code/testing
+%because of the previsous and maintainability
+%need to trust the code, check math, data quality etc, but not code quality
+%not all errors causes fatal or obvious wrong results
+%example of the matrix thing I did, y=ax*x+y
+
+%Wrappers
+\begin{frame}
+\frametitle{Wrappers}
+
+\begin{itemize}
+ \item Wrappers are used to ``fix'' interfaces
+ \item Does not perform the task, delegates it
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Wrappers}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+
+\textbf{cublasSgemv}($cublasHandle$, $transpose$, $m$, $n$, $\alpha$, $matrix$, $ld\_matrix$, $vector$, $inc\_vector$,
+      $\beta$, $result$, $inc\_result$);
+
+\end{algorithm}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+\SetKwProg{Fn}{}{}{}\SetKwFunction{FRecurs}{void FnRecursive}%
+\SetKwFor{For}{for}{}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{elif}{else}{}%
+\SetKwFor{While}{while}{}{}%
+\SetKwRepeat{Repeat}{repeat}{until}%
+\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+
+\BlankLine \BlankLine
+
+\textbf{matrixVectorMultiply}($matrix$, $vector$, $result$, $\alpha$, $\beta$);
+
+\end{algorithm}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Structure of Program}
+
+\begin{itemize}
+ \item Modularised
+ \item Almost full unit test coverage
+ \item Handles each gene environment combination independently
+ \item Threads fetches a genetic factor from a queue
+ \item Each thread corresponds to a stream on a GPU
+ \item Some parts are done using CPU
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Model}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{../lr_structure.png}
+\end{figure}
+
+\end{frame}
+
+\section{Results}
+
+%\begin{frame}
+%\tableofcontents[currentsection]
+%\end{frame}
+
+%\subsection{Streams}
+
+\begin{frame}
+\frametitle{Streams}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{../gpu_10streams_10ks_100ki.png}
+\end{figure}
+
+\end{frame}
+
+%\subsection{Scaling over Multiple GPUs}
+
+\begin{frame}
+\frametitle{Saturated Streams}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{../saturated_seconds_ind_cov_0.png}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Speedup and Efficiency}
 
 \begin{equation*}
-RR=\frac{\pi_1}{\pi_2}
+S(p)=\frac{T(1)}{T(p)}
+\end{equation*}
+
+\begin{equation*}
+E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}
 \end{equation*}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Odds and Odds Ratio}
+\frametitle{Speedup and Efficiency}
+
+Versus one GPU
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../saturated_speedup_individuals_cov_0.png}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../saturated_efficiency_individuals_cov_0.png}
+        \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Time Distribution for Kernels}
+
+{\tiny $*$ is element by element multiplication}
+
+\squeezeup
+
+\begin{table}[h]
+\centering
+\begin{tabular}{| l | l | c | c | c | c |}
+  \hline
+  Covariates & & 0 & 0 & 20 & 20 \\
+  Individuals & & 10k & 100k & 10k  & 100k  \\
+  \hline
+  $M1^T \cdot V1$ & CUBLAS & 66.6 & 72.2 & 43 & 53.9\\
+  $M1 \cdot M2$ & CUBLAS & 18.9 & 14.4 & 36.1 & 25.8\\
+  $M1 \cdot V1$ & CUBLAS & 7.1 & 8.1 & 5.9 & 7.4\\
+  $V1 * V2$ & Custom & 2.9 & 2.3 & 11.8 & 10.6\\
+  $\frac{e^{V1}}{1+e^{V1}}$ & Custom & 1.1 & 0.9 & 0.7 & 0.7\\
+  %$V1*\log(V2)+$ \newline $(1-V1)*\log(1-V2)$
+  
+{$\begin{aligned}
+& V1*\log(V2)+\\
+& (1-V1)*\log(1-V2)
+\end{aligned}$}
+  & Custom & 0.8 & 0.6 & 0.6 & 0.5\\
+    
+  $V1 - V2$ & Custom & 0.7 & 0.6 & 0.5 & 0.4\\
+  $V1*(1-V1)$ & Custom & 0.7 & 0.5 & 0.4 & 0.4\\
+  \emph{Dot product} & CUBLAS & 0.7 & 0.3 & 0.3 & 0.2\\
+  $\Sigma V1$ & CUBLAS & 0.5 & 0.1 & 0.2 & 0.1\\
+  \hline  
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+%\subsection{Single Versus Double Precision}
+
+\begin{frame}
+\frametitle{Single Versus Double Precision}
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+                \includegraphics[width=5cm]{../double_comp_cov_ind_10000.png}
+                \caption*{10000 individuals}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+                \includegraphics[width=5cm]{../double_comp_ind_cov_0.png}
+                \caption*{0 covariates}
+        \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+%\subsection{Syncing}
+
+\begin{frame}
+\frametitle{Syncing}
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../sync_comp_cov_ind_2000.png}
+                \caption*{2000 individuals}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../sync_comp_cov_ind_2e+05.png}
+                \caption*{200 000 individuals}
+        \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Synchronisation}
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../timedist_LR_ind_10ks_0cov_gpu4.png}
+                \caption*{Less synchronisation}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../timedist_LR_ind_10ks_0cov_gpu4_sync.png}
+                \caption*{Always synchronise}
+        \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+\section{Conclusions and Outlook}
+
+\begin{frame}
+\frametitle{Conclusions}
+
+\begin{itemize}
+ \item GPUs suits well for interaction, depending on method
+ \item Use one, perhaps two, GPUs with the program
+ \item Single precision gives better performance than double precision
+ \item Increased synchronisation increases performance slightly when number of individuals is above 100 000
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Outlook}
+
+\begin{itemize}
+ \item Moving more parts to the GPU could fix the bad scaling
+ \item Clusters for more speed
+ \item Need for better statistics and definitions of interaction for non binary factors
+ \item For binary factors look into gene-gene interaction methods if further speed is needed
+\end{itemize}
+
+\end{frame}
+
+%TODO questions slide
+
+\begin{frame}
+\frametitle{Matrix Decomposition}
+
+\begin{itemize}
+ \item Pseudo inverse, $A^+$, is defined for general matrices
+ \item Can be found by using singular value decomposition
+\end{itemize}
+
+\begin{equation*}
+A=U \Sigma V^T
+\end{equation*}
+
+\begin{equation*}
+A^+=V \Sigma^+ U^T
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Odds, Odds Ratio and Additive Interaction}
 
 \begin{equation*}\label{eq:odds}
 \Omega=\frac{\pi}{1-\pi}
@@ -112,53 +654,14 @@ RR=\frac{\pi_1}{\pi_2}
 \theta=\frac{\Omega_1}{\Omega_2}
 \end{equation*}
 
-\end{frame}
-
-\begin{frame}
-\frametitle{Additive Interaction}
-
 \begin{equation*}
-OR_{both\:factors\:present}>OR_{first\:factor\:present}+OR_{second\:factor\:present}-1
+\theta_{both\:factors\:present}>\theta_{first\:factor\:present}+\theta_{second\:factor\:present}-1
 \end{equation*}
 
 \end{frame}
 
-\begin{frame}
-\frametitle{Logistic Regression}
- Asdf
-\end{frame}
+%TODO make slides about possible questions
 
-%Measures
-
-%Recode
-
-%CUDA
-
-\begin{frame}
-
-\frametitle{Comp repro}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{comp_repro.png}
-    \label{fig:speed}
-\end{figure}
-
-\end{frame}
-
-%Clean code
-
-%performance stuff
-
-\section{Implementation}
-
-\section{Results}
-
-%Conclussions
-%-gpu is kinda nice for interaction
-%-don't do small stuff on cpu
-
-%reading tips
-
-%questions
+%opencl vs cuda
 
 \end{document}

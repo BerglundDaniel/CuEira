@@ -33,6 +33,7 @@ protected:
   virtual void TearDown();
 
   const int numberOfPredictors;
+  const int numberOfIterations;
   Model::LogisticRegression::LogisticRegressionResultMock* logisticRegressionResultMock;
 
   Container::HostMatrix* inverseInfoMat;
@@ -48,7 +49,7 @@ OddsRatioStatisticsTest::OddsRatioStatisticsTest() :
     numberOfPredictors(4), logisticRegressionResultMock(nullptr), oddsRatios(numberOfPredictors), oddsRatiosLow(
         numberOfPredictors), oddsRatiosHigh(numberOfPredictors), beta(
         new Container::RegularHostVector(numberOfPredictors)), inverseInfoMat(
-        new Container::RegularHostMatrix(numberOfPredictors, numberOfPredictors)) {
+        new Container::RegularHostMatrix(numberOfPredictors, numberOfPredictors)), numberOfIterations(10) {
 
   for(int i = 0; i < numberOfPredictors; ++i){
     (*beta)(i) = (i + 7) / 10.3;
@@ -79,6 +80,8 @@ void OddsRatioStatisticsTest::SetUp() {
   EXPECT_CALL(*logisticRegressionResultMock, getBeta()).Times(1).WillRepeatedly(ReturnRef(*beta));
   EXPECT_CALL(*logisticRegressionResultMock, getInverseInformationMatrix()).Times(1).WillRepeatedly(
       ReturnRef(*inverseInfoMat));
+  EXPECT_CALL(*logisticRegressionResultMock, getNumberOfIterations()).Times(1).WillRepeatedly(
+      Return(numberOfIterations));
 }
 
 void OddsRatioStatisticsTest::TearDown() {

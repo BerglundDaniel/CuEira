@@ -113,8 +113,9 @@ public:
     stream.syncStream();
   }
 
+  const Stream& stream; //FIXME should be private, fix in next refactor
+
 private:
-  const Stream& stream;
   const cublasHandle_t& cublasHandle;
   const cudaStream_t& cudaStream;
   static const int numberOfThreadsPerBlock = 256;

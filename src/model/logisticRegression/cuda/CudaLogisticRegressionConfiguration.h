@@ -22,7 +22,7 @@
 #include <LogisticRegressionConfiguration.h>
 
 #ifdef PROFILE
-#include <boost/chrono/chrono_io.hpp>
+#include <Event.h>
 #endif
 
 namespace CuEira {
@@ -86,7 +86,20 @@ public:
   CudaLogisticRegressionConfiguration& operator=(CudaLogisticRegressionConfiguration&&) = delete;
 
 #ifdef PROFILE
-  static boost::chrono::duration<long long, boost::nano> timeSpentTransferToDevice;
+  Event* beforeCov;
+  Event* afterCov;
+
+  Event* beforeIntercept;
+  Event* afterIntercept;
+
+  Event* beforeSNP;
+  Event* afterSNP;
+
+  Event* beforeEnv;
+  Event* afterEnv;
+
+  Event* beforeInter;
+  Event* afterInter;
 #endif
 
 protected:

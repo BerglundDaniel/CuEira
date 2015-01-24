@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
   std::vector<std::string>* covariatesNames = nullptr;
   if(configuration.covariateFileSpecified()){
 #ifdef PROFILE
-        boost::chrono::system_clock::time_point beforeCovPoint = boost::chrono::system_clock::now();
+    boost::chrono::system_clock::time_point beforeCovPoint = boost::chrono::system_clock::now();
 #endif
     std::pair<Container::HostMatrix*, std::vector<std::string>*>* covPair = dataFilesReader->readCovariates(
         *personHandler);
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
     //Start threads
     for(int streamNumber = 0; streamNumber < numberOfStreams; ++streamNumber){
       std::thread* thread = new std::thread(CuEira::CUDA::GPUWorkerThread, &configuration, device, dataHandlerFactory,
-          resultWriter, (Container::PinnedHostMatrix*)covariates);
+          resultWriter, (Container::PinnedHostMatrix*) covariates);
       workers[deviceNumber * numberOfStreams + streamNumber] = thread;
     }
   }
@@ -213,16 +213,10 @@ int main(int argc, char* argv[]) {
 
   std::cerr << "CudaLogisticRegression" << std::endl;
   std::cerr << "Time spent CudaLR: " << boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentTotal) << std::endl;
-  std::cerr << "Time spent GPU: " << boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentGPU) << std::endl;
   std::cerr << "Time spent CPU: " << boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentCPU) << std::endl;
-  std::cerr << "Time spent LR transferFromDevice: " <<
-  boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentTransferFromDevice) << std::endl;
-  std::cerr << "Time spent LR transferToDevice: " <<
-  boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentTransferToDevice) << std::endl;
-
-  std::cerr << "CudaLogisticRegressionConfiguration" << std::endl;
-  std::cerr << "Time spent LRConfig transferToDevice: " <<
-  boost::chrono::duration_cast<boost::chrono::seconds>(Model::LogisticRegression::CUDA::CudaLogisticRegressionConfiguration::timeSpentTransferToDevice) << std::endl;
+  std::cerr << "Time spent GPU: " << Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentGPU / 1000 << " seconds" << std::endl;
+  std::cerr << "Time spent LR transferFromDevice: " << Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentTransferFromDevice / 1000 << " seconds" << std::endl;
+  std::cerr << "Time spent LR transferToDevice: " << Model::LogisticRegression::CUDA::CudaLogisticRegression::timeSpentTransferToDevice / 1000 << " seconds" << std::endl;
 
   boost::chrono::system_clock::time_point afterCalcPoint = boost::chrono::system_clock::now();
   boost::chrono::duration<double> diffCalcSec = afterCalcPoint - afterInitPoint;

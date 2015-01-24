@@ -7,10 +7,11 @@ namespace CUDA {
 
 #ifdef PROFILE
 boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentTotal;
-boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentGPU;
 boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentCPU;
-boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentTransferFromDevice;
-boost::chrono::duration<long long, boost::nano> CudaLogisticRegression::timeSpentTransferToDevice;
+
+float CudaLogisticRegression::timeSpentGPU;
+float CudaLogisticRegression::timeSpentTransferFromDevice;
+float CudaLogisticRegression::timeSpentTransferToDevice;
 #endif
 
 CudaLogisticRegression::CudaLogisticRegression(CudaLogisticRegressionConfiguration* lrConfiguration) :
@@ -40,8 +41,11 @@ CudaLogisticRegression::~CudaLogisticRegression() {
 LogisticRegressionResult* CudaLogisticRegression::calculate() {
 #ifdef PROFILE
   boost::chrono::system_clock::time_point before = boost::chrono::system_clock::now();
+  Event* beforeTransferElse = nullptr;
+  Event* afterTransferElse = nullptr;
 #endif
 
+  const Stream& stream = kernelWrapper->stream;
   PRECISION diffSumHost = 0;
   logLikelihood = 0;
 
@@ -49,13 +53,15 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
   blasWrapper->copyVector(*defaultBetaCoefficents, *betaCoefficentsHost);
 
 #ifdef PROFILE
-  boost::chrono::system_clock::time_point beforeTransfer_beta = boost::chrono::system_clock::now();
+  Event beforeInitTransfer(stream);
 #endif
   hostToDevice->transferVector(*defaultBetaCoefficents, betaCoefficentsDevice->getMemoryPointer());
-  kernelWrapper->syncStream();
 #ifdef PROFILE
-  boost::chrono::system_clock::time_point afterTransfer_beta = boost::chrono::system_clock::now();
-  timeSpentTransferToDevice+=afterTransfer_beta - beforeTransfer_beta;
+  Event afterInitTransfer(stream);
+#endif
+
+#ifdef FERMI
+  kernelWrapper->syncStream();
 #endif
 
   Container::PinnedHostMatrix* informationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
@@ -66,7 +72,7 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
   int iterationNumber = 1;
   for(iterationNumber = 1; iterationNumber < maxIterations; ++iterationNumber){
 #ifdef PROFILE
-    boost::chrono::system_clock::time_point beforeGPU = boost::chrono::system_clock::now();
+    Event beforeKernel(stream);
 #endif
 
     calcuateProbabilites(*predictorsDevice, *betaCoefficentsDevice, *probabilitesDevice, *workVectorNx1Device);
@@ -77,12 +83,7 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
         *workMatrixNxMDevice);
 
 #ifdef PROFILE
-    kernelWrapper->syncStream();
-
-    boost::chrono::system_clock::time_point afterGPU = boost::chrono::system_clock::now();
-    timeSpentGPU+=afterGPU - beforeGPU;
-
-    boost::chrono::system_clock::time_point beforeTransfer = boost::chrono::system_clock::now();
+    Event afterKernel(stream);
 #endif
 
     //Transfer needed data to host
@@ -92,11 +93,16 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
 #endif
 
     deviceToHost->transferVector(*scoresDevice, scoresHost->getMemoryPointer());
-    kernelWrapper->syncStream(); //Because of the transfers
 
 #ifdef PROFILE
-    boost::chrono::system_clock::time_point afterTransfer = boost::chrono::system_clock::now();
-    timeSpentTransferFromDevice+=afterTransfer - beforeTransfer;
+    Event afterTransfer(stream);
+#endif
+
+    kernelWrapper->syncStream();
+
+#ifdef PROFILE
+    timeSpentGPU+=afterKernel - beforeKernel;
+    timeSpentTransferFromDevice+= afterTransfer - afterKernel;
 
     boost::chrono::system_clock::time_point beforeCPU = boost::chrono::system_clock::now();
 #endif
@@ -116,53 +122,118 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
     timeSpentCPU+=afterCPU - beforeCPU;
 #endif
 
+#ifdef PROFILE
+    if(afterTransferElse!=nullptr){
+      timeSpentTransferFromDevice+= *afterTransferElse - *beforeTransferElse;
+    }
+#endif
+
     if(diffSumHost < convergenceThreshold){
 #ifdef PROFILE
-      boost::chrono::system_clock::time_point beforeGPU_likeli = boost::chrono::system_clock::now();
+      Event beforeKernelBreak(stream);
 #endif
       calculateLogLikelihood(*outcomesDevice, *oneVector, *probabilitesDevice, *workVectorNx1Device, logLikelihood);
 
 #ifdef PROFILE
-      kernelWrapper->syncStream();
-      boost::chrono::system_clock::time_point afterGPU_likeli = boost::chrono::system_clock::now();
-      timeSpentGPU+=afterGPU_likeli - beforeGPU_likeli;
-
-      boost::chrono::system_clock::time_point beforeTransfer_likeli = boost::chrono::system_clock::now();
+      Event afterKernelBreak(stream);
 #endif
 
       //Transfer the information matrix again since it was destroyed during the SVD.
       deviceToHost->transferMatrix(*informationMatrixDevice, informationMatrixHost->getMemoryPointer());
 
 #ifdef PROFILE
+      Event afterTransferBreak(stream);
+#endif
+
       kernelWrapper->syncStream();
-      boost::chrono::system_clock::time_point afterTransfer_likeli = boost::chrono::system_clock::now();
-      timeSpentTransferFromDevice+=afterTransfer_likeli - beforeTransfer_likeli;
+
+#ifdef PROFILE
+      timeSpentGPU+= afterKernelBreak - beforeKernelBreak;
+      timeSpentTransferFromDevice+= afterTransferBreak - afterKernelBreak;
 #endif
 
       break;
     }else{
 #ifdef PROFILE
-      boost::chrono::system_clock::time_point beforeTransfer_new_it = boost::chrono::system_clock::now();
+      delete beforeTransferElse;
+      delete afterTransferElse;
+
+      beforeTransferElse = new Event(stream);
 #endif
       hostToDevice->transferVector(*betaCoefficentsHost, betaCoefficentsDevice->getMemoryPointer());
-      kernelWrapper->syncStream();
 #ifdef PROFILE
-      boost::chrono::system_clock::time_point afterTransfer_new_it = boost::chrono::system_clock::now();
-      timeSpentTransferToDevice+=afterTransfer_new_it - beforeTransfer_new_it;
+      afterTransferElse = new Event(stream);
+#endif
+
+#ifdef FERMI
+      kernelWrapper->syncStream();
 #endif
     }
   } /* for iterationNumber */
 
-  kernelWrapper->syncStream();
-
 #ifdef PROFILE
+  timeSpentTransferToDevice+= afterInitTransfer - beforeInitTransfer;
+
   boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
   timeSpentTotal+=after - before;
+
+  if(lrConfiguration->beforeCov != nullptr){
+    timeSpentTransferToDevice+= *lrConfiguration->afterCov - *lrConfiguration->beforeCov;
+
+    delete lrConfiguration->beforeCov;
+    delete lrConfiguration->afterCov;
+    lrConfiguration->beforeCov = nullptr;
+    lrConfiguration->afterCov = nullptr;
+  }
+
+  if(lrConfiguration->beforeIntercept != nullptr){
+    timeSpentTransferToDevice+= *lrConfiguration->afterIntercept - *lrConfiguration->beforeIntercept;
+
+    delete lrConfiguration->beforeIntercept;
+    delete lrConfiguration->afterIntercept;
+    lrConfiguration->beforeIntercept = nullptr;
+    lrConfiguration->afterIntercept = nullptr;
+  }
+
+  if(lrConfiguration->beforeSNP != nullptr){
+    timeSpentTransferToDevice+= *lrConfiguration->afterSNP - *lrConfiguration->beforeSNP;
+
+    delete lrConfiguration->beforeSNP;
+    delete lrConfiguration->afterSNP;
+    lrConfiguration->beforeSNP = nullptr;
+    lrConfiguration->afterSNP = nullptr;
+  }
+
+  if(lrConfiguration->beforeEnv != nullptr){
+    timeSpentTransferToDevice+= *lrConfiguration->afterEnv - *lrConfiguration->beforeEnv;
+
+    delete lrConfiguration->beforeEnv;
+    delete lrConfiguration->afterEnv;
+    lrConfiguration->beforeEnv = nullptr;
+    lrConfiguration->afterEnv = nullptr;
+  }
+
+  if(lrConfiguration->beforeInter != nullptr){
+    timeSpentTransferToDevice+= *lrConfiguration->afterInter - *lrConfiguration->beforeInter;
+
+    delete lrConfiguration->beforeInter;
+    delete lrConfiguration->afterInter;
+    lrConfiguration->beforeInter = nullptr;
+    lrConfiguration->afterInter = nullptr;
+  }
+
+  if(iterationNumber != 1){
+    timeSpentTransferFromDevice+= *afterTransferElse - *beforeTransferElse;
+  }
+  delete beforeTransferElse;
+  delete afterTransferElse;
+
 #endif
 
   return new LogisticRegressionResult(betaCoefficentsHost, informationMatrixHost, inverseInformationMatrixHost,
       iterationNumber, logLikelihood);
 }
+
 void CudaLogisticRegression::calcuateProbabilites(const DeviceMatrix& predictorsDevice,
     const DeviceVector& betaCoefficentsDevice, DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device) {
   kernelWrapper->matrixVectorMultiply(predictorsDevice, betaCoefficentsDevice, workVectorNx1Device);

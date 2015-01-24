@@ -51,10 +51,10 @@ void ResultWriter::printHeader() {
       << "no_alleles_minor_case,no_alleles_major_case,no_alleles_minor_control,no_alleles_major_control,no_alleles_minor,no_alleles_major,"
       << "freq_alleles_minor_case,freq_alleles_major_case,freq_alleles_minor_control,freq_alleles_major_control,freq_alleles_minor,freq_alleles_major,"
       << "no_snp0_env0_case,no_snp0_env0_control,no_snp1_env0_case,no_snp1_env0_control,no_snp0_env1_case,no_snp0_env1_control,no_snp1_env1_case,no_snp1_env1_control,"
-      << "ap,reri,OR_add_snp,OR_add_snp_L,OR_add_snp_H,OR_add_env,OR_env_add_L,OR_env_add_H,OR_add_inter,OR_add_inter_L,OR_add_inter_H,";
+      << "ap,reri,numberOfIterations_add,OR_add_snp,OR_add_snp_L,OR_add_snp_H,OR_add_env,OR_env_add_L,OR_env_add_H,OR_add_inter,OR_add_inter_L,OR_add_inter_H,";
 
   outputStream
-      << "OR_mult_snp,OR_mult_snp_L,OR_mult_snp_H,OR_mult_env,OR_mult_env_L,OR_mult_env_H,OR_mult_inter,OR_mult_inter_L,OR_mult_inter_H,";
+      << "numberOfIterations_mult,OR_mult_snp,OR_mult_snp_L,OR_mult_snp_H,OR_mult_env,OR_mult_env_L,OR_mult_env_H,OR_mult_inter,OR_mult_inter_L,OR_mult_inter_H,";
 
   outputStream << "recode" << std::endl;
 }

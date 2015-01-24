@@ -7,13 +7,14 @@ OddsRatioStatistics::OddsRatioStatistics(
     logisticRegressionResult(logisticRegressionResult), betaCoefficents(&logisticRegressionResult->getBeta()), standardError(
         calculateStandardError(logisticRegressionResult->getInverseInformationMatrix())), oddsRatios(
         calculateOddsRatios(*betaCoefficents)), oddsRatiosLow(calculateOddsRatiosLow(*betaCoefficents, *standardError)), oddsRatiosHigh(
-        calculateOddsRatiosHigh(*betaCoefficents, *standardError)) {
+        calculateOddsRatiosHigh(*betaCoefficents, *standardError)), numberOfIterations(
+        logisticRegressionResult->getNumberOfIterations()) {
 
 }
 
 OddsRatioStatistics::OddsRatioStatistics() :
     logisticRegressionResult(nullptr), standardError(nullptr), oddsRatios(nullptr), oddsRatiosLow(nullptr), oddsRatiosHigh(
-        nullptr), betaCoefficents(nullptr) {
+        nullptr), betaCoefficents(nullptr), numberOfIterations(0) {
 
 }
 
@@ -86,6 +87,8 @@ std::vector<double>* OddsRatioStatistics::calculateOddsRatiosHigh(const Containe
 }
 
 void OddsRatioStatistics::toOstream(std::ostream& os) const {
+  os << numberOfIterations << ",";
+
   //Print ORs including covariates if any
   const int size = betaCoefficents->getNumberOfRows() - 1; //Skipping the intercept
   for(int i = 0; i < size - 1; ++i){

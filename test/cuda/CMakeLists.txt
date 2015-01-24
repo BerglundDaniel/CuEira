@@ -15,5 +15,6 @@ set(TEST_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/DeviceTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/StreamTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/StreamFactoryTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/EventTest.cpp
   PARENT_SCOPE
 )

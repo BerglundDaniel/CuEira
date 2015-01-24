@@ -25,7 +25,7 @@ public:
   bool operator==(const Id& otherId) const;
 
 private:
-  std::string id;
+  const std::string id;
 };
 
 } /* namespace CuEira */

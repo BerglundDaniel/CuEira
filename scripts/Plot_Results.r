@@ -54,8 +54,6 @@ for(cov in 1:ncov){
   for(gpu in 1:ngpu){
     lines(ind_a,data_stream[gpu,1:nind],type="b",lwd=2,lty=lty_a[gpu],pch=pch_a[gpu])
   }
-  
-  
 
   title("Execution Time",cex.main=s_title)
   legend(xrange[1], yrange[2], c(1,2,3,4), cex=s_legend, pch=pch_a, lty=lty_a, title="GPU")
@@ -281,7 +279,4 @@ for(gpu in 1:ngpu){
   dev.off()
 }
 }
-
-#SNP
-#TODO
 

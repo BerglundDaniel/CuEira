@@ -22,6 +22,8 @@
 #include <PinnedHostMatrix.h>
 #include <RegularHostVector.h>
 #include <RegularHostMatrix.h>
+#include <Event.h>
+#include <Stream.h> //FIXME TMP
 
 #ifdef PROFILE
 #include <boost/chrono/chrono_io.hpp>
@@ -63,10 +65,10 @@ public:
 
 #ifdef PROFILE
   static boost::chrono::duration<long long, boost::nano> timeSpentTotal;
-  static boost::chrono::duration<long long, boost::nano> timeSpentGPU;
   static boost::chrono::duration<long long, boost::nano> timeSpentCPU;
-  static boost::chrono::duration<long long, boost::nano> timeSpentTransferFromDevice;
-  static boost::chrono::duration<long long, boost::nano> timeSpentTransferToDevice;
+  static float timeSpentGPU;
+  static float timeSpentTransferFromDevice;
+  static float timeSpentTransferToDevice;
 #endif
 
 protected:

@@ -622,9 +622,9 @@ TEST_F(CudaLogisticRegressionTest, SmallTestNoCovIntOnly) {
   delete lrResult;
 }
 
-TEST_F(CudaLogisticRegressionTest, SmallTestCov) {
-  //TODO
-}
+//TEST_F(CudaLogisticRegressionTest, SmallTestCov) {
+  //TODO write test with cov
+//}
 
 } /* namespace CUDA */
 } /* namespace LogisticRegression */

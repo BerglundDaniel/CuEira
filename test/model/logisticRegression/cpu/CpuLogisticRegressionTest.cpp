@@ -505,9 +505,9 @@ TEST_F(CpuLogisticRegressionTest, SmallTestNoCovIntOnly) {
   delete lrResult;
 }
 
-TEST_F(CpuLogisticRegressionTest, SmallTestCov) {
-  //TODO
-}
+//TEST_F(CpuLogisticRegressionTest, SmallTestCov) {
+//TODO
+//}
 
 } /* namespace CPU */
 } /* namespace LogisticRegression */

@@ -40,6 +40,7 @@ using namespace CuEira::Container;
  */
 class CudaLogisticRegressionConfiguration: public LogisticRegressionConfiguration {
 public:
+
   /**
    * This
    */

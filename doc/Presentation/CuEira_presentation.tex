@@ -16,6 +16,7 @@
 \setlength{\parindent}{0in}
 
 \usetheme{Antibes}
+\setbeamertemplate{footline}[frame number]
 
 \newcommand{\squeezeup}{\vspace{0mm}}
 
@@ -51,9 +52,16 @@
     \rlap{\hbox to \wd0{\hss $\swarrow$ \hss}}\box0
 }}
 
-\title{Gene-Environment Interaction Analysis using GPU}
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+\title{Gene-Environment Interaction Analysis Using Graphic Cards}
 \author{Daniel Berglund}
-\date{December 2014}
+\date{17 February 2015}
 
 \begin{document}
 
@@ -70,98 +78,102 @@
 \section{Background}
 
 \begin{frame}
-\frametitle{Problem and Aim}
+\frametitle{Problem}
 
+\begin{minipage}{0.5\textwidth}
 \begin{itemize}
- \item Genetic and environment factors are know to affect the risks of diseases
+ \item Genetic and environmental factors are know to affect the risks of diseases
  \item Interaction can exist between these factors
- \item Logistic Regression can be used to search for interaction
-\begin{itemize}
- \item Iterative method
- \item Models hidden probabilities of the outcomes as a linear model
 \end{itemize}
-\end{itemize}
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+\begin{figure}[H]
+\includegraphics[width=5.5cm]{ra_smoke_example.png}
+\end{figure}
+\end{minipage}
+
+\blfootnote{Klareskog L, Stolt P, Lundberg K, et. al. A new model for an etiology of rheumatoid arthritis: smoking may trigger HLA-DR (shared epitope)-restricted immune reactions to autoantigens modified by citrullination. Arthritis Rheum 2006}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Problem and Aim}
-
+\frametitle{Aim}
+ 
 \begin{itemize}
- \item Data amounts are increasing
- \item Need for more speed
+ \item Data amounts are increasing, need for better programs
  \item GPUs have previously shown good results for gene-gene interaction
+ \item Build a program for gene-environment interaction using GPUs based on older programs
 \end{itemize}
 
 \end{frame}
+
+%TODO some genetics
 
 %\begin{frame}
 %\frametitle{The Data}
  
 %\begin{itemize}
-% \item The data consists of individuals
-%\end{itemize}
-
-%\end{frame}
-
-%\begin{frame}
-%\frametitle{Risk Allele}
- 
-%\begin{itemize}
-% \item Asdf
+% \item The data consists of individuals, their status, environmental factor, SNPs and covariates
+% \item A SNP is a genetic marker
+% \item The environmental factor is something in the environment, for instance smoking
+% \item Covariates are variables that needs to be adjusted for, for instance age
 %\end{itemize}
 
 %\end{frame}
 
 \begin{frame}
-\frametitle{Recoding}
+\frametitle{Contingency Table}
 
-\begin{itemize}
- \item The measures for additive interaction are defined for positive odds ratios
- \item Can be adjusted by recoding
- \item Recoding switches the reference group with the group with lowest risks
- \item Guarantees that $OR \geq 1$
-\end{itemize}
-
-\end{frame}
-
-%\subsection{Computer Architecture}
-
-%lots of optimizations CPU picture
-%knowing is imporant, take the matrix matrix multiplaction example
-
-\begin{frame}
-\frametitle{Concurrency and Dinning Philosophers}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=5cm]{../dining_philosophers.png}
-\end{figure}
+%TODO ändra till RA, covariates, gen+miljö
+\begin{table}[h]
+\centering
+\begin{tabular}{| l c c c c c |}
+  \hline
+  & \multicolumn{2}{c}{Case} & & \multicolumn{2}{c}{Control}\\
+  Genetic marker & A & B & & A & B\\
+  \hline
+  Smoker & 688 & 650 & & a & b\\
+  Non smoker & 21 & 59 & & a & b\\
+  \hline
+\end{tabular}
+\label{table:contingency_table}
+\end{table}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{A Possible Solution} 
+\frametitle{Relative Risk, Odds and Odds Ratio}
 
-\begin{itemize}
- \item Think
- \item Wait for a fork to become available and pick up that fork
- \item Wait for and pick up the other fork
- \item Eat
- \item Put down the forks one by one
- \item Go back to thinking
-\end{itemize}
+\begin{equation*}
+RR=\frac{\pi_1}{\pi_2}
+\end{equation*}
+
+\begin{equation*}\label{eq:odds}
+\Omega=\frac{\pi}{1-\pi}
+\end{equation*}
+
+\begin{equation*}\label{eq:odds_ratio}
+OR=\frac{\Omega_1}{\Omega_2}
+\end{equation*}
+
+%\begin{equation*}
+%\theta_{both\:factors\:present}>\theta_{first\:factor\:present}+\theta_{second\:factor\:present}-1
+%\end{equation*}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Deadlock}
+\frametitle{Logistic Regression}
 
-\begin{itemize}
- \item Stuck when everyone holds one fork
- \item This is a deadlock
- \item Can be solved with a mediator
-\end{itemize}
+\begin{equation*}
+\log(\frac{\pi}{1-\pi})=\alpha+\beta X
+\end{equation*}
+
+\begin{equation*}
+OR=e^{\beta}
+\end{equation*}
+
+$\beta$ coefficients can be found by using maximum likelihood
 
 \end{frame}
 
@@ -191,12 +203,33 @@
 \end{figure}
 \end{frame}
 
+%TODO CPU
+\begin{frame}
+\frametitle{CPU Architecture}
+
+\begin{minipage}{0.5\textwidth}
+\begin{itemize}
+ \item MIMD
+ \item 8 cores
+ \item Lots of various optimizations
+ \item 20 MB cache
+ \item Similar performance with single and double precision
+\end{itemize}
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+\begin{figure}[H]
+\includegraphics[width=4cm]{../cpu_scheme_haswell}
+\end{figure}
+\end{minipage}
+
+\end{frame}
+
 \begin{frame}
 \frametitle{GPU Architecture}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=3.6cm]{../gpu_scheme.png}
+    \includegraphics[width=6cm]{maxwell_die.jpg}
     \label{fig:gpu_scheme}
 \end{figure}
 
@@ -208,8 +241,24 @@
 \begin{itemize}
  \item Separate memory from the normal RAM
  \item Data has to be explicitly transferred to and from the GPU
- \item Simpler cores than CPU cores
+ \item Fewer optimizations than CPU
+ \item Slow but many cores, up to 5000
+ \item Much better performance with single precision than double
  \item Single instruction, multiple thread(SIMT)
+\end{itemize}
+
+\end{frame}
+
+%TODO cpu vs gpu
+\begin{frame}
+\frametitle{CPU versus GPU}
+
+\begin{itemize}
+ \item Pick tool based on the problem
+ \item CPU for complex control flows
+ \item GPUs need embarrassingly parallelism
+ \item CPUs are becoming more like GPUs and vice versa
+ \item Xeon Phi, CPU accelerators
 \end{itemize}
 
 \end{frame}
@@ -218,8 +267,9 @@
 \frametitle{CUDA}
 
 \begin{itemize}
+ \item Compute Unified Device Architecture
  \item For NVIDIA GPUs by NVIDIA
- \item Supported by various libraries, CUBLAS, ArrayFire, and so on
+ \item Supported by various libraries, for instance CUBLAS, Thrust
  \item Calculations done by kernels
 \end{itemize}
 
@@ -271,26 +321,6 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 \end{frame}
 
 \begin{frame}
-\frametitle{Blocks}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=7cm]{../2D_grid.png}
-\end{figure}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Blocks}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=7cm]{../grid_scale.png}
-\end{figure}
-
-\end{frame}
-
-\begin{frame}
 \frametitle{Streams}
 
 \begin{itemize}
@@ -332,25 +362,8 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 
 \section{Implementation}
 
-%\begin{frame}
-%\tableofcontents[currentsection]
-%\end{frame}
-
-%\subsection{Clean Code and Software Design}
-
-%\begin{frame}
-%\frametitle{Repeatability in Computer Science}
-
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=9cm]{../comp_repro.png}
-%    \label{fig:speed}
-%\end{figure}
-
-%\end{frame}
-
 \begin{frame}
-\frametitle{Agile Development and Clean Code}
+\frametitle{Agile Development}
 \begin{itemize}
  \item Code in small units, commonly classes
  \item Unit testing, test the units in isolation
@@ -361,13 +374,6 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 
 \end{frame}
 
-%why clean code/good code/testing
-%because of the previsous and maintainability
-%need to trust the code, check math, data quality etc, but not code quality
-%not all errors causes fatal or obvious wrong results
-%example of the matrix thing I did, y=ax*x+y
-
-%Wrappers
 \begin{frame}
 \frametitle{Wrappers}
 
@@ -418,34 +424,41 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 \frametitle{Structure of Program}
 
 \begin{itemize}
+ \item Called CuEira
+ \item Written in C++
+ \item Libraries used are Google Test/Mock, Boost, CUDA, CUBLAS
  \item Modularised
  \item Almost full unit test coverage
  \item Handles each gene environment combination independently
- \item Threads fetches a genetic factor from a queue
- \item Each thread corresponds to a stream on a GPU
  \item Some parts are done using CPU
-
 \end{itemize}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Model}
+\frametitle{Overview}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=7cm]{../lr_structure.png}
+    \includegraphics[width=10cm]{../SNP_thread.png}
 \end{figure}
 
 \end{frame}
 
 \section{Results}
 
-%\begin{frame}
-%\tableofcontents[currentsection]
-%\end{frame}
+\begin{frame}
+\frametitle{Data and Expectations}
 
-%\subsection{Streams}
+\begin{itemize}
+ \item Simulated data
+ \item 10 000 SNPS
+ \item 2000, 10 000, 100 000, 200 000 individuals
+ \item 0, 5, 10, 20 covariates
+ \item Expected linear efficiency
+\end{itemize}
+
+\end{frame}
 
 \begin{frame}
 \frametitle{Streams}
@@ -457,15 +470,199 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 
 \end{frame}
 
-%\subsection{Scaling over Multiple GPUs}
-
 \begin{frame}
 \frametitle{Saturated Streams}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=7cm]{../saturated_seconds_ind_cov_0.png}
+    \includegraphics[width=6cm]{../saturated_gpu_seconds_ind_cov_0.png}
+    \caption*{0 covariates}
 \end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Speedup and Efficiency}
+
+Versus one GPU
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../saturated_gpu_speedup_ind_cov_0.png}
+                \caption*{0 covariates}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../saturated_gpu_efficiency_ind_cov_0.png}
+                \caption*{0 covariates}
+        \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Single Versus Double Precision}
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+                \includegraphics[width=5cm]{../double_comp_cov_ind_10000.png}
+                \caption*{10000 individuals}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+                \includegraphics[width=5cm]{../double_comp_ind_cov_0.png}
+                \caption*{0 covariates}
+        \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Synchronisation}
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../sync_comp_cov_ind_2000.png}
+                \caption*{2000 individuals}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../sync_comp_cov_ind_2e+05.png}
+                \caption*{200 000 individuals}
+        \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Synchronisation}
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../timedist_LR_ind_10ks_0cov_gpu4.png}
+                \caption*{Less synchronisation}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../timedist_LR_ind_10ks_0cov_gpu4_sync.png}
+                \caption*{Always synchronise}
+        \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Comparison versus GEISA}
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../geisa_saturated_speedup_ind.png}
+                \caption*{0 covariates}
+        \end{subfigure}%
+        ~
+        \begin{subfigure}[b]{0.48\textwidth}
+                \includegraphics[width=5cm]{../geisa_saturated_speedup_cov.png}
+                \caption*{10 000 individuals}
+        \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+\section{Conclusions and Outlook}
+
+\begin{frame}
+\frametitle{Conclusions}
+
+\begin{itemize}
+ \item GPUs suits well for interaction, depending on method
+ \item Use one, perhaps two, GPUs with the program
+ \item Single precision gives better performance than double precision
+ \item Increased synchronisation increases performance slightly when number of individuals is above 100 000
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Outlook}
+
+\begin{itemize}
+ \item Implement a method for validation, bootstrap or permutation tests
+ \item Moving more parts to the GPU could fix the bad scaling
+ \item Clusters for more speed
+ \item Need for better statistics and definitions of interaction for non binary factors
+ \item For binary factors look into gene-gene interaction methods if further speed is needed
+\end{itemize}
+
+\end{frame}
+
+%TODO 
+\begin{frame}
+%\frametitle{GPU Architecture}
+
+Thanks to:\\
+
+CuEira is available at:
+github.com/Berjiz/CuEira
+
+\end{frame}
+
+\begin{frame}
+\frametitle{CPU versus GPU}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{| l | c | c | c |}
+  \hline
+   & CPU & MIC & GPU\\
+  \hline
+  Example & Intel i7-5960X & Xeon Phi 7120A & K80\\
+  \hline
+  Cores & 8 & 61 & 4992\\
+  Memory & 0.1-1 TB & 16GB & 24 GB\\
+  Caches & 20 MB & 30.5 MB & -\\
+  Concurrency & MIMD & MIMD & SIMT\\
+  FLOPS & 0.4 T & 3 T & 3, 8.7 T \\
+  Price & \$1000 & \$4200 & \$5000\\
+  \hline  
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Matrix Decomposition}
+
+\begin{itemize}
+ \item Pseudo inverse, $A^+$, is defined for general matrices
+ \item Can be found by using singular value decomposition
+\end{itemize}
+
+\begin{equation*}
+A=U \Sigma V^T
+\end{equation*}
+
+\begin{equation*}
+A^+=V \Sigma^+ U^T
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Recoding}
+
+\begin{itemize}
+ \item The measures for additive interaction are defined for positive odds ratios
+ \item Can be adjusted by recoding
+ \item Recoding switches the reference group with the group with lowest risks
+ \item Guarantees that $OR \geq 1$
+\end{itemize}
 
 \end{frame}
 
@@ -483,20 +680,37 @@ E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}
 \end{frame}
 
 \begin{frame}
-\frametitle{Speedup and Efficiency}
+\frametitle{Concurrency and Dinning Philosophers}
 
-Versus one GPU
-
-\begin{figure}
-        \centering
-        \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../saturated_speedup_individuals_cov_0.png}
-        \end{subfigure}%
-        ~
-        \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../saturated_efficiency_individuals_cov_0.png}
-        \end{subfigure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=5cm]{../dining_philosophers.png}
 \end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{A Possible Solution} 
+
+\begin{itemize}
+ \item Think
+ \item Wait for a fork to become available and pick up that fork
+ \item Wait for and pick up the other fork
+ \item Eat
+ \item Put down the forks one by one
+ \item Go back to thinking
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Deadlock}
+
+\begin{itemize}
+ \item Stuck when everyone holds one fork
+ \item This is a deadlock
+ \item Can be solved with a mediator
+\end{itemize}
 
 \end{frame}
 
@@ -537,126 +751,23 @@ Versus one GPU
 
 \end{frame}
 
-%\subsection{Single Versus Double Precision}
-
 \begin{frame}
-\frametitle{Single Versus Double Precision}
+\frametitle{Blocks}
 
-\begin{figure}
-        \centering
-        \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-                \includegraphics[width=5cm]{../double_comp_cov_ind_10000.png}
-                \caption*{10000 individuals}
-        \end{subfigure}%
-        ~
-        \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-                \includegraphics[width=5cm]{../double_comp_ind_cov_0.png}
-                \caption*{0 covariates}
-        \end{subfigure}
-\end{figure}
-
-\end{frame}
-
-%\subsection{Syncing}
-
-\begin{frame}
-\frametitle{Syncing}
-
-\begin{figure}
-        \centering
-        \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../sync_comp_cov_ind_2000.png}
-                \caption*{2000 individuals}
-        \end{subfigure}%
-        ~
-        \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../sync_comp_cov_ind_2e+05.png}
-                \caption*{200 000 individuals}
-        \end{subfigure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{../2D_grid.png}
 \end{figure}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Synchronisation}
+\frametitle{Blocks}
 
-\begin{figure}
-        \centering
-        \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../timedist_LR_ind_10ks_0cov_gpu4.png}
-                \caption*{Less synchronisation}
-        \end{subfigure}%
-        ~
-        \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../timedist_LR_ind_10ks_0cov_gpu4_sync.png}
-                \caption*{Always synchronise}
-        \end{subfigure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=7cm]{../grid_scale.png}
 \end{figure}
-
-\end{frame}
-
-\section{Conclusions and Outlook}
-
-\begin{frame}
-\frametitle{Conclusions}
-
-\begin{itemize}
- \item GPUs suits well for interaction, depending on method
- \item Use one, perhaps two, GPUs with the program
- \item Single precision gives better performance than double precision
- \item Increased synchronisation increases performance slightly when number of individuals is above 100 000
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Outlook}
-
-\begin{itemize}
- \item Moving more parts to the GPU could fix the bad scaling
- \item Clusters for more speed
- \item Need for better statistics and definitions of interaction for non binary factors
- \item For binary factors look into gene-gene interaction methods if further speed is needed
-\end{itemize}
-
-\end{frame}
-
-%TODO questions slide
-
-\begin{frame}
-\frametitle{Matrix Decomposition}
-
-\begin{itemize}
- \item Pseudo inverse, $A^+$, is defined for general matrices
- \item Can be found by using singular value decomposition
-\end{itemize}
-
-\begin{equation*}
-A=U \Sigma V^T
-\end{equation*}
-
-\begin{equation*}
-A^+=V \Sigma^+ U^T
-\end{equation*}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Odds, Odds Ratio and Additive Interaction}
-
-\begin{equation*}\label{eq:odds}
-\Omega=\frac{\pi}{1-\pi}
-\end{equation*}
-
-\begin{equation*}\label{eq:odds_ratio}
-\theta=\frac{\Omega_1}{\Omega_2}
-\end{equation*}
-
-\begin{equation*}
-\theta_{both\:factors\:present}>\theta_{first\:factor\:present}+\theta_{second\:factor\:present}-1
-\end{equation*}
 
 \end{frame}
 

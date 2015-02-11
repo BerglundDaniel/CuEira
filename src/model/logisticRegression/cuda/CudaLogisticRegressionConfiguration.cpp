@@ -130,7 +130,7 @@ void CudaLogisticRegressionConfiguration::setEnvironmentFactor(const HostVector&
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 2; //Putting the environment as the third column
 
 #ifdef PROFILE
-  beforeEnv = new Event(kernelWrapper->stream);
+      beforeEnv = new Event(kernelWrapper->stream);
 #endif
 
   hostToDevice->transferVector((const PinnedHostVector&) environmentData, pos);
@@ -148,7 +148,7 @@ void CudaLogisticRegressionConfiguration::setSNP(const HostVector& snpData) {
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 1; //Putting the snp column as the second column
 
 #ifdef PROFILE
-  beforeSNP = new Event(kernelWrapper->stream);
+      beforeSNP = new Event(kernelWrapper->stream);
 #endif
 
   hostToDevice->transferVector((const PinnedHostVector&) snpData, pos);
@@ -166,7 +166,7 @@ void CudaLogisticRegressionConfiguration::setInteraction(const HostVector& inter
   PRECISION* pos = devicePredictorsMemoryPointer + numberOfRows * 3; //Putting the interaction column as the fourth column
 
 #ifdef PROFILE
-  beforeInter = new Event(kernelWrapper->stream);
+      beforeInter = new Event(kernelWrapper->stream);
 #endif
 
   hostToDevice->transferVector((const PinnedHostVector&) interactionVector, pos);

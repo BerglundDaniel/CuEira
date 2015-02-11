@@ -20,8 +20,8 @@ Configuration::Configuration(int argc, char* argv[]) {
       "output,o", options::value<std::string>()->required(), "Set output file.")("nstreams",
       options::value<int>()->default_value(3), "Set number of streams to use for each GPU. Default 3.")("ngpus",
       options::value<int>(), "Set number of GPUs to use. Default is number of available GPUs.")("maf,m",
-      options::value<double>()->default_value(0.05),
-      "Set the threshold for minor allele frequency(MAF) in range 0 to 1. Any SNPs with MAF below the threshold will be excluded from the analysis. Default 0.05.")(
+      options::value<double>()->default_value(0.00),
+      "Set the threshold for minor allele frequency(MAF) in range 0 to 1. Any SNPs with MAF below the threshold will be excluded from the analysis. Default 0.00.")(
       "p", options::value<bool>()->zero_tokens(),
       "Use alternative coding for the phenotype, 0 for unaffected and 1 for affected instead of 1 for unaffected and 2 for affected.")(
       "exclude", options::value<bool>()->zero_tokens(), "Exclude SNPs with negative position from the analysis.")(

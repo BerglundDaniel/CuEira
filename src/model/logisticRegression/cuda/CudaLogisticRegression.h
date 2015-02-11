@@ -23,7 +23,7 @@
 #include <RegularHostVector.h>
 #include <RegularHostMatrix.h>
 #include <Event.h>
-#include <Stream.h> //FIXME TMP
+#include <Stream.h>
 
 #ifdef PROFILE
 #include <boost/chrono/chrono_io.hpp>

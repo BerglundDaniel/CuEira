@@ -55,7 +55,6 @@ for(row in 1:nrow(csv9Stream)){
 
 ##################Plot
 
-###Seconds
 #Ind
 data=res[1,1:ngpu,1:nstream,1:nind]
 xrange=range(ind_ar)
@@ -65,14 +64,14 @@ file=paste("/home/daniel/Project/Results/geisa_saturated_speedup_ind","", sep=""
 file=paste(file,".png", sep="")
 png(file)
   
-plot(xrange, yrange, type="n", xlab="Number of Individuals", ylab="Speedup", cex.axis=s_ax, cex.lab=s_lab)
+plot(xrange, yrange, type="n", xlab="Number of Individuals", ylab="Relative speed", cex.axis=s_ax, cex.lab=s_lab)
   
 lines(ind_ar,geisaInd/data[1,stream1,1:3],type="b",lwd=2,lty=lty_a[1],pch=pch_a[1])
 lines(ind_ar,geisaInd/data[2,stream2,1:3],type="b",lwd=2,lty=lty_a[2],pch=pch_a[2])
 lines(ind_ar,geisaInd/data[3,stream3,1:3],type="b",lwd=2,lty=lty_a[3],pch=pch_a[3])
 lines(ind_ar,geisaInd/data[4,stream4,1:3],type="b",lwd=2,lty=lty_a[4],pch=pch_a[4])
   
-title("Speedup",cex.main=s_title)
+title("Speed compared with GEISA",cex.main=s_title)
 legend(xrange[1], yrange[2], c(1,2,3,4), cex=s_legend, pch=pch_a, lty=lty_a, title="GPU")
   
 dev.off()
@@ -86,14 +85,14 @@ file=paste("/home/daniel/Project/Results/geisa_saturated_speedup_cov","", sep=""
 file=paste(file,".png", sep="")
 png(file)
   
-plot(xrange, yrange, type="n", xlab="Number of Covariates", ylab="Speedup", cex.axis=s_ax, cex.lab=s_lab)
+plot(xrange, yrange, type="n", xlab="Number of Covariates", ylab="Relative speed", cex.axis=s_ax, cex.lab=s_lab)
   
 lines(cov_a,geisaCov/data[1:ncov,1,stream1],type="b",lwd=2,lty=lty_a[1],pch=pch_a[1])
 lines(cov_a,geisaCov/data[1:ncov,2,stream2],type="b",lwd=2,lty=lty_a[2],pch=pch_a[2])
 lines(cov_a,geisaCov/data[1:ncov,3,stream3],type="b",lwd=2,lty=lty_a[3],pch=pch_a[3])
 lines(cov_a,geisaCov/data[1:ncov,4,stream4],type="b",lwd=2,lty=lty_a[4],pch=pch_a[4])
   
-title("Speedup",cex.main=s_title)
+title("Speed compared with GEISA",cex.main=s_title)
 legend(xrange[1], yrange[2], c(1,2,3,4), cex=s_legend, pch=pch_a, lty=lty_a, title="GPU")
   
 dev.off()

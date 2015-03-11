@@ -1,8 +1,10 @@
-csvNorm=read.csv("/home/daniel/Project/Results/4gpu_4stream_sim/single_noferm/10ks_noferm_prof_out.csv", header = TRUE, sep = ",",dec = ".")
-csvFerm=read.csv("/home/daniel/Project/Results/4gpu_4stream_sim/ferm/10ks_ferm_prof_out.csv", header = TRUE, sep = ",",dec = ".")
-csvDouble=read.csv("/home/daniel/Project/Results/4gpu_4stream_sim/double/10ks_noferm_prof_double_out.csv", header = TRUE, sep = ",",dec = ".")
-csvNoProf=read.csv("/home/daniel/Project/Results/4gpu_4stream_sim/noprof/10ks_noferm_noprof_out.csv", header = TRUE, sep = ",",dec = ".")
-csvOptAll=read.csv("/home/daniel/Project/Results/4gpu_4stream_sim/opt_all/10ks_noferm_prof_o3_noali_fastmath_out.csv", header = TRUE, sep = ",",dec = ".")
+csvNorm=read.csv("/home/daniel/Project/Results/No_event/4gpu_4stream_sim/single_noferm/10ks_noferm_prof_out.csv", header = TRUE, sep = ",",dec = ".")
+csvFerm=read.csv("/home/daniel/Project/Results/No_event/4gpu_4stream_sim/ferm/10ks_ferm_prof_out.csv", header = TRUE, sep = ",",dec = ".")
+csvDouble=read.csv("/home/daniel/Project/Results/No_event/4gpu_4stream_sim/double/10ks_noferm_prof_double_out.csv", header = TRUE, sep = ",",dec = ".")
+csvNoProf=read.csv("/home/daniel/Project/Results/No_event/4gpu_4stream_sim/noprof/10ks_noferm_noprof_out.csv", header = TRUE, sep = ",",dec = ".")
+csvOptAll=read.csv("/home/daniel/Project/Results/No_event/4gpu_4stream_sim/opt_all/10ks_noferm_prof_o3_noali_fastmath_out.csv", header = TRUE, sep = ",",dec = ".")
+csv9Stream=read.csv("/home/daniel/Project/Results/No_event/saturated/10ks_noferm_prof_1gpu_9stream_out.csv", header = TRUE, sep = ",",dec = ".")
+csvFerm9Stream=read.csv("/home/daniel/Project/Results/No_event/4gpu_4stream_sim/ferm/10ks_fix_ferm_single_out.csv", header = TRUE, sep = "\t",dec = ".")
 
 rows=nrow(csvNorm)
 
@@ -85,15 +87,26 @@ for(row in 1:rows){
 }
 
 #####Put in 9 stream
-#for(row in 1:nrow(csv9Stream)){
-#  cov=csv9Stream$covariate[row]
-#  ind=csv9Stream$individuals[row]
-#  gpu=csv9Stream$GPUs[row]
+for(row in 1:nrow(csv9Stream)){
+  cov=csv9Stream$covariate[row]
+  ind=csv9Stream$individuals[row]
+  gpu=csv9Stream$GPUs[row]
   
-#  cov_i=match(cov, cov_a)
-#  ind_i=match(ind, ind_a)
-#  res[cov_i,gpu,stream1,ind_i]=csv9Stream$cueira_calc[row]
-#}
+  cov_i=match(cov, cov_a)
+  ind_i=match(ind, ind_a)
+  resNorm[cov_i,gpu,stream1,ind_i]=csv9Stream$cueira_calc[row]
+}
+
+#Ferm 9
+for(row in 1:nrow(csvFerm9Stream)){
+  cov=csvFerm9Stream$covariate[row]
+  ind=csvFerm9Stream$individuals[row]
+  gpu=csvFerm9Stream$GPUs[row]
+  
+  cov_i=match(cov, cov_a)
+  ind_i=match(ind, ind_a)
+  resFerm[cov_i,gpu,stream1,ind_i]=csvFerm9Stream$cueira_calc[row]
+}
 
 ####Vs Ferm
 

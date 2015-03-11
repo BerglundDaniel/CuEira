@@ -67,13 +67,28 @@
 
 \begin{frame}
  \titlepage
+ 
+\noindent
+\begin{minipage}{0.5\textwidth}
+\begin{flushleft} \large
+\emph{Supervisor:}\\
+Lilit \textsc{Axner}
+\end{flushleft}
+\end{minipage}%
+\begin{minipage}{0.5\textwidth}
+\begin{flushright} \large
+\emph{Project provider:\;\;\;\;} \\
+Henrik \textsc{Källberg}
+\end{flushright}
+\end{minipage}
+ 
 \end{frame}
 
-\section*{Outline}
-\begin{frame}
-\frametitle{Outline}
- \tableofcontents
-\end{frame}
+%\section*{Outline}
+%\begin{frame}
+%\frametitle{Outline}
+% \tableofcontents
+%\end{frame}
 
 \section{Background}
 
@@ -107,36 +122,31 @@
 
 \end{frame}
 
-%TODO some genetics
-
-%\begin{frame}
-%\frametitle{The Data}
+\begin{frame}
+\frametitle{The Data}
  
-%\begin{itemize}
-% \item The data consists of individuals, their status, environmental factor, SNPs and covariates
-% \item A SNP is a genetic marker
-% \item The environmental factor is something in the environment, for instance smoking
-% \item Covariates are variables that needs to be adjusted for, for instance age
-%\end{itemize}
+\begin{itemize}
+ \item 100 000+ genetic markers
+ \item One environment factor, for instance smoking
+ \item Covariates, variables suspected or know to effect the risk, for instance age
+\end{itemize}
 
-%\end{frame}
+\end{frame}
 
 \begin{frame}
 \frametitle{Contingency Table}
 
-%TODO ändra till RA, covariates, gen+miljö
 \begin{table}[h]
 \centering
-\begin{tabular}{| l c c c c c |}
+\begin{tabular}{| l | c c c | c c c |}
   \hline
-  & \multicolumn{2}{c}{Case} & & \multicolumn{2}{c}{Control}\\
-  Genetic marker & A & B & & A & B\\
+  & & \multicolumn{1}{c}{Case} & & & \multicolumn{1}{c}{Control} &\\
+  Genetic marker & No SE & 1 SE & 2 SE & No SE & 1 SE & 2 SE\\
   \hline
-  Smoker & 688 & 650 & & a & b\\
-  Non smoker & 21 & 59 & & a & b\\
+  Ever smoker & 58 & 192 & 126 & 184 & 146 & 31\\
+  Never smoker & 20 & 72 & 36 & 87 & 104 & 31\\
   \hline
 \end{tabular}
-\label{table:contingency_table}
 \end{table}
 
 \end{frame}
@@ -145,15 +155,15 @@
 \frametitle{Relative Risk, Odds and Odds Ratio}
 
 \begin{equation*}
-RR=\frac{\pi_1}{\pi_2}
+Relative\;risk=\frac{P(Y=1|X=x_1)}{P(Y=1|X=x_2)}
 \end{equation*}
 
 \begin{equation*}\label{eq:odds}
-\Omega=\frac{\pi}{1-\pi}
+Odds=\frac{P(Y=1|X=x)}{1-P(Y=1|X=x)}
 \end{equation*}
 
 \begin{equation*}\label{eq:odds_ratio}
-OR=\frac{\Omega_1}{\Omega_2}
+Odds\;ratio=\frac{Odds_1}{Odds_2}
 \end{equation*}
 
 %\begin{equation*}
@@ -166,14 +176,14 @@ OR=\frac{\Omega_1}{\Omega_2}
 \frametitle{Logistic Regression}
 
 \begin{equation*}
-\log(\frac{\pi}{1-\pi})=\alpha+\beta X
+\log(odds)=\alpha+\beta X
 \end{equation*}
 
 \begin{equation*}
-OR=e^{\beta}
+Odds\;ratio=e^{\beta}
 \end{equation*}
 
-$\beta$ coefficients can be found by using maximum likelihood
+$\beta$ coefficients can be found by using Newtons method and maximum likelihood
 
 \end{frame}
 
@@ -203,7 +213,6 @@ $\beta$ coefficients can be found by using maximum likelihood
 \end{figure}
 \end{frame}
 
-%TODO CPU
 \begin{frame}
 \frametitle{CPU Architecture}
 
@@ -211,9 +220,9 @@ $\beta$ coefficients can be found by using maximum likelihood
 \begin{itemize}
  \item MIMD
  \item 8 cores
- \item Lots of various optimizations
- \item 20 MB cache
+ %\item 20 MB cache
  \item Similar performance with single and double precision
+ \item Lots of various optimizations
 \end{itemize}
 \end{minipage}\hfill
 \begin{minipage}{0.45\textwidth}
@@ -225,12 +234,21 @@ $\beta$ coefficients can be found by using maximum likelihood
 \end{frame}
 
 \begin{frame}
+\frametitle{CPU Architecture}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=6cm]{../cpu_core_die.png}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
 \frametitle{GPU Architecture}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=6cm]{maxwell_die.jpg}
-    \label{fig:gpu_scheme}
 \end{figure}
 
 \end{frame}
@@ -239,10 +257,10 @@ $\beta$ coefficients can be found by using maximum likelihood
 \frametitle{GPU Architecture}
 
 \begin{itemize}
+ \item Slow but many cores, up to 5000
+ \item Fewer optimizations than CPU
  \item Separate memory from the normal RAM
  \item Data has to be explicitly transferred to and from the GPU
- \item Fewer optimizations than CPU
- \item Slow but many cores, up to 5000
  \item Much better performance with single precision than double
  \item Single instruction, multiple thread(SIMT)
 \end{itemize}
@@ -254,7 +272,7 @@ $\beta$ coefficients can be found by using maximum likelihood
 \frametitle{CPU versus GPU}
 
 \begin{itemize}
- \item Pick tool based on the problem
+ \item Pick CPU or GPU based on the problem
  \item CPU for complex control flows
  \item GPUs need embarrassingly parallelism
  \item CPUs are becoming more like GPUs and vice versa
@@ -269,6 +287,7 @@ $\beta$ coefficients can be found by using maximum likelihood
 \begin{itemize}
  \item Compute Unified Device Architecture
  \item For NVIDIA GPUs by NVIDIA
+ \item Provides a compiler for kernels
  \item Supported by various libraries, for instance CUBLAS, Thrust
  \item Calculations done by kernels
 \end{itemize}
@@ -325,7 +344,8 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 
 \begin{itemize}
  \item Kernels and transfers can be performed on streams
- \item Transfers and kernels can overlap when using streams
+ \item Transfers and kernels from different streams can overlap
+ \item Transfers and kernels uses different parts of the GPU
 \end{itemize}
 
 \end{frame}
@@ -335,7 +355,7 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=7cm]{../StreamsQueue.png}
+    \includegraphics[width=7cm]{StreamsQueue.png}
 \end{figure}
 
 \end{frame}
@@ -347,13 +367,13 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
         \centering
         \begin{subfigure}[b]{0.48\textwidth}
         \centering
-                \includegraphics[width=0.9cm]{../StreamsQueueStreamLoop.png}
+                \includegraphics[width=0.9cm]{StreamsQueueStreamLoop.png}
                 \caption*{Looped over stream}
         \end{subfigure}%
         ~
         \begin{subfigure}[b]{0.48\textwidth}
         \centering
-                \includegraphics[width=0.9cm]{../StreamsQueueKernelLoop.png}
+                \includegraphics[width=0.9cm]{StreamsQueueKernelLoop.png}
                 \caption*{Looped over kernel}
         \end{subfigure}
 \end{figure}
@@ -429,8 +449,9 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
  \item Libraries used are Google Test/Mock, Boost, CUDA, CUBLAS
  \item Modularised
  \item Almost full unit test coverage
- \item Handles each gene environment combination independently
  \item Some parts are done using CPU
+ \item Handles each gene environment combination independently
+ \item A number of CPU threads perform the work and each use a GPU stream for calculations
 \end{itemize}
 
 \end{frame}
@@ -452,10 +473,10 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 
 \begin{itemize}
  \item Simulated data
- \item 10 000 SNPS
+ \item 10 000 genetic markers
  \item 2000, 10 000, 100 000, 200 000 individuals
  \item 0, 5, 10, 20 covariates
- \item Expected linear efficiency
+ \item Expected linear efficiency, i.e. good scaling to multiple GPUs
 \end{itemize}
 
 \end{frame}
@@ -465,7 +486,8 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=7cm]{../gpu_10streams_10ks_100ki.png}
+    \includegraphics[width=6cm]{../gpu_10streams_10ks_100ki.png}
+    \caption*{100 000 individuals, 0 covariates}
 \end{figure}
 
 \end{frame}
@@ -473,11 +495,31 @@ $C[i]$ = $A[i]$ $+$ $B[i]$;\;
 \begin{frame}
 \frametitle{Saturated Streams}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=6cm]{../saturated_gpu_seconds_ind_cov_0.png}
-    \caption*{0 covariates}
+\begin{minipage}{0.3\textwidth}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{| l | l |}
+  \hline
+  GPUs & Streams\\
+  \hline
+  1 & 9 \\
+  2 & 4 \\
+  3 & 3 \\
+  4 & 2 \\
+  \hline
+\end{tabular}
+\end{table}
+
+\end{minipage}\hfill
+\begin{minipage}{0.7\textwidth}
+
+\begin{figure}[H]
+\includegraphics[width=5cm]{saturated_gpu_seconds_cov_ind_2000.png}
+\caption*{2000 individuals}
 \end{figure}
+
+\end{minipage}
 
 \end{frame}
 
@@ -489,13 +531,13 @@ Versus one GPU
 \begin{figure}
         \centering
         \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../saturated_gpu_speedup_ind_cov_0.png}
-                \caption*{0 covariates}
+                \includegraphics[width=5cm]{saturated_gpu_speedup_cov_ind_2000.png}
+                \caption*{2000 individuals}
         \end{subfigure}%
         ~
         \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../saturated_gpu_efficiency_ind_cov_0.png}
-                \caption*{0 covariates}
+                \includegraphics[width=5cm]{saturated_gpu_efficiency_cov_ind_2000.png}
+                \caption*{2000 individuals}
         \end{subfigure}
 \end{figure}
 
@@ -545,12 +587,12 @@ Versus one GPU
 \begin{figure}
         \centering
         \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../timedist_LR_ind_10ks_0cov_gpu4.png}
+                \includegraphics[width=5cm]{timedist_LR_ind_10ks_0cov_gpu2_less_sync.png}
                 \caption*{Less synchronisation}
         \end{subfigure}%
         ~
         \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../timedist_LR_ind_10ks_0cov_gpu4_sync.png}
+                \includegraphics[width=5cm]{timedist_LR_ind_10ks_0cov_gpu2_always_sync.png}
                 \caption*{Always synchronise}
         \end{subfigure}
 \end{figure}
@@ -558,17 +600,17 @@ Versus one GPU
 \end{frame}
 
 \begin{frame}
-\frametitle{Comparison versus GEISA}
+\frametitle{Comparison with GEISA}
 
 \begin{figure}
         \centering
         \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../geisa_saturated_speedup_ind.png}
+                \includegraphics[width=5cm]{geisa_saturated_speedup_ind.png}
                 \caption*{0 covariates}
         \end{subfigure}%
         ~
         \begin{subfigure}[b]{0.48\textwidth}
-                \includegraphics[width=5cm]{../geisa_saturated_speedup_cov.png}
+                \includegraphics[width=5cm]{geisa_saturated_speedup_cov.png}
                 \caption*{10 000 individuals}
         \end{subfigure}
 \end{figure}
@@ -582,7 +624,7 @@ Versus one GPU
 
 \begin{itemize}
  \item GPUs suits well for interaction, depending on method
- \item Use one, perhaps two, GPUs with the program
+ \item Use one, in some cases two, GPUs with the program
  \item Single precision gives better performance than double precision
  \item Increased synchronisation increases performance slightly when number of individuals is above 100 000
 \end{itemize}
@@ -593,10 +635,10 @@ Versus one GPU
 \frametitle{Outlook}
 
 \begin{itemize}
- \item Implement a method for validation, bootstrap or permutation tests
- \item Moving more parts to the GPU could fix the bad scaling
- \item Clusters for more speed
- \item Need for better statistics and definitions of interaction for non binary factors
+ \item Implement a method for validation of the models
+ \item Move more parts to the GPU to improve the scaling
+ \item Use clusters for more speed
+ \item There is a need for better statistics and definitions of interaction for non binary factors
  \item For binary factors look into gene-gene interaction methods if further speed is needed
 \end{itemize}
 
@@ -606,10 +648,53 @@ Versus one GPU
 \begin{frame}
 %\frametitle{GPU Architecture}
 
-Thanks to:\\
+\begin{center}
+\Large Thanks to
+\end{center}
 
-CuEira is available at:
-github.com/Berjiz/CuEira
+Lilit Axner, Henrik Källberg, KIRC,  Michael Schliephake, PDC, IMM, Jens Lagergren
+
+\vfill
+\begin{center}
+CuEira is available at github.com/Berjiz/CuEira
+\end{center}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Time Distribution for Kernels}
+
+{\tiny $*$ is element by element multiplication}
+
+\squeezeup
+
+\begin{table}[h]
+\centering
+\begin{tabular}{| l | l | c | c | c | c |}
+  \hline
+  Covariates & & 0 & 0 & 20 & 20 \\
+  Individuals & & 10k & 100k & 10k  & 100k  \\
+  \hline
+  $M1^T \cdot V1$ & CUBLAS & 66.6 & 72.2 & 43 & 53.9\\
+  $M1 \cdot M2$ & CUBLAS & 18.9 & 14.4 & 36.1 & 25.8\\
+  $M1 \cdot V1$ & CUBLAS & 7.1 & 8.1 & 5.9 & 7.4\\
+  $V1 * V2$ & Custom & 2.9 & 2.3 & 11.8 & 10.6\\
+  $\frac{e^{V1}}{1+e^{V1}}$ & Custom & 1.1 & 0.9 & 0.7 & 0.7\\
+  %$V1*\log(V2)+$ \newline $(1-V1)*\log(1-V2)$
+  
+{$\begin{aligned}
+& V1*\log(V2)+\\
+& (1-V1)*\log(1-V2)
+\end{aligned}$}
+  & Custom & 0.8 & 0.6 & 0.6 & 0.5\\
+    
+  $V1 - V2$ & Custom & 0.7 & 0.6 & 0.5 & 0.4\\
+  $V1*(1-V1)$ & Custom & 0.7 & 0.5 & 0.4 & 0.4\\
+  \emph{Dot product} & CUBLAS & 0.7 & 0.3 & 0.3 & 0.2\\
+  $\Sigma V1$ & CUBLAS & 0.5 & 0.1 & 0.2 & 0.1\\
+  \hline  
+\end{tabular}
+\end{table}
 
 \end{frame}
 
@@ -711,43 +796,6 @@ E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}
  \item This is a deadlock
  \item Can be solved with a mediator
 \end{itemize}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Time Distribution for Kernels}
-
-{\tiny $*$ is element by element multiplication}
-
-\squeezeup
-
-\begin{table}[h]
-\centering
-\begin{tabular}{| l | l | c | c | c | c |}
-  \hline
-  Covariates & & 0 & 0 & 20 & 20 \\
-  Individuals & & 10k & 100k & 10k  & 100k  \\
-  \hline
-  $M1^T \cdot V1$ & CUBLAS & 66.6 & 72.2 & 43 & 53.9\\
-  $M1 \cdot M2$ & CUBLAS & 18.9 & 14.4 & 36.1 & 25.8\\
-  $M1 \cdot V1$ & CUBLAS & 7.1 & 8.1 & 5.9 & 7.4\\
-  $V1 * V2$ & Custom & 2.9 & 2.3 & 11.8 & 10.6\\
-  $\frac{e^{V1}}{1+e^{V1}}$ & Custom & 1.1 & 0.9 & 0.7 & 0.7\\
-  %$V1*\log(V2)+$ \newline $(1-V1)*\log(1-V2)$
-  
-{$\begin{aligned}
-& V1*\log(V2)+\\
-& (1-V1)*\log(1-V2)
-\end{aligned}$}
-  & Custom & 0.8 & 0.6 & 0.6 & 0.5\\
-    
-  $V1 - V2$ & Custom & 0.7 & 0.6 & 0.5 & 0.4\\
-  $V1*(1-V1)$ & Custom & 0.7 & 0.5 & 0.4 & 0.4\\
-  \emph{Dot product} & CUBLAS & 0.7 & 0.3 & 0.3 & 0.2\\
-  $\Sigma V1$ & CUBLAS & 0.5 & 0.1 & 0.2 & 0.1\\
-  \hline  
-\end{tabular}
-\end{table}
 
 \end{frame}
 

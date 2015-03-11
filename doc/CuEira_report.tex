@@ -16,6 +16,7 @@
 \usepackage[ruled,vlined,resetcount]{algorithm2e}
 \usepackage[toc,page]{appendix}
 \usepackage{tocloft}
+\usepackage{pdfpages}
 
 \setcounter{secnumdepth}{5}
 \setlength{\parindent}{0in}
@@ -101,28 +102,77 @@
 \fi
 \makeatother
 
-\title{Gene-Environment Interaction Analysis Using Graphic Cards}
-\author{Daniel Berglund}
-\date{2 February 2015}
+\makeatletter
+\if@titlepage
+  \renewenvironment{abstract}{%
+      \null\vfil
+      \@beginparpenalty\@lowpenalty
+      \begin{center}%
+        \bfseries \abstractname
+        \@endparpenalty\@M
+      \end{center}}%
+     {\par\vfil\null}
+\else
+  \renewenvironment{abstract}{%
+      \if@twocolumn
+        \section*{\abstractname}%
+      \else
+        \small
+        \begin{center}%
+          {\bfseries \abstractname\vspace{-.5em}\vspace{\z@}}%
+        \end{center}%
+        \quotation
+      \fi}
+      {\if@twocolumn\else\endquotation\fi}
+\fi
+\makeatother
 
 \begin{document}
-\maketitle
+\includepdf[pages={1}]{kth-cover.pdf}
+
 \thispagestyle{empty}
+
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+        
+        \Huge
+        \textbf{Gene-Environment Interaction Analysis Using Graphic Cards}
+        
+        \vspace{0.5cm}
+        \LARGE
+        Gen-miljö interaktion analys med grafikkort
+        
+        \vspace{1.5cm}
+        
+        \textbf{Daniel Berglund}\\
+        \textbf{8 March 2015}\\
+        dabergl@kth.se
+        
+        \vfill
+        
+        \Large
+        Master Thesis in Computer Science\\
+        Supervisor: Lilit Axner\\
+        Examiner: Jens Lagergren\\
+        Project Provider: Henrik Källberg
+        
+    \end{center}
+\end{titlepage}
 
 \clearpage
 \thispagestyle{empty}
+
 \selectlanguage{english}
-\begin{abstract} %TODO abstract in english
+\begin{abstract}
 
 Genome-wide association studies(GWAS) are used to find associations between genetic markers and diseases. One part of GWAS is to study interaction between markers which can play an important role in the risk for the disease. The search for interactions can be computationally intensive. The aim of this thesis was to improve the performance of software used for gene-environment interaction by using parallel programming techniques on graphical processors. A study of the new programs performance, speedup and efficiency was made using multiple simulated datasets. The program shows significantly better performance compared with the older program.
 
 \end{abstract}
 
-\clearpage
-\thispagestyle{empty}
 \selectlanguage{english}
 \renewcommand{\abstractname}{Sammanfattning}
-\begin{abstract} %TODO abstract in swedish
+\begin{abstract}
 
 Genome-wide association studies(GWAS) används för att hita associationer mellan genetiska markörer och sjukdommar. En del av GWAS är att studera interkation mellan markörer vilket kan spela en viktig roll för sjukdomsrisken. Målet med det här arbetet var att förbättra prestanda av mjukvaran som används för gen-miljö interaktion genom att använda tekniker för parrallel programmering på grafikkort. En studie av det nya programmets prestanda, uppsnabbning och effektivitet genomfördes på flera simulerade datasätt. Programmet har signifikant bättre prestanda jämfört med det äldre programmet.
 
@@ -131,13 +181,18 @@ Genome-wide association studies(GWAS) används för att hita associationer mellan 
 \clearpage
 \thispagestyle{empty}
 \begin{acknowledgements}
-%TODO acknowledgements
 I would like to express to my thanks to Lilit Axner and Henrik Källberg for providing and supervising this project. I would like to thank KIRC for all the interesting discussions and welcoming atmosphere, it has been an interesting time from which I have learned a lot. I would like to thank Michael Schliephake and PDC for the support and allowing me to use the Zorn cluster.
 \end{acknowledgements}
 
 \clearpage
 \tableofcontents
+\addtocontents{toc}{\protect\thispagestyle{empty}}
 \thispagestyle{empty}
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
 
 \clearpage
 \setcounter{page}{1}
@@ -152,9 +207,6 @@ One type of study to find associations between genetic markers and diseases or o
 GWAS usually has a study design that is either cohort or case-control~\cite{rothman2008modern}. In cohort study a sample of a population is followed and over time some individuals will develop the disease of interest~\cite{mann_observational}. In case-control studies two groups are compared with each other to find the risk factors~\cite{mann_observational}. One of these two groups consists of individuals with the disease and the other group consists of individuals similar to the first group but who do not have the disease~\cite{mann_observational}.\\
 \\
 A typical GWAS consists of tens of thousands of individuals and up to several millions of genetic markers~\cite{cordell_detect_review, burton2007genome}. In gene-gene interaction GWAS   few studies investigate more than the second order interaction because of the high number of possible combinations. There are some algorithms that can investigate higher order interactions however these have drawbacks~\cite{gwis,high_order_2012,fast_high_order_cluster}.
-
-%Problem vs gene-gene and gene-env
-%focuses on gene-env, datatyp etc
 
 \section{Genetics}
 The genetic information is stored in \emph{chromosomes} each consisting of a \emph{DNA molecule}~\cite{sadava_life}. Each chromosome comes in a pair where both chromosomes are nearly identical, except for the chromosomes related to gender~\cite{sadava_life}. The DNA molecule is a double stranded helix of four nucleotide bases, \emph{adenine}(A), \emph{cytosine}(C), \emph{guanine}(G) and \emph{thymine}(T). They are always paired as A-T and G-C. \emph{Genes} are sections of these DNA molecules. The pair of genes in the chromosomes is a \emph{genotype}. The observable product of the genotype is called \emph{phenotype}, e.g. eye colour, fur patters.\\
@@ -183,7 +235,7 @@ The the allele that is least common using all individuals(both cases and control
 To determine if the genetic risk is present for each individual one of the alleles needs to be chosen as the \emph{risk allele}. GEIRA and JEIRA defines the risk allele as the minor allele in cases if the MAF of cases is greater than the MAF of controls, otherwise the major allele in cases is used~\cite{geisa, uvehag_master_thesis}. However JEIRA and GEISA does not calculate the risk allele according to that definition, see appendix~\ref{risk_allele_appendix} for the details. In this thesis the risk allele will be defined as the allele that has higher frequency in cases than controls. It is similar to the definition using MAF in most cases. Appendix~\ref{risk_allele_appendix} has more detailed comparisons.\\
 \\
 \newpage
-The presence of genetic risk based on the risk allele and the genetic model can be coded as a variable than then be can used in a statistical model. For dominant or recessive genetic model this means that the variable is binary since the risk is either present or not~\cite{geira}. See table~\ref{table:genetic} for how the coding is based on the model. For co-dominant model the number of risk alleles in the individual is used as the variable, 0, 1 or 2~\cite{geira}.
+The presence of genetic risk based on the risk allele and the genetic model can be coded as a variable that then be can used in a statistical model. For dominant or recessive genetic model this means that the variable is binary since the risk is either present or not~\cite{geira}. See table~\ref{table:genetic} for how the coding is based on the model. For co-dominant model the number of risk alleles in the individual is used as the variable, 0, 1 or 2~\cite{geira}.
 
 \section{Interaction}
 \label{interaction}
@@ -211,7 +263,7 @@ The aim of this thesis is to make the gene-environment interaction analysis fast
 
 \clearpage
 \chapter{Background}
-This chapter will explain some of the background starting with the statistical background, continuing with computer architecture and software design. Finally is a section about the algorithms.
+This chapter will explain some of the background starting with the statistical background, continuing with computer architecture and software design. Finally there is a section about the algorithms.
 
 \section{Statistical Background}
 This section will explain some of the statistical background with focus on categorical data.
@@ -233,6 +285,7 @@ A contingency table is a matrix used to describe categorical data~\cite{agresti_
 \label{table:contingency_table}
 \end{table}
 
+\newpage
 \subsection{Relative Risk and Odds Ratio}
 \label{rr_or}
 From a contingency table it is possible to calculate some useful measures such as the risk of getting the outcome based on exposure~\cite{agresti_categorical}. The risk for a row $i$ in the table will be referred to as $\pi_i$. For table~\ref{table:contingency_table} the risks $\pi_1$ and $\pi_2$ is
@@ -269,7 +322,7 @@ The odds are non-negative and $\Omega>1$ when the outcome is more likely than no
 \theta=\frac{\Omega_1}{\Omega_2}
 \end{equation}
 
-In the case when the outcome is a disease or similar variables with odds ratio below one are called \emph{protective} and when it is above one it is a \emph{risk factor}~\cite{recoding_2011}.
+In the case when the outcome is a disease variables with odds ratio below one are called \emph{protective} and when it is above one it is a \emph{risk factor}~\cite{recoding_2011}.
 
 \newpage
 \subsection{Additive Interaction}
@@ -405,7 +458,7 @@ There are also other potential problems that can arise when using concurrency. A
 In computer science concurrency occurs when instructions are separated in different \emph{threads}. The architectures can be divided in a taxonomy with four categories including the sequential. They are illustrated in figure~\ref{fig:flynn_taxonomy}.
 
 \begin{itemize}
- \item \emph{SISD}(Single-Instruction,Single-Data) is the sequential and is as the name says, single instructions on single data~\cite{introduction_hpc_hager}.
+ \item \emph{SISD}(Single-Instruction,Single-Data) is the sequential and is as the name suggests single instructions on single data~\cite{introduction_hpc_hager}.
  \item \emph{SIMD}(Single-Instruction, Multiple-Data) is applying the same instruction on different data~\cite{introduction_hpc_hager}. SIMD is also called vectorisation~\cite{introduction_hpc_hager}.
  \item \emph{MIMD}(Multiple-Instruction, Multiple-Data) applies different instructions on different data~\cite{introduction_hpc_hager}.
  \item \emph{MISD}(Multiple-Instruction, Single-Data) performs different operations at the same piece of data, this paradigm is uncommon~\cite{introduction_hpc_hager, computer_arch_2003}.
@@ -451,7 +504,7 @@ Various optimizations have been introduce to the CPUs over the years~\cite{drepp
     \label{fig:core_die}
 \end{figure}
 
-In general retrieving data from memory is relatively slow compared to how fast the processor works~\cite{introduction_hpc_hager,drepper2007cpumemory}. To solve this problem a \emph{cache} was introduced~\cite{drepper2007cpumemory}. It stores recently used data in a very small and very fast memory that resides on the CPU chip itself~\cite{drepper2007cpumemory}. The caches varies in sizes, the latest ones are around 16-20 mB, for instance Intels i7-5960x with 20 mB~\cite{intel_haswell_2014_5960x}. The cached data can then be reused without waiting for the main memory to fetch it. However when the data is not in the cache it costs time to fetch it from the main memory, that is a \emph{cache miss}~\cite{drepper2007cpumemory}. Avoiding cache misses is important for the speedup~\cite{drepper2007cpumemory}. Modern CPUs commonly have more than one cache, most have three~\cite{introduction_hpc_hager}. They are named L1 to L3, with L1 being the one fastest and smallest and L3 the largest and slowest~\cite{introduction_hpc_hager}.\\
+In general retrieving data from memory is relatively slow compared to how fast the processor works~\cite{introduction_hpc_hager,drepper2007cpumemory}. To solve this problem a \emph{cache} was introduced~\cite{drepper2007cpumemory}. It stores recently used data in a very small and very fast memory that resides on the CPU chip itself~\cite{drepper2007cpumemory}. The caches varies in sizes, the latest ones are around 16-20 MB, for instance Intels i7-5960x with 20 MB~\cite{intel_haswell_2014_5960x}. The cached data can then be reused without waiting for the main memory to fetch it. However when the data is not in the cache it costs time to fetch it from the main memory, that is a \emph{cache miss}~\cite{drepper2007cpumemory}. Avoiding cache misses is important for the speedup~\cite{drepper2007cpumemory}. Modern CPUs commonly have more than one cache, most have three~\cite{introduction_hpc_hager}. They are named L1 to L3, with L1 being the one fastest and smallest and L3 the largest and slowest~\cite{introduction_hpc_hager}.\\
 \\
 Modern multi-core processors have several L1 caches, one per core~\cite{introduction_hpc_hager}. Commonly each core has a L2 cache as well, however it can be shared in some architectures~\cite{introduction_hpc_hager}. The L3 cache is almost always shared between all cores~\cite{introduction_hpc_hager}. The multiple caches used causes a problem called \emph{cache coherency}. It is when the data modified in one cache needs to be updated in all the caches in order for them to use the new value~\cite{introduction_hpc_hager}.\\
 \\
@@ -464,7 +517,7 @@ Another optimization is \emph{branch prediction} and \emph{speculative execution
 \subsubsection{Cache-Friendly Code}
 Correct and incorrect usage of caches can effect the performance significantly. In section 6.2.1 in What Every Programmer Should Know About Memory~\cite{drepper2007cpumemory} an example of how much speed that can be gained by optimizing matrix matrix multiplication. The variables here have been renamed for clarity. The simple version of the algorithm is shown in algorithm~\ref{alg:matmatmult} and the version with improved cache use is shown in~\ref{alg:matmatmultopt}.\\
 \\
-By transposing the \textit{matrix2} matrix it becomes more cache friendly by using prefectching of surrounding data the way that \textit{matrix1} already is~\cite{drepper2007cpumemory}. In the simple version, algorithm~\ref{alg:matmatmult} \textit{matrix1} is looped along the way it is stored in the memory while \textit{matrix2} is not. The transpose itself can be eliminated while also making it use the cache better by reading in the correct amount of data, this is the size $SM$ in the code~\cite{drepper2007cpumemory}. The optimized version is shown in~\ref{alg:matmatmultopt}. It took 17.3\% of the original time~\cite{drepper2007cpumemory}. On top of that by using some additional features of the CPU such the CPUs SIMD capabilities more speedup is gained increasing it to 9.47\% of the original time~\cite{drepper2007cpumemory}.
+By transposing the \textit{matrix2} matrix it becomes more cache friendly since the matrix will then be looped over along the cache lines~\cite{drepper2007cpumemory}. In the simple version, algorithm~\ref{alg:matmatmult} \textit{matrix1} is looped along the way it is stored in the memory while \textit{matrix2} is not. The transpose itself can be eliminated while also making it use the cache better by reading in the correct amount of data, this is the size $SM$ in the code~\cite{drepper2007cpumemory}. The optimized version is shown in~\ref{alg:matmatmultopt}. It took 17.3\% of the original time~\cite{drepper2007cpumemory}. On top of that by using some additional features of the CPU such the CPUs SIMD capabilities more speedup is gained increasing it to 9.47\% of the original time~\cite{drepper2007cpumemory}.
 
 \begin{algorithm}
 \DontPrintSemicolon
@@ -600,7 +653,7 @@ $*d = *e + *f$\;
 \label{ex:pointer_aliasing}
 \end{algorithm}
 
-Some programming languages, e.g. Fortran, disallow some types of aliasing while others, e.g. C/C++, allows aliasing~\cite{introduction_hpc_hager}. The compilers for the languages in the second case commonly have an option to disable aliasing. However for languages that don't allow aliasing, or if it is disabled, it is then the programmers responsibility to make sure that aliasing does not occur or the results can be wrong~\cite{introduction_hpc_hager}.
+Some programming languages, e.g. Fortran, disallow some types of aliasing while others, e.g. C/C++, allows aliasing~\cite{introduction_hpc_hager}. The compilers for the languages in the second case commonly have an option to disable aliasing. However for languages that do not allow aliasing, or if it is disabled, it is then the programmers responsibility to make sure that aliasing does not occur or the results can be wrong~\cite{introduction_hpc_hager}.
 
 \begin{figure}[h]
     \centering
@@ -614,20 +667,13 @@ Some programming languages, e.g. Fortran, disallow some types of aliasing while 
 \label{gpu}
 Accelerators are separate parts made to do one task and do it well. They are usually highly specialised and perform badly outside of the tasks they were designed for. The two accelerators explained here is graphical processing unit(GPU) and Intel Xeon Phi~\cite{cuda, jeffers2013intel}. GPUs have mostly been used for games and other graphics related problems however have become more popular for general computing the last 10 years due to their high number of cores~\cite{cuda}.  Intel Mic is much more recent with prototypes in 2010 and the first generation released in 2010~\cite{jeffers2013intel}. It is Intels response to the GPUs and has elements of both GPU and CPU~\cite{jeffers2013intel}. This section will focus on explaining some parts of the architecture of the GPUs and Xeon Phi. How to use the GPUs are talked about in more detail in section~\ref{cuda_programming_model}.\\
 \\
-GPUs are made to process images in a fast manner so that games and similar tasks runs smoothly~\cite{cuda}. Because GPUs are made for image processing they are GPUs have a large number of cores(~1000-2000)~\cite{cuda, nvtesla}. Each core is slower than a core in a CPU, however the number of cores makes up for it. The downside is that it's slower than a normal CPU for sequential tasks so the program has to take advantage of the extreme parallelism to get good speed~\cite{cuda_best_practice}. The memory of the GPU is separate from the computers main memory which means that the data needs to be transferred between the memories which increases the programs complexity~\cite{cuda}.\\
+GPUs are made to process images in a fast manner so that games and similar tasks runs smoothly~\cite{cuda}. Because GPUs are made for image processing they are GPUs have a large number of cores(~1000-2000)~\cite{cuda, nvtesla}. Each core is slower than a core in a CPU, however the number of cores makes up for it. The downside is that it is slower than a normal CPU for sequential tasks so the program has to take advantage of the extreme parallelism to get good speed~\cite{cuda_best_practice}. The memory of the GPU is separate from the computers main memory which means that the data needs to be transferred between the memories which increases the complexity of the program~\cite{cuda}.\\
 \\
 The GPU cores work in a manner that is similar to SIMD~\cite{cuda}. The cores also have fewer optimizations than CPUs, this means that they can then devote a larger portion of the chip to the calculations as seen in figure~\ref{fig:gpu_scheme}. For instance NVIDIAs GPUs lack optimizations such as branch prediction and speculative execution talked about in section~\ref{optimizations}~\cite{cuda}. Their caches are also much smaller than the CPUs~\cite{cuda}. Another inheritance from the image processing is that they are much faster with single precision than with double precision data types~\cite{cuda, nvtesla}. A CPU drops slightly in performance when using double precision however much less than a GPU as seen in figure~\ref{fig:gpu_vs_cpu}. Single and double precision refers to how many bytes are used to store the decimal numbers, fewer bytes means less numerical precision.\\
 \\
 Intels answer to the increasing popularity of GPUs for general computing is Xeon Phi~\cite{jeffers2013intel}. It has elements of GPU architecture however is still more like a CPU. It has separate memory and many cores(50+)~\cite{jeffers2013intel}. It is MIMD which can be good for codes that diverge a lot, for ease of use however it has the possibly to use more SIMD like structures~\cite{jeffers2013intel}. It is possible to only use the Xeon Phis memory and avoid the memory transfers that way. The memory is relatively small compared to the main memory so if the program needs a lot of memory transfers are likely needed. The cores of the Xeon Phi lacks some of the normal optimizations, e.g. out of order execution~\cite{jeffers2013intel}.\\
 \\
-The choice between different accelerators depends largely on the algorithm, performance requirements, etc. For instance if the algorithm contains many points of divergence Xeon Phi is likely faster because Xeon Phi is MIMD while GPU is SIMT. That Xeon Phi is MIMD also means it can be applied to a broader set of problems~\cite{jeffers2013intel}. A one on one comparison of speed might not the correct choice either because of the different prices of the hardware and power consumption. Speed per power consumption or price can be more relevant.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{knigths_corner_silicon_layout.png}
-    \caption[Knights Corner silicon layout]{Knights Corner silicon layout, from~\cite{intel_knights_corner}}
-    \label{fig:knights_corner_layout}
-\end{figure}
+The choice between different accelerators depends largely on the algorithm, performance requirements, etc. For instance if the algorithm contains many points of divergence Xeon Phi is likely faster because Xeon Phi is MIMD while GPU is SIMT. SIMT is similar to SIMD and is explained in section \ref{cuda_programming_model}. That Xeon Phi is MIMD also means it can be applied to a broader set of problems~\cite{jeffers2013intel}. A one on one comparison of speed might not the correct choice either because of the different prices of the hardware and power consumption. Speed per power consumption or price can be more relevant.
 
 \begin{figure}[h]
     \centering
@@ -637,8 +683,17 @@ The choice between different accelerators depends largely on the algorithm, perf
 \end{figure}
 
 \clearpage
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{knigths_corner_silicon_layout.png}
+    \caption[Knights Corner silicon layout]{Knights Corner silicon layout, from~\cite{intel_knights_corner}}
+    \label{fig:knights_corner_layout}
+\end{figure}
+
 \subsection{Clusters}
 \label{clusers}
+Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communicate over a shared network but have separate memory and processors. Storage is usually shared. A computer in a cluster is called a \emph{node}.~\cite{intro_hpc, introduction_hpc_hager}
 
 \begin{figure}[h]
     \centering
@@ -646,8 +701,6 @@ The choice between different accelerators depends largely on the algorithm, perf
     \caption{Basic overview of a cluster}
     \label{fig:cluster}
 \end{figure}
-
-Clusters are collections of computers that can work together in several ways and are so tightly connected that they can usually be viewed as a single system. They communicate over a shared network but have separate memory and processors. Storage is usually shared. A computer in a cluster is called a \emph{node}.~\cite{intro_hpc, introduction_hpc_hager}
 
 %various programming models, shared memory and so on
 %shared memory, cache coherrency and stuff
@@ -670,7 +723,7 @@ Clusters are collections of computers that can work together in several ways and
 \label{cuda_programming_model}
 This section is about GPU programming in more detail using NVIDIAs CUDA (Compute Unified Device Architecture)~\cite{cuda}. CUDA extends C and C++ with some additional functionality that can be used to perform operations on NVIDAs GPUs. It provides a separate compiler to compile the GPU code called nvcc~\cite{cuda}. Different GPUs support different CUDA functions, each NVIDIA GPU has a value called computational capability~\cite{cuda, cuda_best_practice}. The higher the value the more features of CUDA are supported on that GPU. Some properties also vary between the different underlying architectures. This means that it is important to know what kind of capability the GPU to be used has so that the program does not need features that are not there. The subjects explained here might not apply to GPUs with compute capability below 3. There are GPUs made specifically for calculations rather than games, for instance the Tesla series~\cite{nvtesla}. This section is a summary of how CUDA works mostly from the CUDA programming guide~\cite{cuda} and the CUDA best practices guide~\cite{cuda_best_practice}.\\
 \\
-In CUDA the GPU is called \emph{device} and systems CPU and memory is the \emph{host}~\cite{cuda}. To perform operations on the device a type of function called \emph{kernel} is used. A kernel is works mostly as a normal C/C++ function with the addition of some specifiers to provided options to set number of threads and so on~\cite{cuda}. Example~\ref{ex:simple_kernel_device} is an example of a simple kernel definition and example~\ref{ex:simple_kernel_host} shows how it can be called from the host code. The kernel add each element of the arrays A and B storing it in C. Each thread performs on addition and knows why elements to use based on it's id. The call to the kernel is made by giving three arrays and the number of threads to be used as N. In this case N needs to be the length of the arrays.\\
+In CUDA the GPU is called \emph{device} and systems CPU and memory is the \emph{host}~\cite{cuda}. To perform operations on the device a type of function called \emph{kernel} is used. A kernel is works mostly as a normal C/C++ function with the addition of some specifiers to provided options to set number of threads and so on~\cite{cuda}. Example~\ref{ex:simple_kernel_device} is an example of a simple kernel definition and example~\ref{ex:simple_kernel_host} shows how it can be called from the host code. The kernel adds each element of the arrays A and B storing it in C. Each thread performs the addition on one index based on the thread's id. The call to the kernel is made by giving three arrays and the number of threads to be used as N. In this case N needs to be the length of the arrays.\\
 \\
 The \_\_global\_\_ keyword in front of the function declaration tells nvcc that it is a kernel. The $<<<N,M>>>$ specifier tells the compiler how many $N$ blocks and how many $M$ threads per block that the kernel should use~\cite{cuda}. A block is a group of threads and shares some memory and resources. The blocks can be executed in any order so they need to be completely independent from each other but variables can be shared among threads inside a block~\cite{cuda}. This allows the program to scale to different GPUs as shown in figure~\ref{fig:blocks_scaling}. The blocks are  organized in a one, two or three dimensional \emph{grid}. These can be accessed by each thread so it knows which grid it is in as illustrated in figure~\ref{fig:grid_2d}. This can be used to make it easier to assign the threads to the correct bit of the calculation. For instance using a two dimensional grid is good for matrices~\cite{cuda, cuda_best_practice}.
 
@@ -845,9 +898,9 @@ One of the main criticism against GPUs for general computing purposes is that it
   \item[Find the optimal number of blocks and threads] \hfill \\
   There are many things affected by the number of blocks and threads so they should be considered carefully. It is a good idea to parametrize them so that they can be changed for future hardware and varied for optimization. NVIDIA has an occupancy calculator which can be helpful in determining the optimal numbers, however high occupancy does not mean high performance.~\cite{cuda, cuda_best_practice}\\
   \\
-  The number of blocks should be larger than the number of multiprocessors so that all multiprocessors have at least one block to execute. Having two blocks or more per multiprocessor can be good so that there are blocks that aren't waiting for a \_\_syncthreads() that can be executed. However this is not always possible due to shared memory usage and similar.~\cite{cuda_best_practice}\\
+  The number of blocks should be larger than the number of multiprocessors so that all multiprocessors have at least one block to execute. Having two blocks or more per multiprocessor can be good so that there are blocks that are not waiting for a \_\_syncthreads() that can be executed. However this is not always possible due to shared memory usage and similar.~\cite{cuda_best_practice}\\
   \\  
-  The number of threads per block should be a multiplier of 32 but minimum 64. It's also important to remember that multiple concurrent blocks can reside on the same multiprocessor. Too large number of threads in a block and parts of the multiprocessor might be idle since there aren't a block small enough to use those threads. Between 128 and 256 threads is a good place to start.~\cite{cuda_best_practice}
+  The number of threads per block should be a multiplier of 32 but minimum 64. It is also important to remember that multiple concurrent blocks can reside on the same multiprocessor. Too large number of threads in a block and parts of the multiprocessor might be idle since there are not a block small enough to use those threads. Between 128 and 256 threads is a good place to start.~\cite{cuda_best_practice}
   \item[Use streams and asynchronous transfers] \hfill \\
   By using streams it is possible to overlap memory transfers with calculations as mentioned before. This means that the data for the next batch can be transferred while the current batch is calculated and when it is done it can start calculating on the next batch directly after the current one is done. This can hide the time for transfers completely in some situations. Depending on the time the transfers take versus the time the calculations take this can give significant speedup.~\cite{cuda, overlap_transfers_cuda, kepler_tuning_guide}
   \item[Use the correct memory type and caches] \hfill \\
@@ -868,23 +921,26 @@ One of the main criticism against GPUs for general computing purposes is that it
   There are some instructions that can be slow and should be avoided if possible, for instance type conversion, integer division and modulo. If a function is called with a floating point number that might be used as a double and require a conversion. By putting a $f$ at the end of the number it is told to be single precision float, for instance 0.5f. In some cases it is possible to use bitwise operations instead which is faster.~\cite{cuda, cuda_best_practice}
   \item[Restricted pointers can give increased performance] \hfill \\
   Aliasing can be a problem as mentioned earlier. By using the \_\_restrict\_\_ keyword on pointers the compiler can be told that no aliasing will occur, however it is up to the programmer to make sure that is the case or there might be unexpected results. Not using aliasing reduces the number of memory accesses the CPU needs to make. However it increases register pressure so it can have a negative effect on performance.~\cite{cuda}
-  \item[Use fast math functions if precision isn't needed] \hfill \\
-  There are three versions of the math functions. The double precision version is func() while the single precision function is funcf(). There is third faster but less accurate version \_funcf(). The option -use\_fast\_math makes the compiler change all the funcf() to \_funcf().~\cite{cuda_best_practice}
+  \item[Use fast math functions if precision is not needed] \hfill \\
+  There are three versions of the math functions. The double precision version is func() while the single precision function is funcf(). There is a third, faster, however less accurate version \_funcf(). The option -use\_fast\_math makes the compiler change all the funcf() to \_funcf().~\cite{cuda_best_practice}
   \item[Instruction level parallelism can increase speed]\hfill \\
   Just as for CPUs the GPUs can take advantage of instruction level parallelism. By unrolling loops this can give 2x the speed relatively simple~\cite{volkov2011unrolling}.
 \end{description}
 
-\clearpage
+\newpage
+\thispagestyle{plain}
+\mbox{}
+\newpage
+
 \section{Software Design}
-How to design software so it can be maintained over time has been a problem for a long time~\cite{cleancode2008, design_patterns}. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software~\cite{cleancode2008}.Badly organized and written code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes~\cite{cleancode2008, design_patterns}. Correcting those bugs are likely to be time consuming because it can be hard to find where they originated from. All code gather problems overtime, however a well designed system will degenerate significantly slower than one that was designed carelessly~\cite{cleancode2008}. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in~\cite{cleancode2008}.\\
+How to design software so it can be maintained over time has been a problem for a long time~\cite{cleancode2008, design_patterns}. Object oriented languages such as C and later Java and C++ arose because of problems with maintaining software~\cite{cleancode2008}.Badly organized and written code will cost productivity in the future when bugs and other problems stack up because of earlier mistakes~\cite{cleancode2008, design_patterns}. Correcting those bugs are likely to be time consuming because it can be hard to find where they originated from. All code gathers problems overtime, however a well designed system will degenerate significantly slower than one that was designed carelessly~\cite{cleancode2008}. The code will also be read by ourselves and others later which means readability is important if a future reader is to understand the code and find the parts they are interested in~\cite{cleancode2008}.\\
 \\
 This is also important in science where others might wish to use the tools, repeat the experiments or build upon it. A study~\cite{comp_repro_2013} found that the repeatability in computer science is low. Their goal was to get the code from articles in computer science and compile it, meaning that they did not test if the code actually ran properly or even at all. Their results are shown in~\ref{fig:comp_repro}. Of 515 articles they received the code from 231, of those 102 compiled~\cite{comp_repro_2013}.\\
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=12cm]{comp_repro.png}
-    \caption[Repeatability in computer science]{Repeatability in computer science,from~\cite{comp_repro_2013}} %TODO text for fig 
-    %TODO fix all fig texts
+    \caption[Repeatability in computer science]{Repeatability in computer science,from~\cite{comp_repro_2013}}
     \label{fig:comp_repro}
 \end{figure}
 
@@ -912,11 +968,11 @@ Dependency injection is one way to implement dependency inversion principle~\cit
 
 \newpage
 \subsection{Unit Tests and Mocks}
-\emph{Unit testing} involves testing the program in small units in isolation~\cite{cleancode2008}. Testing in isolation means that the test should only depend on the part of the program that is tested~\cite{cleancode2008}. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly~\cite{cleancode2008}. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work. \emph{Integration testing} is used to test several units together to find possible errors that occur when the smaller units are combined.\\ %TODO cite integration tests
+\emph{Unit testing} involves testing the program in small units in isolation~\cite{cleancode2008}. Testing in isolation means that the test should only depend on the part of the program that is tested~\cite{cleancode2008}. If a part of the program is not working properly only its related tests should fail, not other tests for code that depends on it but otherwise works properly~\cite{cleancode2008}. This makes it easier to find errors when they do occur since the tests will pinpoint the unit which does not work. \emph{Integration testing} is used to test several units together to find possible errors that occur when the smaller units are combined.\\
 \\
-It can be easy to denote test code as less important than the main code but they should be treated as equally important~\cite{cleancode2008}. Tests should also not be an inconvenience to use so they should be easy to run, take reasonable amount of time to complete and not require any outside interpretation whether they failed or not~\cite{cleancode2008}.\\
+It can be easy to think of test code as less important than the main code but they should be treated as equally important~\cite{cleancode2008}. Tests should also not be an inconvenience to use so they should be easy to run, take reasonable amount of time to complete and not require any outside interpretation whether they failed or not~\cite{cleancode2008}.\\
 \\
-\emph{Mocking} is to replace a real object with a fake object called a \emph{mock} that for the code is indistinguishable from the real object~\cite{cleancode2008}. This allows one to create situations and test with more control and without depending on the real objects code~\cite{cleancode2008}. The second is important for unit tests since it enables one to test units that normally depend on others in isolation~\cite{cleancode2008}. In the first case it is useful in situations such as when one wants to test a class handling of a rare failure~\cite{cleancode2008}. Such failures can be hard and time consuming to induce. It is then easier to use a mock object that behaves like the failure has occurred. However mocking requires that the code for the class doesn't create the object itself since there is no way to replace the object with the mock~\cite{cleancode2008}. This is one of the reasons why dependency injection should be use~\cite{cleancode2008}.
+\emph{Mocking} is to replace a real object with a fake object called a \emph{mock} that for the code is indistinguishable from the real object~\cite{cleancode2008}. This allows one to create situations and test with more control and without depending on the real objects code~\cite{cleancode2008}. The second is important for unit tests since it enables one to test units that normally depend on others in isolation~\cite{cleancode2008}. In the first case it is useful in situations such as when one wants to test a class handling of a rare failure~\cite{cleancode2008}. Such failures can be hard and time consuming to induce. It is then easier to use a mock object that behaves like the failure has occurred. However mocking requires that the code for the class does not create the object itself since there is no way to replace the object with the mock~\cite{cleancode2008}. This is one of the reasons why dependency injection should be used~\cite{cleancode2008}.
 
 \subsection{Design Patterns}
 \label{design_pattern}
@@ -927,7 +983,7 @@ A \emph{design pattern} in software design is a reusable general solution to a c
 An \emph{wrapper} is an interface used to \emph{wrap} another interface, it is also called \emph{adapter} pattern~\cite{cleancode2008, design_patterns}. The wrapper does not perform the work, it delegates it to the other interface~\cite{cleancode2008}. This is useful for instance when a 3rd party interface is not in the same style as the program or has other problems but otherwise suits the needs~\cite{cleancode2008}.
 
 \subsection{Version Control Software}
-Backups for data, code, text and so on is important if something happens. One way to backup text and code projects is to use a version control software and is usually an important tool in developing~\cite{git_book}. For this project Git was used and the source code can be found at \url{https://github.com/Berjiz/CuEira}. Version control software allows several developers to share a common \emph{repository} which allows them to work on different parts at the same time, it could even be in the same file~\cite{git_book}. However changes at the same place causes \emph{merge conflicts} which usually needs to be solved manually~\cite{git_book}. A version control software keeps track of all the changes made so if a part later turns out to be wrong that part can reverted to an older correct version~\cite{git_book}. Version control software also have many other features~\cite{git_book}.
+Backups for data, code, text and so on is important if something happens. One way to backup text and code projects is to use a version control software and is usually an important tool in developing~\cite{git_book}. For this project Git was used and the source code can be found at \url{https://github.com/Berjiz/CuEira}. Version control software allows several developers to share a common \emph{repository} which allows them to work on different parts at the same time, it could even be in the same file~\cite{git_book}. However changes at the same place causes \emph{merge conflicts}, which usually needs to be solved manually~\cite{git_book}. A version control software keeps track of all the changes made so if a part later turns out to be wrong that part can reverted to an older correct version~\cite{git_book}. Version control software also have many other features~\cite{git_book}.
 
 \clearpage
 \section{Performance Measures}
@@ -935,7 +991,7 @@ An important part in creating fast and efficient programs is to know how fast th
 \\
 There are two ways to measure how long a program takes to execute~\cite{introduction_hpc_hager}. Wall clock time is how long real life time the program took~\cite{introduction_hpc_hager}. The other is to measure the number of processor cycles spent~\cite{introduction_hpc_hager}. A parallel program will have shorter execution time than it is serial version however it will likely have spent more processor cycles due to overhead from communication and initialisation of the threads. These two measures are useful for different kinds of comparisons. Wall clock time is better for overall performance while number of cycles is useful for comparing different algorithms~\cite{introduction_hpc_hager, cuda_best_practice}.\\
 \\
-Speed up is a measure of how much faster then program is with a certain number of threads compared to the serial version. It's defined as~\cite{introduction_hpc_hager}
+Speed up is a measure of how much faster then program is with a certain number of threads compared to the serial version. It is defined as~\cite{introduction_hpc_hager}
 
 \begin{equation}\label{eq:speedup}
 S(p)=\frac{T(1)}{T(p)}
@@ -943,7 +999,7 @@ S(p)=\frac{T(1)}{T(p)}
 
 Where $T(1)$ is execution time of serial program and $T(p)$ is execution time of parallel program with p threads. Linear speedup is when S(p)=p~\cite{introduction_hpc_hager}.\\
 \\
-Efficiency reflects how efficient the program is using p threads. Linear speed has efficiency 1. It's defined as~\cite{introduction_hpc_hager}
+Efficiency reflects how efficient the program is using p threads. Linear speed has efficiency 1. Efficiency is defined as~\cite{introduction_hpc_hager}
 
 \begin{equation}\label{eq:efficiency}
 E(p)=\frac{S(p)}{p}=\frac{T(1)}{pT(p)}
@@ -955,9 +1011,9 @@ It can be a good idea to plot these measures while varying p, this can show when
 
 \newpage
 \subsection{Amdahl's Law and Gustafson's Law}
-Amdahl's Law is used to find the expected speedup of a system when parts of it are made concurrent~\cite{2010_reevaluating_amdahl}. Simply it says that as the number of processors increases the parts that aren't parallel will start taking up more and more of the wall clock time and that the speedup for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts~\cite{introduction_hpc_hager, 2010_reevaluating_amdahl}. It's closely related to strong scaling~\cite{cuda_best_practice,2010_reevaluating_amdahl}.\\
+Amdahl's Law is used to find the expected speedup of a system when parts of it are made concurrent~\cite{2010_reevaluating_amdahl}. Simply it states that as the number of processors increases the parts that are not parallel will start taking up more and more of the wall clock time and that the speedup for adding more processors will decrease as more and more processors are added and more time is spent relatively on the non parallel parts~\cite{introduction_hpc_hager, 2010_reevaluating_amdahl}. It is closely related to strong scaling~\cite{cuda_best_practice,2010_reevaluating_amdahl}.\\
 \\
-It says that the expected speedup with F fraction of the code parallel and p threads is~\cite{introduction_hpc_hager} 
+Amdahl's law states the expected speedup with F fraction of the code parallel and p threads is~\cite{introduction_hpc_hager} 
 
 \begin{equation}\label{eq:amdahl}
 S(p)=\frac{1}{(1-F)+\frac{F}{p}(1-F)}
@@ -971,12 +1027,12 @@ As the number of threads grow towards infinity $S(p)$ converges on $\frac{1}{1-F
   \item The parallel portion has infinite scaling, not true due to similar limits as above. More threads will not increase performance after a while or might even decrease it.
   \item There is no overhead for creation and destruction of threads.
   \item The length of the serial portion is independent of the number of threads. Often the serial work is to divided the work to the threads, this work will obviously increase as the number of threads go up. More threads can also lead to more communication overhead.
-  \item The serial portion can't be overlapped by the parallel parts. For instance with producer consumer type pattern the consumer could be strictly serial but the time it takes could be overlapped by the parallel producers.
+  \item The serial portion can not be overlapped by the parallel parts. For instance with producer consumer pattern the consumer could be strictly serial but the time consumer takes could be overlapped by the parallel producers.
 \end{itemize}
 
 This means it is most accurate with programs that are of the fork-join type, e.g. both serial and parallel parts~\cite{gustafson1988reevaluating}.\\
 \\
-Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law~\cite{gustafson1988reevaluating}. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, e.g. increased precision by reducing grid size for simulations, higher frame rate for graphics and so on~\cite{gustafson1988reevaluating, introduction_hpc_hager}. The second is that the parallel portion of the program tends to expand faster than the serial part, e.g. for matrix multiplication the initialisation scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$~\cite{gustafson1988reevaluating, introduction_hpc_hager}. The former means that it is closely related to weak scaling~\cite{introduction_hpc_hager}. So in a way it says that the execution time remains constant rather than the amount of data. More precise it says that the expected speedup with p threads and F fraction of the code that is parallel is~\cite{gustafson1988reevaluating, cuda_best_practice, introduction_hpc_hager}
+Gustafson's Law is closely related to Amdahl's Law and can in some ways be more accurate than Amdahl's Law~\cite{gustafson1988reevaluating}. Gustafson's Law makes similar assumptions as Amdahl's Law however it also makes two additional statements. It states that problems tends to expand when provided with more computational power, e.g. increased precision by reducing grid size for simulations, higher frame rate for graphics and so on~\cite{gustafson1988reevaluating, introduction_hpc_hager}. The second is that the parallel portion of the program tends to expand faster than the serial part, e.g. for matrix multiplication the initialisation scales linearly with the matrix size while the multiplication itself scales as $O(n^3)$~\cite{gustafson1988reevaluating, introduction_hpc_hager}. The former means that it is closely related to weak scaling~\cite{introduction_hpc_hager}. So in a way it means that the execution time remains constant rather than the amount of data. More precisely it states that the expected speedup with p threads and F fraction of the code that is parallel is~\cite{gustafson1988reevaluating, cuda_best_practice, introduction_hpc_hager}
 
 \begin{equation}\label{eq:gustafson}
 S(p)=p+(1-F)(1-p)
@@ -984,14 +1040,14 @@ S(p)=p+(1-F)(1-p)
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=12cm]{AmdahlsLaw.png}
+    \includegraphics[width=10cm]{AmdahlsLaw.png}
     \caption[Illustration of Amdahl's Law]{Illustration of Amdahl's Law. Wikipedia Commons}
     \label{fig:AmdahlsLaw}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=13cm]{GustafsonsLaw.png}
+    \includegraphics[width=12cm]{GustafsonsLaw.png}
     \caption{Illustration of Gustafson's Law}
     \label{fig:GustafsonsLaw}
 \end{figure}
@@ -1018,7 +1074,7 @@ Both clusters using only CPUs~\cite{biforce} and CPUs together with GPUs~\cite{g
 \\
 The methods can be roughly classified into four categories, exhaustive, stochastic, machine learning/data mining and stepwise~\cite{fast_high_order_cluster}.\\
 \\
-\emph{Exhaustive search} is the most direct approach, it compares all combinations of the SNPs in the dataset. Exhaustive search methods will not miss a significant combination because it didn't consider that specific combination. However it also means that they can be slow since they will spend time on combinations other methods would skip completely. Multifactor-Dimensionality Reduction(MDR)~\cite{mdr_2001} and BOOST~\cite{boost_gene_gene} are two examples of this type of algorithm.\\
+\emph{Exhaustive search} is the most direct approach, it compares all combinations of the SNPs in the dataset. Exhaustive search methods will not miss a significant combination because it did not consider that specific combination. However it also means that they can be slow since they will spend time on combinations other methods would skip completely. Multifactor-Dimensionality Reduction(MDR)~\cite{mdr_2001} and BOOST~\cite{boost_gene_gene} are two examples of this type of algorithm.\\
 \\
 \emph{Stochastic} methods uses random sampling to iterate through the data. BEAM~\cite{beam_2007} is one example and it uses Markov Chain Monte Carlo(MCMC) method.\\
 \\
@@ -1064,7 +1120,7 @@ This means that $\exp{\beta}$ is the odds ratio since the odds increase by $\exp
 \theta=\frac{e^{\alpha+\beta (x+1)}}{e^{\alpha+\beta x}}=e^{\alpha+\beta (x+1)-\alpha-\beta x}=e^{\beta}
 \end{equation}
 
-Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models~\cite{agresti_categorical}. It's usually done using  maximum likelihood(ML), via Newtons method~\cite{agresti_categorical, uvehag_master_thesis}. It's an iterative method which means it can be relatively slow compared to non iterative methods. The pseudo code for the algorithm using Newtons method can be found in algorithm~\ref{alg:lr}~\cite{uvehag_master_thesis}. Line 13 is sometimes inside the loop, however since it is not needed for the actual iteration calculating it for every loop wastes time.
+Finding the $\beta$ coefficients are done in a similar way as with other linear regression models since they all are generalized linear models~\cite{agresti_categorical}. It is usually done using  maximum likelihood(ML) via Newtons method~\cite{agresti_categorical, uvehag_master_thesis}. It is an iterative method which means it can be relatively slow compared to non iterative methods. The pseudo code for the algorithm can be found in algorithm~\ref{alg:lr}~\cite{uvehag_master_thesis}. Line 13 is sometimes inside the loop, however since it is not needed for the actual iteration calculating it for every loop wastes time.
 
 \begin{algorithm}
 \DontPrintSemicolon
@@ -1128,7 +1184,7 @@ $log \; likelihood\longleftarrow \sum (\boldsymbol{Y}*ln p+(1-\boldsymbol{Y})*ln
 \newpage
 \newpage
 \subsubsection{Matrix Inverse and Matrix Decomposition}
-\label{matrix_inverse}
+\label{matrix_inverse} %TODO U och V unitära matriser?
 The inverse of the \emph{information matrix}, \textbf{J}, on line 10 in algorithm~\ref{alg:lr} is generally not possible to do with normal matrix inversion because it is not defined for a general matrix~\cite{albert1972regression}. However the \emph{pseudoinverse} is defined for a general matrix, it is denoted as $A^+$ for the matrix $A$~\cite{albert1972regression, golub1970singular}. There are several types of pseudoinverse, one of the more common is the \emph{Moore-Penrose pseudoinverse} where $A^+$ is the matrix that satisfies equations~\ref{eq:pseudo_1} to~\ref{eq:pseudo_4}~\cite{albert1972regression}.
 
 \begin{equation}\label{eq:pseudo_1}
@@ -1147,7 +1203,7 @@ A^+AA^+=A^+
 (A^+A)^T=A^+A
 \end{equation}
 
-\emph{Matrix decomposition}, also called \emph{matrix factorisation}, are methods to factorize a matrix into products of matrices~\cite{golub1970singular}. Some of the decomposition methods can be used to find the pseudoinverse. \emph{Singular value decomposition}(SVD) is one of them and works for general matrices~\cite{golub1970singular}. It's factorization of a  $n \times m$ matrix $A$ is shown in equation~\ref{eq:svd}~\cite{golub1970singular}.
+\emph{Matrix decomposition}, also called \emph{matrix factorisation}, are methods to factorize a matrix into products of matrices~\cite{golub1970singular}. Some of the decomposition methods can be used to find the pseudoinverse. \emph{Singular value decomposition}(SVD) is one of them and works for general matrices~\cite{golub1970singular}. Its factorization of a  $n \times m$ matrix $A$ is shown in equation~\ref{eq:svd}~\cite{golub1970singular}.
 
 \begin{equation}\label{eq:svd}
 A=U \Sigma V^T
@@ -1179,7 +1235,7 @@ It has been shown in high dimensional data that RF tends to only rank interactin
 \end{figure}
 
 \subsubsection{Multifactor-Dimensionality Reduction}
-MDR is a method that reduces the number of dimensions(i.e. variable) by combining several dimensions into one~\cite{mdr_2001}. In GWAS it combines the variables that are suspected to interact. This new variable is then compared against the outcome~\cite{mdr_2001}. If the new variables predictability of the outcome is high enough then the variables that were combined are considered to interact~\cite{mdr_2001}. This process is usually repeated on all pair combinations of variables~\cite{cordell_detect_review, mdr_2001}.\\
+MDR is a method that reduces the number of dimensions(i.e. variables) by combining several dimensions into one~\cite{mdr_2001}. In GWAS it combines the variables that are suspected to interact. This new variable is then compared against the outcome~\cite{mdr_2001}. If the new variables predictability of the outcome is high enough then the variables that were combined are considered to interact~\cite{mdr_2001}. This process is usually repeated on all pair combinations of variables~\cite{cordell_detect_review, mdr_2001}.\\
 \\
 The reduction from $n$ dimensions is done by calculating the ratio of cases versus controls for each combination of the possible values of the variables~\cite{mdr_2001}. If the ratio is above a certain threshold all the members of that group get the value 1 for the new dimension, otherwise 0~\cite{mdr_2001}. Accuracy of the model is measured by using cross validation and permutation tests, in other words it reshuffles the data randomly and recalculates the model a large number of times to get an estimate of the models certainty~\cite{cordell_detect_review, mdr_2001}. Because of that MDR can be slow~\cite{cordell_detect_review, mdr_2001}. However it is still usually faster than exhaustive search with regression methods~\cite{cordell_detect_review, mdr_2001}.\\
 \\
@@ -1231,9 +1287,7 @@ A simple example of MDR using exclusive or (XOR). XOR is a logical operator that
 This chapter will explain the implementation of the program starting with a short summary of how the older programs, JEIRA and GEISA, work. After that, a more thorough look at the structure and implementation of CuEira. The input files for all these programs are PLINK data files. However CuEira can only read the PLINK files in binary format. These programs also read a separate tab delimited file that contains the environmental data and covariates if any. For CuEira the covariates and environmental data are in two separate tab delimited files.
 
 \section{JEIRA and GEISA}
-The descriptions and structures in this section applies to both JEIRA and GEISA since their underlying structure is the same, however the focus is on GEISA. Both programs are written in Java and uses Javas features for concurrency.\\
-\\
-GEISA has three dependencies, two are provided as JAR files in the distribution so the user doesn't need to get install them separately. The dependency Apache Maven is only needed if the user wants to compile the program from source.
+The descriptions and structures in this section applies to both JEIRA and GEISA since their underlying structure is the same. Both programs are written in Java and uses Javas features for concurrency. GEISA has three dependencies, two are provided as JAR files in the distribution so the user does not need to get install them separately. The dependency Apache Maven is only needed if the user wants to compile the program from source.
 
 \begin{description}
   \item[Apache Commons CLI] \hfill \\
@@ -1249,7 +1303,7 @@ The implementation uses the producer consumer pattern described in section~\ref{
 \newpage
 \section{CuEira}
 \label{cueira}
-This section will explain the structure of CuEira and how it works starting with a general overview. Later the parts are explained and finally how the parts are combined to form the program. C++ was chosen because it is generally fast and have good control of the memory. The downside is that it is more platform dependent than Java. Java can also be easier to work with in several ways.\\
+This section will explain the structure of CuEira and how it works starting with a general overview. Later the parts are explained and finally how the parts are combined to form the program. C++ was chosen because it is generally fast and has good control of the memory. The downside is that it is more platform dependent than Java. Java can also be easier to work with in several ways.\\
 \\
 The basis of the program is that each SNP is handled independently and a SNPs data is only read from the file when its needed. This reduces memory usage since only a few SNPs are stored in the memory at the same time. A number of worker threads share a queue of the SNPs and with each worker thread corresponding to a stream on a GPU. The program is split into two stages, initialisation and calculations. The initialisation part is done by the main thread and reads all the information except the SNP data. In the calculation step each worker threads fetches a SNP from the queue, reads its data, calculates the model, writes the results and then starts again with the next SNP until the queue is empty.\\
 \\
@@ -1265,7 +1319,7 @@ There are timers at various places that can be used to profile parts of the prog
 
 \newpage
 \subsection{Dependency and Compiling}
-CuEira have some dependencies. The dependency on MKL and Intels compiler is something that can be changed. BLAS shares the interface so another BLAS library could work with updates to the CMake file.
+CuEira has some dependencies. The dependency on MKL and Intels compiler is something that can be changed. BLAS shares the interface so another BLAS library could work with updates to the CMake file.
 
 \begin{description}
   \item[Make] \hfill \\
@@ -1275,25 +1329,25 @@ CuEira have some dependencies. The dependency on MKL and Intels compiler is some
   \item[Boost] \hfill \\
   Boost is a collections of C++ libraries. For CuEira it is used for file handling, string operations and parsing the command line options among others.
   \item[CUDA] \hfill \\
-  NVIDIAs library for GPU, explained in section~\ref{cuda_programming_model}
+  NVIDIAs library for GPU programming, explained in section~\ref{cuda_programming_model}
   \item[CUBLAS] \hfill \\
   BLAS for CUDA
   \item[MKL] \hfill \\
   Intels BLAS library
   \item[Intel Compiler] \hfill \\
-  Intels C/C++ compiler
+  Intel's C/C++ compiler
   \item[Google Test and Google Mock] \hfill \\
-  Unit test and mocking framework. They are provided in the CuEira source so the user does not need to install them separably.
+  Unit test and mocking framework. They are provided in the CuEira source, so the user does not need to install them separably.
 \end{description}
 
 CuEira is compiled by using \emph{CMake} and \emph{Make}. CMake generates Make files from a CMakeLists file. Make files sets rules for how the program should be compiled. Compiling can be complicated and using CMake is one way to make it easier. One of the main advantages of CMake is the modules and the command \emph{find package} which can find libraries by searching for them using common paths. The modules can also help with linking the library with the program and can sometimes also provided other functions. For instance the find package for CUDA has commands to compile CUDA code. There is also support for cross platform compiling which is something that could be used in the future to compile CuEira for other operative systems than Linux.\\
 \\
-The main CMake file needs to know what and where all the source files are. This is done by using nested CMake files, each directory has a CMakeLists file that adds it's sub directories and sets all the source files to the previous level. There are four types of lists of source files each is compiled into a library and then linked together. There is one list for all the tests, one for the files that needs to be compiled with nvcc, one for other GPU related code and then one with the host code.\\
+The main CMake file needs to know what and where all the source files are. This is done by using nested CMake files, each directory has a CMakeLists file that adds it is sub directories and sets all the source files to the previous level. There are four types of lists of source files each is compiled into a library and then linked together. There is one list for all the tests, one for the files that needs to be compiled with nvcc, one for other GPU related code and then one with the host code.\\
 \\
 The CMake file contains several options that controls how CuEira is compiled. For instance one of them sets if it should be single or double precision. More details on how to compile and use CuEira can be found in appendix~\ref{compile_cueira}.
 
 \subsection{Storage}
-A set of container classes holds the data. There are two types of them, the basic matrix and vector classes and data containers. The data containers are responsible for handling the data for the model and performing the recoding. They use the vector classes for the actual storage.\\
+A set of container classes hold the data. There are two types of them, the basic matrix and vector classes and data containers. The data containers are responsible for handling the data for the model and performing the recoding. They use the vector classes for the actual storage.\\
 \\
 There are three types of matrix and vector classes which are all stored in column major format. The set with the Device prefix is for storage on the device and the other two are for storage on the host and shares a common interface. The difference between the host sets is that the ones with Pinned prefix uses pinned memory while Regular does not.\\
 \\
@@ -1301,9 +1355,9 @@ Other basic information such as the information about individuals, environmental
 \\
 The SNPs are stored in the class \textbf{DataQueue}. \textbf{DataQueue} provides the function \textbf{next} that fetches a SNP from the queue and returns it. It has a lock so it can be shared among all worker threads.\\
 \\
-The \textbf{EnvironmentFactorHandler} is responsible for keeping track of the \textbf{EnvironmentFactors} and it's corresponding data. When constructed it updates the EnvironmentFactors variable type. This is done because it can sometimes be needed to know if a variable is binary or not. It also provides functions to access the \textbf{EnvironmentFactors} and the corresponding vectors.\\
+The \textbf{EnvironmentFactorHandler} is responsible for keeping track of the \textbf{EnvironmentFactors} and its corresponding data. It also provides functions to access the \textbf{EnvironmentFactors} and the corresponding vectors.\\
 \\
-There are three data container classes, \textbf{SNPVector}, \textbf{EnvironmentVector} and \textbf{InteractionVector}. They all have the responsibility to keep track of the recoded data and to perform the recoding when their \textbf{recode} function is used. The \textbf{recode} function takes a \textbf{Recode} enum which tells it which type of recoding it should perform. The \textbf{SNPVector} also holds the original SNP data. \textbf{EnvironmentVector} doesn't need to since \textbf{EnvironmentFactorHandler} has that responsibility and \textbf{InteractionVector} does not have any kind of original data.\\
+There are three data container classes, \textbf{SNPVector}, \textbf{EnvironmentVector} and \textbf{InteractionVector}. They all have the responsibility to keep track of the recoded data and to perform the recoding when their \textbf{recode} function is used. The \textbf{recode} function takes a \textbf{Recode} enum which tells it which type of recoding it should perform. The \textbf{SNPVector} also holds the original SNP data. \textbf{EnvironmentVector} does not need to since \textbf{EnvironmentFactorHandler} has that responsibility and \textbf{InteractionVector} does not have any kind of original data.\\
 \\
 The \textbf{DataHandler} is responsible for keeping track of the current combination of data containers being used and to iterate to the next one when its \textbf{next} function is called. When the \textbf{next} function is used a couple of things happen. If all environmental factors have been calculated together with the current SNP it deletes the SNPs information, asks the queue for a new one and reads its data and switches to the first environmental factor. Otherwise it moves on to the next environmental factor. It then updates the InteractionVector and the Statistics classes to create the contingency table and the allele frequencies. After that the next set of variables is ready to be used.
 
@@ -1317,7 +1371,7 @@ The other two files are CSV files. One of them contains the covariates and the o
 \\
 All the information except the genetic data in the bed file is read during the programs initialisation. When a new SNP is being used for calculations its data is read from the bed file. Most of the memory needed to store the data is in the bed file so only reading it when needed save a lot of memory.\\
 \\
-There is only one writer, the \textbf{ResultWriter}, and as its name suggests its responsibility is to write the results. The results are written immediately and then discarded to save memory. There is a lock on the writing so several threads can share it. The results will therefore be written in the order they are completed. The format of the output file is described in appendix~\ref{file_formats}.
+There is only one writer, the \textbf{ResultWriter}, and as its name suggests its responsibility is to write the results. The results are written immediately and then discarded to save memory. There is a lock on the writing so several threads can share it. The results for each combination will therefore be written in the order they are completed. The format of the output file is described in appendix~\ref{file_formats}.
 
 \subsection{Initialisation of the Variables, Recoding and Statistic Model}
 The initialisation of the \textbf{SNPVector} and \textbf{EnvironmentVector} is done by calling the recoding with ALL\_RISK from the \textbf{Recode} enum. The \textbf{recode} function calls different functions based on the enum. If it is ALL\_RISK it calls a function that copies the data from the vector holding the original data to vector that holds the data that will be used for the model. \textbf{InteractionVector} does recoding and initialisation the same way because in both cases the interaction data is the multiplication of the elements of the \textbf{SNPVector} and \textbf{EnvironmentVector}. The algorithms for the recode functions are shown in algorithm~\ref{alg:snp_recode},~\ref{alg:env_recode} and~\ref{alg:inter_recode}.\\
@@ -1453,7 +1507,7 @@ There are several reasons to use wrappers. One is that some of the functions doe
 \\
 Another reason is the lack of object orientation. For instance the BLAS interface standard is not object oriented which causes its functions to have a lot of parameters. Matrix vector multiplication with MKL(Intels version of BLAS) is shown in~\ref{ex:mkl_mv}. The function call uses 12 parameters, most of which are of similar types. One time during the thesis it took a day to find an error that was in one of the CUBLAS calls. Due to a parameter being 1 instead of 0 it performed the operation $y=z*x+y$ instead of $y=z*x$. These types of errors are much easier to make when a function has a larger number of similar parameters. MKL is wrapped in \textbf{MKLWrapper}. Its wrapped version of matrix vector multiplication, shown in~\ref{ex:mkl_wrap_mv}, has five parameters of which two have default values.\\
 \\
-As is sometimes common BLAS function names are heavily abbreviated. For instance a function for matrix vector multiplication is \textbf{sgemv}, the $s$ stands for single precision, $ge$ for general, $m$ for matrix and $v$ for vector. General means that it is standard matrices and vectors, e.g. not triangular or sparse. The equivalent function in \textbf{MKLWrapper} can be found in example~\ref{ex:mkl_wrap_mv}. The name matrixVectorMultiply instantly tells the user what it does. As mentioned earlier in section~\ref{cueira} the CuEira is either single or double precision depending on an option when compiling so \textbf{MKLWrapper} doesn't mention the precision. All matrices and vectors are also general. However even if the function name would contain that information too it would still not be so long that it was in the way. A possible name by using namespaces for the precision and type could be General::SinglePrecision::matrixVectorMultiply.\\
+As is sometimes common BLAS function names are heavily abbreviated. For instance a function for matrix vector multiplication is \textbf{sgemv}, the $s$ stands for single precision, $ge$ for general, $m$ for matrix and $v$ for vector. General means that it is standard matrices and vectors, e.g. not triangular or sparse. The equivalent function in \textbf{MKLWrapper} can be found in example~\ref{ex:mkl_wrap_mv}. The name matrixVectorMultiply instantly tells the user what it does. As mentioned earlier in section~\ref{cueira} the CuEira is either single or double precision depending on an option when compiling so \textbf{MKLWrapper} does not mention the precision. All matrices and vectors are also general. However even if the function name would contain that information too it would still not be so long that it was in the way. A possible name by using namespaces for the precision and type could be General::SinglePrecision::matrixVectorMultiply.\\
 
 \stepcounter{ExamplesCounter}
 \begin{algorithm}
@@ -1530,7 +1584,7 @@ CUBLAS is wrapped together with the kernels made for CuEira in \textbf{KernelWra
 \\
 The CUDA streams are managed by a \textbf{Stream} class and its factory. When the \textbf{StreamFactory} creates a new Stream object it creates a new CUDA stream, a new CUBLAS handle and associates the CUBLAS handle with the new stream. The \textbf{Stream} class has functions to retrieve them and if the Stream object is destroyed, it destroys both the CUDA stream and the CUBLAS handle. Each Stream object is associated with a \textbf{Device} object. The \textbf{Device} class represents a device(i.e. GPU) and since a thread can only issue commands to one device at a time the \textbf{Device} class has functions to set it as the active one and check if itself is the device active or not. The outcomes of the individuals does not change so it can be shared between all streams on the device and the \textbf{Device} class is responsible for the vector with the outcomes on the device.\\
 \\
-The transfers to and from the device are done by two classes, \textbf{DeviceToHost} and \textbf{HostToDevice}. They perform asynchronous transfers on the corresponding matrix and vector class. It can either create a new container to transfer to or transfer to a given place in the memory. The former is useful for instance when transferring a group of vectors into a combined matrix.
+The transfers to and from the device are done by two classes, \textbf{DeviceToHost} and \textbf{HostToDevice}. They perform asynchronous transfers on the corresponding matrix and vector class. It can either create and transfer to a new container or transfer to a given place in the memory. The former is useful for instance when transferring a group of vectors into a combined matrix or an already existing container.
 
 \newpage
 \subsection{Kernels}
@@ -1684,18 +1738,11 @@ The thread has its own \textbf{DataHandler}, \textbf{ModelHandler}, \textbf{Mode
 \end{figure}
 
 \clearpage
-\subsection{Testing}
-Almost all classes have a corresponding unit test that tests its functionality in isolation. However the matrix and vector classes are never mocked out because they are too basic and fundamental. It does mean that if there are multiple errors when testing and the tests for the matrix and vectors failed the fault likely is with those. However the number of integration tests are few and there is a need to create more.\\
-\\
-Since mocks are created by using inheritance from the class to be mocked all functions need to be virtual. Some classes also have empty protected constructors to be used by the mock, others have helper functions to construct the mock. This goes against some parts of clean code but is necessary because of how C++ and mocking works. It could potentially be improved by using private constructors and friends to give the mock access to the private constructor.\\
-\\
-The data for the tests where calculated by hand or by using Matlab.
-
 \subsection{Memory Usage}
 The memory usage is low because only the SNPs whose models currently is being calculated is stored in memory. This also means that most of the memory usage depends on the number of individuals not the number of SNPs. The memory is also bound by the GPU rather than host memory because of the relative larger size of the host memory. The amount used depends on the precision, single precision floating point numbers are four bytes while double precision numbers are eight bytes.
 
 \subsubsection{Device Memory}
-The variables used on the device and their number of elements are shown in table~\ref{table:gpu_variable_sizes}. The memory need with $T$ number of streams is shown in equation~\ref{eq:device_memory}.The amount of individuals than can fit inside 6GB(i.e. a typical GPU) with three streams for different number of covariates and precision is shown in table~\ref{table:gpu_mem}. The number of individuals possible is one magnitude or more than the in a usual study.
+The variables used on the device and their number of elements are shown in table~\ref{table:gpu_variable_sizes}. The memory need with $T$ number of streams is shown in equation~\ref{eq:device_memory}.The number of individuals than can fit inside 6GB(i.e. a typical GPU) with three streams for different number of covariates and precision is shown in table~\ref{table:gpu_mem}. The number of individuals possible is much higher than in a typical study.
 
 \begin{equation}\label{eq:device_memory}
 (N+T(2NM+2N+2M+MM))*Element Size
@@ -1788,6 +1835,14 @@ ElementSize*(N(1+E+C)+T(60+6N+31C+C^2))+str*(N+E+3*S)+12N+4E+28S
 \label{table:host_variable_sizes}
 \end{table}
 
+\newpage
+\subsection{Testing}
+Almost all classes have a corresponding unit test that tests its functionality in isolation. However the matrix and vector classes are never mocked out because they are too basic and fundamental. It does mean that if there are multiple errors when testing and the tests for the matrix and vectors failed the fault likely is with those. However the number of integration tests are few and there is a need to create more.\\
+\\
+Since mocks are created by using inheritance from the class to be mocked all functions need to be virtual. Some classes also have empty protected constructors to be used by the mock, others have helper functions to construct the mock. This goes against some parts of clean code but is necessary because of how C++ and mocking works. It could potentially be improved by using private constructors and friends to give the mock access to the private constructor.\\
+\\
+The data for the tests where calculated by hand or by using Matlab.
+
 \chapter{Results}
 %TODO results
 This chapter contains the results of profiling the program. The data used consists of randomized data with equal number of cases and controls. The number of SNPs, individuals and covariates was varied. The specifications for the hardware used is shown in table~\ref{table:hardware}. The GPUs are of the Fermi architecture so they have one queue for the kernels and transfers.\\
@@ -1816,7 +1871,7 @@ The expectations were that CuEira would have linear efficiency with multiple GPU
 \end{table}
 
 %TODO explain what the different times are, calc init etc
-All the execution times used here are the times the calculation part of the program took. This is because the initialisation part of the program varies a lot in time. The part of the initialisation that varies greatly is when creating the vector of the outcomes(i.e. the individuals phenotypes) which. The total time for initialisation and the time to create the outcomes are shown in figure~\ref{fig:10stream_init}. Except for the first execution the order does not seem to matter, figure~\ref{fig:10stream_init_backward} shows the initialisation times for the same executions as figure~\ref{fig:10stream_init} however they were performed in opposite order. To prevent a bias from this in the results all the plots use the calculation time instead of total run time.
+All the execution times used here are the times the calculation part of the program took. This is because the initialisation part of the program varies a lot in time. The part of the initialisation that varies greatly is when creating the vector containing the individual's outcomes. The total time for initialisation and the time to create the outcomes are shown in figure~\ref{fig:10stream_init}. Except for the first execution the order does not seem to matter, figure~\ref{fig:10stream_init_backward} shows the initialisation times for the same executions as figure~\ref{fig:10stream_init} however they were performed in opposite order. To prevent a bias from this in the results all the plots use the calculation time instead of total run time.
 
 \begin{figure}[h]
     \centering
@@ -1836,15 +1891,13 @@ All the execution times used here are the times the calculation part of the prog
 \section{Scaling}
 This section contains the results of how the programs speed changes when the size of the data is varied.\\
 \\
-The program is expected to be $O(n)$ for the SNPs because the program treats each SNP-environment combination independently, more SNPs simply means doing the same things more times. Figure~\ref{fig:snps_eff_cov_0_stream_4} and~\ref{fig:snps_eff_cov_20_stream_4} shows the calculation time for various number of SNPs relative to the time with 10 000 SNPs according to equation~\ref{eq:snps_eff}. When it is one then the increased time is what was expected. As the figures show all points are close to one except one point. Also due to how long time the calculations take with a large number of SNPs it is also not possible to perform all profiling with large number of SNPs.
+The program is expected to be $O(n)$ for the SNPs because the program treats each SNP-environment combination independently, more SNPs simply means doing the same things more times. Figure~\ref{fig:snps_eff_cov_0_stream_4} and~\ref{fig:snps_eff_cov_20_stream_4} shows the calculation time for various number of SNPs relative to the time with 10 000 SNPs according to equation~\ref{eq:snps_eff}. When it is one then the increased time is what was expected. As the figures show all points are close to one except one point. Also due to how long time the calculations take with a large number of SNPs it is also not possible to perform all the profiling with a large number of SNPs.
 
 \begin{equation}\label{eq:snps_eff}
 \frac{time_{X \; SNPs}}{time_{10^4 \; SNPs}} / \frac{X}{10^4}
 \end{equation}
 
-Individuals increase work but it does not increase so that double means double the work, shown in figure~\ref{fig:individuals_cov_0_stream_4}. There are no major changes with the addition of covariates. With 20 covariates is shown in figure~\ref{fig:individuals_cov_20_stream_4}. Individuals are also a part of the LR algorithm so might affect things that way.\\
-\\
-The number of covariates affects the speed when the number of individuals is low, see figure~\ref{fig:cov_individuals2000_stream_4}. However when the number of individuals is large the effect of the covariates is much smaller as shown in figure~\ref{fig:cov_individuals2e+05_stream_4}.
+The number of individuals increases the execution time, shown in figure~\ref{fig:individuals_cov_0_stream_4} and figure~\ref{fig:individuals_cov_20_stream_4}. The number of covariates affects the speed when the number of individuals is low, see figure~\ref{fig:cov_individuals2000_stream_4}. However when the number of individuals is large the effect of the covariates is much smaller as shown in figure~\ref{fig:cov_individuals2e+05_stream_4}.
 
 \begin{figure}[h]
     \centering
@@ -1879,9 +1932,9 @@ The number of covariates affects the speed when the number of individuals is low
     \includegraphics[width=9cm]{individuals_cov_0_stream_4.png}
     \caption{Varying the number of individuals. 10 000 SNPs, 0 covariates, 4 streams}
     \label{fig:individuals_cov_0_stream_4}
-\end{figure}
+%\end{figure}
 
-\begin{figure}[h]
+%\begin{figure}[h]
     \centering
     \includegraphics[width=9cm]{individuals_cov_20_stream_4.png}
     \caption{Varying the number of individuals. 10 000 SNPs, 20 covariates 4 streams}
@@ -1904,9 +1957,7 @@ The number of covariates affects the speed when the number of individuals is low
 
 \clearpage
 \section{Streams and Multi-GPU}
-The number of streams affects the performance significantly. As figure~\ref{fig:gpu_10streams_10ks_10ki} and figure~\ref{fig:gpu_10streams_10ks_100ki} show using too few streams increases the time the program takes. This is because to few streams does not provide enough work for the GPU. The best performance is when the total number of streams is slightly above the number of cores. It likely means that the CPU is the bottleneck. However for some data sizes with one GPU the GPU is the bottleneck as figure~\ref{fig:gpu_10streams_10ks_10ki} shows where increased number of streams beyond six gives little. Using too many streams have some negative effects.\\
-\\
-NVIDIAs profiler nsight shows warning messages about low overlap between transfers and kernels and between kernels and kernels when using four GPUs and four streams. This also points at the CPU can not provided enough data to the GPUs. However these warnings does not show up for two GPUs and four streams.\\
+The number of streams affects the performance significantly. As figure~\ref{fig:gpu_10streams_10ks_10ki} and figure~\ref{fig:gpu_10streams_10ks_100ki} show using too few streams increases the time the program takes. This is because to few streams does not provide enough work for the GPU. The best performance is when the total number of streams is slightly above the number of cores. It likely means that the CPU is the bottleneck. However for some data sizes with one GPU it is possible that the GPU is the bottleneck as shown in figure~\ref{fig:gpu_10streams_10ks_10ki} where the increase in speed stop as six streams.\\
 \\
 Figures~\ref{fig:saturated_seconds_ind_cov_0},~\ref{fig:saturated_seconds_cov_ind_2000},~\ref{fig:saturated_speedup_ind_cov_0},~\ref{fig:saturated_speedup_cov_ind_2000},~\ref{fig:saturated_efficiency_ind_cov_0} and~\ref{fig:saturated_efficiency_cov_ind_2000} show how the program behaves and scales with multiple GPUs. The figures~\ref{fig:saturated_seconds_ind_cov_0} and~\ref{fig:saturated_seconds_cov_ind_2000} shows the calculation time in seconds. Figures~\ref{fig:saturated_speedup_ind_cov_0} and~\ref{fig:saturated_speedup_cov_ind_2000} shows the speed up for figures~\ref{fig:saturated_seconds_ind_cov_0} and~\ref{fig:saturated_seconds_cov_ind_2000}, while figures~\ref{fig:saturated_efficiency_ind_cov_0} and~\ref{fig:saturated_efficiency_cov_ind_2000} show their efficiency.\\
 \\
@@ -1926,8 +1977,6 @@ Two GPUs show increased speed compared to one GPU. However for three and four GP
     \label{fig:gpu_10streams_10ks_100ki}
 \end{figure}
 
-\clearpage
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=9cm]{gpu_5to10streams_10ks_100ki.png}
@@ -1938,14 +1987,14 @@ Two GPUs show increased speed compared to one GPU. However for three and four GP
 \begin{figure}[h]
     \centering
     \includegraphics[width=9cm]{saturated_gpu_seconds_ind_cov_0.png}
-    \caption{Varying the number of GPUs and individuals. Number of streams are what give best performance. 10 000 SNPs, 0 covariates}
+    \caption{Varying the number of GPUs and individuals. Number of streams are 9,4,3,2 for 1 to 4 GPUs, 10 000 SNPs, 0 covariates}
     \label{fig:saturated_seconds_ind_cov_0}
-\end{figure}
+%\end{figure}
 
-\begin{figure}[h]
+%\begin{figure}[h]
     \centering
     \includegraphics[width=9cm]{saturated_gpu_seconds_cov_ind_2000.png}
-    \caption{Varying the number of GPUs and covariates. Number of streams are what give best performance, 10 000 SNPs, 2 000 individuals}
+    \caption{Varying the number of GPUs and covariates. Number of streams are 9,4,3,2 for 1 to 4 GPUs, 10 000 SNPs, 2 000 individuals}
     \label{fig:saturated_seconds_cov_ind_2000}
 \end{figure}
 
@@ -1954,9 +2003,9 @@ Two GPUs show increased speed compared to one GPU. However for three and four GP
     \includegraphics[width=9cm]{saturated_gpu_speedup_ind_cov_0.png}
     \caption{Speedup vs one GPU for figure~\ref{fig:saturated_seconds_ind_cov_0}. Plain diagonal line corresponds to linear efficiency}
     \label{fig:saturated_speedup_ind_cov_0}
-\end{figure}
+%\end{figure}
 
-\begin{figure}[h]
+%\begin{figure}[h]
     \centering
     \includegraphics[width=9cm]{saturated_gpu_speedup_cov_ind_2000.png}
     \caption{Speedup vs one GPU for figure~\ref{fig:saturated_seconds_cov_ind_2000}. Plain diagonal line corresponds to linear efficiency}
@@ -1968,9 +2017,9 @@ Two GPUs show increased speed compared to one GPU. However for three and four GP
     \includegraphics[width=9cm]{saturated_gpu_efficiency_ind_cov_0.png}
     \caption{Efficiency vs one GPU for figure~\ref{fig:saturated_seconds_ind_cov_0}. Plain horizontal line corresponds to linear efficiency}
     \label{fig:saturated_efficiency_ind_cov_0}
-\end{figure}
+%\end{figure}
 
-\begin{figure}[h]
+%\begin{figure}[h]
     \centering
     \includegraphics[width=9cm]{saturated_gpu_efficiency_cov_ind_2000.png}
     \caption{Efficiency vs one GPU for figure~\ref{fig:saturated_seconds_cov_ind_2000}. Plain horizontal line corresponds to linear efficiency}
@@ -1978,91 +2027,8 @@ Two GPUs show increased speed compared to one GPU. However for three and four GP
 \end{figure}
 
 \clearpage
-\section{Single versus Double Precision}
-Using double precision increases the time in almost all cases. Figure~\ref{fig:single_vs_double_ind_10000} and~\ref{fig:single_vs_double_cov_0} show the relative difference in calculation time for single precision divided by double precision with the optimal number of streams. One point has better performance with double precision than single.
-%TODO write about number of iterations
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{double_comp_cov_ind_10000.png}
-    \caption[Relative calculation time for single precision divided by the corresponding time for double precision, 10 000 SNPs, 10 000 individuals]{Relative calculation time for single precision divided by the corresponding time for double precision. Number of streams are what give best performance, 10 000 SNPs, 10 000 individuals}
-    \label{fig:single_vs_double_ind_10000}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{double_comp_ind_cov_0.png}
-    \caption[Relative calculation time for single precision divided by the corresponding time for double precision. 10 000 SNPs, 0 covariates]{Relative calculation time for single precision divided by the corresponding time for double precision. Number of streams are what give best performance, 10 000 SNPs, 0 covariates}
-    \label{fig:single_vs_double_cov_0}
-\end{figure}
-
-\clearpage
-\section{The LR algorithm, Transfers and Synchronisations}
-With GPUs Fermi architecture a problem can occur when using asynchronous transfers as talked about in section~\ref{streams}. To examine if it affects the speed of the program several more synchronisations were added so that the CPU synchronises after each kernel or transfer call instead of when only necessary. A comparison between the speed with and without these is shown in figures~\ref{fig:less_sync_vs_always_sync_ind_200k} and~\ref{fig:less_sync_vs_always_sync_ind_2k}. More synchronisation increases the time the calculations took in most cases. However with sufficient number of individuals(100 000 and up) some speed is gained with more synchronisations. 200 000 individuals have increased speed in most cases. The transfer times relative to the calculations in LR decreased with the increased syncing, see figure~\ref{fig:timedist_LR_ind_10ks_0cov_gpu1} and~\ref{fig:timedist_LR_ind_10ks_0cov_gpu1_sync}.\\
-\\
-As figure~\ref{fig:timedist_LR_cov_10ks_2000i_gpu4} shows with increased number of covariates the CPU time of the LR algorithm increases. However with more individuals the effect of the covariates decreases see figure~\ref{fig:timedist_LR_cov_10ks_2e+05i_gpu4}. When the number of GPUs increase the time spent on transfers increases, compare figure~\ref{fig:timedist_LR_ind_10ks_0cov_gpu1} with figure~\ref{fig:timedist_LR_ind_10ks_0cov_gpu4}.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{sync_comp_cov_ind_2000.png}
-    \caption{The calculation time without the increased synchronisations divided by the time with increased synchronisations. 10 000 SNPs, 2 000 individuals}
-    \label{fig:less_sync_vs_always_sync_ind_2k}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{sync_comp_cov_ind_2e+05.png}
-    \caption{The calculation time without the increased synchronisations divided by the time with increased synchronisations. 10 000 SNPs, 200 000 individuals}
-    \label{fig:less_sync_vs_always_sync_ind_200k}
-\end{figure}
-
-%TODO switch with 9 stream
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{timedist_LR_ind_10ks_0cov_gpu1.png}
-    \caption{Distribution of time spent on the LR algorithm. 1 GPU, 3 streams, 10 000 SNPs, 0 covariates}
-    \label{fig:timedist_LR_ind_10ks_0cov_gpu1}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{timedist_LR_ind_10ks_0cov_gpu4.png}
-    \caption{Distribution of time spent on the LR algorithm. 4 GPU, 3 streams, 10 000 SNPs, 0 covariates}
-    \label{fig:timedist_LR_ind_10ks_0cov_gpu4}
-\end{figure}
-
-%TODO switch with 9 stream
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{timedist_LR_ind_10ks_0cov_gpu1_sync.png}
-    \caption{Distribution of time spent on the LR algorithm with increased synchronisations. 1 GPU, 3 streams, 10 000 SNPs, 0 covariates}
-    \label{fig:timedist_LR_ind_10ks_0cov_gpu1_sync}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{timedist_LR_ind_10ks_0cov_gpu4_sync.png}
-    \caption{Distribution of time spent on the LR algorithm with increased synchronisations. 4 GPU, 3 streams, 10 000 SNPs, 0 covariates}
-    \label{fig:timedist_LR_ind_10ks_0cov_gpu4_sync}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{timedist_LR_cov_10ks_2000i_gpu4.png}
-    \caption{Distribution of time spent on the LR algorithm. 4 GPU 3 stream, 10 00 SNPs, 2 000 individuals}
-    \label{fig:timedist_LR_cov_10ks_2000i_gpu4}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=9cm]{timedist_LR_cov_10ks_2e+05i_gpu4.png}
-    \caption{Distribution of time spent on the LR algorithm. 4 GPU 3 stream, 10 000 SNPs, 200 00 individuals}
-    \label{fig:timedist_LR_cov_10ks_2e+05i_gpu4}
-\end{figure}
-
-\clearpage
 \subsection{Time Distribution for Kernels}
-Table~\ref{table:gpu_profile_calc_dist} shows how the time for doing calculations on the GPU is used based on the output from Nsight. Most of the time is spent on gemv2T which is matrix multiplication of a transposed matrix and a vector. It is used in the calculation of the scores vector, line 8 in algorithm~\ref{alg:lr}. The custom kernels takes up a small part of the calculations unless the number of covariates is high, see table~\ref{table:gpu_profile_calc_dist_cov}. About 10\% of the time is spent on the element wise multiplication.
+Table~\ref{table:gpu_profile_calc_dist} shows how the time for doing calculations on the GPU is used based on the output from the profiler Nsight. Most of the time is spent on gemv2T which is matrix multiplication of a transposed matrix and a vector. It is used in the calculation of the scores vector, line 8 in algorithm~\ref{alg:lr}. The custom kernels takes up a small part of the calculations unless the number of covariates is high, see table~\ref{table:gpu_profile_calc_dist_cov}. About 10\% of the time is spent on the element wise multiplication. For higher number of GPUs Nsight showed warning messages about low overlap between transfers and kernels and between kernels and kernels.
 
 \begin{table}[h]
 \centering
@@ -2111,39 +2077,95 @@ Table~\ref{table:gpu_profile_calc_dist} shows how the time for doing calculation
 \end{table}
 
 \clearpage
-\section{DataHandler}
-The \textbf{ResultFileWriter} and \textbf{DataQueue} each has a lock to prevent race conditions. They also have a timer for how much time that has been spent waiting at the locks. There was very little time spent at them, no more than a couple of seconds even for the larger files which took 10-30 mins. The distribution of time spent between reading the SNPs data, recoding and applying the statistical model is mostly the same for all data sizes and number of GPUs. Most of the time is spent reading the SNPs, above 80\%. An example of some times is shown in figure~\ref{fig:timedist_DH_cov_10ks_2e+05i_gpu4}. It is hard to say if it is a problem due to the parallel nature of the program. It is possible that the time to read the SNPs can be hidden by the GPU calculations.
+\section{Single versus Double Precision}
+Using double precision increases the time in almost all cases. Figure~\ref{fig:single_vs_double_ind_10000} and~\ref{fig:single_vs_double_cov_0} show the relative difference in calculation time for single precision divided by double precision with the optimal number of streams. One point has better performance with double precision than single.
 
-%TODO add 1 gpu 9 stream
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{double_comp_cov_ind_10000.png}
+    \caption[Relative calculation time for single precision divided by the corresponding time for double precision, 10 000 SNPs, 10 000 individuals]{Relative calculation time for single precision divided by the corresponding time for double precision. Number of streams are what give best performance, 10 000 SNPs, 10 000 individuals}
+    \label{fig:single_vs_double_ind_10000}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{double_comp_ind_cov_0.png}
+    \caption[Relative calculation time for single precision divided by the corresponding time for double precision. 10 000 SNPs, 0 covariates]{Relative calculation time for single precision divided by the corresponding time for double precision. Number of streams are what give best performance, 10 000 SNPs, 0 covariates}
+    \label{fig:single_vs_double_cov_0}
+\end{figure}
+
+\clearpage
+\section{The LR algorithm, Transfers and Synchronisations}
+With GPUs Fermi architecture a problem can occur when using asynchronous transfers as talked about in section~\ref{streams}. To examine if it affects the speed of the program several more synchronisations were added so that the CPU synchronises after each kernel or transfer call instead of when only necessary. A comparison between the speed with and without these is shown in figures~\ref{fig:less_sync_vs_always_sync_ind_200k} and~\ref{fig:less_sync_vs_always_sync_ind_2k}. More synchronisation increases the time the calculations took in most cases. However with sufficient number of individuals(100 000 and up) some speed is gained with more synchronisations. 200 000 individuals have increased speed in most cases. The transfer times relative to the calculations in LR decreased with the increased syncing, see figure~\ref{fig:timedist_LR_ind_10ks_0cov_gpu1} and~\ref{fig:timedist_LR_ind_10ks_0cov_gpu1_sync}.\\
+\\
+As figure~\ref{fig:timedist_LR_cov_10ks_2000i_gpu4} shows with increased number of covariates the CPU time of the LR algorithm increases. However with more individuals the effect of the covariates decreases see figure~\ref{fig:timedist_LR_cov_10ks_2e+05i_gpu4}. When the number of GPUs increase the time spent on transfers increases, compare figure~\ref{fig:timedist_LR_ind_10ks_0cov_gpu1} with figure~\ref{fig:timedist_LR_ind_10ks_0cov_gpu4}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{sync_comp_cov_ind_2000.png}
+    \caption{The calculation time without the increased synchronisations divided by the time with increased synchronisations. 10 000 SNPs, 2 000 individuals}
+    \label{fig:less_sync_vs_always_sync_ind_2k}
+%\end{figure}
+
+%\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{sync_comp_cov_ind_2e+05.png}
+    \caption{The calculation time without the increased synchronisations divided by the time with increased synchronisations. 10 000 SNPs, 200 000 individuals}
+    \label{fig:less_sync_vs_always_sync_ind_200k}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{timedist_LR_ind_10ks_0cov_gpu1.png}
+    \caption{Distribution of time spent on the LR algorithm. 1 GPU, 9 streams, 10 000 SNPs, 0 covariates}
+    \label{fig:timedist_LR_ind_10ks_0cov_gpu1}
+%\end{figure}
+
+%\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{timedist_LR_ind_10ks_0cov_gpu4.png}
+    \caption{Distribution of time spent on the LR algorithm. 4 GPU, 3 streams, 10 000 SNPs, 0 covariates}
+    \label{fig:timedist_LR_ind_10ks_0cov_gpu4}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{timedist_LR_ind_10ks_0cov_gpu1_sync.png}
+    \caption{Distribution of time spent on the LR algorithm with increased synchronisations. 1 GPU, 9 streams, 10 000 SNPs, 0 covariates}
+    \label{fig:timedist_LR_ind_10ks_0cov_gpu1_sync}
+%\end{figure}
+
+%\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{timedist_LR_ind_10ks_0cov_gpu4_sync.png}
+    \caption{Distribution of time spent on the LR algorithm with increased synchronisations. 4 GPU, 3 streams, 10 000 SNPs, 0 covariates}
+    \label{fig:timedist_LR_ind_10ks_0cov_gpu4_sync}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{timedist_LR_cov_10ks_2000i_gpu4.png}
+    \caption{Distribution of time spent on the LR algorithm. 4 GPU 3 stream, 10 00 SNPs, 2 000 individuals}
+    \label{fig:timedist_LR_cov_10ks_2000i_gpu4}
+%\end{figure}
+
+%\begin{figure}[h]
+    \centering
+    \includegraphics[width=9cm]{timedist_LR_cov_10ks_2e+05i_gpu4.png}
+    \caption{Distribution of time spent on the LR algorithm. 4 GPU 3 stream, 10 000 SNPs, 200 00 individuals}
+    \label{fig:timedist_LR_cov_10ks_2e+05i_gpu4}
+\end{figure}
+
+\clearpage
+\section{DataHandler}
+The \textbf{ResultFileWriter} and \textbf{DataQueue} each has a lock to prevent race conditions as mentioned previously in the implementation chapter. They also have a timer for how much time that has been spent waiting at the locks. There was very little time spent at them, no more than a couple of seconds even for the larger files which took 10-30 mins. The distribution of time spent between reading the SNPs data, recoding and applying the statistical model is mostly the same for all data sizes and number of GPUs. Most of the time is spent reading the SNPs, above 80\%. An example of some times is shown in figure~\ref{fig:timedist_DH_cov_10ks_2e+05i_gpu4}. It is hard to say if it is a problem due to the parallel nature of the program. It is possible that the time to read the SNPs can be hidden by the GPU calculations.
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=9cm]{timedist_DH_cov_10ks_2e+05i_gpu4.png}
     \caption{Time distribution of reading SNPs, recoding and applying statistical model. 4 GPU, 3 streams, 10 000 SNPs, 200 000 individuals}
     \label{fig:timedist_DH_cov_10ks_2e+05i_gpu4}
 \end{figure}
-
-%TODO compare with calc vs read stuff
-
-%\clearpage
-%\section{Compiler Optimizations}
-%TODO fix the plot and write
-%There are several compiler options than could affect the speed. They are disabling aliasing for both CUDA and CPU, fast math option for CUDA as talked about in section~\ref{efficent_cuda} and general optimization options, O2 and O3.\\
-%\\
-%Results bla bla bla
-
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=9cm]{opt_comp_cov_ind_10000.png}
-%    \caption{The relative time without the compiler options divided by with the compiler options. 10 000 SNPs, 10 000 individuals}
-%    \label{fig:less_sync_vs_always_sync_ind_10000}
-%\end{figure}
-
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=9cm]{opt_comp_ind_cov_20.png}
-%    \caption{The relative time without the compiler options divided by with the compiler options. 10 000 SNPs, 20 covariates}
-%    \label{fig:less_sync_vs_always_sync_cov_20}
-%\end{figure}
 
 \clearpage
 \section{Comparison with GEISA}
@@ -2165,13 +2187,12 @@ Since CuEira uses the same CPU with the addition of GPUs it is expected that CuE
 
 \clearpage
 \chapter{Discussion and Conclusions}
-%Discussion and Conclusions (up to 3 pages) %TODO kernel opt sakerna
-%TODO compare against GEISA
+%Discussion and Conclusions (up to 3 pages)
 The CuEira implementation shows promising results, compared with GEISA it shows a significant speedup. CuEira also has almost full unit test coverage and is easy to extend and  modify due to the modularisation. This will allow the program to have a longer lifetime. For instance the logistic regression could be switched for a different method without rewriting the other parts of the program.\\
 \\
 CUBLAS was not much different to use than regular BLAS, however due to the higher number of parameters in their functions and lack of object orientation neither is user-friendly. Wrappers can make it easier to use. If the algorithm uses larger amounts of data than what fits inside the GPUs memory the complexity of the program increases significantly. Complex kernels can also be hard and time consuming to write and optimize. The wrappers made for CuEira could be used in the future for other projects and also be released as a library. The wrappers makes it easier to use basic CUDA and CUBLAS features.\\
-\\ %TODO something about number of iterations
-As previously mentioned in earlier chapters, CuEira has several compiling options that change some of its properties. The results show that single precision has better performance than double precision. Increased synchronisation can give better performance when the number of individuals is 100 000 and more. Increased synchronisation does decrease the transfer times but it does not always result in better performance.\\
+\\
+As previously mentioned in earlier chapters, CuEira has several compiling options that change some of its properties. The results show that single precision has better performance than double precision in almost all cases for the program. Increased synchronisation can give better performance when the number of individuals is 100 000 and more. Increased synchronisation does decrease the transfer times but it does not always result in better performance.\\
 \\
 The programs efficiency with multiple GPUs could potentially be improved by moving more work from the CPU to the GPU. This might reduce the amount of work the CPUs have to perform and might improve the efficiency. If there is CPU power left it could be used for threads that perform the algorithm using CPUs only. Optimizing the custom kernels made for the program could improve the performance for datasets with high number of covariates. However it should be done after more parts are moved to the GPU since that might change which kernels needs to be optimized.\\
 \\
@@ -2219,7 +2240,6 @@ OR_{interaction}^x>OR_{SNP}+OR_{environment}^x-1
 
 \section{PLINK Data Format}
 \label{plink_file}
-%TODO plink file stuff
 The PLINK files can be in different formats~\cite{plink_format}. The format described here is the binary Plink files. It consists of three files. Bed, bim and fam~\cite{plink_format}. The fam file contains the information about the individuals, the outcome, the persons and familys id, gender and parents id. The bim file contains the information about the SNPs but not their data. It has the SNPs id, chromosome, position on the chromosome and the alleles. The bed file has the actual SNP data in a binary format. Each pair of 0 and 1 is the genotype for one individual. See~\cite{plink_format} for the exact details and information about the other Plink file formats.
 
 \section{Environmental and Covariates File Format}
@@ -2313,17 +2333,17 @@ The allele frequencies can be shown in a $2 \times 2$ table. The columns are the
   Control & Min & $\leftarrow$ & Max & & Min & $\leftarrow$ & Max \\
   \hline  
 \end{tabular}
-\caption[The four cases of allele frequencies]{The four cases of allele frequencies. Case 1 upper left, case 2 upper right, case 3 lower left, case 4 lower right}
+\caption[The four cases of allele frequencies]{The four cases of allele frequencies. Case one upper left, case two upper right, case three lower left, case four lower right}
 \label{table:risk_allele_cases}
 \end{table}
 
-By using the previously mentioned definitions in section~\ref{risk_allele} and the JEIRAs and GEISAs algorithm~\ref{alg:jeira_geisa_risk_allele} what the risk allele is according to them for each case is shown in table~\ref{table:risk_allele_comp}. Each definition correspond to examining the inequalities in the cases. For the definition using MAF the direction of the inequality from case minimum to control minimum determines it. If it points towards control the the case minor allele is the risk allele. For JEIRA and GEISA if the maximum for case points straight down to the maximum for control then the major case allele is the risk allele. This only happens in case 1. For increased frequency in case it is the allele which has the inequality pointing straight down.\\
+By using the previously mentioned definitions in section~\ref{risk_allele} and the JEIRAs and GEISAs algorithm~\ref{alg:jeira_geisa_risk_allele} what the risk allele is according to them for each case is shown in table~\ref{table:risk_allele_comp}. Each definition correspond to examining the inequalities in the cases. For the definition using MAF the direction of the inequality from case minimum to control minimum determines it. If it points towards control the the case minor allele is the risk allele. For JEIRA and GEISA if the maximum for case points straight down to the maximum for control then the major case allele is the risk allele. This only happens in case one. For increased frequency in case it is the allele which has the inequality pointing straight down.\\
 
 \begin{table}[h]
 \centering
 \begin{tabular}{| l | c c c c |}
   \hline
-  Definition & Case 1 & Case 2 & Case 3 & Case 4  \\
+  Definition & Case one & Case two & Case three & Case four  \\
   \hline
   MAF based & Allele1 & Allele2 & Allele1 & Allele2 \\
   JEIRA GEISA algorithm & Allele1 & Allele2 & Allele2 & Allele2 \\
@@ -2334,11 +2354,13 @@ By using the previously mentioned definitions in section~\ref{risk_allele} and t
 \label{table:risk_allele_comp}
 \end{table}
 
-The risk allele is different for case 3 and case 4. For case 3 it is clear that it should be Allele1 because it has the highest frequency in case and also higher in case than control An extreme case of case 3 is shown in table~\ref{table:risk_allele_extreme_case_3}.\\
+The risk allele is different for case three and case four. For case three it is clear that Allele1 likely carries the risk, because it has the highest frequency among cases and has higher frequency in case than control An extreme case of case three is shown in table~\ref{table:risk_allele_extreme_case_3}.\\
 \\
-By examining a similar extreme case of case 4 it is clear that Allele1 should be the risk allele in that case too. The case is shown in table~\ref{table:risk_allele_extreme_case_4}. Almost everyone in the case group has Allele1 while no one in the control group does, it is unlikely that Allele2 would increase the risk in that case.
+By examining a similar extreme case of case four it is clear that Allele1 likely carries the risk in that case too. An corresponding extreme case is shown in table~\ref{table:risk_allele_extreme_case_4}. Almost everyone in the case group has Allele1 while no one in the control group does, it is then unlikely that Allele2 would increase the risk.
 
-\begin{table}[h]
+\begin{table}[!htb]
+
+\begin{minipage}{0.45\linewidth}
 \centering
 \begin{tabular}{| l | c c |}
   \hline
@@ -2348,11 +2370,10 @@ By examining a similar extreme case of case 4 it is clear that Allele1 should be
   Control & 0.01 & 0.99\\
   \hline  
 \end{tabular}
-\caption{An extreme case of frequencies of case 3 in table~\ref{table:risk_allele_cases}}
+\caption{Case three}
 \label{table:risk_allele_extreme_case_3}
-\end{table}
-
-\begin{table}[h]
+\end{minipage}%
+\begin{minipage}{0.45\linewidth}
 \centering
 \begin{tabular}{| l | c c |}
   \hline
@@ -2362,8 +2383,11 @@ By examining a similar extreme case of case 4 it is clear that Allele1 should be
   Control & 0 & 1  \\
   \hline  
 \end{tabular}
-\caption{An extreme case of frequencies of case 4 in table~\ref{table:risk_allele_cases}}
+\caption{Case four}
 \label{table:risk_allele_extreme_case_4}
+\end{minipage}
+
+\caption{Two extreme cases of allele frequencies based the cases in on table~\ref{table:risk_allele_cases}}
 \end{table}
 
 \chapter{Bugs and Issues}
@@ -2400,10 +2424,11 @@ Then type:\\
 make\\
 \\
 The program should now be compiling. CMake migh not finding all dependencies. If it does you need to tell CMake where it is. The path to boost is set by using EXPORT BOOST\_ROOT = /path/to/boost/ before using CMake. The path to the compilers is done with two options to the CMake command, CXX = /path/to/source for the C++ compiler and C = /path/to/source for the C compiler.\\ %TODO how to set cuda
-\\
+\newpage
 In the build/bin directory there is two executable files, CuEira and CuEira\_Test. CuEira is the program itself while CuEira\_Test runs all the tests for the program. The option -h or --help lists possible options for the program. The most basic command to run CuEira is -b data -e environment file -x name of column with snp ids
 %TODO usage
 
 \end{appendices}
 
+\includepdf[pages={2}]{kth_cover.pdf}
 \end{document}

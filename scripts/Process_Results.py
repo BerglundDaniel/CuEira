@@ -4,8 +4,7 @@ import sys
 
 sys.stderr.write('Processing results\n')
 
-fname="/home/daniel/Project/Results/4gpu_4stream_sim/opt_all/10ks_noferm_prof_o3_noali_fastmath_out.txt"
-#fname="/home/daniel/Project/Results/3_4gpu_sim_100_500ks/cat_out.txt"
+fname="/home/daniel/Project/Results/No_event/4gpu_4stream_sim/ferm/10ks_fix_ferm_single_out.txt"
 
 outFile=open(fname+"_out.csv",'w')
 

@@ -1,7 +1,9 @@
+#csv=read.csv("/home/daniel/Project/Results/No_event/4gpu_4stream_sim/single_noferm/10ks_noferm_prof_out.csv", header = TRUE, sep = ",",dec = ".")
+#csv=read.csv("/home/daniel/Project/Results/No_event/4gpu_4stream_sim/double/10ks_noferm_prof_double_out.csv", header = TRUE, sep = ",",dec = ".")
+csv=read.csv("/home/daniel/Project/Results/No_event/4gpu_4stream_sim/ferm/10ks_ferm_prof_out.csv", header = TRUE, sep = ",",dec = ".")
 
-csv=read.csv("/home/daniel/Project/Results/4gpu_4stream_sim/single_noferm/10ks_noferm_prof_out.csv", header = TRUE, sep = ",",dec = ".")
-#csv=read.csv("/home/daniel/Project/Results/4gpu_4stream_sim/double/10ks_noferm_prof_double_out.csv", header = TRUE, sep = ",",dec = ".")
-#csv=read.csv("/home/daniel/Project/Results/4gpu_4stream_sim/ferm/10ks_ferm_prof_out.csv", header = TRUE, sep = ",",dec = ".")
+csv9Stream=read.csv("/home/daniel/Project/Results/No_event/saturated/10ks_noferm_prof_1gpu_9stream_out.csv", header = TRUE, sep = ",",dec = ".")
+csvFerm9Stream=read.csv("/home/daniel/Project/Results/No_event/4gpu_4stream_sim/ferm/10ks_fix_ferm_single_out2.csv", header = TRUE, sep = "\t",dec = ".")
 
 rows=nrow(csv)
 
@@ -10,8 +12,19 @@ nind=4
 nstream=4
 ngpu=4
 
+lty_a=1:4
+pch_a=18:21
+s_ax=1.2
+s_lab=1.3
+s_title=1.3
+s_legend=1.1
+
 cov_a=c(0,5,10,20)
 ind_a=c(2000,10000,100000,200000)
+
+cols3=c("black","gray20","gray50")
+cols4=c("black","gray20","gray50","gray70")
+#cols4=c("black","green","red","blue")
 
 res=array(0,dim=c(ncov,ngpu,nstream,nind))
 
@@ -28,12 +41,92 @@ for(row in 1:rows){
   }
 }
 
-lty_a=1:4
-pch_a=18:21
-s_ax=1.2
-s_lab=1.3
-s_title=1.3
-s_legend=1.1
+#Time
+streamDist=1
+LR_n=4
+cpu_i=1
+gpu_i=2
+transFrom_i=3
+transTo_i=4
+res_LR=array(0,dim=c(ncov,ngpu,nstream,nind,LR_n))
+
+DH_n=3
+recode_i=1
+read_i=2
+model_i=3
+res_DH=array(0,dim=c(ncov,ngpu,nstream,nind,DH_n))
+
+for(row in 1:rows){
+  if(csv$snp[row]==10000){
+    cov=csv$covariate[row]
+    ind=csv$individuals[row]
+    gpu=csv$GPUs[row]
+    stream=csv$streams[row]
+    
+    cov_i=match(cov, cov_a)
+    ind_i=match(ind, ind_a)
+    
+    #DH
+    res_DH[cov_i,gpu,stream,ind_i, recode_i]=csv$Recode[row]
+    res_DH[cov_i,gpu,stream,ind_i, read_i]=csv$ReadSNP[row]
+    res_DH[cov_i,gpu,stream,ind_i, model_i]=csv$ApplyStatModel[row]
+    
+    #LR
+    res_LR[cov_i,gpu,stream,ind_i, cpu_i]=csv$LR_CPU[row]
+    res_LR[cov_i,gpu,stream,ind_i, gpu_i]=csv$LR_GPU[row]
+    res_LR[cov_i,gpu,stream,ind_i, transFrom_i]=csv$LR_transferFromDevice[row]
+    res_LR[cov_i,gpu,stream,ind_i, transTo_i]=csv$LR_transferToDevice[row]+csv$LR_Config_transferToDevice[row]
+  }
+}
+
+###############Put in 9 stream
+for(row in 1:nrow(csv9Stream)){
+  cov=csv9Stream$covariate[row]
+  ind=csv9Stream$individuals[row]
+  gpu=csv9Stream$GPUs[row]
+  stream=1
+  
+  cov_i=match(cov, cov_a)
+  ind_i=match(ind, ind_a)
+  
+  #res[cov_i,gpu,stream,ind_i]=csv9Stream$cueira_calc[row]
+  
+  ###TIME
+  #DH
+  #res_DH[cov_i,gpu,stream,ind_i, recode_i]=csv9Stream$Recode[row]
+  #res_DH[cov_i,gpu,stream,ind_i, read_i]=csv9Stream$ReadSNP[row]
+  #res_DH[cov_i,gpu,stream,ind_i, model_i]=csv9Stream$ApplyStatModel[row]
+  
+  #LR
+  #res_LR[cov_i,gpu,stream,ind_i, cpu_i]=csv9Stream$LR_CPU[row]
+  #res_LR[cov_i,gpu,stream,ind_i, gpu_i]=csv9Stream$LR_GPU[row]
+  #res_LR[cov_i,gpu,stream,ind_i, transFrom_i]=csv9Stream$LR_transferFromDevice[row]
+  #res_LR[cov_i,gpu,stream,ind_i, transTo_i]=csv9Stream$LR_transferToDevice[row]+csv9Stream$LR_Config_transferToDevice[row]
+}
+
+#Ferm 9
+for(row in 1:nrow(csvFerm9Stream)){
+  cov=csvFerm9Stream$covariate[row]
+  ind=csvFerm9Stream$individuals[row]
+  gpu=csvFerm9Stream$GPUs[row]
+  stream=1
+  
+  cov_i=match(cov, cov_a)
+  ind_i=match(ind, ind_a)
+  
+  res[cov_i,gpu,stream,ind_i]=csvFerm9Stream$cueira_calc[row]
+  ###TIME
+  #DH
+  res_DH[cov_i,gpu,stream,ind_i, recode_i]=csvFerm9Stream$Recode[row]
+  res_DH[cov_i,gpu,stream,ind_i, read_i]=csvFerm9Stream$ReadSNP[row]
+  res_DH[cov_i,gpu,stream,ind_i, model_i]=csvFerm9Stream$ApplyStatModel[row]
+  
+  #LR
+  res_LR[cov_i,gpu,stream,ind_i, cpu_i]=csvFerm9Stream$LR_CPU[row]
+  res_LR[cov_i,gpu,stream,ind_i, gpu_i]=csvFerm9Stream$LR_GPU[row]
+  res_LR[cov_i,gpu,stream,ind_i, transFrom_i]=csvFerm9Stream$LR_transferFromDevice[row]
+  res_LR[cov_i,gpu,stream,ind_i, transTo_i]=csvFerm9Stream$LR_transferToDevice[row]+csvFerm9Stream$LR_Config_transferToDevice[row]
+}
 
 #Individuals
 for(cov in 1:ncov){
@@ -117,48 +210,9 @@ for(stream in 1:nstream){
 #TODO
 
 ##################Time spent
-cols3=c("black","gray20","gray50")
-cols4=c("black","gray20","gray50","gray70")
-
-LR_n=4
-cpu_i=1
-gpu_i=2
-transFrom_i=3
-transTo_i=4
-res_LR=array(0,dim=c(ncov,ngpu,nstream,nind,LR_n))
-
-DH_n=3
-recode_i=1
-read_i=2
-model_i=3
-res_DH=array(0,dim=c(ncov,ngpu,nstream,nind,DH_n))
-
-for(row in 1:rows){
-  if(csv$snp[row]==10000){
-    cov=csv$covariate[row]
-    ind=csv$individuals[row]
-    gpu=csv$GPUs[row]
-    stream=csv$streams[row]
-    
-    cov_i=match(cov, cov_a)
-    ind_i=match(ind, ind_a)
-    
-    #DH
-    res_DH[cov_i,gpu,stream,ind_i, recode_i]=csv$Recode[row]
-    res_DH[cov_i,gpu,stream,ind_i, read_i]=csv$ReadSNP[row]
-    res_DH[cov_i,gpu,stream,ind_i, model_i]=csv$ApplyStatModel[row]
-    
-    #LR
-    res_LR[cov_i,gpu,stream,ind_i, cpu_i]=csv$LR_CPU[row]
-    res_LR[cov_i,gpu,stream,ind_i, gpu_i]=csv$LR_GPU[row]
-    res_LR[cov_i,gpu,stream,ind_i, transFrom_i]=csv$LR_transferFromDevice[row]
-    res_LR[cov_i,gpu,stream,ind_i, transTo_i]=csv$LR_transferToDevice[row]+csv$LR_Config_transferToDevice[row]
-  }
-}
 
 #Cov#######################
 #DH
-stream=3
 for(ind in 1:nind){
 for(gpu in 1:ngpu){
   cm=array(0,dim=c(DH_n,ncov))
@@ -172,10 +226,10 @@ for(gpu in 1:ngpu){
   for(cov in 1:ncov){
     t=0
     for(dh in 1:DH_n){
-      t=t+res_DH[cov,gpu,stream,ind,dh]
+      t=t+res_DH[cov,gpu,streamDist,ind,dh]
     }
     for(dh in 1:DH_n){
-      cm[dh,cov]=res_DH[cov,gpu,stream,ind,dh]/t
+      cm[dh,cov]=res_DH[cov,gpu,streamDist,ind,dh]/t
     }
   }
   
@@ -201,10 +255,10 @@ for(gpu in 1:ngpu){
   for(cov in 1:ncov){
     t=0
     for(lr in 1:LR_n){
-      t=t+res_LR[cov,gpu,stream,ind,lr]
+      t=t+res_LR[cov,gpu,streamDist,ind,lr]
     }
     for(lr in 1:LR_n){
-      cm[lr,cov]=res_LR[cov,gpu,stream,ind,lr]/t
+      cm[lr,cov]=res_LR[cov,gpu,streamDist,ind,lr]/t
     }
   }
   
@@ -220,7 +274,6 @@ for(gpu in 1:ngpu){
 
 #Ind###########################
 #DH
-stream=3
 for(cov in 1:ncov){
 for(gpu in 1:ngpu){
   cm=array(0,dim=c(DH_n,nind))
@@ -234,10 +287,10 @@ for(gpu in 1:ngpu){
   for(ind in 1:nind){
     t=0
     for(dh in 1:DH_n){
-      t=t+res_DH[cov,gpu,stream,ind,dh]
+      t=t+res_DH[cov,gpu,streamDist,ind,dh]
     }
     for(dh in 1:DH_n){
-      cm[dh,ind]=res_DH[cov,gpu,stream,ind,dh]/t
+      cm[dh,ind]=res_DH[cov,gpu,streamDist,ind,dh]/t
     }
   }
   
@@ -263,10 +316,10 @@ for(gpu in 1:ngpu){
   for(ind in 1:nind){
     t=0
     for(lr in 1:LR_n){
-      t=t+res_LR[cov,gpu,stream,ind,lr]
+      t=t+res_LR[cov,gpu,streamDist,ind,lr]
     }
     for(lr in 1:LR_n){
-      cm[lr,ind]=res_LR[cov,gpu,stream,ind,lr]/t
+      cm[lr,ind]=res_LR[cov,gpu,streamDist,ind,lr]/t
     }
   }
   

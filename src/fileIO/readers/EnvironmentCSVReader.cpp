@@ -3,8 +3,9 @@
 namespace CuEira {
 namespace FileIO {
 
-EnvironmentCSVReader::EnvironmentCSVReader(std::string filePath, std::string idColumnName, std::string delim) :
-    CSVReader(filePath, idColumnName, delim) {
+EnvironmentCSVReader::EnvironmentCSVReader(PersonHandler& personHandler, std::string filePath, std::string idColumnName,
+    std::string delim) :
+    CSVReader(personHandler, filePath, idColumnName, delim) {
 
 }
 
@@ -12,19 +13,23 @@ EnvironmentCSVReader::~EnvironmentCSVReader() {
 
 }
 
-EnvironmentFactorHandler* EnvironmentCSVReader::readEnvironmentFactorInformation(
-    const PersonHandler& personHandler) const {
-  std::pair<Container::HostMatrix*, std::vector<std::string>*>* csvData = readData(personHandler);
+bool EnvironmentCSVReader::rowHasMissingData(const std::vector<std::string>& lineSplit) const {
+  for(auto& lineSplitPart : lineSplit){
+    if(!stringIsEmpty(lineSplitPart)){
+      return false;
+    }
+  }
 
-  Container::HostMatrix* dataMatrix = csvData->first;
-  std::vector<std::string>* headers = csvData->second;
-  delete csvData;
+  return true;
+}
 
-  const int numberOfColumns = headers->size();
-  std::vector<EnvironmentFactor*>* environmentFactors = new std::vector<EnvironmentFactor*>(numberOfColumns);
+EnvironmentFactorHandler* EnvironmentCSVReader::readEnvironmentFactorInformation() const {
+  Container::HostMatrix* dataMatrix = readData();
 
-  for(int i = 0; i < numberOfColumns; ++i){
-    Id id((*headers)[i]);
+  std::vector<EnvironmentFactor*>* environmentFactors = new std::vector<EnvironmentFactor*>(numberOfDataColumns);
+
+  for(int i = 0; i < numberOfDataColumns; ++i){
+    Id id((*dataColumnNames)[i]);
     (*environmentFactors)[i] = new EnvironmentFactor(id);
   }
 

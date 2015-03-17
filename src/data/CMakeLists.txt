@@ -1,4 +1,5 @@
 add_subdirectory(enums)
+add_subdirectory(factories)
 
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}
@@ -15,6 +16,6 @@ set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentFactor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentFactorHandler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DataHandler.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/DataHandlerFactory.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PhenotypeHandler.cpp
   PARENT_SCOPE
 )

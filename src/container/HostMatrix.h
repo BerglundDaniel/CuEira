@@ -5,7 +5,6 @@
 #include <HostVector.h>
 
 namespace CuEira {
-
 namespace Container {
 
 /**

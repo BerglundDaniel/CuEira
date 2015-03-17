@@ -23,7 +23,7 @@ set(Boost_USE_MULTITHREADED off)
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" off)
 set(PRECISION single) #single or double
-set(TARGET_ARCHITECTURE kepler) #fermi or kepler #TODO probably remove this later
+set(TARGET_ARCHITECTURE kepler) #fermi or kepler #TODO fix this to sync and stuf instead
 option(CPU "Use CPU only" off)
 option(CLUSTER "Use cluster" off) #TODO not implemented
 option(ENABLE_MKL "Enable MKL flag" on)
@@ -81,13 +81,17 @@ include_directories( ${Boost_INCLUDE_DIR} )
 
 #if boost 1.55 and intel, print warning TODO
 
-#Some optimizations
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-alias")
+#TODO link MKL for other libraries and fix other BLAS versions
+if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
+  if(ENABLE_MKL)
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=sequential")
+  else()
+    message( FATAL_ERROR "Have to use MKL+intel" )
+  endif()
+endif()
 
-if(${CPU})
-
-else()
+if(NOT ${CPU})
   find_package( CUDA REQUIRED )
   include_directories( ${CUDA_INCLUDE_DIRS} )
 
@@ -101,36 +105,36 @@ else()
     endif(${CUDA_VERSION_MINOR} LESS 5)
   endif(${CUDA_VERSION_MAJOR} EQUAL 5)
 
-  #Set somethings for CUDA compilation
   set(CUDA_PROPAGATE_HOST_FLAGS off) #Some c++ flags that gets passed to NVCC -Xcompiler will cause errors, for instance c++11 flag
 
+  if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-g)
+  endif()
+endif()
+
+if(${CLUSTER})
+#FIND MPI TODO
+endif(${CLUSTER})
+
+#Optimization options
+MESSAGE( STATUS "Seting optimizations:" )
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-alias")
+
+#GPU optimization options
+if(NOT ${CPU})
   if(${TARGET_ARCHITECTURE} MATCHES fermi)
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
   else()
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20) #TODO change to 30 later
   endif()
 
-  if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-g)
-  endif()
-
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-restrict --use_fast_math)
+endif()
 
-  #Wrong place FIXME
-  if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
-    if(ENABLE_MKL)
-      #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=sequential")
-    else()
-      message( FATAL_ERROR "Have to use MKL+intel" )
-    endif()
-  endif()
-
-endif(${CPU})
-
-if(${CLUSTER})
-#FIND MPI TODO
-endif(${CLUSTER})
+#TODO if intel cpu specific options
+#TODO other compiler specific
 
 #Print some info
 MESSAGE( STATUS "change a configuration variable with: cmake -D<Variable>=<Value>" )

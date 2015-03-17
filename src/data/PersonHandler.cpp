@@ -2,52 +2,20 @@
 
 namespace CuEira {
 
-PersonHandler::PersonHandler() :
-    numberOfIndividualsTotal(0), numberOfIndividualsToInclude(0), outcomesCreated(false), outcomes(nullptr) {
+PersonHandler::PersonHandler(std::vector<Person*>* persons) :
+    numberOfIndividualsTotal(persons->size()), persons(persons), individualsLocked(false), numberOfIndividualsToInclude(
+        0) {
 
+  for(auto person : *persons){
+    idToPerson.insert(std::pair<Id, Person*>(person->getId(), person));
+  }
 }
 
 PersonHandler::~PersonHandler() {
-  delete outcomes;
-
-  //Delete all persons
-  for(std::map<int, Person*>::iterator personIter = rowToPersonAll.begin(); personIter != rowToPersonAll.end();
-      ++personIter){
-    delete personIter->second;
+  for(auto person : *persons){
+    delete person;
   }
-}
-
-const Person& PersonHandler::createPerson(Id id, Sex sex, Phenotype phenotype, int rowAll) {
-  if(rowToPersonAll.count(rowAll) > 0){
-    std::ostringstream os;
-    os << "There already is a person with plink row: " << rowAll << " id: " << id.getString() << std::endl;
-    const std::string& tmp = os.str();
-    throw PersonHandlerException(tmp.c_str());
-  }
-  if(idToPerson.count(id) > 0){
-    std::ostringstream os;
-    os << "There already is a person with id: " << id.getString() << std::endl;
-    const std::string& tmp = os.str();
-    throw PersonHandlerException(tmp.c_str());
-  }
-
-  bool include = shouldPersonBeIncluded(id, sex, phenotype);
-  Person* person = new Person(id, sex, phenotype, include);
-
-  idToPerson.insert(std::pair<Id, Person*>(person->getId(), person));
-  rowToPersonAll.insert(std::pair<int, Person*>(rowAll, person));
-
-  if(include){
-    rowToPersonInclude.insert(std::pair<int, Person*>(numberOfIndividualsToInclude, person));
-    personToRowInclude.insert(std::pair<Person*, int>(person, numberOfIndividualsToInclude));
-
-    numberOfIndividualsToInclude++;
-  }else{
-    std::cerr << "Excluding person " << id.getString() << std::endl;
-  }
-  numberOfIndividualsTotal++;
-
-  return *person;
+  delete persons;
 }
 
 int PersonHandler::getNumberOfIndividualsTotal() const {
@@ -55,7 +23,18 @@ int PersonHandler::getNumberOfIndividualsTotal() const {
 }
 
 int PersonHandler::getNumberOfIndividualsToInclude() const {
+  if(!individualsLocked){
+    std::ostringstream os;
+    os << "Individuals are not locked so can not access numberOfIndividualsToInclude" << std::endl;
+    const std::string& tmp = os.str();
+    throw PersonHandlerException(tmp.c_str());
+  }
+
   return numberOfIndividualsToInclude;
+}
+
+const std::vector<Person*>& PersonHandler::getPersons() const {
+  return *persons;
 }
 
 const Person& PersonHandler::getPersonFromId(Id id) const {
@@ -68,80 +47,65 @@ const Person& PersonHandler::getPersonFromId(Id id) const {
   return *idToPerson.at(id);
 }
 
-const Person& PersonHandler::getPersonFromRowAll(int row) const {
-  if(rowToPersonAll.count(row) <= 0){
+Person& PersonHandler::getPersonFromId(Id id) {
+  if(idToPerson.count(id) <= 0){
     std::ostringstream os;
-    os << "No person from row all: " << row << std::endl;
+    os << "No person with id " << id.getString() << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return *rowToPersonAll.at(row);
+
+  if(individualsLocked){
+    std::ostringstream os;
+    os << "Individuals locked in PersonHandler, can not modify them" << std::endl;
+    const std::string& tmp = os.str();
+    throw PersonHandlerException(tmp.c_str());
+  }
+
+  return *idToPerson.at(id);
 }
 
-const Person& PersonHandler::getPersonFromRowInclude(int row) const {
-  if(rowToPersonInclude.count(row) <= 0){
+const Person& PersonHandler::getPersonFromRowAll(int rowAll) const {
+  if(rowAll > numberOfIndividualsTotal){
     std::ostringstream os;
-    os << "No person from row include: " << row << std::endl;
+    os << "Row all larger than number of individuals " << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return *rowToPersonInclude.at(row);
+  return *(*persons)[rowAll - 1];
 }
 
 int PersonHandler::getRowIncludeFromPerson(const Person& person) const {
-  if(personToRowInclude.count(&person) <= 0){
+  if(personToRowInclude.count(person) <= 0){
     std::ostringstream os;
-    os << "Person not included: " << person.getId().getString() << std::endl;
+    os << "No person with id " << person.getId() << " that has row include" << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
-  return personToRowInclude.at(&person);
-}
 
-bool PersonHandler::shouldPersonBeIncluded(Id id, Sex sex, Phenotype phenotype) const {
-  if(phenotype == MISSING){
-    return false;
-  }else{
-    return true;
+  if(!individualsLocked){
+    std::ostringstream os;
+    os << "Individuals are not locked so can not get row include for person " << person.getId() << std::endl;
+    const std::string& tmp = os.str();
+    throw PersonHandlerException(tmp.c_str());
   }
+
+  return personToRowInclude.at(person);
 }
 
-const Container::HostVector& PersonHandler::getOutcomes() const {
-  if(!outcomesCreated){
-    throw InvalidState("Outcomes have not yet been created for PersonHandler.");
-  }
-  return *outcomes;
-}
+void PersonHandler::lockIndividuals() {
+  individualsLocked = true;
+  int individualNumber = 0;
 
-void PersonHandler::createOutcomes() {
-  if(!outcomesCreated){
-    outcomesCreated = true;
-    int rowNumber = -1;
-    Phenotype phenotype;
-#ifdef CPU
-    outcomes = new Container::RegularHostVector(numberOfIndividualsToInclude);
-#else
-    outcomes = new Container::PinnedHostVector(numberOfIndividualsToInclude);
-#endif
-
-    for(std::map<const Person*, int>::iterator personIter = personToRowInclude.begin();
-        personIter != personToRowInclude.end(); ++personIter){
-      rowNumber = personIter->second;
-      phenotype = personIter->first->getPhenotype();
-
-      if(phenotype == UNAFFECTED){
-        (*outcomes)(rowNumber) = 0;
-      }else if(phenotype == AFFECTED){
-        (*outcomes)(rowNumber) = 1;
-      }
-#ifdef DEBUG
-      else{
-        throw InvalidState("Unknown phenotype in PersonHandler.");
-      }
-#endif
+  for(auto person : *persons){
+    if(person->getInclude()){
+      individualNumber++;
+      personToRowInclude.insert(std::pair<Person*, int>(person, individualNumber));
     }
+  }
 
-  } /* if outcomesCreated */
+  numberOfIndividualsToInclude = individualNumber;
 }
 
-} /* namespace CuEira */
+}
+/* namespace CuEira */

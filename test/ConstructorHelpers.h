@@ -56,15 +56,9 @@ public:
   ConstructorHelpers();
   virtual ~ConstructorHelpers();
 
-  Person* constructPersonInclude(int number);
-  Person* constructPersonNotInclude(int number);
-  Person* constructPersonInclude(int number, Phenotype phenotype);
-
   Container::EnvironmentVectorMock* constructEnvironmentVectorMock();
-  Container::SNPVectorMock* constructSNPVectorMock();
   EnvironmentFactorHandlerMock* constructEnvironmentFactorHandlerMock();
   FileIO::BedReaderMock* constructBedReaderMock();
-  Container::SNPVectorFactoryMock* constructSNPVectorFactoryMock();
   ContingencyTableFactoryMock* constructContingencyTableFactoryMock();
   CUDA::StreamMock* constructStreamMock();
 

@@ -6,11 +6,14 @@
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+#include <set>
+#include <algorithm>
+#include <iterator>
 
 #include <CSVReader.h>
 #include <EnvironmentCSVReader.h>
+#include <BedReader.h>
 #include <BimReader.h>
-#include <FamReader.h>
 #include <Configuration.h>
 #include <HostVector.h>
 #include <SNPVector.h>
@@ -31,22 +34,26 @@ namespace FileIO {
  */
 class DataFilesReader {
 public:
-  explicit DataFilesReader(BimReader* bimReader, FamReader* famReader, EnvironmentCSVReader* environmentCSVReader,
-      CSVReader* covariateCSVReader);
-  explicit DataFilesReader(BimReader* bimReader, FamReader* famReader, EnvironmentCSVReader* environmentCSVReader);
+  explicit DataFilesReader(PersonHandler* personHandler, BedReader* bedReader, BimReader* bimReader,
+      EnvironmentCSVReader* environmentCSVReader, CSVReader* covariateCSVReader);
+  explicit DataFilesReader(PersonHandler* personHandler, BedReader* bedReader, BimReader* bimReader,
+      EnvironmentCSVReader* environmentCSVReader);
   virtual ~DataFilesReader();
 
-  std::pair<Container::HostMatrix*, std::vector<std::string>* >* readCovariates(const PersonHandler& personHandler) const;
-  PersonHandler* readPersonInformation() const;
-  std::vector<SNP*>* readSNPInformation() const;
-  EnvironmentFactorHandler* readEnvironmentFactorInformation(const PersonHandler& personHandler) const;
+  virtual Container::HostMatrix* readCovariates() const;
+  virtual std::vector<SNP*>* readSNPInformation() const;
+  virtual EnvironmentFactorHandler* readEnvironmentFactorInformation() const;
+  virtual std::pair<const AlleleStatistics*, Container::SNPVector*>* readSNP(SNP& snp);
+
+  virtual const PersonHandler& getPersonHandler() const;
 
 private:
   bool useCovariates;
+  BedReader* bedReader;
   BimReader* bimReader;
-  FamReader* famReader;
   EnvironmentCSVReader* environmentCSVReader;
   CSVReader* covariateCSVReader;
+  PersonHandler *personHandler;
 };
 
 } /* namespace FileIO */

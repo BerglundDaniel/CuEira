@@ -28,16 +28,16 @@ public:
   bool svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD) const;
 
   void matrixVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
-      PRECISION alpha, PRECISION beta) const;
+      PRECISION alpha = 1, PRECISION beta = 0) const;
 
   void matrixTransVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
-      PRECISION alpha, PRECISION beta) const;
+      PRECISION alpha = 1, PRECISION beta = 0) const;
 
   void matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
-      PRECISION alpha, PRECISION beta) const;
+      PRECISION alpha = 1, PRECISION beta = 0) const;
 
   void matrixTransMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
-      PRECISION alpha, PRECISION beta) const;
+      PRECISION alpha = 1, PRECISION beta = 0) const;
 
   /**
    * vector2(i)-vector1(i)

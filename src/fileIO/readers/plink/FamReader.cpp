@@ -3,14 +3,46 @@
 namespace CuEira {
 namespace FileIO {
 
-FamReader::FamReader(const Configuration& configuration) :
-    configuration(configuration), famFileStr(configuration.getFamFilePath()), phenotypeCoding(
-        configuration.getPhenotypeCoding()) {
-
+FamReader::FamReader(const Configuration& configuration, const PersonHandlerFactory* personHandlerFactory) :
+    configuration(configuration), personHandlerFactory(personHandlerFactory), famFileStr(
+        configuration.getFamFilePath()), phenotypeCoding(configuration.getPhenotypeCoding()), numberOfIndividualsTotal(
+        0) {
+  readBasicFileInformation();
 }
 
 FamReader::~FamReader() {
+  delete personHandlerFactory;
+}
 
+void FamReader::readBasicFileInformation() {
+  std::string line;
+  std::ifstream famFile;
+  int individualNumber = 0;
+
+  famFile.open(famFileStr, std::ifstream::in);
+  if(!famFile){
+    std::ostringstream os;
+    os << "Problem opening fam file " << famFileStr << std::endl;
+    const std::string& tmp = os.str();
+    throw FileReaderException(tmp.c_str());
+  }
+
+  //Read file
+  while(std::getline(famFile, line)){
+    std::vector<std::string> lineSplit;
+    boost::trim(line);
+    boost::split(lineSplit, line, boost::is_any_of("\t "));
+
+    individualNumber++;
+  } /* while getline */
+
+  famFile.close();
+
+  numberOfIndividualsTotal = individualNumber;
+}
+
+int FamReader::getNumberOfIndividualsTotal() const {
+  return numberOfIndividualsTotal;
 }
 
 PersonHandler* FamReader::readPersonInformation() const {
@@ -27,8 +59,8 @@ PersonHandler* FamReader::readPersonInformation() const {
 
   std::string line;
   std::ifstream famFile;
+  std::vector<Person*>* persons = new std::vector<Person*>(numberOfIndividualsTotal);
   int individualNumber = 0;
-  PersonHandler* personHandler = new PersonHandler();
 
   famFile.open(famFileStr, std::ifstream::in);
   if(!famFile){
@@ -46,34 +78,21 @@ PersonHandler* FamReader::readPersonInformation() const {
   while(std::getline(famFile, line)){
     std::vector<std::string> lineSplit;
     boost::trim(line);
-    boost::split(lineSplit, line, boost::is_any_of("\t "));
+    boost::split(lineSplit, line, boost::is_any_of("\t"));
 
     Id id(lineSplit[1]);
     Sex sex = stringToSex(lineSplit[4]);
     Phenotype phenotype = stringToPhenotype(lineSplit[5]);
 
-    //Add the person
-    personHandler->createPerson(id, sex, phenotype, individualNumber);
+    Person* person = new Person(id, sex, phenotype, phenotype != MISSING);
+    (*persons)[individualNumber] = person;
+
     individualNumber++;
   } /* while getline */
 
   famFile.close();
 
-#ifdef PROFILE
-  boost::chrono::system_clock::time_point beforeOutcomesPoint = boost::chrono::system_clock::now();
-  boost::chrono::duration<double> diffReadFileSec = beforeOutcomesPoint - beforeReadFilePoint;
-
-  std::cerr << "Time for FamReader to read file: " << diffReadFileSec << std::endl;
-#endif
-  personHandler->createOutcomes();
-#ifdef PROFILE
-  boost::chrono::system_clock::time_point afterOutcomesPoint = boost::chrono::system_clock::now();
-  boost::chrono::duration<double> diffOutcomesSec = afterOutcomesPoint - beforeOutcomesPoint;
-
-  std::cerr << "Time for FamReader to create outcomes: " << diffOutcomesSec << std::endl;
-#endif
-
-  return personHandler;
+  return personHandlerFactory->constructPersonHandler(persons);
 }
 
 Phenotype FamReader::stringToPhenotype(std::string phenotypeString) const {

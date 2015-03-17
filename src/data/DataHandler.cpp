@@ -295,7 +295,7 @@ void DataHandler::setSNPInclude(SNP& snp, const ContingencyTable& contingencyTab
   const std::vector<int>& table = contingencyTable.getTable();
   const int size = table.size();
   for(int i = 0; i < size; ++i){
-    if(table[i] <= cellCountThreshold){
+    if(table[i] < cellCountThreshold){
       snp.setInclude(LOW_CELL_NUMBER);
       break;
     }

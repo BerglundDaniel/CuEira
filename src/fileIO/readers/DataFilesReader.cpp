@@ -3,47 +3,52 @@
 namespace CuEira {
 namespace FileIO {
 
-DataFilesReader::DataFilesReader(BimReader* bimReader, FamReader* famReader, EnvironmentCSVReader* environmentCSVReader,
-    CSVReader* covariateCSVReader) :
-    famReader(famReader), bimReader(bimReader), environmentCSVReader(environmentCSVReader), covariateCSVReader(
-        covariateCSVReader), useCovariates(true) {
-
+DataFilesReader::DataFilesReader(PersonHandler* personHandler, BedReader* bedReader, BimReader* bimReader,
+    EnvironmentCSVReader* environmentCSVReader, CSVReader* covariateCSVReader) :
+    personHandler(personHandler), bedReader(bedReader), bimReader(bimReader), environmentCSVReader(
+        environmentCSVReader), covariateCSVReader(covariateCSVReader), useCovariates(true) {
+  personHandler->lockIndividuals();
 }
 
-DataFilesReader::DataFilesReader(BimReader* bimReader, FamReader* famReader, EnvironmentCSVReader* environmentCSVReader) :
-    famReader(famReader), bimReader(bimReader), environmentCSVReader(environmentCSVReader), covariateCSVReader(nullptr), useCovariates(
-        false) {
-
+DataFilesReader::DataFilesReader(PersonHandler* personHandler, BedReader* bedReader, BimReader* bimReader,
+    EnvironmentCSVReader* environmentCSVReader) :
+    personHandler(personHandler), bedReader(bedReader), bimReader(bimReader), environmentCSVReader(
+        environmentCSVReader), covariateCSVReader(nullptr), useCovariates(false) {
+  personHandler->lockIndividuals();
 }
 
 DataFilesReader::~DataFilesReader() {
+  delete bedReader;
   delete bimReader;
-  delete famReader;
   delete environmentCSVReader;
   delete covariateCSVReader;
+  delete personHandler;
 }
 
-std::pair<Container::HostMatrix*, std::vector<std::string>*>* DataFilesReader::readCovariates(
-    const PersonHandler& personHandler) const {
+Container::HostMatrix* DataFilesReader::readCovariates() const {
   if(!useCovariates){
     std::ostringstream os;
     os << "Can't get read covariates since no covariate file was specified." << std::endl;
     const std::string& tmp = os.str();
     throw FileReaderException(tmp.c_str());
   }
-  return covariateCSVReader->readData(personHandler);
-}
-
-PersonHandler* DataFilesReader::readPersonInformation() const {
-  return famReader->readPersonInformation();
+  return covariateCSVReader->readData();
 }
 
 std::vector<SNP*>* DataFilesReader::readSNPInformation() const {
   return bimReader->readSNPInformation();
 }
 
-EnvironmentFactorHandler* DataFilesReader::readEnvironmentFactorInformation(const PersonHandler& personHandler) const {
-  return environmentCSVReader->readEnvironmentFactorInformation(personHandler);
+EnvironmentFactorHandler* DataFilesReader::readEnvironmentFactorInformation() const {
+  return environmentCSVReader->readEnvironmentFactorInformation();
+}
+
+std::pair<const AlleleStatistics*, Container::SNPVector*>* DataFilesReader::readSNP(SNP& snp) {
+  return bedReader->readSNP(snp);
+}
+
+const PersonHandler& DataFilesReader::getPersonHandler() const {
+  return *personHandler;
 }
 
 } /* namespace FileIO */

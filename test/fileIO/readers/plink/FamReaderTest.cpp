@@ -14,11 +14,11 @@
 #include <Phenotype.h>
 #include <Person.h>
 #include <FileReaderException.h>
-#include <ConstructorHelpers.h>
 
 using testing::Return;
 using testing::_;
-using testing::ReturnRef;
+using testing::SaveArg;
+using testing::DoAll;
 
 namespace CuEira {
 namespace FileIO {
@@ -37,19 +37,17 @@ protected:
 
   int numberOfIndividuals;
   ConfigurationMock configMock;
-  CuEira_Test::ConstructorHelpers constructorHelpers;
-  Person* person;
 };
 
 FamReaderTest::FamReaderTest() :
-    numberOfIndividuals(10), person(constructorHelpers.constructPersonInclude(0)) {
+    numberOfIndividuals(10) {
 
   EXPECT_CALL(configMock, getFamFilePath()).Times(1).WillRepeatedly(
       Return(std::string(CuEira_BUILD_DIR) + std::string("/test.fam")));
 }
 
 FamReaderTest::~FamReaderTest() {
-  delete person;
+
 }
 
 void FamReaderTest::SetUp() {
@@ -61,27 +59,50 @@ void FamReaderTest::TearDown() {
 }
 
 TEST_F(FamReaderTest, ReadFile) {
+  const int numberOfIndividuals = 10;
   EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ONE_TWO_CODING));
-  CuEira::FileIO::FamReader famReader(configMock);
+
+  PersonHandlerFactoryMock* personHandlerFactoryMock = new PersonHandlerFactoryMock();
+  PersonHandlerMock* personHandlerMock = new PersonHandlerMock(); //TODO parameters?
+  std::vector<Person*>* persons;
+
+  CuEira::FileIO::FamReader famReader(configMock, personHandlerFactoryMock);
+
+  EXPECT_CALL(*personHandlerFactoryMock, constructPersonHandler(_)).Times(1).WillOnce(
+      DoAll(SaveArg<0>(persons), Return(personHandlerMock)));
+
   PersonHandler* personHandler = famReader.readPersonInformation();
+  ASSERT_EQ(personHandler, personHandlerMock);
 
-  ASSERT_EQ(numberOfIndividuals, personHandler->getNumberOfIndividualsTotal());
-  ASSERT_EQ(9, personHandler->getNumberOfIndividualsToInclude());
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    std::ostringstream os;
+    os << "ind" << i;
+    Id id(os.str());
 
-  const Container::HostVector& outcomes = personHandler->getOutcomes();
+    Sex sex;
+    Phenotype phenotype;
+    bool include = true;
 
-  const Person& person6 = personHandler->getPersonFromRowAll(6);
-  EXPECT_FALSE(person6.getInclude());
+    if(i == 0 || i == 1 || i == 5 || i == 8){
+      sex = MALE;
+    }else{
+      sex = FEMALE;
+    }
 
-  EXPECT_EQ(1, outcomes(0));
-  EXPECT_EQ(1, outcomes(1));
-  EXPECT_EQ(1, outcomes(2));
-  EXPECT_EQ(1, outcomes(3));
-  EXPECT_EQ(0, outcomes(4));
-  EXPECT_EQ(1, outcomes(5));
-  EXPECT_EQ(0, outcomes(6));
-  EXPECT_EQ(0, outcomes(7));
-  EXPECT_EQ(0, outcomes(8));
+    if(i == 4 || i == 7 || i == 8){
+      phenotype = UNAFFECTED;
+    }else if(i == 6 || i == 9){
+      phenotype = MISSING;
+      include = false;
+    }else{
+      phenotype = AFFECTED;
+    }
+
+    ASSERT_EQ(id, (*persons)[i]->getId());
+    ASSERT_EQ(sex, (*persons)[i]->getSex());
+    ASSERT_EQ(phenotype, (*persons)[i]->getPhenotype());
+    ASSERT_EQ(include, (*persons)[i]->getInclude());
+  }
 
   delete personHandler;
 }
@@ -118,6 +139,9 @@ TEST_F(FamReaderTest, StringToPhenotypeOneTwoCoding) {
   ASSERT_EQ(UNAFFECTED, phenotype);
 
   phenotype = famReader.stringToPhenotype("9");
+  ASSERT_EQ(MISSING, phenotype);
+
+  phenotype = famReader.stringToPhenotype("0");
   ASSERT_EQ(MISSING, phenotype);
 }
 

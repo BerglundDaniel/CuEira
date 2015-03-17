@@ -22,6 +22,10 @@ Phenotype Person::getPhenotype() const {
   return phenotype;
 }
 
+void Person::setInclude(bool include) {
+  this->include = include;
+}
+
 bool Person::getInclude() const {
   return include;
 }

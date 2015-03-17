@@ -8,6 +8,7 @@
 #include <math.h>
 #include <stdexcept>
 #include <utility>
+#include <set>
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
 
@@ -22,6 +23,13 @@
 #include <SNPVectorFactory.h>
 #include <AlleleStatisticsFactory.h>
 #include <AlleleStatistics.h>
+#include <HostVector.h>
+
+#ifdef CPU
+#include <RegularHostVector.h>
+#else
+#include <PinnedHostVector.h>
+#endif
 
 namespace CuEira {
 namespace FileIO {
@@ -36,16 +44,15 @@ class BedReader {
   friend BedReaderTest;
   FRIEND_TEST(BedReaderTest, ConstructorCheckMode);
 public:
-  explicit BedReader(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
-      const AlleleStatisticsFactory& alleleStatisticsFactory, const PersonHandler& personHandler,
-      const int numberOfSNPs);
+  explicit BedReader(const Configuration& configuration, const Container::SNPVectorFactory* snpVectorFactory,
+      const PersonHandler& personHandler, const int numberOfSNPs);
   virtual ~BedReader();
 
-  virtual std::pair<const AlleleStatistics*, Container::SNPVector*>* readSNP(SNP& snp);
+  virtual Container::SNPVector* readSNP(SNP& snp);
 
 protected:
-  explicit BedReader(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
-      const AlleleStatisticsFactory& alleleStatisticsFactory, const PersonHandler& personHandler); //Used by the mock
+  explicit BedReader(const Configuration& configuration, const Container::SNPVectorFactory* snpVectorFactory,
+      const PersonHandler& personHandler); //Used by the mock
 
 private:
   enum Mode {
@@ -59,19 +66,13 @@ private:
   void closeBedFile(std::ifstream& bedFile);
   void openBedFile(std::ifstream& bedFile);
 
-  void setSNPRiskAllele(SNP& snp, const AlleleStatistics& alleleStatistics) const;
-  void setSNPInclude(SNP& snp, const AlleleStatistics& alleleStatistics) const;
-
   const Configuration& configuration;
-  const Container::SNPVectorFactory& snpVectorFactory;
-  const AlleleStatisticsFactory& alleleStatisticsFactory;
+  const Container::SNPVectorFactory* snpVectorFactory;
   const PersonHandler& personHandler;
   Mode mode;
   const int numberOfSNPs;
-  const int numberOfIndividualsToInclude;
   const int numberOfIndividualsTotal;
   const std::string bedFileStr;
-  const double minorAlleleFrequencyThreshold;
   int numberOfBitsPerRow;
   int numberOfBytesPerRow;
   int numberOfUninterestingBitsAtEnd;

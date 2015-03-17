@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <set>
 
 #include <CSVReader.h>
 #include <EnvironmentFactor.h>
@@ -23,10 +24,13 @@ namespace FileIO {
  */
 class EnvironmentCSVReader: public CSVReader {
 public:
-  EnvironmentCSVReader(std::string filePath, std::string idColumnName, std::string delim);
+  EnvironmentCSVReader(PersonHandler& personHandler, std::string filePath, std::string idColumnName, std::string delim);
   virtual ~EnvironmentCSVReader();
 
-  EnvironmentFactorHandler* readEnvironmentFactorInformation(const PersonHandler& personHandler) const;
+  virtual EnvironmentFactorHandler* readEnvironmentFactorInformation() const;
+
+protected:
+  virtual bool rowHasMissingData(const std::vector<std::string>& lineSplit) const;
 };
 
 } /* namespace FileIO */

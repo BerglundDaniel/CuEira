@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <map>
+#include <vector>
 
 #include <Id.h>
 #include <Sex.h>
@@ -21,6 +22,7 @@
 #endif
 
 namespace CuEira {
+
 /**
  * This is ...
  *
@@ -28,19 +30,19 @@ namespace CuEira {
  */
 class PersonHandler {
 public:
-  PersonHandler();
+  explicit PersonHandler(std::vector<Person*>* persons);
   virtual ~PersonHandler();
-
-  virtual const Person& createPerson(Id id, Sex sex, Phenotype phenotype, int rowAll);
 
   virtual int getNumberOfIndividualsTotal() const;
   virtual int getNumberOfIndividualsToInclude() const;
+  virtual const std::vector<Person*>& getPersons() const;
+
   virtual const Person& getPersonFromId(Id id) const;
-  virtual const Person& getPersonFromRowAll(int row) const;
-  virtual const Person& getPersonFromRowInclude(int row) const;
+  virtual Person& getPersonFromId(Id id);
+  virtual const Person& getPersonFromRowAll(int rowAll) const;
   virtual int getRowIncludeFromPerson(const Person& person) const;
-  virtual const Container::HostVector& getOutcomes() const;
-  virtual void createOutcomes();
+
+  virtual void lockIndividuals();
 
   PersonHandler(const PersonHandler&) = delete;
   PersonHandler(PersonHandler&&) = delete;
@@ -48,16 +50,12 @@ public:
   PersonHandler& operator=(PersonHandler&&) = delete;
 
 private:
-  bool shouldPersonBeIncluded(Id id, Sex sex, Phenotype phenotype) const;
-
-  int numberOfIndividualsTotal;
+  const int numberOfIndividualsTotal;
   int numberOfIndividualsToInclude;
-  std::map<int, Person*> rowToPersonAll;
-  std::map<int, Person*> rowToPersonInclude;
+  std::vector<Person*>* persons;
   std::map<Id, Person*> idToPerson;
-  std::map<const Person*, int> personToRowInclude;
-  bool outcomesCreated;
-  Container::HostVector* outcomes;
+  std::map<Person*, int> personToRowInclude;
+  bool individualsLocked;
 };
 
 } /* namespace CuEira */

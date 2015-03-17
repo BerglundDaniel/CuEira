@@ -3,8 +3,9 @@
 namespace CuEira {
 namespace Container {
 
-SNPVector::SNPVector(SNP& snp, GeneticModel geneticModel, const std::vector<int>* originalSNPData) :
-    snp(snp), numberOfIndividualsToInclude(originalSNPData->size()), originalSNPData(originalSNPData), originalGeneticModel(
+SNPVector::SNPVector(SNP& snp, GeneticModel geneticModel, const HostVector* originalSNPData,
+    std::set<int>* snpMissingData) :
+    snp(snp), numberOfIndividualsToInclude(originalSNPData->getNumberOfRows()), originalSNPData(originalSNPData), originalGeneticModel(
         geneticModel), currentGeneticModel(geneticModel), currentRecode(ALL_RISK), originalRiskAllele(
         snp.getRiskAllele()),
 #ifdef CPU

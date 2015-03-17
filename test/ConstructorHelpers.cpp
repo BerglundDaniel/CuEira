@@ -11,67 +11,8 @@ ConstructorHelpers::~ConstructorHelpers() {
 
 }
 
-Person* ConstructorHelpers::constructPersonInclude(int number) {
-  std::ostringstream os;
-  os << "ind" << number;
-  Id id(os.str());
-  Sex sex;
-  Phenotype phenotype;
-
-  if(rand() % 2 == 0){
-    sex = MALE;
-  }else{
-    sex = FEMALE;
-  }
-
-  if(rand() % 2 == 0){
-    phenotype = AFFECTED;
-  }else{
-    phenotype = UNAFFECTED;
-  }
-
-  return new Person(id, sex, phenotype, true);
-}
-
-Person* ConstructorHelpers::constructPersonNotInclude(int number) {
-  std::ostringstream os;
-  os << "ind" << number;
-  Id id(os.str());
-  Sex sex;
-
-  if(rand() % 2 == 0){
-    sex = MALE;
-  }else{
-    sex = FEMALE;
-  }
-
-  return new Person(id, sex, MISSING, false);
-}
-
-Person* ConstructorHelpers::constructPersonInclude(int number, Phenotype phenotype) {
-  std::ostringstream os;
-  os << "ind" << number;
-  Id id(os.str());
-  Sex sex;
-
-  if(rand() % 2 == 0){
-    sex = MALE;
-  }else{
-    sex = FEMALE;
-  }
-
-  return new Person(id, sex, phenotype, true);
-}
-
 Container::EnvironmentVectorMock* ConstructorHelpers::constructEnvironmentVectorMock() {
   return new Container::EnvironmentVectorMock();
-}
-
-Container::SNPVectorMock* ConstructorHelpers::constructSNPVectorMock() {
-  SNP snp(Id("test_snp1"), "allele1", "allele2", 1);
-  snp.setRiskAllele(ALLELE_ONE);
-
-  return new Container::SNPVectorMock(snp);
 }
 
 EnvironmentFactorHandlerMock* ConstructorHelpers::constructEnvironmentFactorHandlerMock() {
@@ -102,13 +43,6 @@ FileIO::BedReaderMock* ConstructorHelpers::constructBedReaderMock() {
 
   return new FileIO::BedReaderMock(configurationMock, Container::SNPVectorFactoryMock(configurationMock),
       AlleleStatisticsFactoryMock(), PersonHandlerMock());
-}
-
-Container::SNPVectorFactoryMock* ConstructorHelpers::constructSNPVectorFactoryMock() {
-  ConfigurationMock configurationMock;
-  EXPECT_CALL(configurationMock, getGeneticModel()).WillRepeatedly(Return(DOMINANT));
-
-  return new Container::SNPVectorFactoryMock(configurationMock);
 }
 
 ContingencyTableFactoryMock* ConstructorHelpers::constructContingencyTableFactoryMock() {

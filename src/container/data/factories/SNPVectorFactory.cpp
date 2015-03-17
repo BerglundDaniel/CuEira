@@ -12,7 +12,8 @@ SNPVectorFactory::~SNPVectorFactory() {
 
 }
 
-SNPVector* SNPVectorFactory::constructSNPVector(SNP& snp, const std::vector<int>* originalSNPData) const {
+SNPVector* SNPVectorFactory::constructSNPVector(SNP& snp, const HostVector* originalSNPData,
+    const std::set<int>* snpMissingData) const {
   return new SNPVector(snp, geneticModel, originalSNPData);
 }
 

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <ostream>
+#include <set>
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
 
@@ -42,7 +43,7 @@ public:
   /**
    * Construct a SNPVector
    */
-  SNPVector(SNP& snp, GeneticModel geneticModel, const std::vector<int>* originalSNPData);
+  SNPVector(SNP& snp, GeneticModel geneticModel, const HostVector* originalSNPData, std::set<int>* snpMissingData);
 
   virtual ~SNPVector();
 
@@ -73,8 +74,8 @@ private:
   GeneticModel currentGeneticModel;
   const RiskAllele originalRiskAllele;
   const GeneticModel originalGeneticModel;
-  const std::vector<int>* originalSNPData;
-  Container::HostVector* modifiedSNPData;
+  const HostVector* originalSNPData;
+  Container::HostVector* modifiedSNPData; //TODO set to GPU instead, split this into cpu and gpu versions
   Recode currentRecode;
 };
 

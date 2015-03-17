@@ -8,15 +8,18 @@
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
 #include <boost/algorithm/string.hpp>
+#include <vector>
+#include <utility>
 
 #include <Id.h>
 #include <Sex.h>
 #include <Person.h>
-#include <PersonHandler.h>
 #include <Phenotype.h>
 #include <PhenotypeCoding.h>
 #include <Configuration.h>
 #include <FileReaderException.h>
+#include <PersonHandler.h>
+#include <PersonHandlerFactory.h>
 
 #ifdef PROFILE
 #include <boost/chrono/chrono_io.hpp>
@@ -40,18 +43,22 @@ class FamReader {
   FRIEND_TEST(FamReaderTest, StringToPhenotypeOneTwoCodingException);
   FRIEND_TEST(FamReaderTest, StringToPhenotypeZeroOneCodingException);
 public:
-  explicit FamReader(const Configuration& configuration);
+  explicit FamReader(const Configuration& configuration, const PersonHandlerFactory* personHandlerFactory);
   virtual ~FamReader();
 
-  PersonHandler* readPersonInformation() const;
+  virtual PersonHandler* readPersonInformation() const;
+  virtual int getNumberOfIndividualsTotal() const;
 
 private:
+  void readBasicFileInformation();
   Phenotype stringToPhenotype(std::string phenotypeString) const;
   Sex stringToSex(std::string sexString) const;
 
   const Configuration& configuration;
+  const PersonHandlerFactory* personHandlerFactory;
   const std::string famFileStr;
   const PhenotypeCoding phenotypeCoding;
+  int numberOfIndividualsTotal;
 };
 
 } /* namespace FileIO */

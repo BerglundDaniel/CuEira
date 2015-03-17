@@ -19,17 +19,16 @@ namespace CUDA {
 using namespace CuEira::Container;
 
 /**
- * This is a class that wraps the kernels in the kernels namespace. Each function assumes that symbols for the size have been set on the device.
+ * This is a class that wraps the kernels in the kernels namespace.
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class KernelWrapper {
 public:
   /**
-   * Constructor for the class. Takes the stream the transfers should be executed on. Some functions requires that a cublas context has been created.
-   * All of them assumes a cuda context exists for the stream.
+   * Constructor for the class.
    */
-  KernelWrapper(const Stream& stream);
+  explicit KernelWrapper(const Stream& stream);
   virtual ~KernelWrapper();
 
   /**
@@ -66,11 +65,6 @@ public:
       DeviceVector& result) const;
 
   /**
-   * Copies from vectorFrom to vectorTo element wise
-   */
-  void copyVector(const DeviceVector& vectorFrom, DeviceVector& vectorTo) const;
-
-  /**
    * Calculates x*(1-x) for each element
    */
   void probabilitesMultiplyProbabilites(const DeviceVector& probabilitesDevice, DeviceVector& result) const;
@@ -83,28 +77,11 @@ public:
   /**
    * Asdf
    */
-  void matrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector, DeviceVector& result) const;
-
-  /**
-   * Asdf
-   */
-  void matrixTransVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector, DeviceVector& result) const;
-
-  /**
-   * Asdf
-   */
-  void matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const DeviceMatrix& matrix2, DeviceMatrix& result) const;
-
-  /**
-   * Asdf
-   */
   void columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
       DeviceMatrix& result) const;
 
-  /**
-   * Sums the vectors elements and puts the result in the given pointer
-   */
-  void sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector, PRECISION& sumHost) const;
+  //TODO
+  void vectorCopyIndexes(DeviceVector& to, const DeviceVector& from, const DeviceVector& indexes) const;
 
   /**
    * Syncs the associated stream

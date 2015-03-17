@@ -10,7 +10,6 @@
 #include <Phenotype.h>
 #include <PersonHandler.h>
 #include <PersonHandlerException.h>
-#include <ConstructorHelpers.h>
 
 namespace CuEira {
 namespace CuEira_Test {
@@ -26,9 +25,6 @@ protected:
   virtual ~PersonHandlerTest();
   virtual void SetUp();
   virtual void TearDown();
-
-  PersonHandler personHandler;
-  ConstructorHelpers constructorHelpers;
 };
 
 PersonHandlerTest::PersonHandlerTest() {
@@ -47,200 +43,148 @@ void PersonHandlerTest::TearDown() {
 
 }
 
-TEST_F(PersonHandlerTest, ExceptionSamePersonSameRow) {
-  Person* person = constructorHelpers.constructPersonInclude(1);
-
-  personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 0);
-  ASSERT_THROW(personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 0),
-      PersonHandlerException);
-
-  delete person;
-}
-
-TEST_F(PersonHandlerTest, ExceptionSamePersonDifferentRow) {
-  Person* person = constructorHelpers.constructPersonInclude(1);
-
-  personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 0);
-  ASSERT_THROW(personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), 1),
-      PersonHandlerException);
-
-  delete person;
-}
-
-TEST_F(PersonHandlerTest, ExceptionDifferentPersonSameRow) {
-  Person* person1 = constructorHelpers.constructPersonInclude(1);
-  Person* person2 = constructorHelpers.constructPersonInclude(2);
-
-  personHandler.createPerson(person1->getId(), person1->getSex(), person1->getPhenotype(), 0);
-  ASSERT_THROW(personHandler.createPerson(person2->getId(), person2->getSex(), person2->getPhenotype(), 0),
-      PersonHandlerException);
-
-  delete person1;
-  delete person2;
-}
-
-TEST_F(PersonHandlerTest, NumberOfIndividuals) {
-  int numberOfIndividuals = 10;
-  int numberOfIndividualsNotInclude = 4;
-  int notInclude[4] = {1, 2, 5, 7};
-  int j = 0;
-  std::vector<const Person*> personVector(numberOfIndividuals);
-
-  for(int i = 0; i < numberOfIndividuals; ++i){
-    Person* person;
-    if(i == notInclude[j]){
-      ++j;
-      person = constructorHelpers.constructPersonNotInclude(i);
-    }else{
-      person = constructorHelpers.constructPersonInclude(i);
-    }
-    const Person& person2 = personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
-    delete person;
-    personVector[i] = &person2;
-  }
-
-  ASSERT_EQ(numberOfIndividuals, personHandler.getNumberOfIndividualsTotal());
-  ASSERT_EQ(numberOfIndividuals - numberOfIndividualsNotInclude, personHandler.getNumberOfIndividualsToInclude());
-}
-
 TEST_F(PersonHandlerTest, Getters) {
-  int numberOfIndividuals = 10;
-  int numberOfIndividualsNotInclude = 4;
-  int notInclude[4] = {0, 3, 5, 8};
-  int j = 0;
-  std::vector<const Person*> personVector(numberOfIndividuals);
+  int numberOfIndividualsTotal = 10;
+  int numberOfIndividualsToInclude = 0;
+  std::vector<Person*>* personVector = new std::vector<Person*>(numberOfIndividualsTotal);
 
-  for(int i = 0; i < numberOfIndividuals; ++i){
-    Person* person;
-    if(i == notInclude[j]){
-      ++j;
-      person = constructorHelpers.constructPersonNotInclude(i);
+  for(int i = 0; i < numberOfIndividualsTotal; ++i){
+    std::ostringstream os;
+    os << "ind" << i;
+    Id id(os.str());
+    Sex sex;
+    Phenotype phenotype;
+
+    if(rand() % 2 == 0){
+      sex = MALE;
     }else{
-      person = constructorHelpers.constructPersonInclude(i);
+      sex = FEMALE;
     }
-    const Person& person2 = personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
-    delete person;
-    personVector[i] = &person2;
+
+    int r = rand() % 3;
+    if(r == 0){
+      phenotype = AFFECTED;
+      numberOfIndividualsToInclude++;
+    }else if(r == 1){
+      phenotype = UNAFFECTED;
+      numberOfIndividualsToInclude++;
+    }else{
+      phenotype = MISSING;
+    }
+
+    (*personVector)[i] = new Person(id, sex, phenotype, phenotype != MISSING);
   }
 
-  int rowInclude = 0;
-  j = 0;
-  for(int i = 0; i < numberOfIndividuals; ++i){
-    const Person& person = *personVector[i];
+  PersonHandler personHandler(personVector);
 
-    //Id to person
+  ASSERT_EQ(numberOfIndividualsTotal, personHandler.getNumberOfIndividualsTotal());
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    const Person& person = *(*personVector)[i];
+
     ASSERT_EQ(person, personHandler.getPersonFromId(person.getId()));
 
-    //Plink row to person
     ASSERT_EQ(person, personHandler.getPersonFromRowAll(i));
+  }
 
-    if(i == notInclude[j]){
-      j++;
-    }else{
-      //Row include to person
-      ASSERT_EQ(person, personHandler.getPersonFromRowInclude(rowInclude));
+  //Lock
+  personHandler.lockIndividuals();
 
-      //Person to row include
-      ASSERT_EQ(rowInclude, personHandler.getRowIncludeFromPerson(person));
+  ASSERT_EQ(numberOfIndividualsToInclude, personHandler.getNumberOfIndividualsToInclude());
 
-      rowInclude++;
+  int includeNumber = 0;
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    Person* person = (*personVector)[i];
+
+    if(person->getInclude()){
+      includeNumber++;
+      ASSERT_EQ(includeNumber, personHandler.getRowIncludeFromPerson(*person));
     }
   }
+  ASSERT_EQ(includeNumber, personHandler.getNumberOfIndividualsToInclude());
+}
+
+TEST_F(PersonHandlerTest, LockException) {
+  int numberOfIndividualsTotal = 10;
+  int numberOfIndividualsToInclude = 0;
+  std::vector<Person*>* personVector = new std::vector<Person*>(numberOfIndividualsTotal);
+
+  for(int i = 0; i < numberOfIndividualsTotal; ++i){
+    std::ostringstream os;
+    os << "ind" << i;
+    Id id(os.str());
+    Sex sex;
+    Phenotype phenotype;
+
+    if(rand() % 2 == 0){
+      sex = MALE;
+    }else{
+      sex = FEMALE;
+    }
+
+    int r = rand() % 3;
+    if(r == 0){
+      phenotype = AFFECTED;
+      numberOfIndividualsToInclude++;
+    }else if(r == 1){
+      phenotype = UNAFFECTED;
+      numberOfIndividualsToInclude++;
+    }else{
+      phenotype = MISSING;
+    }
+
+    (*personVector)[i] = new Person(id, sex, phenotype, phenotype != MISSING);
+  }
+
+  PersonHandler personHandler(personVector);
+
+  ASSERT_THROW(personHandler.getNumberOfIndividualsToInclude(), PersonHandlerException);
+  ASSERT_THROW(personHandler.getRowIncludeFromPerson(*(*personVector)[0]), PersonHandlerException);
 }
 
 TEST_F(PersonHandlerTest, GettersException) {
-  int numberOfIndividuals = 10;
-  int numberOfIndividualsNotInclude = 4;
-  int notInclude[4] = {0, 3, 5, 8};
-  int j = 0;
-  std::vector<const Person*> personVector(numberOfIndividuals);
+  int numberOfIndividualsTotal = 10;
+  int numberOfIndividualsToInclude = 0;
+  std::vector<Person*>* personVector = new std::vector<Person*>(numberOfIndividualsTotal);
 
-  for(int i = 0; i < numberOfIndividuals; ++i){
-    Person* person;
-    if(i == notInclude[j]){
-      ++j;
-      person = constructorHelpers.constructPersonNotInclude(i);
+  for(int i = 0; i < numberOfIndividualsTotal; ++i){
+    std::ostringstream os;
+    os << "ind" << i;
+    Id id(os.str());
+    Sex sex;
+    Phenotype phenotype;
+
+    if(rand() % 2 == 0){
+      sex = MALE;
     }else{
-      person = constructorHelpers.constructPersonInclude(i);
+      sex = FEMALE;
     }
-    const Person& person2 = personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
-    delete person;
-    personVector[i] = &person2;
+
+    int r = rand() % 3;
+    if(r == 0){
+      phenotype = AFFECTED;
+      numberOfIndividualsToInclude++;
+    }else if(r == 1){
+      phenotype = UNAFFECTED;
+      numberOfIndividualsToInclude++;
+    }else{
+      phenotype = MISSING;
+    }
+
+    (*personVector)[i] = new Person(id, sex, phenotype, phenotype != MISSING);
   }
 
-  int personNumber = 22;
-  Person* personNotInHandler = constructorHelpers.constructPersonInclude(personNumber);
+  PersonHandler personHandler(personVector);
 
-  //Id to person
-  ASSERT_THROW(personHandler.getPersonFromId(personNotInHandler->getId()), PersonHandlerException);
+  //Lock
+  personHandler.lockIndividuals();
 
-  //Plink row to person
-  ASSERT_THROW(personHandler.getPersonFromRowAll(personNumber), PersonHandlerException);
+  ASSERT_EQ(numberOfIndividualsTotal, personHandler.getNumberOfIndividualsTotal());
 
-  //Row include to person
-  ASSERT_THROW(personHandler.getPersonFromRowInclude(personNumber), PersonHandlerException);
+  Person personNotInHandler(Id("other"), FEMALE, UNAFFECTED, true);
 
-  //Person to row include
-  ASSERT_THROW(personHandler.getRowIncludeFromPerson(*personNotInHandler), PersonHandlerException);
-}
-
-TEST_F(PersonHandlerTest, GetOutcomesException) {
-  int numberOfIndividuals = 10;
-  int numberOfIndividualsNotInclude = 4;
-  int notInclude[4] = {1, 2, 5, 7};
-  int j = 0;
-  std::vector<const Person*> personVector(numberOfIndividuals);
-
-  for(int i = 0; i < numberOfIndividuals; ++i){
-    Person* person;
-    if(i == notInclude[j]){
-      ++j;
-      person = constructorHelpers.constructPersonNotInclude(i);
-    }else{
-      person = constructorHelpers.constructPersonInclude(i);
-    }
-    const Person& person2 = personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
-    delete person;
-    personVector[i] = &person2;
-  }
-
-  ASSERT_THROW(personHandler.getOutcomes(), InvalidState);
-}
-
-TEST_F(PersonHandlerTest, CreateAndGetOutcomes) {
-  int numberOfIndividuals = 10;
-  int numberOfIndividualsNotInclude = 4;
-  int notInclude[4] = {1, 2, 5, 7};
-  int j = 0;
-  std::vector<const Person*> personVector(numberOfIndividuals);
-
-  for(int i = 0; i < numberOfIndividuals; ++i){
-    Person* person;
-    if(i == notInclude[j]){
-      ++j;
-      person = constructorHelpers.constructPersonNotInclude(i);
-    }else{
-      if(i < 4 || i == 8){
-        person = constructorHelpers.constructPersonInclude(i, AFFECTED);
-      }else{
-        person = constructorHelpers.constructPersonInclude(i, UNAFFECTED);
-      }
-    }
-    const Person& person2 = personHandler.createPerson(person->getId(), person->getSex(), person->getPhenotype(), i);
-    delete person;
-    personVector[i] = &person2;
-  }
-
-  personHandler.createOutcomes();
-  const Container::HostVector& outcomes = personHandler.getOutcomes();
-
-  for(int i = 0; i < 6; ++i){
-    if(i == 0 || i == 1 || i == 4){
-      EXPECT_EQ(1, outcomes(i));
-    }else{
-      EXPECT_EQ(0, outcomes(i));
-    }
-  }
+  ASSERT_THROW(personHandler.getPersonFromId(personNotInHandler.getId()), PersonHandlerException);
+  ASSERT_THROW(personHandler.getRowIncludeFromPerson(personNotInHandler), PersonHandlerException);
+  ASSERT_THROW(personHandler.getPersonFromRowAll(11), PersonHandlerException);
 }
 
 }

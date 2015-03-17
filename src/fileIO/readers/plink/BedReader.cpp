@@ -3,13 +3,11 @@
 namespace CuEira {
 namespace FileIO {
 
-BedReader::BedReader(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
-    const AlleleStatisticsFactory& alleleStatisticsFactory, const PersonHandler& personHandler, const int numberOfSNPs) :
+BedReader::BedReader(const Configuration& configuration, const Container::SNPVectorFactory* snpVectorFactory,
+    const PersonHandler& personHandler, const int numberOfSNPs) :
     configuration(configuration), snpVectorFactory(snpVectorFactory), alleleStatisticsFactory(alleleStatisticsFactory), personHandler(
-        personHandler), bedFileStr(configuration.getBedFilePath()), numberOfSNPs(numberOfSNPs), numberOfIndividualsToInclude(
-        personHandler.getNumberOfIndividualsToInclude()), numberOfIndividualsTotal(
-        personHandler.getNumberOfIndividualsTotal()), minorAlleleFrequencyThreshold(
-        configuration.getMinorAlleleFrequencyThreshold()) {
+        personHandler), bedFileStr(configuration.getBedFilePath()), numberOfSNPs(numberOfSNPs), numberOfIndividualsTotal(
+        personHandler.getNumberOfIndividualsTotal()) {
 
   std::ifstream bedFile;
   openBedFile(bedFile);
@@ -66,36 +64,33 @@ BedReader::BedReader(const Configuration& configuration, const Container::SNPVec
   }
 }
 
-BedReader::BedReader(const Configuration& configuration, const Container::SNPVectorFactory& snpVectorFactory,
-    const AlleleStatisticsFactory& alleleStatisticsFactory, const PersonHandler& personHandler) :
-    numberOfSNPs(0), numberOfIndividualsTotal(0), numberOfIndividualsToInclude(0), configuration(configuration), personHandler(
-        personHandler), snpVectorFactory(snpVectorFactory), alleleStatisticsFactory(alleleStatisticsFactory), minorAlleleFrequencyThreshold(
-        0), numberOfBitsPerRow(0), numberOfBytesPerRow(0), numberOfUninterestingBitsAtEnd(0) {
+BedReader::BedReader(const Configuration& configuration, const Container::SNPVectorFactory* snpVectorFactory,
+    const PersonHandler& personHandler) :
+    numberOfSNPs(0), numberOfIndividualsTotal(0), configuration(configuration), snpVectorFactory(snpVectorFactory), numberOfBitsPerRow(
+        0), numberOfBytesPerRow(0), numberOfUninterestingBitsAtEnd(0), personHandler(personHandler), mode(
+        INDIVIDUALMAJOR) {
 
 }
 
 BedReader::~BedReader() {
-
+  delete snpVectorFactory;
 }
 
-std::pair<const AlleleStatistics*, Container::SNPVector*>* BedReader::readSNP(SNP& snp) {
+Container::SNPVector* BedReader::readSNP(SNP& snp) {
   std::ifstream bedFile;
-  int numberOfAlleleOneCase = 0;
-  int numberOfAlleleTwoCase = 0;
-  int numberOfAlleleOneControl = 0;
-  int numberOfAlleleTwoControl = 0;
-  int numberOfAlleleOneAll = 0;
-  int numberOfAlleleTwoAll = 0;
   const int snpPos = snp.getPosition();
-  bool missingData = false;
+  const int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
+  std::set<int>* snpMissingData = new std::set<int>();
 
   //Initialise vector
-  std::vector<int>* snpDataOriginal = new std::vector<int>(numberOfIndividualsToInclude);
+#ifdef CPU
+  Container::HostVector* snpDataOriginal = new Container::RegularHostVector(numberOfIndividualsToInclude);
+#else
+  Container::HostVector* snpDataOriginal = new Container::PinnedHostVector(numberOfIndividualsToInclude);
+#endif
 
   //Read depending on the mode
   if(mode == SNPMAJOR){
-    int readBufferSize; //Number of bytes to read per read //TODO REMOVE to numberOfBytesPerRow
-
     char buffer[numberOfBytesPerRow];
     long int seekPos = headerSize + numberOfBytesPerRow * snpPos;
 
@@ -110,6 +105,9 @@ std::pair<const AlleleStatistics*, Container::SNPVector*>* BedReader::readSNP(SN
     }
 
     closeBedFile(bedFile);
+
+    int individualNumberIncMissing = 0;
+    int individualNumberAll = 0;
 
     //Go through all the bytes in this read
     for(int byteNumber = 0; byteNumber < numberOfBytesPerRow; ++byteNumber){
@@ -129,66 +127,37 @@ std::pair<const AlleleStatistics*, Container::SNPVector*>* BedReader::readSNP(SN
         bool firstBit = getBit(currentByte, posInByte);
         bool secondBit = getBit(currentByte, posInByte + 1);
 
-        //Which person does this information belong to?
-        int personRowFileNumber = byteNumber * 4 + bitPairNumber;
-
-        const Person& person = personHandler.getPersonFromRowAll(personRowFileNumber);
-
-        if(person.getInclude()){ //If the person shouldn't be included we will skip it
-          Phenotype phenotype = person.getPhenotype();
-          int currentPersonRow = personHandler.getRowIncludeFromPerson(person);
+        Person person = personHandler.getPersonFromRowAll(individualNumberAll);
+        if(person.getInclude()){
 
           //If we are missing the genotype for at least one individual(that should be included) we excluded the SNP
           if(firstBit && !secondBit){
-            missingData = true;
-            (*snpDataOriginal)[currentPersonRow] = -1;
+            snpMissingData->insert(snpMissingData->end(), individualNumberIncMissing);
+            (*snpDataOriginal)(individualNumberIncMissing) = -1;
           }else{
             //Store the genotype as 0,1,2 until we can recode it. We have to know the risk allele before we can recode.
-            //Also increase the counters for the alleles if it is a case.
             if(!firstBit && !secondBit){
               //Homozygote primary
-              (*snpDataOriginal)[currentPersonRow] = 0;
-              numberOfAlleleOneAll += 2;
-
-              if(phenotype == AFFECTED){
-                numberOfAlleleOneCase += 2;
-              }else{
-                numberOfAlleleOneControl += 2;
-              }
+              (*snpDataOriginal)(individualNumberIncMissing) = 0;
             }else if(!firstBit && secondBit){
               //Hetrozygote
-              (*snpDataOriginal)[currentPersonRow] = 1;
-              numberOfAlleleOneAll++;
-              numberOfAlleleTwoAll++;
-
-              if(phenotype == AFFECTED){
-                numberOfAlleleOneCase++;
-                numberOfAlleleTwoCase++;
-              }else{
-                numberOfAlleleOneControl++;
-                numberOfAlleleTwoControl++;
-              }
+              (*snpDataOriginal)(individualNumberIncMissing) = 1;
             }else if(firstBit && secondBit){
               //Homozygote secondary
-              (*snpDataOriginal)[currentPersonRow] = 2;
-              numberOfAlleleTwoAll += 2;
-
-              if(phenotype == AFFECTED){
-                numberOfAlleleTwoCase += 2;
-              }else{
-                numberOfAlleleTwoControl += 2;
-              }
+              (*snpDataOriginal)(individualNumberIncMissing) = 2;
             }
-          }/* if check missing */
-        }/* if person include */
+          }/* if check missing data */
 
+          individualNumberIncMissing++;
+        }
+
+        individualNumberAll++;
       }/* for bitPairNumber */
 
     }/* for byteNumber */
 
   }else if(mode == INDIVIDUALMAJOR){
-    //TODO
-    delete snpDataOriginal;
+    //TODO Bed file individual major mode
     throw FileReaderException("Individual major mode is not implemented yet.");
   }else{
     std::ostringstream os;
@@ -197,34 +166,8 @@ std::pair<const AlleleStatistics*, Container::SNPVector*>* BedReader::readSNP(SN
     throw FileReaderException(tmp.c_str());
   }
 
-  std::vector<int>* numberOfAlleles = new std::vector<int>(6);
-
-  (*numberOfAlleles)[ALLELE_ONE_CASE_POSITION] = numberOfAlleleOneCase;
-  (*numberOfAlleles)[ALLELE_TWO_CASE_POSITION] = numberOfAlleleTwoCase;
-  (*numberOfAlleles)[ALLELE_ONE_CONTROL_POSITION] = numberOfAlleleOneControl;
-  (*numberOfAlleles)[ALLELE_TWO_CONTROL_POSITION] = numberOfAlleleTwoControl;
-  (*numberOfAlleles)[ALLELE_ONE_ALL_POSITION] = numberOfAlleleOneAll;
-  (*numberOfAlleles)[ALLELE_TWO_ALL_POSITION] = numberOfAlleleTwoAll;
-
-  std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = new std::pair<const AlleleStatistics*,
-      Container::SNPVector*>();
-  pair->first = alleleStatisticsFactory.constructAlleleStatistics(numberOfAlleles);
-
-  if(missingData){
-    snp.setInclude(MISSING_DATA);
-  }
-
-  setSNPInclude(snp, *(pair->first));
-  setSNPRiskAllele(snp, *(pair->first));
-
-  if(snp.shouldInclude()){
-    pair->second = snpVectorFactory.constructSNPVector(snp, snpDataOriginal);
-  }else{
-    pair->second = nullptr;
-  }
-
-  return pair;
-} /* readSNP */
+  return snpVectorFactory->constructSNPVector(snp, snpDataOriginal, snpMissingData);
+}
 
 // position in range 0-7
 bool BedReader::getBit(unsigned char byte, int position) const {
@@ -250,89 +193,6 @@ void BedReader::closeBedFile(std::ifstream& bedFile) {
     os << "Problem closing bed file " << bedFileStr << std::endl;
     const std::string& tmp = os.str();
     throw FileReaderException(tmp.c_str());
-  }
-}
-
-void BedReader::setSNPRiskAllele(SNP& snp, const AlleleStatistics& alleleStatistics) const {
-  const std::vector<double>& alleleFrequencies = alleleStatistics.getAlleleFrequencies();
-
-  //Check which allele is most frequent in cases
-  RiskAllele riskAllele;
-
-  if((alleleFrequencies[ALLELE_ONE_CASE_POSITION] - alleleFrequencies[ALLELE_ONE_CONTROL_POSITION]) > 0){
-    riskAllele = ALLELE_ONE;
-  }else{
-    riskAllele = ALLELE_TWO;
-  }
-
-  /*
-   * old way
-   if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] == alleleFrequencies[ALLELE_TWO_CASE_POSITION]){
-   if(alleleFrequencies[ALLELE_ONE_CONTROL_POSITION] == alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
-   riskAllele = ALLELE_ONE;
-   }else if(alleleFrequencies[ALLELE_ONE_CONTROL_POSITION] < alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
-   riskAllele = ALLELE_ONE;
-   }else{
-   riskAllele = ALLELE_TWO;
-   }
-   }else if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] > alleleFrequencies[ALLELE_TWO_CASE_POSITION]){
-   if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] >= alleleFrequencies[ALLELE_ONE_CONTROL_POSITION]){
-   riskAllele = ALLELE_ONE;
-   }else{
-   riskAllele = ALLELE_TWO;
-   }
-   }else{
-   if(alleleFrequencies[ALLELE_TWO_CASE_POSITION] >= alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
-   riskAllele = ALLELE_TWO;
-   }else{
-   riskAllele = ALLELE_ONE;
-   }
-   }*/
-
-  //This is how Geisa does it
-  /*
-   if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] > alleleFrequencies[ALLELE_TWO_CASE_POSITION]){
-   if(alleleFrequencies[ALLELE_ONE_CONTROL_POSITION] > alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
-   if(alleleFrequencies[ALLELE_ONE_CASE_POSITION] > alleleFrequencies[ALLELE_ONE_CONTROL_POSITION]){
-   riskAllele = ALLELE_ONE;
-   }else{
-   riskAllele = ALLELE_TWO;
-   }
-   }else{
-   riskAllele = ALLELE_TWO;
-   }
-   }else{
-   if(alleleFrequencies[ALLELE_TWO_CONTROL_POSITION] > alleleFrequencies[ALLELE_ONE_CONTROL_POSITION]){
-   if(alleleFrequencies[ALLELE_TWO_CASE_POSITION] > alleleFrequencies[ALLELE_TWO_CONTROL_POSITION]){
-   riskAllele = ALLELE_TWO;
-   }else{
-   riskAllele = ALLELE_ONE;
-   }
-   }else{
-   riskAllele = ALLELE_ONE;
-   }
-   }
-   */
-
-  snp.setRiskAllele(riskAllele);
-}
-
-void BedReader::setSNPInclude(SNP& snp, const AlleleStatistics& alleleStatistics) const {
-  const std::vector<double>& alleleFrequencies = alleleStatistics.getAlleleFrequencies();
-
-  //Calculate MAF
-  double minorAlleleFrequency;
-  if(alleleFrequencies[ALLELE_ONE_ALL_POSITION] == alleleFrequencies[ALLELE_TWO_ALL_POSITION]){
-    minorAlleleFrequency = alleleFrequencies[ALLELE_ONE_ALL_POSITION];
-  }else if(alleleFrequencies[ALLELE_ONE_ALL_POSITION] > alleleFrequencies[ALLELE_TWO_ALL_POSITION]){
-    minorAlleleFrequency = alleleFrequencies[ALLELE_TWO_ALL_POSITION];
-  }else{
-    minorAlleleFrequency = alleleFrequencies[ALLELE_ONE_ALL_POSITION];
-  }
-
-  if(minorAlleleFrequency < minorAlleleFrequencyThreshold){
-    snp.setInclude(LOW_MAF);
-    return;
   }
 }
 

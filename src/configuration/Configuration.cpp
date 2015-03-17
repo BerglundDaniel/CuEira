@@ -7,11 +7,10 @@ namespace options = boost::program_options;
 Configuration::Configuration(int argc, char* argv[]) {
   // Declare the supported options
   options::options_description description("Program usage:");
-  description.add_options()("help,h", "Produce help message.")
-  //("seed", options::value<int>()->default_value(1), "Set the seed. Default 1")
-  ("model,g", options::value<std::string>()->default_value("dominant"),
-      "The genetic model type to use(ie dominant or recessive). Default: dominant.")("binary,b",
-      options::value<std::string>()->required(), "Name of file in plink binary format")("environment_file,e",
+  description.add_options()("help,h", "Produce help message.")("model,g",
+      options::value<std::string>()->default_value("dominant"),
+      "The genetic model type to use(i.e. dominant or recessive). Default: dominant.")("binary,b",
+      options::value<std::string>()->required(), "Name of file in Plink binary format")("environment_file,e",
       options::value<std::string>()->required(), "Set the csv file with the environmental variables.")(
       "environment_id_column,x", options::value<std::string>()->required(),
       "Set the name of the column in the enviromental file that holds the person ids.")("covariate_file,c",
@@ -21,11 +20,21 @@ Configuration::Configuration(int argc, char* argv[]) {
       options::value<int>()->default_value(3), "Set number of streams to use for each GPU. Default 3.")("ngpus",
       options::value<int>(), "Set number of GPUs to use. Default is number of available GPUs.")("maf,m",
       options::value<double>()->default_value(0.00),
-      "Set the threshold for minor allele frequency(MAF) in range 0 to 1. Any SNPs with MAF below the threshold will be excluded from the analysis. Default 0.00.")(
+      "Set the threshold for the minor allele frequency(MAF) in range 0 to 1. Any SNPs with MAF below the threshold will be excluded from the analysis. Default 0.00.")(
+      "cell_count", options::value<int>() > default_value(10),
+      "Set the threshold for the number of individuals in a group. The individuals are divided into groups based on outcome, genetic risk and environment factor. If any group has fewer individuals than the threshold the marker is skipped.")(
+      "conv_threshold", options::value<double>() > default_value(1e-3),
+      "Set the convergence threshold for the logistic regression.")("max_iter",
+      options::value<int>() > default_value(500), "Set the maximum number of iterations for the logistic regression.")(
       "p", options::value<bool>()->zero_tokens(),
       "Use alternative coding for the phenotype, 0 for unaffected and 1 for affected instead of 1 for unaffected and 2 for affected.")(
       "exclude", options::value<bool>()->zero_tokens(), "Exclude SNPs with negative position from the analysis.")(
-      "version,v", "Print the version number.");
+      "delim_cov", options::value<std::string>()->default_value("\t"),
+      "Delimiter to be used for the covariate file. Default: tab.")("delim_env",
+      options::value<std::string>()->default_value("\t"),
+      "Delimiter to be used for the environment file. Default: tab.")
+  //("seed", options::value<int>()->default_value(1), "Set the seed. Default 1") //TODO use this for bootstrap and such, default system time milliseconds
+  ("version,v", "Print the version number.");
 
   options::store(options::parse_command_line(argc, argv, description), optionsMap);
 
@@ -79,11 +88,34 @@ Configuration::Configuration(int argc, char* argv[]) {
   }
 
   if(optionsMap.count("ngpus")){
-    if(optionsMap["ngpus"].as<int>()<=0){
+    if(optionsMap["ngpus"].as<int>() <= 0){
       throw std::invalid_argument("Number of GPUs has to be > 0");
     }
   }
 
+  if(optionsMap.count("nstreams")){
+    if(optionsMap["nstreams"].as<int>() <= 0){
+      throw std::invalid_argument("Number of streams per GPU has to be > 0");
+    }
+  }
+
+  if(optionsMap.count("max_iter")){
+    if(optionsMap["max_iter"].as<int>() <= 0){
+      throw std::invalid_argument("Maximum number of iterations for logistic regression has to be > 0");
+    }
+  }
+
+  if(optionsMap.count("conv_threshold")){
+    if(optionsMap["conv_threshold"].as<double>() <= 0){
+      throw std::invalid_argument("Convergence threshold has to be > 0");
+    }
+  }
+
+  if(optionsMap.count("cell_count")){
+    if(optionsMap["cell_count"].as<int>() < 0){
+      throw std::invalid_argument("Threshold for cell counts has to be >= 0");
+    }
+  }
 }
 
 Configuration::Configuration() {
@@ -173,23 +205,28 @@ double Configuration::getMinorAlleleFrequencyThreshold() const {
 }
 
 std::string Configuration::getEnvironmentDelimiter() const {
-  return "\t "; //FIXME set as option
+  //return "\t ";
+  return optionsMap["delim_env"].as<std::string>();
 }
 
 std::string Configuration::getCovariateDelimiter() const {
-  return "\t "; //FIXME set as option
+  //return "\t ";
+  return optionsMap["delim_cov"].as<std::string>();
 }
 
 int Configuration::getNumberOfMaxLRIterations() const {
-  return 500; //FIXME set as option
+  //return 500;
+  return optionsMap["max_iter"].as<int>();
 }
 
 double Configuration::getLRConvergenceThreshold() const {
-  return 1e-3; //FIXME set as option
+  //return 1e-3;
+  return optionsMap["conv_threshold"].as<int>();
 }
 
 int Configuration::getCellCountThreshold() const {
-  return 10; //FIXME set as option
+  //return 10;
+  return optionsMap["cell_count"].as<double>();
 }
 
 } /* namespace CuEira */

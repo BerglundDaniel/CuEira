@@ -86,13 +86,19 @@ TEST_F(FileIOIntegrationTest, ReadPersonInformation) {
   DataFilesReaderFactory dataFilesReaderFactory;
   DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configMock);
 
-  PersonHandler* personHandler = dataFilesReader->readPersonInformation();
+  const PersonHandler& personHandler = dataFilesReader->getPersonHandler();
 
-  EXPECT_EQ(numberOfIndividualsTotal, personHandler->getNumberOfIndividualsTotal());
-  EXPECT_EQ(numberOfIndividualsToInclude, personHandler->getNumberOfIndividualsToInclude());
+  EXPECT_EQ(numberOfIndividualsTotal, personHandler.getNumberOfIndividualsTotal());
+  EXPECT_EQ(numberOfIndividualsToInclude, personHandler.getNumberOfIndividualsToInclude());
+
+  const std::vector<Person*>& persons = personHandler.getPersons();
+
+  //TODO check stuff
+  for(auto person : persons){
+
+  }
 
   delete dataFilesReader;
-  delete personHandler;
 }
 
 TEST_F(FileIOIntegrationTest, ReadSNPInfo) {
@@ -138,15 +144,7 @@ TEST_F(FileIOIntegrationTest, ReadCovariates) {
 
   DataFilesReaderFactory dataFilesReaderFactory;
   DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configMock);
-  PersonHandler* personHandler = dataFilesReader->readPersonInformation();
-
-  std::pair<Container::HostMatrix*, std::vector<std::string>*>* covariates = dataFilesReader->readCovariates(
-      *personHandler);
-
-  Container::HostMatrix* covariatesData = covariates->first;
-  std::vector<std::string>* covariatesHeader = covariates->second;
-
-  delete covariates;
+  Container::HostMatrix* covariatesData = dataFilesReader->readCovariates();
 
   int covNumberOfRows = covariatesData->getNumberOfRows();
   ASSERT_EQ(numberOfIndividualsToInclude, covNumberOfRows);
@@ -173,9 +171,7 @@ TEST_F(FileIOIntegrationTest, ReadCovariates) {
   EXPECT_EQ(2, (*covariatesData)(8, 1));
 
   delete covariatesData;
-  delete covariatesHeader;
   delete dataFilesReader;
-  delete personHandler;
 }
 
 TEST_F(FileIOIntegrationTest, ReadEnvironment) {
@@ -185,9 +181,7 @@ TEST_F(FileIOIntegrationTest, ReadEnvironment) {
 
   DataFilesReaderFactory dataFilesReaderFactory;
   DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configMock);
-  PersonHandler* personHandler = dataFilesReader->readPersonInformation();
-  EnvironmentFactorHandler* environmentFactorHandler = dataFilesReader->readEnvironmentFactorInformation(
-      *personHandler);
+  EnvironmentFactorHandler* environmentFactorHandler = dataFilesReader->readEnvironmentFactorInformation();
 
   Id id("env1");
   EnvironmentFactor envFactor(id);
@@ -216,7 +210,6 @@ TEST_F(FileIOIntegrationTest, ReadEnvironment) {
 
   delete envData;
   delete dataFilesReader;
-  delete personHandler;
   delete environmentFactorHandler;
 }
 
@@ -227,13 +220,13 @@ TEST_F(FileIOIntegrationTest, CovariteException) {
 
   DataFilesReaderFactory dataFilesReaderFactory;
   DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configMock);
-  PersonHandler* personHandler = dataFilesReader->readPersonInformation();
 
-  EXPECT_THROW(dataFilesReader->readCovariates(*personHandler), FileReaderException);
+  EXPECT_THROW(dataFilesReader->readCovariates(), FileReaderException);
 
   delete dataFilesReader;
-  delete personHandler;
 }
+
+//TODO bed stuff
 
 }
 /* namespace FileIO */

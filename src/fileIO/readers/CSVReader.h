@@ -5,7 +5,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <utility>
 #include <boost/algorithm/string.hpp>
 #include <gtest/gtest.h>
 #include <gtest/gtest_prod.h>
@@ -33,20 +32,32 @@ class CSVReaderTest;
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class CSVReader {
-  friend CSVReaderTest;
-  FRIEND_TEST(CSVReaderTest, StoreDataException);
+  friend CSVReaderTest;FRIEND_TEST(CSVReaderTest, StoreDataException);
 public:
-  explicit CSVReader(std::string filePath, std::string idColumnName, std::string delim);
+  explicit CSVReader(PersonHandler& personHandler, std::string filePath, std::string idColumnName, std::string delim);
   virtual ~CSVReader();
 
-  std::pair<Container::HostMatrix*, std::vector<std::string>*>* readData(const PersonHandler& personHandler) const;
+  virtual int getNumberOfIndividualsTotal() const;
+  virtual Container::HostMatrix* readData() const;
+  virtual const std::vector<std::string>& getDataColumnNames() const;
 
 protected:
-  void storeData(std::vector<std::string> lineSplit, int idColumnNumber, Container::HostMatrix* dataMatrix, unsigned int dataRowNumber) const;
+  void storeData(std::vector<std::string> lineSplit, int idColumnNumber, Container::HostMatrix* dataMatrix,
+      const int dataRowNumber) const;
+  virtual bool rowHasMissingData(const std::vector<std::string>& lineSplit) const;
+  bool stringIsEmpty(const std::string& string) const;
 
+  PersonHandler& personHandler;
   const std::string idColumnName;
+  int idColumnNumber;
   const std::string delim;
   const std::string filePath;
+  int numberOfIndividualsTotal;
+  int numberOfDataColumns; //i.e excluding the id column
+  std::vector<std::string>* dataColumnNames;
+
+private:
+  void readBasicFileInformation();
 };
 
 } /* namespace FileIO */

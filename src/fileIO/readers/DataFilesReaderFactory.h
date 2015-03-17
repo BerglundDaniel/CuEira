@@ -6,11 +6,14 @@
 
 #include <DataFilesReader.h>
 #include <Configuration.h>
+#include <BedReader.h>
 #include <BimReader.h>
 #include <FamReader.h>
 #include <DimensionMismatch.h>
 #include <CSVReader.h>
 #include <EnvironmentCSVReader.h>
+#include <PersonHandler.h>
+#include <SNPVectorFactory.h>
 
 namespace CuEira {
 namespace FileIO {

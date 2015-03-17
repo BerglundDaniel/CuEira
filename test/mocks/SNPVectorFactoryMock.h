@@ -8,6 +8,7 @@
 #include <SNPVectorFactory.h>
 #include <SNP.h>
 #include <GeneticModel.h>
+#include <HostVector.h>
 
 namespace CuEira {
 namespace Container {
@@ -23,7 +24,7 @@ public:
 
   }
 
-  MOCK_CONST_METHOD2(constructSNPVector, SNPVector*(SNP&, const std::vector<int>*));
+  MOCK_CONST_METHOD3(constructSNPVector, SNPVector*(SNP& snp, const HostVector* originalSNPData, const std::set<int>* snpMissingData));
 };
 
 } /* namespace Container */

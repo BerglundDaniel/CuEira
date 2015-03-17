@@ -7,7 +7,7 @@
 
 #include <BedReader.h>
 #include <ConfigurationMock.h>
-#include <PersonHandler.h>
+#include <PersonHandlerMock.h>
 #include <GeneticModel.h>
 #include <Person.h>
 #include <Sex.h>
@@ -18,18 +18,11 @@
 #include <HostVector.h>
 #include <SNPVector.h>
 #include <SNPVectorFactory.h>
-#include <AlleleStatisticsFactory.h>
-#include <AlleleStatistics.h>
-#include <EnvironmentFactorHandler.h>
-#include <EnvironmentFactor.h>
-#include <DataFilesReader.h>
-#include <DataFilesReaderFactory.h>
 
 using testing::Return;
 using testing::_;
 using testing::ReturnRef;
 using testing::Eq;
-using testing::SaveArg;
 using testing::DoAll;
 using testing::AtLeast;
 
@@ -39,14 +32,8 @@ namespace CuEira_Test {
 
 void threadBedReaderTest(FileIO::BedReader* bedReader, SNP* snp, std::vector<Container::SNPVector*>* snpVectors,
     const int numberOfReads) {
-
   for(int i = 0; i < numberOfReads; ++i){
-    std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = bedReader->readSNP(*snp);
-
-    delete pair->first; //FIXME need to check this too
-    (*snpVectors)[i] = pair->second;
-
-    delete pair;
+    (*snpVectors)[i] = bedReader->readSNP(*snp);
   }
 }
 
@@ -77,25 +64,9 @@ BedReaderThreadIntegrationTest::~BedReaderThreadIntegrationTest() {
 }
 
 void BedReaderThreadIntegrationTest::SetUp() {
-//Expect Configuration
-  EXPECT_CALL(configMock, getBimFilePath()).Times(AtLeast(1)).WillRepeatedly(
-      Return(std::string(CuEira_BUILD_DIR) + std::string("/test.bim")));
-  EXPECT_CALL(configMock, getFamFilePath()).Times(AtLeast(1)).WillRepeatedly(
-      Return(std::string(CuEira_BUILD_DIR) + std::string("/test.fam")));
-  EXPECT_CALL(configMock, getEnvironmentFilePath()).Times(AtLeast(1)).WillRepeatedly(
-      Return(std::string(CuEira_BUILD_DIR) + std::string("/test_env.txt")));
-
   EXPECT_CALL(configMock, getBedFilePath()).Times(AtLeast(1)).WillRepeatedly(
       Return(std::string(CuEira_BUILD_DIR) + std::string("/test.bed")));
-
-  EXPECT_CALL(configMock, getEnvironmentIndividualIdColumnName()).Times(AtLeast(1)).WillRepeatedly(Return("indid"));
-  EXPECT_CALL(configMock, getEnvironmentDelimiter()).Times(AtLeast(1)).WillRepeatedly(Return("\t "));
-
-  EXPECT_CALL(configMock, covariateFileSpecified()).Times(AtLeast(1)).WillRepeatedly(Return(false));
-  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(AtLeast(1)).WillRepeatedly(Return(ONE_TWO_CODING));
   EXPECT_CALL(configMock, getGeneticModel()).Times(AtLeast(1)).WillRepeatedly(Return(DOMINANT));
-  EXPECT_CALL(configMock, excludeSNPsWithNegativePosition()).Times(AtLeast(1)).WillRepeatedly(Return(false));
-  EXPECT_CALL(configMock, getMinorAlleleFrequencyThreshold()).Times(AtLeast(1)).WillRepeatedly(Return(0));
 }
 
 void BedReaderThreadIntegrationTest::TearDown() {
@@ -105,31 +76,43 @@ void BedReaderThreadIntegrationTest::TearDown() {
 TEST_F(BedReaderThreadIntegrationTest, ThreadsReadSNP) {
   const int numberOfThreads = 4;
   const int numberOfReads = 10;
+  const int numberOfSNPs = 10;
+  const int numberOfIndividualsTotal = 10;
 
   std::vector<std::vector<Container::SNPVector*>*> snpVectorResults(numberOfThreads);
   std::vector<std::thread*> threadVector(numberOfThreads);
+  SNP* snp = new SNP(Id("snp1"), "a1", "a2", 0);
 
-  FileIO::DataFilesReaderFactory dataFilesReaderFactory;
-  FileIO::DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configMock);
+  std::vector<Person*> persons(numberOfIndividualsTotal);
+  for(int i = 0; i < numberOfIndividualsTotal; ++i){
+    std::ostringstream os;
+    os << "ind" << i;
+    Id id(os.str());
 
-  PersonHandler* personHandler = dataFilesReader->readPersonInformation();
+    if(i == 6){
+      persons[i] = new Person(id, MALE, AFFECTED, false);
+    }else{
+      persons[i] = new Person(id, MALE, AFFECTED, true);
+    }
+  }
 
-  EnvironmentFactorHandler* environmentFactorHandler = dataFilesReader->readEnvironmentFactorInformation(
-      *personHandler);
+  Container::SNPVectorFactory* snpVectorFactory = new Container::SNPVectorFactory(configMock);
+  PersonHandlerMock personHandlerMock;
 
-  std::vector<SNP*>* snpInformation = dataFilesReader->readSNPInformation();
-  const int numberOfSNPs = snpInformation->size();
+  EXPECT_CALL(personHandlerMock, getNumberOfIndividualsTotal()).Times(1).WillOnce(Return(numberOfIndividualsTotal));
 
-  AlleleStatisticsFactory alleleStatisticsFactory;
-  Container::SNPVectorFactory snpVectorFactory(configMock);
-  FileIO::BedReader bedReader(configMock, snpVectorFactory, alleleStatisticsFactory, *personHandler, numberOfSNPs);
+  for(int i = 0; i < numberOfIndividualsTotal; ++i){
+    EXPECT_CALL(personHandlerMock, getPersonFromRowAll(i)).WillRepeatedly(ReturnRef(persons[i]));
+  }
+
+  FileIO::BedReader bedReader(configMock, snpVectorFactory, personHandlerMock, numberOfSNPs);
 
   for(int i = 0; i < numberOfThreads; ++i){
     std::vector<Container::SNPVector*>* snpVectors = new std::vector<Container::SNPVector*>(numberOfReads);
     snpVectorResults[i] = snpVectors;
 
-    std::thread* t = new std::thread(CuEira::CuEira_Test::threadBedReaderTest, &bedReader, (*snpInformation)[0],
-        snpVectors, numberOfReads);
+    std::thread* t = new std::thread(CuEira::CuEira_Test::threadBedReaderTest, &bedReader, snp, snpVectors,
+        numberOfReads);
     threadVector[i] = t;
   }
 
@@ -164,13 +147,7 @@ TEST_F(BedReaderThreadIntegrationTest, ThreadsReadSNP) {
   for(int i = 0; i < numberOfThreads; ++i){
     delete threadVector[i];
   }
-  for(int i = 0; i < numberOfSNPs; ++i){
-    delete (*snpInformation)[i];
-  }
-  delete snpInformation;
-  delete personHandler;
-  delete environmentFactorHandler;
-  delete dataFilesReader;
+  delete snp;
 }
 
 }

@@ -1,12 +1,11 @@
 #ifndef CPUPHENOTYPEVECTOR_H_
 #define CPUPHENOTYPEVECTOR_H_
 
-#include <set>
-
 #include <PhenotypeVector.h>
 #include <RegularHostVector.h>
 #include <CpuPhenotypeHandler.h>
 #include <InvalidState.h>
+#include <CpuMissingDataHandler.h>
 
 namespace CuEira {
 namespace Container {
@@ -25,10 +24,9 @@ public:
   virtual ~CpuPhenotypeVector();
 
   virtual const RegularHostVector& getPhenotypeData() const;
+  virtual void applyMissing(const CpuMissingDataHandler& missingDataHandler);
 
 protected:
-  virtual void copyNonMissingData(const std::set<int>& personsToSkip);
-
   const CpuPhenotypeHandler& cpuPhenotypeHandler;
   const RegularHostVector& orgData;
   RegularHostVector* phenotypeExMissing;

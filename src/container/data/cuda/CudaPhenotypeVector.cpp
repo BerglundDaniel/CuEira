@@ -4,10 +4,9 @@ namespace CuEira {
 namespace Container {
 namespace CUDA {
 
-CudaPhenotypeVector::CudaPhenotypeVector(const CudaPhenotypeHandler& cudaPhenotypeHandler,
-    const HostToDevice& hostToDevice, const KernelWrapper& kernelWrapper) :
-    PhenotypeVector(cudaPhenotypeHandler), cudaPhenotypeHandler(cudaPhenotypeHandler), hostToDevice(hostToDevice), kernelWrapper(
-        kernelWrapper), orgData(cudaPhenotypeHandler.getPhenotypeData()), phenotypeExMissing(nullptr) {
+CudaPhenotypeVector::CudaPhenotypeVector(const CudaPhenotypeHandler& cudaPhenotypeHandler) :
+    PhenotypeVector(cudaPhenotypeHandler), cudaPhenotypeHandler(cudaPhenotypeHandler), orgData(
+        cudaPhenotypeHandler.getPhenotypeData()), phenotypeExMissing(nullptr) {
 
 }
 
@@ -16,9 +15,11 @@ CudaPhenotypeVector::~CudaPhenotypeVector() {
 }
 
 const DeviceVector& CudaPhenotypeVector::getPhenotypeData() const {
+#ifdef DEBUG
   if(!initialised){
-    throw new InvalidState("PhenotypeVector not initialised.");
+    throw new InvalidState("CudaPhenotypeVector not initialised.");
   }
+#endif
 
   if(noMissing){
     return orgData;
@@ -27,29 +28,11 @@ const DeviceVector& CudaPhenotypeVector::getPhenotypeData() const {
   }
 }
 
-void CudaPhenotypeVector::copyNonMissingData(const std::set<int>& personsToSkip) {
+void CudaPhenotypeVector::applyMissing(const CudaMissingDataHandler& missingDataHandler) {
   delete phenotypeExMissing;
-  phenotypeExMissing = new DeviceVector(numberOfIndividualsToIncludeNext);
+  phenotypeExMissing = missingDataHandler.copyNonMissing(orgData);
 
-  auto personSkip = personsToSkip.begin();
-  int orgDataIndex = 0;
-  PinnedHostVector indexesToCopy(numberOfIndividualsToInclude);
-
-  for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    if(personSkip != personsToSkip.end()){
-      if(*personSkip == orgDataIndex){
-        ++orgDataIndex;
-        ++personSkip;
-      }
-    }
-    indexesToCopy(i) = orgDataIndex;
-    ++orgDataIndex;
-  }
-
-  DeviceVector* indexesToCopyDevice = hostToDevice.transferVector(indexesToCopy);
-  kernelWrapper.vectorCopyIndexes(*phenotypeExMissing, orgData, *indexesToCopyDevice);
-
-  delete indexesToCopyDevice;
+  PhenotypeHandler::applyMissing(missingDataHandler);
 }
 
 } /* namespace CUDA */

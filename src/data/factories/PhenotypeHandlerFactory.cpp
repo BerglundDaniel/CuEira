@@ -32,10 +32,12 @@ PhenotypeHandler* PhenotypeHandlerFactory::constructPhenotypeHandler(const Perso
     }
   }
 
+#ifdef CPU
+  return new CPU::CpuPhenotypeHandler(phenotypeOriginal);
+#else
   //TODO om GPU transfer to GPU
   return new CUDA::CudaPhenotypeHandler(phenotypeOriginalDevice);
-
-  return new CPU::CpuPhenotypeHandler(phenotypeOriginal);
+#endif
 }
 
 } /* namespace CuEira */

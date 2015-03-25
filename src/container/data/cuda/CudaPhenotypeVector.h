@@ -1,14 +1,11 @@
 #ifndef CUDAPHENOTYPEVECTOR_H_
 #define CUDAPHENOTYPEVECTOR_H_
 
-#include <set>
-
 #include <PhenotypeVector.h>
 #include <DeviceVector.h>
 #include <CudaPhenotypeHandler.h>
 #include <InvalidState.h>
-#include <KernelWrapper.h>
-#include <HostToDevice.h>
+#include <CudaMissingDataHandler.h>
 
 namespace CuEira {
 namespace Container {
@@ -23,18 +20,14 @@ using namespace CuEira::CUDA;
  */
 class CudaPhenotypeVector: public PhenotypeVector {
 public:
-  CudaPhenotypeVector(const CudaPhenotypeHandler& cudaPhenotypeHandler, const HostToDevice& hostToDevice,
-      const KernelWrapper& kernelWrapper);
+  CudaPhenotypeVector(const CudaPhenotypeHandler& cudaPhenotypeHandler);
   virtual ~CudaPhenotypeVector();
 
   virtual const DeviceVector& getPhenotypeData() const;
+  virtual void applyMissing(const CudaMissingDataHandler& missingDataHandler);
 
 protected:
-  virtual void copyNonMissingData(const std::set<int>& personsToSkip);
-
   const CudaPhenotypeHandler& cudaPhenotypeHandler;
-  const HostToDevice& hostToDevice;
-  const KernelWrapper& kernelWrapper;
   const DeviceVector& orgData;
   DeviceVector* phenotypeExMissing;
 };

@@ -1,0 +1,14 @@
+set(INCLUDE_DIRECTORIES
+  ${INCLUDE_DIRECTORIES}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PARENT_SCOPE
+)
+
+set(SOURCE
+  ${SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/CpuEnvironmentFactorHandler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CpuPhenotypeHandler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CpuCovariatesHandler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CpuMissingDataHandler.cpp
+  PARENT_SCOPE
+)

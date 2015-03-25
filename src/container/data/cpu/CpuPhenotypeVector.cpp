@@ -15,9 +15,11 @@ CpuPhenotypeVector::~CpuPhenotypeVector() {
 }
 
 const RegularHostVector& CpuPhenotypeVector::getPhenotypeData() const {
+#ifdef DEBUG
   if(!initialised){
-    throw new InvalidState("PhenotypeVector not initialised.");
+    throw new InvalidState("CpuPhenotypeVector not initialised.");
   }
+#endif
 
   if(noMissing){
     return orgData;
@@ -26,25 +28,11 @@ const RegularHostVector& CpuPhenotypeVector::getPhenotypeData() const {
   }
 }
 
-void CpuPhenotypeVector::copyNonMissingData(const std::set<int>& personsToSkip) {
+void CpuPhenotypeVector::applyMissing(const CpuMissingDataHandler& missingDataHandler) {
   delete phenotypeExMissing;
-  phenotypeExMissing = new RegularHostVector(numberOfIndividualsToIncludeNext);
+  phenotypeExMissing = missingDataHandler.copyNonMissing(orgData);
 
-  auto personSkip = personsToSkip.begin();
-  int orgDataIndex = 0;
-
-  for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    if(personSkip != personsToSkip.end()){
-      if(*personSkip == orgDataIndex){
-        ++orgDataIndex;
-        ++personSkip;
-      }
-    }
-
-    (*phenotypeExMissing)(i) = orgData(orgDataIndex);
-    ++orgDataIndex;
-  }
-
+  PhenotypeHandler::applyMissing(missingDataHandler);
 }
 
 } /* namespace CPU */

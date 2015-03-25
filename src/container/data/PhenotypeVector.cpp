@@ -18,15 +18,19 @@ int PhenotypeVector::getNumberOfIndividualsTotal() const {
 }
 
 int PhenotypeVector::getNumberOfIndividualsToInclude() const {
+#ifdef DEBUG
+  if(!initialised){
+    throw new InvalidState("PhenotypeVector not initialised.");
+  }
+#endif
+
   return numberOfIndividualsToInclude;
 }
 
-void PhenotypeVector::applyMissing(const std::set<int>& personsToSkip) {
+void PhenotypeVector::applyMissing(const MissingDataHandler& missingDataHandler) {
   initialised = true;
   noMissing = false;
-  numberOfIndividualsToInclude = numberOfIndividualsTotal - personsToSkip.size();
-
-  copyNonMissingData(indexesToCopy);
+  numberOfIndividualsToInclude = missingDataHandler.getNumberOfIndividualsToInclude();
 }
 
 void PhenotypeVector::applyNoMissing() {

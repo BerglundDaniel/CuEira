@@ -12,9 +12,7 @@ PersonHandler::PersonHandler(std::vector<Person*>* persons) :
 }
 
 PersonHandler::~PersonHandler() {
-  for(auto person : *persons){
-    delete person;
-  }
+  persons->clear();
   delete persons;
 }
 

@@ -43,7 +43,7 @@ EnvironmentFactorHandler* DataFilesReader::readEnvironmentFactorInformation() co
   return environmentCSVReader->readEnvironmentFactorInformation();
 }
 
-std::pair<const AlleleStatistics*, Container::SNPVector*>* DataFilesReader::readSNP(SNP& snp) {
+Container::SNPVector* DataFilesReader::readSNP(SNP& snp) {
   return bedReader->readSNP(snp);
 }
 

@@ -43,7 +43,7 @@ public:
   virtual Container::HostMatrix* readCovariates() const;
   virtual std::vector<SNP*>* readSNPInformation() const;
   virtual EnvironmentFactorHandler* readEnvironmentFactorInformation() const;
-  virtual std::pair<const AlleleStatistics*, Container::SNPVector*>* readSNP(SNP& snp);
+  virtual Container::SNPVector* readSNP(SNP& snp);
 
   virtual const PersonHandler& getPersonHandler() const;
 

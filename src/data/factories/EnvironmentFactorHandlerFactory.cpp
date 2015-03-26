@@ -11,51 +11,44 @@ EnvironmentFactorHandlerFactory::~EnvironmentFactorHandlerFactory() {
 }
 
 EnvironmentFactorHandler* EnvironmentFactorHandlerFactory::constructEnvironmentFactorHandler(
-    const Container::HostMatrix* dataMatrix, const std::vector<EnvironmentFactor*>* environmentFactors) const {
-  if(dataMatrix->getNumberOfColumns() != environmentFactors->size()){
-    std::ostringstream os;
-    os << "Number of columns in dataMatrix and number of environmental factors does not match." << std::endl;
-    const std::string& tmp = os.str();
-    throw EnvironmentFactorHandlerException(tmp.c_str());
+    const Container::HostVector* envData, EnvironmentFactor* environmentFactor) const {
+
+  bool binary = true;
+  int max = (*envData)(0);
+  int min = (*envData)(0);
+
+  const int numberOfIndividuals = envData->getNumberOfRows();
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    if((*envData)(i) != 0 && (*envData)(i) != 1){
+      binary = false;
+    }
+
+    if((*envData)(i) > max){
+      max = (*envData)(i);
+    }
+
+    if((*envData)(i) < min){
+      min = (*envData)(i);
+    }
   }
 
-  const int numberOfEnvironmentFactors = environmentFactors->size();
-  std::vector<const EnvironmentFactor*>* constEnvironmentFactors = new std::vector<const EnvironmentFactor*>(
-      numberOfEnvironmentFactors);
+  environmentFactor->setMax(max);
+  environmentFactor->setMin(min);
 
-  //Check the variable type for each factor
-  //TODO potential unroll
-  for(int i = 0; i < numberOfEnvironmentFactors; ++i){
-    bool binary = true;
-    EnvironmentFactor* environmentFactor = (*environmentFactors)[i];
-
-    constEnvironmentFactors[i] = environmentFactor; //Set the factor in the constFactor vector
-
-    //TODO potential unroll
-    for(int j = 0; j < numberOfIndividualsToInclude; ++j){
-      if((*dataMatrix)(j, i) != 0 && (*dataMatrix)(j, i) != 1){
-        binary = false;
-        break;
-      }
-    } //for j
-
-    if(binary){
-      environmentFactor->setVariableType(BINARY);
-    }else{
-      environmentFactor->setVariableType(OTHER);
-    }
-  } // for i
-
-  delete environmentFactors; //Since they are in the const vector instead
+  if(binary){
+    environmentFactor->setVariableType(BINARY);
+  }else{
+    environmentFactor->setVariableType(OTHER);
+  }
 
 #ifdef CPU
-  return new CpuEnvironmentFactorHandler(dataMatrix, constEnvironmentFactors, personsToSkip);
+  return new CpuEnvironmentFactorHandler(envData, environmentFactor);
 #else
   //TODO transfer to GPU
-  Container::DeviceMatrix* dataMatrixDevice;
+  Container::DeviceVector* envDataDevice;
 
   delete dataMatrix;
-  return new CudaEnvironmentFactorHandler(dataMatrixDevice, constEnvironmentFactors, personsToSkip);
+  return new CudaEnvironmentFactorHandler(envDataDevice, environmentFactor);
 #endif
 }
 

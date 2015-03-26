@@ -14,8 +14,8 @@ CudaMissingDataHandler::~CudaMissingDataHandler() {
   delete indexesToCopyDevice;
 }
 
-void CudaMissingDataHandler::setMissing(const std::set<int>& snpPersonsToSkip, const std::set<int>& envPersonsToSkip) {
-  MissingDataHandler::setMissing(snpPersonsToSkip, envPersonsToSkip);
+void CudaMissingDataHandler::setMissing(const std::set<int>& snpPersonsToSkip) {
+  MissingDataHandler::setMissing(snpPersonsToSkip);
 
   delete indexesToCopyDevice;
   indexesToCopyDevice = hostToDevice.transferVector(indexesToCopy);

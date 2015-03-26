@@ -23,6 +23,11 @@ public:
   void setVariableType(VariableType variableType);
   VariableType getVariableType() const;
 
+  void setMax(int max);
+  void setMin(int min);
+  int getMax() const;
+  int getMin() const;
+
   bool operator<(const EnvironmentFactor& otherEnvironmentFactor) const;
   bool operator==(const EnvironmentFactor& otherEnvironmentFactor) const;
 
@@ -34,6 +39,8 @@ public:
 private:
   Id id;
   VariableType variableType;
+  int max;
+  int min;
 };
 
 } /* namespace CuEira */

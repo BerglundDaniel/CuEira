@@ -33,7 +33,7 @@ void PhenotypeVector::applyMissing(const MissingDataHandler& missingDataHandler)
   numberOfIndividualsToInclude = missingDataHandler.getNumberOfIndividualsToInclude();
 }
 
-void PhenotypeVector::applyNoMissing() {
+void PhenotypeVector::applyMissing() {
   initialised = true;
   noMissing = true;
   numberOfIndividualsToInclude = numberOfIndividualsTotal;

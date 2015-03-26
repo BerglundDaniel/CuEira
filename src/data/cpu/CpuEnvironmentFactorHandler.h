@@ -1,15 +1,10 @@
 #ifndef CPUENVIRONMENTFACTORHANDLER_H_
 #define CPUENVIRONMENTFACTORHANDLER_H_
 
-#include <vector>
-#include <set>
-
 #include <EnvironmentFactorHandler.h>
-#include <HostMatrix.h>
 #include <HostVector.h>
 #include <EnvironmentFactor.h>
 #include <CpuEnvironmentVector.h>
-#include <EnvironmentFactorHandlerException.h>
 
 namespace CuEira {
 namespace CPU {
@@ -21,14 +16,14 @@ namespace CPU {
  */
 class CpuEnvironmentFactorHandler: public EnvironmentFactorHandler {
 public:
-  explicit CpuEnvironmentFactorHandler(const Container::HostMatrix* dataMatrix,
-      const std::vector<const EnvironmentFactor*>* environmentFactors, const std::vector<std::set<int>>* personsToSkip);
+  explicit CpuEnvironmentFactorHandler(const Container::HostVector* envData,
+      const EnvironmentFactor* environmentFactor);
   virtual ~CpuEnvironmentFactorHandler();
 
-  virtual Container::CPU::CpuEnvironmentVector* getEnvironmentVector(const EnvironmentFactor& environmentFactor) const;
+  virtual const Container::HostVector& getEnvironmentData() const;
 
 private:
-  const Container::HostMatrix* dataMatrix;
+  const Container::HostVector* envData;
 };
 
 } /* namespace CPU */

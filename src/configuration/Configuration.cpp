@@ -10,13 +10,13 @@ Configuration::Configuration(int argc, char* argv[]) {
   description.add_options()("help,h", "Produce help message.")("model,g",
       options::value<std::string>()->default_value("dominant"),
       "The genetic model type to use(i.e. dominant or recessive). Default: dominant.")("binary,b",
-      options::value<std::string>()->required(), "Name of file in Plink binary format")("environment_file,e",
-      options::value<std::string>()->required(), "Set the csv file with the environmental variables.")(
-      "environment_id_column,x", options::value<std::string>()->required(),
-      "Set the name of the column in the enviromental file that holds the person ids.")("covariate_file,c",
-      options::value<std::string>(), "Set the csv file with covariates.")("covariate_id_column,z",
-      options::value<std::string>(), "Set the name of the column in the covariates file that holds the person ids.")(
-      "output,o", options::value<std::string>()->required(), "Set output file.")("nstreams",
+      options::value<std::string>()->required(), "Name of file in Plink binary format")("csv_file,c",
+      options::value<std::string>()->required(),
+      "Set the csv file with the environmental factor and covariates(if any).")("environment_name_column,x",
+      options::value<std::string>()->required(), "Set the name of the column that contains the environment factor.")(
+      "csv_id_column,z", options::value<std::string>()->required(),
+      "Set the name of the column in the csv file that holds the person ids.")("output,o",
+      options::value<std::string>()->required(), "Set output file.")("nstreams",
       options::value<int>()->default_value(3), "Set number of streams to use for each GPU. Default 3.")("ngpus",
       options::value<int>(), "Set number of GPUs to use. Default is number of available GPUs.")("maf,m",
       options::value<double>()->default_value(0.00),
@@ -29,10 +29,8 @@ Configuration::Configuration(int argc, char* argv[]) {
       "p", options::value<bool>()->zero_tokens(),
       "Use alternative coding for the phenotype, 0 for unaffected and 1 for affected instead of 1 for unaffected and 2 for affected.")(
       "exclude", options::value<bool>()->zero_tokens(), "Exclude SNPs with negative position from the analysis.")(
-      "delim_cov", options::value<std::string>()->default_value("\t"),
-      "Delimiter to be used for the covariate file. Default: tab.")("delim_env",
-      options::value<std::string>()->default_value("\t"),
-      "Delimiter to be used for the environment file. Default: tab.")
+      "delim, d", options::value<std::string>()->default_value("\t"),
+      "Delimiter to be used for the csv file. Default: tab.")
   //("seed", options::value<int>()->default_value(1), "Set the seed. Default 1") //TODO use this for bootstrap and such, default system time milliseconds
   ("version,v", "Print the version number.");
 
@@ -52,13 +50,6 @@ Configuration::Configuration(int argc, char* argv[]) {
 
   if(boost::filesystem::exists(optionsMap["output"].as<std::string>())){
     throw std::invalid_argument("Output file already exist");
-  }
-
-  if(optionsMap.count("covariate_file")){
-    if(!optionsMap.count("covariate_file")){
-      throw std::invalid_argument(
-          "If a covariate file is specified you must also provided the name of the column with the person ids.");
-    }
   }
 
   if(optionsMap.count("model")){
@@ -160,28 +151,24 @@ std::string Configuration::getFamFilePath() const {
   return os.str();
 }
 
-std::string Configuration::getEnvironmentFilePath() const {
-  return optionsMap["environment_file"].as<std::string>();
+std::string Configuration::getCSVFilePath() const {
+  return optionsMap["csv_file"].as<std::string>();
 }
 
-std::string Configuration::getCovariateFilePath() const {
-  return optionsMap["covariate_file"].as<std::string>();
+std::string Configuration::getCSVIdColumnName() const {
+  return optionsMap["csv_id_column"].as<std::string>();
 }
 
-std::string Configuration::getEnvironmentIndividualIdColumnName() const {
-  return optionsMap["environment_id_column"].as<std::string>();
+std::string Configuration::getEnvironmentColumnName() const {
+  return optionsMap["environment_name_column"].as<std::string>();
 }
 
-std::string Configuration::getCovariateIndividualIdColumnName() const {
-  return optionsMap["covariate_id_column"].as<std::string>();
+std::string Configuration::getCSVDelimiter() const {
+  return optionsMap["delim"].as<std::string>();
 }
 
 std::string Configuration::getOutputFilePath() const {
   return optionsMap["output"].as<std::string>();
-}
-
-bool Configuration::covariateFileSpecified() const {
-  return optionsMap.count("covariate_file");
 }
 
 PhenotypeCoding Configuration::getPhenotypeCoding() const {
@@ -202,16 +189,6 @@ bool Configuration::excludeSNPsWithNegativePosition() const {
 
 double Configuration::getMinorAlleleFrequencyThreshold() const {
   return optionsMap["maf"].as<double>();
-}
-
-std::string Configuration::getEnvironmentDelimiter() const {
-  //return "\t ";
-  return optionsMap["delim_env"].as<std::string>();
-}
-
-std::string Configuration::getCovariateDelimiter() const {
-  //return "\t ";
-  return optionsMap["delim_cov"].as<std::string>();
 }
 
 int Configuration::getNumberOfMaxLRIterations() const {

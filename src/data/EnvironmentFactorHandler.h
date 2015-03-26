@@ -20,15 +20,13 @@ namespace CuEira {
  */
 class EnvironmentFactorHandler {
 public:
-  EnvironmentFactorHandler(const std::vector<const EnvironmentFactor*>* environmentFactors,
-      const std::vector<std::set<int>>* personsToSkip, int numberOfIndividualsTotal);
+  explicit EnvironmentFactorHandler(const EnvironmentFactor* environmentFactors, int numberOfIndividualsTotal);
   virtual ~EnvironmentFactorHandler();
 
   virtual int getNumberOfIndividualsTotal() const;
-  virtual int getNumberOfEnvironmentFactors() const;
-  virtual const std::vector<const EnvironmentFactor*>& getHeaders() const;
+  virtual const EnvironmentFactor& getEnvironmentFactor() const;
 
-  virtual Container::EnvironmentVector* getEnvironmentVector(const EnvironmentFactor& environmentFactor) const=0;
+  virtual Container::Vector& getEnvironmentData() const=0;
 
   EnvironmentFactorHandler(const EnvironmentFactorHandler&) = delete;
   EnvironmentFactorHandler(EnvironmentFactorHandler&&) = delete;
@@ -36,9 +34,7 @@ public:
   EnvironmentFactorHandler& operator=(EnvironmentFactorHandler&&) = delete;
 
 protected:
-  const std::vector<std::set<int>>* personsToSkip;
-  const std::vector<const EnvironmentFactor*>* environmentFactors;
-  const int numberOfEnvironmentFactors;
+  const EnvironmentFactor* environmentFactor;
   const int numberOfIndividualsTotal;
 };
 

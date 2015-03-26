@@ -181,30 +181,26 @@ void CSVReader::storeData(std::vector<std::string> line, int idColumnNumber, Con
   int index = 0;
   for(int i = 0; i < numberOfColumns + 1; ++i){
     if(i != idColumnNumber){
-      if(stringIsEmpty(line[i])){
-        (*dataMatrix)(dataRowNumber, index) = -1; //TODO
-      }else{
-        char * temp; //Used for error checking of string conversion
+      char * temp; //Used for error checking of string conversion
 #ifdef CPU
-        double dataNumber = strtod(line[i].c_str(), &temp);
+      double dataNumber = strtod(line[i].c_str(), &temp);
 #else
-        float dataNumber = strtof(line[i].c_str(), &temp);
+      float dataNumber = strtof(line[i].c_str(), &temp);
 #endif
 
-        if(*temp != '\0'){ //Check if there was an error with conversion
-          std::ostringstream os;
+      if(*temp != '\0'){ //Check if there was an error with conversion
+        std::ostringstream os;
 #ifdef CPU
-          os << "Problem with string to double conversion of data in csv file " << filePath << std::endl;
+        os << "Problem with string to double conversion of data in csv file " << filePath << std::endl;
 #else
-          os << "Problem with string to float conversion of data in csv file " << filePath << std::endl;
+        os << "Problem with string to float conversion of data in csv file " << filePath << std::endl;
 #endif
-          const std::string& tmp = os.str();
-          delete dataMatrix;
-          throw FileReaderException(tmp.c_str());
-        }
+        const std::string& tmp = os.str();
+        delete dataMatrix;
+        throw FileReaderException(tmp.c_str());
+      }
 
-        (*dataMatrix)(dataRowNumber, index) = dataNumber;
-      }/* else if stringIsEmpty */
+      (*dataMatrix)(dataRowNumber, index) = dataNumber;
 
       ++index;
 

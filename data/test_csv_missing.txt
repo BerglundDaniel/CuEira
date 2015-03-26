@@ -1,11 +1,11 @@
-cov1	cov2	indid
-1	1.1	ind0
-2		ind1
-	-0.2	ind2
-0	-3	ind3
-1	-10	ind4
-1	105.321	ind5
-0	3	ind6
-1	1	ind7
-		ind8
-0	2	ind9
+cov1	cov2  env1	indid
+1	1.1   1	ind0
+2	0.3   1	ind1
+0	-0.2  0	ind2
+0	-3 0	ind3
+1	-10   1	ind4
+1	105.321  1	ind5
+0	3  0	ind6
+1	1  1	ind7
+1	2  1	ind8
+0	2  0	ind9

@@ -23,6 +23,22 @@ VariableType EnvironmentFactor::getVariableType() const {
   return variableType;
 }
 
+void EnvironmentFactor::setMax(int max) {
+  this->max = max;
+}
+
+void EnvironmentFactor::setMin(int min) {
+  this->min = min;
+}
+
+int EnvironmentFactor::getMax() const {
+  return max;
+}
+
+int EnvironmentFactor::getMin() const {
+  return min;
+}
+
 bool EnvironmentFactor::operator<(const EnvironmentFactor& otherEnvironmentFactor) const {
   return id < otherEnvironmentFactor.getId();
 }

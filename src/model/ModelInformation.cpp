@@ -19,7 +19,7 @@ ModelInformation::ModelInformation() :
 }
 
 void ModelInformation::toOstream(std::ostream& os) const {
-  os << *snp << "," << *environmentFactor << "," << *alleleStatistics;
+  os << *snp << "," << *alleleStatistics;
 }
 
 std::ostream & operator<<(std::ostream& os, const ModelInformation& modelInformation) {

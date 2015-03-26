@@ -8,9 +8,9 @@
 #include <Recode.h>
 #include <StatisticModel.h>
 #include <EnvironmentFactor.h>
-#include <EnvironmentFactorHandler.h>
 #include <VariableType.h>
 #include <InvalidState.h>
+#include <MissingDataHandler.h>
 
 #ifdef CPU
 #include <RegularHostVector.h>
@@ -34,41 +34,30 @@ class EnvironmentVector {
   FRIEND_TEST(EnvironmentVectorTest, RecodeBinary);
   FRIEND_TEST(EnvironmentVectorTest, RecodeDifferentOrder);
 public:
-  EnvironmentVector(const EnvironmentFactorHandler& environmentHandler);
+  EnvironmentVector(const EnvironmentFactor& environmentFactor, const int numberOfIndividualsTotal);
   virtual ~EnvironmentVector();
 
-  virtual void switchEnvironmentFactor(const EnvironmentFactor& environmentFactor);
+  virtual const EnvironmentFactor& getEnvironmentFactor() const;
+  virtual int getNumberOfIndividualsTotal() const;
   virtual int getNumberOfIndividualsToInclude() const;
-  virtual const Container::HostVector& getRecodedData() const;
-  virtual void recode(Recode recode);
-  virtual void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
-  virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
+  virtual const Container::Vector& getEnvironmentData() const=0;
+
+  virtual void recode(Recode recode, const MissingDataHandler& missingDataHandler)=0;
+  virtual void recode(Recode recode)=0;
 
   EnvironmentVector(const EnvironmentVector&) = delete;
   EnvironmentVector(EnvironmentVector&&) = delete;
   EnvironmentVector& operator=(const EnvironmentVector&) = delete;
   EnvironmentVector& operator=(EnvironmentVector&&) = delete;
 
-protected:
-  EnvironmentVector(); //For the mock
-
 private:
-  enum State{
-     NOT_INITIALISED, INITIALISED
-   };
-
-  void recodeAllRisk();
-  void recodeEnvironmentProtective();
-  void recodeInteractionProtective();
-  void doRecode();
-
-  State state;
-  const EnvironmentFactorHandler* environmentHandler;
+  const EnvironmentFactor& environmentFactor;
+  const int numberOfIndividualsTotal;
   int numberOfIndividualsToInclude;
-  const HostVector * originalData;
-  HostVector* recodedData;
+  bool initialised;
+  bool noMissing;
+
   Recode currentRecode;
-  const EnvironmentFactor* environmentFactor;
 };
 
 } /* namespace Container */

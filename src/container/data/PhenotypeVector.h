@@ -17,7 +17,7 @@ public:
   virtual ~PhenotypeVector();
 
   virtual void applyMissing(const MissingDataHandler& missingDataHandler);
-  virtual void applyNoMissing();
+  virtual void applyMissing();
 
   virtual int getNumberOfIndividualsTotal() const;
   virtual int getNumberOfIndividualsToInclude() const;

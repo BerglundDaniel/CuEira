@@ -16,10 +16,11 @@ namespace CUDA {
  */
 class CudaMissingDataHandler: public MissingDataHandler {
 public:
-  explicit CudaMissingDataHandler(const int numberOfIndividualsTotal, const HostToDevice& hostToDevice, const KernelWrapper& kernelWrapper);
+  explicit CudaMissingDataHandler(const int numberOfIndividualsTotal, const HostToDevice& hostToDevice,
+      const KernelWrapper& kernelWrapper);
   virtual ~CudaMissingDataHandler();
 
-  virtual void setMissing(const std::set<int>& snpPersonsToSkip, const std::set<int>& envPersonsToSkip);
+  virtual void setMissing(const std::set<int>& snpPersonsToSkip);
   virtual Container::DeviceVector* copyNonMissing(const Container::DeviceVector& fromVector) const;
 
 protected:

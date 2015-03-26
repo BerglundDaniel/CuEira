@@ -29,7 +29,7 @@ public:
   virtual int getNumberOfIndividualsToInclude() const;
   virtual int getNumberOfIndividualsTotal() const;
 
-  virtual void setMissing(const std::set<int>& snpPersonsToSkip, const std::set<int>& envPersonsToSkip);
+  virtual void setMissing(const std::set<int>& snpPersonsToSkip);
   virtual Vector* copyNonMissing(const Vector& fromVector) const=0;
 
 private:

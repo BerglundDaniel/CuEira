@@ -55,24 +55,19 @@ public:
   virtual GeneticModel getGeneticModel() const;
 
   /**
-   * Get the path to the csv file that contains the environment factors
+   * Get the path to the csv file that contains the covariates and environment factors
    */
-  virtual std::string getEnvironmentFilePath() const;
-
-  /**
-   * Get the path to the csv file that contains the covariates
-   */
-  virtual std::string getCovariateFilePath() const;
+  virtual std::string getCSVFilePath() const;
 
   /**
    * Get the name of the column that contains the personds id in the environment file
    */
-  virtual std::string getEnvironmentIndividualIdColumnName() const;
+  virtual std::string getCSVIdColumnName() const;
 
   /**
-   * Get the name of the column that contains the personds id in the covariate file
+   * Get the name of the column that contains the personds id in the environment file
    */
-  virtual std::string getCovariateIndividualIdColumnName() const;
+  virtual std::string getEnvironmentColumnName() const;
 
   /**
    * Get the path to the bed file
@@ -95,11 +90,6 @@ public:
   virtual std::string getOutputFilePath() const;
 
   /**
-   * Returns true if a covariate file was specified
-   */
-  virtual bool covariateFileSpecified() const;
-
-  /**
    * Get the specified coding for the phenotypes in the fam file
    */
   virtual PhenotypeCoding getPhenotypeCoding() const;
@@ -115,14 +105,9 @@ public:
   virtual double getMinorAlleleFrequencyThreshold() const;
 
   /**
-   * Get the delimiter for the environment csv file
+   * Get the delimiter for the csv file
    */
-  virtual std::string getEnvironmentDelimiter() const;
-
-  /**
-   * Get the delimiter for the covariate csv file
-   */
-  virtual std::string getCovariateDelimiter() const;
+  virtual std::string getCSVDelimiter() const;
 
   /**
    * Get the max number of iterations for the logistic regression

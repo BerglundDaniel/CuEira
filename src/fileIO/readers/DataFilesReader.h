@@ -11,7 +11,6 @@
 #include <iterator>
 
 #include <CSVReader.h>
-#include <EnvironmentCSVReader.h>
 #include <BedReader.h>
 #include <BimReader.h>
 #include <Configuration.h>
@@ -21,9 +20,6 @@
 #include <SNP.h>
 #include <EnvironmentFactor.h>
 #include <PersonHandler.h>
-#include <EnvironmentFactorHandler.h>
-#include <CovariatesHandler.h>
-#include <CovariatesHandlerFactory.h>
 #include <FileReaderException.h>
 
 namespace CuEira {
@@ -36,28 +32,22 @@ namespace FileIO {
  */
 class DataFilesReader {
 public:
-  explicit DataFilesReader(CovariatesHandlerFactory* covariatesHandlerFactory, PersonHandler* personHandler,
-      BedReader* bedReader, BimReader* bimReader, EnvironmentCSVReader* environmentCSVReader,
-      CSVReader* covariateCSVReader);
   explicit DataFilesReader(PersonHandler* personHandler, BedReader* bedReader, BimReader* bimReader,
-      EnvironmentCSVReader* environmentCSVReader);
+      CSVReader* csvReader);
   virtual ~DataFilesReader();
 
-  virtual CovariatesHandler* readCovariates() const;
+  virtual Container::HostMatrix* readCSV() const;
+  virtual const std::vector<std::string>& getCSVDataColumnNames() const;
   virtual std::vector<SNP*>* readSNPInformation() const;
-  virtual EnvironmentFactorHandler* readEnvironmentFactorInformation() const;
   virtual Container::SNPVector* readSNP(SNP& snp);
 
   virtual const PersonHandler& getPersonHandler() const;
 
 private:
-  bool useCovariates;
-  CovariatesHandlerFactory* covariatesHandlerFactory;
   PersonHandler *personHandler;
   BedReader* bedReader;
   BimReader* bimReader;
-  EnvironmentCSVReader* environmentCSVReader;
-  CSVReader* covariateCSVReader;
+  CSVReader* csvReader;
 };
 
 } /* namespace FileIO */

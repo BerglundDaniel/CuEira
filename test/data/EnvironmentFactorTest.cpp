@@ -51,6 +51,8 @@ TEST_F(EnvironmentFactorTest, Getters) {
   EXPECT_EQ(BINARY, envFactor1.getVariableType());
 }
 
+//TODO max min test
+
 TEST_F(EnvironmentFactorTest, Operators) {
   Id id1("env1");
   EnvironmentFactor envFactor1(id1);

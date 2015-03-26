@@ -24,14 +24,9 @@ int MissingDataHandler::getNumberOfIndividualsTotal() const {
   return numberOfIndividualsTotal;
 }
 
-void MissingDataHandler::setMissing(const std::set<int>& snpPersonsToSkip, const std::set<int>& envPersonsToSkip) {
+void MissingDataHandler::setMissing(const std::set<int>& snpPersonsToSkip) {
   initialised = true;
-  std::set<int> personsToSkip;
-
-  std::set_union(snpPersonsToSkip.begin(), snpPersonsToSkip.end(), envPersonsToSkip.begin(), envPersonsToSkip.end(),
-      personsToSkip.begin());
-
-  numberOfIndividualsToInclude = numberOfIndividualsTotal - personsToSkip.size();
+  numberOfIndividualsToInclude = numberOfIndividualsTotal - snpPersonsToSkip.size();
 
 #ifdef CPU
   indexesToCopy = new Container::RegularHostVector(numberOfIndividualsToInclude);
@@ -39,10 +34,10 @@ void MissingDataHandler::setMissing(const std::set<int>& snpPersonsToSkip, const
   indexesToCopy = new Container::PinnedHostVector(numberOfIndividualsToInclude);
 #endif
 
-  auto personSkip = personsToSkip.begin();
+  auto personSkip = snpPersonsToSkip.begin();
   int orgDataIndex = 0;
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    if(personSkip != personsToSkip.end()){
+    if(personSkip != snpPersonsToSkip.end()){
       if(*personSkip == orgDataIndex){
         ++orgDataIndex;
         ++personSkip;

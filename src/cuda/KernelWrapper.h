@@ -75,13 +75,16 @@ public:
   void elementWiseDifference(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
 
   /**
-   * Asdf
+   * Asdf //TODO move this to the LR stuff
    */
   void columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
       DeviceMatrix& result) const;
 
   //TODO
   void vectorCopyIndexes(DeviceVector& to, const DeviceVector& from, const DeviceVector& indexes) const;
+
+  //c-vector[i] TODO
+  void constSubtractVector(const int c,DeviceVector& vector) const;
 
   /**
    * Syncs the associated stream

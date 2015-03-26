@@ -9,7 +9,6 @@ set(TEST_INCLUDE_DIRECTORIES
 set(TEST_SOURCE
   ${TEST_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/CSVReaderTest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentCSVReaderTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/FileIOIntegrationTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DataFilesReaderTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DataFilesReaderFactoryTest.cpp

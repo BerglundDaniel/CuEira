@@ -5,13 +5,13 @@
 
 #include <EnvironmentFactorHandler.h>
 #include <EnvironmentFactor.h>
-#include <HostMatrix.h>
+#include <HostVector.h>
 
 #ifdef CPU
 #include <CpuEnvironmentFactorHandler.h>
 #else
 #include <CudaEnvironmentFactorHandler.h>
-#include <DeviceMatrix.h>
+#include <DeviceVector.h>
 #include <HostToDevice.h>
 #endif
 
@@ -27,8 +27,8 @@ public:
   explicit EnvironmentFactorHandlerFactory();
   virtual ~EnvironmentFactorHandlerFactory();
 
-  EnvironmentFactorHandler* constructEnvironmentFactorHandler(const Container::HostMatrix* dataMatrix,
-      const std::vector<EnvironmentFactor*>* environmentFactors) const;
+  EnvironmentFactorHandler* constructEnvironmentFactorHandler(const Container::HostVector* envData,
+      EnvironmentFactor* environmentFactor) const;
 };
 
 } /* namespace CuEira */

@@ -1,15 +1,10 @@
 #ifndef CUDAENVIRONMENTFACTORHANDLER_H_
 #define CUDAENVIRONMENTFACTORHANDLER_H_
 
-#include <vector>
-#include <set>
-
 #include <EnvironmentFactorHandler.h>
-#include <DeviceMatrix.h>
 #include <DeviceVector.h>
 #include <EnvironmentFactor.h>
 #include <CudaEnvironmentVector.h>
-#include <EnvironmentFactorHandlerException.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -21,15 +16,14 @@ namespace CUDA {
  */
 class CudaEnvironmentFactorHandler: public EnvironmentFactorHandler {
 public:
-  explicit CudaEnvironmentFactorHandler(const Container::DeviceMatrix* dataMatrix,
-      const std::vector<const EnvironmentFactor*>* environmentFactors, const std::vector<std::set<int>>* personsToSkip);
+  explicit CudaEnvironmentFactorHandler(const Container::DeviceVector* envData,
+      const EnvironmentFactor* environmentFactor);
   virtual ~CudaEnvironmentFactorHandler();
 
-  virtual Container::CUDA::CudaEnvironmentVector* getEnvironmentVector(
-      const EnvironmentFactor& environmentFactor) const;
+  virtual Container::DeviceVector& getEnvironmentData() const;
 
 private:
-  const Container::DeviceMatrix* dataMatrix;
+  const Container::DeviceVector* envData;
 };
 
 } /* namespace CUDA */

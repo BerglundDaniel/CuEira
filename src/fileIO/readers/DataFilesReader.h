@@ -22,6 +22,8 @@
 #include <EnvironmentFactor.h>
 #include <PersonHandler.h>
 #include <EnvironmentFactorHandler.h>
+#include <CovariatesHandler.h>
+#include <CovariatesHandlerFactory.h>
 #include <FileReaderException.h>
 
 namespace CuEira {
@@ -34,13 +36,14 @@ namespace FileIO {
  */
 class DataFilesReader {
 public:
-  explicit DataFilesReader(PersonHandler* personHandler, BedReader* bedReader, BimReader* bimReader,
-      EnvironmentCSVReader* environmentCSVReader, CSVReader* covariateCSVReader);
+  explicit DataFilesReader(CovariatesHandlerFactory* covariatesHandlerFactory, PersonHandler* personHandler,
+      BedReader* bedReader, BimReader* bimReader, EnvironmentCSVReader* environmentCSVReader,
+      CSVReader* covariateCSVReader);
   explicit DataFilesReader(PersonHandler* personHandler, BedReader* bedReader, BimReader* bimReader,
       EnvironmentCSVReader* environmentCSVReader);
   virtual ~DataFilesReader();
 
-  virtual Container::HostMatrix* readCovariates() const;
+  virtual CovariatesHandler* readCovariates() const;
   virtual std::vector<SNP*>* readSNPInformation() const;
   virtual EnvironmentFactorHandler* readEnvironmentFactorInformation() const;
   virtual Container::SNPVector* readSNP(SNP& snp);
@@ -49,11 +52,12 @@ public:
 
 private:
   bool useCovariates;
+  CovariatesHandlerFactory* covariatesHandlerFactory;
+  PersonHandler *personHandler;
   BedReader* bedReader;
   BimReader* bimReader;
   EnvironmentCSVReader* environmentCSVReader;
   CSVReader* covariateCSVReader;
-  PersonHandler *personHandler;
 };
 
 } /* namespace FileIO */

@@ -14,6 +14,7 @@
 #include <EnvironmentCSVReader.h>
 #include <PersonHandler.h>
 #include <SNPVectorFactory.h>
+#include <CovariatesHandlerFactory.h>
 
 namespace CuEira {
 namespace FileIO {

@@ -182,7 +182,7 @@ void CSVReader::storeData(std::vector<std::string> line, int idColumnNumber, Con
   for(int i = 0; i < numberOfColumns + 1; ++i){
     if(i != idColumnNumber){
       if(stringIsEmpty(line[i])){
-        (*dataMatrix)(dataRowNumber, index) = -1;
+        (*dataMatrix)(dataRowNumber, index) = -1; //TODO
       }else{
         char * temp; //Used for error checking of string conversion
 #ifdef CPU

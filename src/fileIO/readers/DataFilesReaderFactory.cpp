@@ -25,10 +25,12 @@ DataFilesReader* DataFilesReaderFactory::constructDataFilesReader(Configuration&
       configuration.getEnvironmentDelimiter());
 
   if(configuration.covariateFileSpecified()){
+    CovariatesHandlerFactory covariatesHandlerFactory = new CovariatesHandlerFactory();
     CSVReader* covariateCSVReader = new CSVReader(*personHandler, configuration.getCovariateFilePath(),
         configuration.getCovariateIndividualIdColumnName(), configuration.getCovariateDelimiter());
 
-    return new DataFilesReader(personHandler, bedReader, bimReader, environmentCSVReader, covariateCSVReader);
+    return new DataFilesReader(covariatesHandlerFactory, personHandler, bedReader, bimReader, environmentCSVReader,
+        covariateCSVReader);
   }else{
     return new DataFilesReader(personHandler, bedReader, bimReader, environmentCSVReader);
   }

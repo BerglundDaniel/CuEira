@@ -3,17 +3,19 @@
 namespace CuEira {
 namespace FileIO {
 
-DataFilesReader::DataFilesReader(PersonHandler* personHandler, BedReader* bedReader, BimReader* bimReader,
-    EnvironmentCSVReader* environmentCSVReader, CSVReader* covariateCSVReader) :
+DataFilesReader::DataFilesReader(CovariatesHandlerFactory* covariatesHandlerFactory, PersonHandler* personHandler,
+    BedReader* bedReader, BimReader* bimReader, EnvironmentCSVReader* environmentCSVReader,
+    CSVReader* covariateCSVReader) :
     personHandler(personHandler), bedReader(bedReader), bimReader(bimReader), environmentCSVReader(
-        environmentCSVReader), covariateCSVReader(covariateCSVReader), useCovariates(true) {
+        environmentCSVReader), covariateCSVReader(covariateCSVReader), useCovariates(true), covariatesHandlerFactory(
+        covariatesHandlerFactory) {
   personHandler->lockIndividuals();
 }
 
 DataFilesReader::DataFilesReader(PersonHandler* personHandler, BedReader* bedReader, BimReader* bimReader,
     EnvironmentCSVReader* environmentCSVReader) :
     personHandler(personHandler), bedReader(bedReader), bimReader(bimReader), environmentCSVReader(
-        environmentCSVReader), covariateCSVReader(nullptr), useCovariates(false) {
+        environmentCSVReader), covariateCSVReader(nullptr), useCovariates(false), covariatesHandlerFactory(nullptr) {
   personHandler->lockIndividuals();
 }
 
@@ -23,16 +25,17 @@ DataFilesReader::~DataFilesReader() {
   delete environmentCSVReader;
   delete covariateCSVReader;
   delete personHandler;
+  delete covariatesHandlerFactory;
 }
 
-Container::HostMatrix* DataFilesReader::readCovariates() const {
+CovariatesHandler* DataFilesReader::readCovariates() const {
   if(!useCovariates){
     std::ostringstream os;
     os << "Can't get read covariates since no covariate file was specified." << std::endl;
     const std::string& tmp = os.str();
     throw FileReaderException(tmp.c_str());
   }
-  return covariateCSVReader->readData();
+  return covariatesHandlerFactory->constructCovariatesHandler(covariateCSVReader->readData());
 }
 
 std::vector<SNP*>* DataFilesReader::readSNPInformation() const {

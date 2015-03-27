@@ -8,7 +8,7 @@ EnvironmentFactor::EnvironmentFactor(Id id) :
 }
 
 EnvironmentFactor::~EnvironmentFactor() {
-
+  std::cerr << "EnvironmentFactor destructor " << id << std::endl; //TODO tmp
 }
 
 Id EnvironmentFactor::getId() const {

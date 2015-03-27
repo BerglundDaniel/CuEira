@@ -13,6 +13,7 @@ EnvironmentFactorHandlerFactory::~EnvironmentFactorHandlerFactory() {
 EnvironmentFactorHandler* EnvironmentFactorHandlerFactory::constructEnvironmentFactorHandler(
     const Container::HostVector* envData, EnvironmentFactor* environmentFactor) const {
 
+  //TODO move binary max min part somewhere else
   bool binary = true;
   int max = (*envData)(0);
   int min = (*envData)(0);
@@ -44,7 +45,7 @@ EnvironmentFactorHandler* EnvironmentFactorHandlerFactory::constructEnvironmentF
 #ifdef CPU
   return new CpuEnvironmentFactorHandler(envData, environmentFactor);
 #else
-  //TODO transfer to GPU
+  //TODO transfer to GPU per device?
   Container::DeviceVector* envDataDevice;
 
   delete dataMatrix;

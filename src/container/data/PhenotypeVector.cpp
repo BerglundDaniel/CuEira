@@ -3,21 +3,26 @@
 namespace CuEira {
 namespace Container {
 
-PhenotypeVector::PhenotypeVector(const PhenotypeHandler& phenotypeHandler) :
-    numberOfIndividualsTotal(phenotypeHandler.getNumberOfIndividuals()), numberOfIndividualsToInclude(0), initialised(
-        false), noMissing(false) {
+template<typename Vector>
+PhenotypeVector<Vector>::PhenotypeVector(const PhenotypeHandler<Vector>& phenotypeHandler) :
+    phenotypeHandler(phenotypeHandler), numberOfIndividualsTotal(phenotypeHandler.getNumberOfIndividuals()), numberOfIndividualsToInclude(
+        0), initialised(false), noMissing(false), orgData(phenotypeHandler.getPhenotypeData()), phenotypeExMissing(
+        nullptr) {
 
 }
 
-PhenotypeVector::~PhenotypeVector() {
-
+template<typename Vector>
+PhenotypeVector<Vector>::~PhenotypeVector() {
+  delete phenotypeExMissing;
 }
 
-int PhenotypeVector::getNumberOfIndividualsTotal() const {
+template<typename Vector>
+int PhenotypeVector<Vector>::getNumberOfIndividualsTotal() const {
   return numberOfIndividualsTotal;
 }
 
-int PhenotypeVector::getNumberOfIndividualsToInclude() const {
+template<typename Vector>
+int PhenotypeVector<Vector>::getNumberOfIndividualsToInclude() const {
 #ifdef DEBUG
   if(!initialised){
     throw new InvalidState("PhenotypeVector not initialised.");
@@ -27,13 +32,33 @@ int PhenotypeVector::getNumberOfIndividualsToInclude() const {
   return numberOfIndividualsToInclude;
 }
 
-void PhenotypeVector::applyMissing(const MissingDataHandler& missingDataHandler) {
+template<typename Vector>
+const Vector& PhenotypeVector<Vector>::getPhenotypeData() const {
+#ifdef DEBUG
+  if(!initialised){
+    throw new InvalidState("CudaPhenotypeVector not initialised.");
+  }
+#endif
+
+  if(noMissing){
+    return orgData;
+  }else{
+    return *phenotypeExMissing;
+  }
+}
+
+template<typename Vector>
+void PhenotypeVector<Vector>::applyMissing(const MissingDataHandler& missingDataHandler) {
   initialised = true;
   noMissing = false;
   numberOfIndividualsToInclude = missingDataHandler.getNumberOfIndividualsToInclude();
+
+  delete phenotypeExMissing;
+  phenotypeExMissing = missingDataHandler.copyNonMissing(orgData);
 }
 
-void PhenotypeVector::applyMissing() {
+template<typename Vector>
+void PhenotypeVector<Vector>::applyMissing() {
   initialised = true;
   noMissing = true;
   numberOfIndividualsToInclude = numberOfIndividualsTotal;

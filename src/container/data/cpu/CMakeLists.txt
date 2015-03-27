@@ -9,7 +9,6 @@ set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/CpuEnvironmentVector.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CpuSNPVector.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CpuInteractionVector.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/CpuPhenotypeVector.cpp
   PARENT_SCOPE
 )
 

@@ -2,22 +2,31 @@
 
 namespace CuEira {
 
-EnvironmentFactorHandler::EnvironmentFactorHandler(const EnvironmentFactor* environmentFactor,
-    int numberOfIndividualsTotal) :
-    environmentFactor(environmentFactor), numberOfIndividualsTotal(dnumberOfIndividualsTotal) {
+template<typename Vector>
+EnvironmentFactorHandler<Vector>::EnvironmentFactorHandler(std::shared_ptr<const EnvironmentFactor> environmentFactor,
+    const Vector* vector) :
+    vector(vector), environmentFactor(environmentFactor), numberOfIndividualsTotal(vector->getNumberOfRows()) {
 
 }
 
-EnvironmentFactorHandler::~EnvironmentFactorHandler() {
-  delete environmentFactor;
+template<typename Vector>
+EnvironmentFactorHandler<Vector>::~EnvironmentFactorHandler() {
+  delete vector;
 }
 
-int EnvironmentFactorHandler::getNumberOfIndividualsTotal() const {
+template<typename Vector>
+int EnvironmentFactorHandler<Vector>::getNumberOfIndividualsTotal() const {
   return numberOfIndividualsTotal;
 }
 
-const EnvironmentFactor& EnvironmentFactorHandler::getEnvironmentFactor() const {
+template<typename Vector>
+const EnvironmentFactor& EnvironmentFactorHandler<Vector>::getEnvironmentFactor() const {
   return environmentFactor;
+}
+
+template<typename Vector>
+const Vector& EnvironmentFactorHandler<Vector>::getEnvironmentData() const {
+  return *vector;
 }
 
 } /* namespace CuEira */

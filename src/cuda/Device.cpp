@@ -4,7 +4,7 @@ namespace CuEira {
 namespace CUDA {
 
 Device::Device(int deviceNumber) :
-    deviceNumber(deviceNumber), outcomes(nullptr), outcomesSet(false) {
+    deviceNumber(deviceNumber) {
 
 }
 
@@ -32,18 +32,6 @@ bool Device::setActiveDevice() const {
   }else{
     return false;
   }
-}
-
-void Device::setOutcomes(const Container::DeviceVector* outcomes) {
-  outcomesSet = true;
-  this->outcomes = outcomes;
-}
-
-const Container::DeviceVector& Device::getOutcomes() const {
-  if(!outcomesSet){
-    throw new InvalidState("Outcomes not set for Device.");
-  }
-  return *outcomes;
 }
 
 } /* namespace CUDA */

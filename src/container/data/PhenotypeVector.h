@@ -12,23 +12,30 @@ namespace Container {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector>
 class PhenotypeVector {
 public:
+  explicit PhenotypeVector(const PhenotypeHandler<Vector>& phenotypeHandler);
   virtual ~PhenotypeVector();
-
-  virtual void applyMissing(const MissingDataHandler& missingDataHandler);
-  virtual void applyMissing();
 
   virtual int getNumberOfIndividualsTotal() const;
   virtual int getNumberOfIndividualsToInclude() const;
+  virtual const Vector& getPhenotypeData() const;
+
+  virtual void applyMissing(const MissingDataHandler& missingDataHandler);
+  //TODO specialize this class so two function one for each, has to be correct type for cpu or cuda. Or do something with missinghandler
+
+  virtual void applyMissing();
 
 protected:
-  explicit PhenotypeVector(const PhenotypeHandler& phenotypeHandler);
-
+  const PhenotypeHandler<Vector>& phenotypeHandler;
   const int numberOfIndividualsTotal;
   int numberOfIndividualsToInclude;
   bool initialised;
   bool noMissing;
+
+  const Vector& orgData;
+  const Vector* phenotypeExMissing;
 };
 
 } /* namespace Container */

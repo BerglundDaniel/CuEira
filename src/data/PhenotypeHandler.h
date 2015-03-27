@@ -8,16 +8,18 @@ namespace CuEira {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector>
 class PhenotypeHandler {
 public:
+  explicit PhenotypeHandler(const Vector* vector);
   virtual ~PhenotypeHandler();
 
-  virtual int getNumberOfIndividuals() const;
+  virtual int getNumberOfIndividualsTotal() const;
+  virtual const Vector& getPhenotypeData() const;
 
-protected:
-  explicit PhenotypeHandler(int numberOfIndividuals);
-
-  const int numberOfIndividuals;
+private:
+  const Vector* vector;
+  const int numberOfIndividualsTotal;
 };
 
 } /* namespace CuEira */

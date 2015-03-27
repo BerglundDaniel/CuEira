@@ -21,7 +21,7 @@ Container::HostVector* CpuMissingDataHandler::copyNonMissing(const Container::Ho
   Container::HostVector* toVector = new Container::RegularHostVector(numberOfIndividualsToInclude);
 
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    (*toVector)(i) = fromVector((*indexesToCopy)(i)); //FIXME the indexes might not be pointer
+    (*toVector)(i) = fromVector((*indexesToCopy)(i));
   }
 
   return toVector;

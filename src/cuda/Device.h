@@ -25,9 +25,6 @@ public:
   virtual bool isActive() const;
   virtual bool setActiveDevice() const;
 
-  virtual void setOutcomes(const Container::DeviceVector* outcomes);
-  virtual const Container::DeviceVector& getOutcomes() const;
-
 #ifndef __CUDACC__
   Device(const Device&) = delete;
   Device(Device&&) = delete;
@@ -36,9 +33,7 @@ public:
 #endif
 
 private:
-  const Container::DeviceVector* outcomes;
   const int deviceNumber;
-  bool outcomesSet;
 };
 
 } /* namespace CUDA */

@@ -11,6 +11,6 @@ set(SOURCE
 
 set(GPU_SOURCE
   ${GPU_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/CudaMissingDataHandler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CudaCovariatesHandlerFactory.cpp
   PARENT_SCOPE
 )

@@ -1,3 +1,9 @@
+add_subdirectory(cpu)
+
+if(NOT ${CPU})
+  add_subdirectory(cuda)
+endif()
+
 set(INCLUDE_DIRECTORIES
   ${INCLUDE_DIRECTORIES}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -10,6 +16,5 @@ set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/PhenotypeHandlerFactory.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentFactorHandlerFactory.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DataHandlerFactory.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/CovariatesHandlerFactory.cpp
   PARENT_SCOPE
 )

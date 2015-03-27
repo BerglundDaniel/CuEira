@@ -145,6 +145,8 @@ void DataHandler::applyStatisticModel(StatisticModel statisticModel) {
   }
 #endif
 
+  //TODO use the InteractionStrategy instead of the vectors
+
   if(appliedStatisticModel){ // If a model has been previously applied after a next or a recode then things can have changed
     snpVector->recode(currentRecode);
     environmentVector->recode(currentRecode);
@@ -219,6 +221,9 @@ bool DataHandler::readSNP(SNP& nextSnp) {
   boost::chrono::system_clock::time_point afterRead = boost::chrono::system_clock::now();
   timeSpentSNPRead+=afterRead - beforeRead;
 #endif
+
+  //TODO alleleStatisticsFactory build alleleStatitics, need snp data and phenotype data, make sure it's after applying missing
+  //TODO set snp risk allele based on it
 
   alleleStatistics = pair->first;
   snpVector = pair->second;

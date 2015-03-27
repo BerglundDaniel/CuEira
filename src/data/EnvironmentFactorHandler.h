@@ -1,15 +1,10 @@
 #ifndef ENVIRONMENTFACTORHANDLER_H_
 #define ENVIRONMENTFACTORHANDLER_H_
 
-#include <vector>
-#include <set>
+#include <memory>
 
 #include <Id.h>
 #include <EnvironmentFactor.h>
-#include <HostMatrix.h>
-#include <HostVector.h>
-#include <EnvironmentFactorHandlerException.h>
-#include <EnvironmentVector.h>
 
 namespace CuEira {
 
@@ -18,15 +13,16 @@ namespace CuEira {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+
+template<typename Vector>
 class EnvironmentFactorHandler {
 public:
-  explicit EnvironmentFactorHandler(const EnvironmentFactor* environmentFactors, int numberOfIndividualsTotal);
+  explicit EnvironmentFactorHandler(std::shared_ptr<const EnvironmentFactor> environmentFactor, const Vector* vector);
   virtual ~EnvironmentFactorHandler();
 
   virtual int getNumberOfIndividualsTotal() const;
   virtual const EnvironmentFactor& getEnvironmentFactor() const;
-
-  virtual Container::Vector& getEnvironmentData() const=0;
+  virtual const Vector& getEnvironmentData() const;
 
   EnvironmentFactorHandler(const EnvironmentFactorHandler&) = delete;
   EnvironmentFactorHandler(EnvironmentFactorHandler&&) = delete;
@@ -34,7 +30,8 @@ public:
   EnvironmentFactorHandler& operator=(EnvironmentFactorHandler&&) = delete;
 
 protected:
-  const EnvironmentFactor* environmentFactor;
+  const Vector* vector;
+  std::shared_ptr<const EnvironmentFactor> environmentFactor;
   const int numberOfIndividualsTotal;
 };
 

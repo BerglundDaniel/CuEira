@@ -14,7 +14,6 @@ set(GPU_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/CudaEnvironmentVector.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CudaSNPVector.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CudaInteractionVector.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/CudaPhenotypeVector.cpp
   PARENT_SCOPE
 )
 

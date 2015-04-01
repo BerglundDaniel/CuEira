@@ -21,7 +21,7 @@ public:
   virtual ~CudaMissingDataHandler();
 
   virtual void setMissing(const std::set<int>& snpPersonsToSkip);
-  virtual Container::DeviceVector* copyNonMissing(const Container::DeviceVector& fromVector) const;
+  virtual void copyNonMissing(const Container::DeviceVector& fromVector, Container::DeviceVector& toVector) const;
 
 protected:
   const HostToDevice& hostToDevice;

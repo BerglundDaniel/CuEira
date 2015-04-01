@@ -3,54 +3,52 @@
 namespace CuEira {
 namespace Container {
 
-InteractionVector::InteractionVector(const EnvironmentVector& environmentVector) :
-    environmentVector(&environmentVector), numberOfIndividualsToInclude(
-        environmentVector.getNumberOfIndividualsToInclude()), state(NOT_INITIALISED),
-#ifdef CPU
-        interactionVector(new RegularHostVector(numberOfIndividualsToInclude))
-#else
-        interactionVector(new PinnedHostVector(numberOfIndividualsToInclude))
-#endif
-{
+template<typename Vector>
+InteractionVector<Vector>::InteractionVector() :
+    interactionExMissing(nullptr), numberOfIndividualsToInclude(0), initialised(false) {
 
 }
 
-InteractionVector::InteractionVector() :
-    interactionVector(nullptr), numberOfIndividualsToInclude(0), state(NOT_INITIALISED), environmentVector(nullptr) {
-
+template<typename Vector>
+InteractionVector<Vector>::~InteractionVector() {
+  delete interactionExMissing;
 }
 
-InteractionVector::~InteractionVector() {
-  delete interactionVector;
+template<typename Vector>
+int InteractionVector<Vector>::getNumberOfIndividualsToInclude() const {
+  return numberOfIndividualsToInclude;
 }
 
-const Container::HostVector& InteractionVector::getRecodedData() const {
+template<typename Vector>
+const Vector& InteractionVector<Vector>::getInteractionData() const {
 #ifdef DEBUG
-  if(state == NOT_INITIALISED){
+  if(!initialised){
     throw InvalidState("Before using the getRecodedData use recode() at least once.");
   }
 #endif
 
-  return *interactionVector;
+  return *interactionExMissing;
 }
 
-int InteractionVector::getNumberOfIndividualsToInclude() const {
-  return numberOfIndividualsToInclude;
-}
-
-void InteractionVector::recode(const SNPVector& snpVector) {
+template<typename Vector>
+Vector& InteractionVector<Vector>::getInteractionData() {
 #ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    state=INITIALISED;
+  if(!initialised){
+    throw InvalidState("Before using the getRecodedData use recode() at least once.");
   }
 #endif
 
-  const HostVector& envData = environmentVector->getRecodedData();
-  const HostVector& snpData = snpVector.getRecodedData();
+  return *interactionExMissing;
+}
 
-  for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    (*interactionVector)(i) = envData(i) * snpData(i);
-  }
+template<typename Vector>
+void InteractionVector<Vector>::updateSize(int size) {
+#ifdef DEBUG
+  initialised = true;
+#endif
+  numberOfIndividualsToInclude = size;
+  delete interactionExMissing;
+  interactionExMissing = new Vector(size);
 }
 
 } /* namespace Container */

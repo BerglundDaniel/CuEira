@@ -1,12 +1,10 @@
 #ifndef CPUENVIRONMENTVECTOR_H_
 #define CPUENVIRONMENTVECTOR_H_
 
-#include <CpuEnvironmentFactorHandler.h>
+#include <EnvironmentFactorHandler.h>
 #include <EnvironmentVector.h>
 #include <RegularHostVector.h>
 #include <HostVector.h>
-#include <CpuMissingDataHandler.h>
-#include <StatisticModel.h>
 #include <Recode.h>
 #include <EnvironmentFactor.h>
 #include <VariableType.h>
@@ -24,21 +22,17 @@ using namespace CuEira::CPU;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CpuEnvironmentVector: public EnvironmentVector {
+class CpuEnvironmentVector: public EnvironmentVector<RegularHostVector> {
 public:
-  CpuEnvironmentVector(const CpuEnvironmentFactorHandler& cpuEnvironmentFactorHandler, const MKLWrapper& mklWrapper);
+  CpuEnvironmentVector(const EnvironmentFactorHandler<RegularHostVector>& environmentFactorHandler,
+      const MKLWrapper& mklWrapper);
   virtual ~CpuEnvironmentVector();
 
-  virtual const Container::HostVector& getEnvironmentData() const;
-  virtual void recode(Recode recode);
-  virtual void recode(Recode recode, const CpuMissingDataHandler& missingDataHandler);
-
-private:
-  void recodeProtective();
+protected:
+  virtual void recodeProtective();
+  virtual void recodeAllRisk();
 
   const MKLWrapper& mklWrapper;
-  const HostVector& originalData;
-  HostVector* recodedData;
 };
 
 } /* namespace CPU */

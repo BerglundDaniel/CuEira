@@ -21,17 +21,15 @@ void CudaMissingDataHandler::setMissing(const std::set<int>& snpPersonsToSkip) {
   indexesToCopyDevice = hostToDevice.transferVector(indexesToCopy);
 }
 
-Container::DeviceVector* CudaMissingDataHandler::copyNonMissing(const Container::DeviceVector& fromVector) const {
+void CudaMissingDataHandler::copyNonMissing(const Container::DeviceVector& fromVector,
+    Container::DeviceVector& toVector) const {
 #ifdef DEBUG
   if(!initialised){
     throw new InvalidState("MissingDataHandler not initialised.");
   }
 #endif
 
-  Container::DeviceVector* toVector = new Container::DeviceVector(numberOfIndividualsToInclude);
-  kernelWrapper.vectorCopyIndexes(toVector, fromVector, indexesToCopyDevice);
-
-  return toVector;
+  kernelWrapper.vectorCopyIndexes(indexesToCopyDevice, fromVector, toVector);
 }
 
 } /* namespace CUDA */

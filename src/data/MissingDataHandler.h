@@ -4,7 +4,6 @@
 #include <set>
 #include <algorithm>
 
-#include <Vector.h>
 #include <HostVector.h>
 #include <InvalidState.h>
 
@@ -30,7 +29,7 @@ public:
   virtual int getNumberOfIndividualsTotal() const;
 
   virtual void setMissing(const std::set<int>& snpPersonsToSkip);
-  virtual Vector* copyNonMissing(const Vector& fromVector) const=0;
+  virtual void copyNonMissing(const Vector& fromVector, Vector& toVector) const=0;
 
 private:
   const int numberOfIndividualsTotal;

@@ -18,7 +18,7 @@ public:
   explicit CpuMissingDataHandler(const int numberOfIndividualsTotal);
   virtual ~CpuMissingDataHandler();
 
-  virtual Container::HostVector* copyNonMissing(const Container::HostVector& fromVector) const;
+  virtual void copyNonMissing(const Container::HostVector& fromVector, Container::HostVector& toVector) const;
 
 protected:
 

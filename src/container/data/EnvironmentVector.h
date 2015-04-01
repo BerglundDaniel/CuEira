@@ -7,16 +7,11 @@
 #include <HostVector.h>
 #include <Recode.h>
 #include <StatisticModel.h>
+#include <EnvironmentFactorHandler.h>
 #include <EnvironmentFactor.h>
 #include <VariableType.h>
 #include <InvalidState.h>
 #include <MissingDataHandler.h>
-
-#ifdef CPU
-#include <RegularHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#endif
 
 namespace CuEira {
 namespace Container {
@@ -27,6 +22,7 @@ class EnvironmentVectorTest;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector>
 class EnvironmentVector {
   friend EnvironmentVectorTest;
   FRIEND_TEST(EnvironmentVectorTest, ConstructAndGet);
@@ -34,28 +30,35 @@ class EnvironmentVector {
   FRIEND_TEST(EnvironmentVectorTest, RecodeBinary);
   FRIEND_TEST(EnvironmentVectorTest, RecodeDifferentOrder);
 public:
-  EnvironmentVector(const EnvironmentFactor& environmentFactor, const int numberOfIndividualsTotal);
+  EnvironmentVector(const EnvironmentFactorHandler<Vector>& environmentFactorHandler);
   virtual ~EnvironmentVector();
 
   virtual const EnvironmentFactor& getEnvironmentFactor() const;
   virtual int getNumberOfIndividualsTotal() const;
   virtual int getNumberOfIndividualsToInclude() const;
-  virtual const Container::Vector& getEnvironmentData() const=0;
+  virtual const Vector& getEnvironmentData() const;
+  virtual Vector& getEnvironmentData();
 
-  virtual void recode(Recode recode, const MissingDataHandler& missingDataHandler)=0;
-  virtual void recode(Recode recode)=0;
+  virtual void recode(Recode recode);
+  virtual void recode(Recode recode, const MissingDataHandler& missingDataHandler);
 
   EnvironmentVector(const EnvironmentVector&) = delete;
   EnvironmentVector(EnvironmentVector&&) = delete;
   EnvironmentVector& operator=(const EnvironmentVector&) = delete;
   EnvironmentVector& operator=(EnvironmentVector&&) = delete;
 
-private:
+protected:
+  virtual void recodeProtective()=0;
+  virtual void recodeAllRisk()=0;
+
   const EnvironmentFactor& environmentFactor;
   const int numberOfIndividualsTotal;
   int numberOfIndividualsToInclude;
   bool initialised;
   bool noMissing;
+
+  const Vector& originalData;
+  Vector* envExMissing;
 
   Recode currentRecode;
 };

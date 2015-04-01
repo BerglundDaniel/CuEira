@@ -3,7 +3,6 @@
 
 #include <HostVector.h>
 #include <SNPVector.h>
-#include <EnvironmentVector.h>
 #include <Recode.h>
 #include <InvalidState.h>
 
@@ -21,32 +20,26 @@ namespace Container {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector>
 class InteractionVector {
 public:
-  InteractionVector(const EnvironmentVector& environmentVector);
+  explicit InteractionVector();
   virtual ~InteractionVector();
 
-  virtual void recode(const SNPVector& snpVector);
   virtual int getNumberOfIndividualsToInclude() const;
-  virtual const Container::HostVector& getRecodedData() const;
+  virtual const Vector& getInteractionData() const;
+  virtual Vector& getInteractionData();
+  virtual void updateSize(int size);
 
   InteractionVector(const InteractionVector&) = delete;
   InteractionVector(InteractionVector&&) = delete;
   InteractionVector& operator=(const InteractionVector&) = delete;
   InteractionVector& operator=(InteractionVector&&) = delete;
 
-protected:
-  InteractionVector();
-
 private:
-  enum State {
-    NOT_INITIALISED, INITIALISED
-  };
-
-  State state;
-  const EnvironmentVector* environmentVector;
+  Vector* interactionExMissing;
   int numberOfIndividualsToInclude;
-  Container::HostVector* interactionVector;
+  bool initialised;
 };
 
 } /* namespace Container */

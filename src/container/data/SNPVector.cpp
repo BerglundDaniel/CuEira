@@ -3,116 +3,104 @@
 namespace CuEira {
 namespace Container {
 
-SNPVector::SNPVector(SNP& snp, GeneticModel geneticModel, const HostVector* originalSNPData,
-    std::set<int>* snpMissingData) :
-    snp(snp), numberOfIndividualsToInclude(originalSNPData->getNumberOfRows()), originalSNPData(originalSNPData), originalGeneticModel(
+template<typename Vector>
+SNPVector<Vector>::SNPVector(SNP& snp, GeneticModel geneticModel, const Vector* snpOrgExMissing,
+    const std::set<int>* snpMissingData) :
+    snp(snp), numberOfIndividualsToInclude(snpOrgExMissing->getNumberOfRows()), snpOrgExMissing(snpOrgExMissing), originalGeneticModel(
         geneticModel), currentGeneticModel(geneticModel), currentRecode(ALL_RISK), originalRiskAllele(
-        snp.getRiskAllele()),
-#ifdef CPU
-        modifiedSNPData(
-            new RegularHostVector(numberOfIndividualsToInclude))
-#else
-        modifiedSNPData(new PinnedHostVector(numberOfIndividualsToInclude))
-#endif
-{
-  recodeAllRisk();
-  doRecode();
-}
-
-SNPVector::SNPVector(SNP& snp) :
-    snp(snp), numberOfIndividualsToInclude(0), originalSNPData(nullptr), originalGeneticModel(DOMINANT), currentGeneticModel(
-        DOMINANT), currentRecode(ALL_RISK), originalRiskAllele(ALLELE_ONE), modifiedSNPData(nullptr) {
+        snp.getRiskAllele()), initialised(false), noMissing(false), snpRecodedExMissing(
+        new Vector(numberOfIndividualsToInclude)), snpMissingData(snpMissingData) {
 
 }
 
-SNPVector::~SNPVector() {
-  delete modifiedSNPData;
-  delete originalSNPData;
+template<typename Vector>
+SNPVector<Vector>::~SNPVector() {
+  delete snpOrgExMissing;
+  delete snpRecodedExMissing;
+  delete snpMissingData;
 }
 
-const std::vector<int>& SNPVector::getOrginalData() const {
-  return *originalSNPData;
-}
-
-const Container::HostVector& SNPVector::getRecodedData() const {
-  return *modifiedSNPData;
-}
-
-int SNPVector::getNumberOfIndividualsToInclude() const {
+template<typename Vector>
+int SNPVector<Vector>::getNumberOfIndividualsToInclude() const {
   return numberOfIndividualsToInclude;
 }
 
-const SNP & SNPVector::getAssociatedSNP() const {
+template<typename Vector>
+const SNP & SNPVector<Vector>::getAssociatedSNP() const {
   return snp;
 }
 
-void SNPVector::recode(Recode recode) {
+template<typename Vector>
+const Vector& SNPVector<Vector>::getSNPData() const {
+#ifdef DEBUG
+  if(!initialised){
+    throw new InvalidState("SNPVector not initialised.");
+  }
+#endif
+
+  return *snpRecodedExMissing;
+}
+
+template<typename Vector>
+Vector& SNPVector<Vector>::getSNPData() {
+#ifdef DEBUG
+  if(!initialised){
+    throw new InvalidState("SNPVector not initialised.");
+  }
+#endif
+
+  return *snpRecodedExMissing;
+}
+
+template<typename Vector>
+bool SNPVector<Vector>::hasMissing() const {
+  return !noMissing;
+}
+
+template<typename Vector>
+const std::set<int>& SNPVector<Vector>::getMissing() const {
+  return *snpMissingData;
+}
+
+template<typename Vector>
+void SNPVector<Vector>::recode(Recode recode) {
+#ifdef DEBUG
+  initialised = true;
+#endif
+
   currentRecode = recode;
-  if(recode == ALL_RISK){
-    recodeAllRisk();
-  }else if(recode == SNP_PROTECT){
-    recodeSNPProtective();
-  }else if(recode == INTERACTION_PROTECT){
-    recodeInteractionProtective();
+  if(recode == ENVIRONMENT_PROTECT || recode == INTERACTION_PROTECT){
+    currentGeneticModel = RECESSIVE;
+    snp.setRiskAllele(snp.getProtectiveAllele());
   }else{
-    recodeAllRisk();
+    currentGeneticModel = originalGeneticModel;
+    snp.setRiskAllele(originalRiskAllele);
   }
 
-  doRecode();
-}
-
-void SNPVector::recodeAllRisk() {
-  currentGeneticModel = originalGeneticModel;
-  snp.setRiskAllele(originalRiskAllele);
-}
-
-void SNPVector::recodeSNPProtective() {
-  currentGeneticModel = RECESSIVE; //TODO invert genetic
-  snp.setRiskAllele(invertRiskAllele(originalRiskAllele));
-}
-
-void SNPVector::recodeInteractionProtective() {
-  currentGeneticModel = RECESSIVE; //TODO invert genetic
-  snp.setRiskAllele(invertRiskAllele(originalRiskAllele));
-}
-
-RiskAllele SNPVector::invertRiskAllele(RiskAllele riskAllele) {
-  if(riskAllele == ALLELE_ONE){
-    return ALLELE_TWO;
-  }else if(riskAllele == ALLELE_TWO){
-    return ALLELE_ONE;
-  }else{
-    throw InvalidState("Unknown RiskAllele in SNPVector");
-  }
-}
-
-void SNPVector::doRecode() {
   RiskAllele currentRiskAllele = snp.getRiskAllele();
-  int* snpData0 = new int(-1);
-  int* snpData1 = new int(-1);
-  int* snpData2 = new int(-1);
+  int snpToRisk[3] = {};
 
   if(currentGeneticModel == DOMINANT){
     if(currentRiskAllele == ALLELE_ONE){
-      *snpData0 = 1;
-      *snpData1 = 1;
-      *snpData2 = 0;
+      snpToRisk[0] = 1;
+      snpToRisk[1] = 1;
+      snpToRisk[2] = 0;
     }else if(currentRiskAllele == ALLELE_TWO){
-      *snpData0 = 0;
-      *snpData1 = 1;
-      *snpData2 = 1;
+      snpToRisk[0] = 0;
+      snpToRisk[1] = 1;
+      snpToRisk[2] = 1;
     }else{
       throw InvalidState("Unknown RiskAllele in SNPVector");
     }
   }else if(currentGeneticModel == RECESSIVE){
     if(currentRiskAllele == ALLELE_ONE){
-      *snpData0 = 1;
-      *snpData1 = 0;
-      *snpData2 = 0;
+      snpToRisk[0] = 1;
+      snpToRisk[1] = 0;
+      snpToRisk[2] = 0;
     }else if(currentRiskAllele == ALLELE_TWO){
-      *snpData0 = 0;
-      *snpData1 = 0;
-      *snpData2 = 1;
+      snpToRisk[0] = 0;
+      snpToRisk[1] = 0;
+      snpToRisk[2] = 1;
     }else{
       throw InvalidState("Unknown RiskAllele in SNPVector");
     }
@@ -120,33 +108,7 @@ void SNPVector::doRecode() {
     throw InvalidState("Unknown genetic model in SNPVector");
   }
 
-  for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    int orgData = (*originalSNPData)[i];
-    if(orgData == 0){
-      (*modifiedSNPData)(i) = *snpData0;
-    }else if(orgData == 1){
-      (*modifiedSNPData)(i) = *snpData1;
-    }else if(orgData == 2){
-      (*modifiedSNPData)(i) = *snpData2;
-    }else{
-      throw InvalidState("Original SNP data is not 0,1 or 2 in a SNPVector.");
-    }
-  } /* for i */
-
-  delete snpData0;
-  delete snpData1;
-  delete snpData2;
-}
-
-void SNPVector::applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector) {
-  if(statisticModel == ADDITIVE){
-    for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-      if(interactionVector(i) != 0){
-        (*modifiedSNPData)(i) = 0;
-      }
-    }
-  }
-  return;
+  doRecode(snpToRisk);
 }
 
 } /* namespace Container */

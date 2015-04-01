@@ -1,14 +1,12 @@
 #ifndef CUDAENVIRONMENTVECTOR_H_
 #define CUDAENVIRONMENTVECTOR_H_
 
-#include <CudaEnvironmentFactorHandler.h>
-#include <CudaMissingDataHandler.h>
+#include <EnvironmentFactorHandler.h>
 #include <EnvironmentVector.h>
 #include <DeviceVector.h>
 #include <EnvironmentFactor.h>
 #include <KernelWrapper.h>
 #include <CublasWrapper.h>
-#include <StatisticModel.h>
 #include <Recode.h>
 #include <VariableType.h>
 #include <InvalidState.h>
@@ -24,23 +22,18 @@ using namespace CuEira::CUDA;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CudaEnvironmentVector: public EnvironmentVector {
+class CudaEnvironmentVector: public EnvironmentVector<DeviceVector> {
 public:
-  CudaEnvironmentVector(const CudaEnvironmentFactorHandler& cudaEnvironmentFactorHandler,
+  CudaEnvironmentVector(const EnvironmentFactorHandler<DeviceVector>& environmentFactorHandler,
       const KernelWrapper& kernelWrapper, const CublasWrapper& cublasWrapper);
   virtual ~CudaEnvironmentVector();
 
-  virtual const Container::DeviceVector& getEnvironmentData() const;
-  virtual void recode(Recode recode);
-  virtual void recode(Recode recode, const CudaMissingDataHandler& missingDataHandler);
-
-private:
-  void recodeProtective();
+protected:
+  virtual void recodeProtective();
+  virtual void recodeAllRisk();
 
   const KernelWrapper& kernelWrapper;
   const CublasWrapper& cublasWrapper;
-  const DeviceVector& originalData;
-  DeviceVector* recodedData;
 };
 
 } /* namespace CUDA */

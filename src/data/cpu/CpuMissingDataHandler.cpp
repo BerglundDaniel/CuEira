@@ -11,20 +11,17 @@ CpuMissingDataHandler::~CpuMissingDataHandler() {
 
 }
 
-Container::HostVector* CpuMissingDataHandler::copyNonMissing(const Container::HostVector& fromVector) const {
+void CpuMissingDataHandler::copyNonMissing(const Container::HostVector& fromVector,
+    Container::HostVector& toVector) const {
 #ifdef DEBUG
   if(!initialised){
     throw new InvalidState("CpuMissingDataHandler not initialised.");
   }
 #endif
 
-  Container::HostVector* toVector = new Container::RegularHostVector(numberOfIndividualsToInclude);
-
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    (*toVector)(i) = fromVector((*indexesToCopy)(i));
+    toVector(i) = fromVector((*indexesToCopy)(i));
   }
-
-  return toVector;
 }
 
 } /* namespace CPU */

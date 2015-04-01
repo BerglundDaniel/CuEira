@@ -4,8 +4,6 @@
 #include <vector>
 #include <ostream>
 #include <set>
-#include <gtest/gtest.h>
-#include <gtest/gtest_prod.h>
 
 #include <SNP.h>
 #include <Recode.h>
@@ -13,46 +11,35 @@
 #include <GeneticModel.h>
 #include <RiskAllele.h>
 #include <StatisticModel.h>
-
-#ifdef CPU
-#include <RegularHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#endif
+#include <InvalidState.h>
 
 namespace CuEira {
 namespace Container {
-class SNPVectorTest;
-class SNPVectorFactoryTest;
 
 /**
  * This class ...
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector>
 class SNPVector {
-  friend SNPVectorTest;
-  friend SNPVectorFactoryTest;
-  FRIEND_TEST(SNPVectorTest, DoRecodeDominantAlleleOne);
-  FRIEND_TEST(SNPVectorTest, DoRecodeDominantAlleleTwo);
-  FRIEND_TEST(SNPVectorTest, DoRecodeRecessiveAlleleOne);
-  FRIEND_TEST(SNPVectorTest, DoRecodeRecessiveAlleleTwo);
-  FRIEND_TEST(SNPVectorTest, InvertRiskAllele);
-  FRIEND_TEST(SNPVectorFactoryTest, ConstructSNPVector);
 public:
   /**
    * Construct a SNPVector
    */
-  SNPVector(SNP& snp, GeneticModel geneticModel, const HostVector* originalSNPData, std::set<int>* snpMissingData);
+  explicit SNPVector(SNP& snp, GeneticModel geneticModel, const Vector* snpOrgExMissing,
+      const std::set<int>* snpMissingData);
 
   virtual ~SNPVector();
 
   virtual int getNumberOfIndividualsToInclude() const;
-  virtual const std::vector<int>& getOrginalData() const;
-  virtual const Container::HostVector& getRecodedData() const;
   virtual const SNP& getAssociatedSNP() const;
+  virtual const Vector& getSNPData() const;
+  virtual Vector& getSNPData();
+  virtual bool hasMissing() const;
+  virtual const std::set<int>& getMissing() const;
+
   virtual void recode(Recode recode);
-  virtual void applyStatisticModel(StatisticModel statisticModel, const HostVector& interactionVector);
 
   SNPVector(const SNPVector&) = delete;
   SNPVector(SNPVector&&) = delete;
@@ -60,22 +47,19 @@ public:
   SNPVector& operator=(SNPVector&&) = delete;
 
 protected:
-  SNPVector(SNP& snp); //For the mock
+  virtual void doRecode(int snpToRisk[3])=0;
 
-private:
-  void recodeAllRisk();
-  void recodeSNPProtective();
-  void recodeInteractionProtective();
-  void doRecode();
-  RiskAllele invertRiskAllele(RiskAllele riskAllele);
-
-  const int numberOfIndividualsToInclude;
   SNP& snp;
+  const Vector* snpOrgExMissing;
+  const std::set<int>* snpMissingData;
+  const int numberOfIndividualsToInclude;
+  Vector* snpRecodedExMissing;
+  bool initialised;
+  bool noMissing;
+
+  const GeneticModel originalGeneticModel;
   GeneticModel currentGeneticModel;
   const RiskAllele originalRiskAllele;
-  const GeneticModel originalGeneticModel;
-  const HostVector* originalSNPData;
-  Container::HostVector* modifiedSNPData; //TODO set to GPU instead, split this into cpu and gpu versions
   Recode currentRecode;
 };
 

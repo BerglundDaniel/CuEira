@@ -36,7 +36,7 @@ template<typename Vector>
 const Vector& PhenotypeVector<Vector>::getPhenotypeData() const {
 #ifdef DEBUG
   if(!initialised){
-    throw new InvalidState("CudaPhenotypeVector not initialised.");
+    throw new InvalidState("PhenotypeVector not initialised.");
   }
 #endif
 
@@ -54,7 +54,8 @@ void PhenotypeVector<Vector>::applyMissing(const MissingDataHandler& missingData
   numberOfIndividualsToInclude = missingDataHandler.getNumberOfIndividualsToInclude();
 
   delete phenotypeExMissing;
-  phenotypeExMissing = missingDataHandler.copyNonMissing(orgData);
+  phenotypeExMissing = new Vector(numberOfIndividualsToInclude);
+  missingDataHandler.copyNonMissing(orgData, *phenotypeExMissing);
 }
 
 template<typename Vector>

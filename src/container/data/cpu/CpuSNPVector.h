@@ -1,8 +1,13 @@
 #ifndef CPUSNPVECTOR_H_
 #define CPUSNPVECTOR_H_
 
+#include <set>
+
 #include <SNPVector.h>
 #include <RegularHostVector.h>
+#include <SNP.h>
+#include <GeneticModel.h>
+#include <Recode.h>
 
 namespace CuEira {
 namespace Container {
@@ -15,10 +20,14 @@ using namespace CuEira::CPU;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CpuSNPVector: public SNPVector {
+class CpuSNPVector: public SNPVector<RegularHostVector> {
 public:
-  CpuSNPVector();
+  explicit CpuSNPVector(SNP& snp, GeneticModel geneticModel, const DeviceVector* snpOrgExMissing,
+      const std::set<int>* snpMissingData);
   virtual ~CpuSNPVector();
+
+protected:
+  virtual void doRecode(int snpToRisk[3]);
 };
 
 } /* namespace CPU */

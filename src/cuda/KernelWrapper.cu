@@ -8,6 +8,8 @@
 #include <ElementWiseDifference.cuh>
 #include <ElementWiseAddition.cuh>
 #include <ElementWiseMultiplication.cuh>
+#include <VectorCopyIndexes.cuh>
+#include <ApplyGeneticModel.cuh>
 
 namespace CuEira {
 namespace CUDA {

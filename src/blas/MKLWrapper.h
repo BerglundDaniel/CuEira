@@ -1,6 +1,7 @@
 #ifndef MKLWRAPPER_H_
 #define MKLWRAPPER_H_
 
+#include <mkl_vml.h>
 #include <mkl.h>
 #include <iostream>
 
@@ -40,11 +41,14 @@ public:
       PRECISION alpha = 1, PRECISION beta = 0) const;
 
   /**
-   * vector2(i)-vector1(i)
+   * vector2(i) = vector2(i)-vector1(i)
    */
   void differenceElememtWise(const HostVector& vector1, HostVector& vector2) const;
 
+  void multiplicationElementWise(const HostVector& vector1) const; //TODO for the stat model
+
   void absoluteSum(const HostVector& vector, PRECISION& result) const;
+
 };
 
 } /* namespace CuEira */

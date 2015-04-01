@@ -35,6 +35,7 @@ public:
 
   void setRiskAllele(RiskAllele riskAllele);
   RiskAllele getRiskAllele() const;
+  RiskAllele getProtectiveAllele() const;
 
   bool operator<(const SNP& otherSNP) const;
   bool operator==(const SNP& otherSNP) const;

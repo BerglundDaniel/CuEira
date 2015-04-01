@@ -176,6 +176,8 @@ TEST_F(SNPTest, Operators) {
   }
 }
 
+//TODO invert snp risk allele get
+
 }
 /* namespace CuEira_Test */
 } /* namespace CuEira */

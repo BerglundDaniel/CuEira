@@ -3,7 +3,7 @@
 namespace CuEira {
 
 MKLWrapper::MKLWrapper() {
-
+  vmlsetmode(VML_EP);
 }
 
 MKLWrapper::~MKLWrapper() {

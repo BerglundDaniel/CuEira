@@ -49,7 +49,25 @@ RiskAllele SNP::getRiskAllele() const {
     const std::string& tmp = os.str();
     throw InvalidState(tmp.c_str());
   }
+
   return riskAllele;
+}
+
+RiskAllele SNP::getProtectiveAllele() const {
+  if(!riskAlleleHasBeenSet){
+    std::ostringstream os;
+    os << "Can't get risk allele since it has not been set for SNP " << id.getString() << std::endl;
+    const std::string& tmp = os.str();
+    throw InvalidState(tmp.c_str());
+  }
+
+  if(riskAllele == ALLELE_ONE){
+    return ALLELE_TWO;
+  }else if(riskAllele == ALLELE_TWO){
+    return ALLELE_ONE;
+  }else{
+    throw InvalidState("Unknown RiskAllele in SNP");
+  }
 }
 
 std::string SNP::getAlleleOneName() const {

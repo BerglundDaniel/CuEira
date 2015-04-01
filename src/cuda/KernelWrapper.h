@@ -32,12 +32,12 @@ public:
   virtual ~KernelWrapper();
 
   /**
-   * Performs the logistic transform, exp(x)/(1+exp(x)), on each element in logitVector and stores the results in probabilities. Assumes both have a length of numberOfRows.
+   * Performs the logistic transform, exp(x)/(1+exp(x)), on each element in logitVector and stores the results in probabilities
    */
   void logisticTransform(const DeviceVector& logitVector, DeviceVector& probabilites) const;
 
   /**
-   * Divides each element in numeratorVector with its corresponding element in denomitorVector. Assumes both have length numberOfPredictors.
+   * Divides each element in numeratorVector with its corresponding element in denomitorVector
    */
   void elementWiseDivision(const DeviceVector& numeratorVector, const DeviceVector& denomitorVector,
       DeviceVector& result) const;
@@ -53,13 +53,13 @@ public:
   void elementWiseMultiplication(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
 
   /**
-   * Calculates all the parts of a loglikelihood. The sum of the elements in result is the loglikelihood. Assumes both have a length of numberOfRows.
+   * Calculates all the parts of a loglikelihood. The sum of the elements in result is the loglikelihood
    */
   void logLikelihoodParts(const DeviceVector& outcomesVector, const DeviceVector& probabilites,
       DeviceVector& result) const;
 
   /**
-   * Calculates the absolute difference for each element. Assumes both have length numberOfPredictors.
+   * Calculates the absolute difference for each element
    */
   void elementWiseAbsoluteDifference(const DeviceVector& vector1, const DeviceVector& vector2,
       DeviceVector& result) const;
@@ -81,10 +81,14 @@ public:
       DeviceMatrix& result) const;
 
   //TODO
-  void vectorCopyIndexes(DeviceVector& to, const DeviceVector& from, const DeviceVector& indexes) const;
+  //TODO switch argument order
+  void vectorCopyIndexes(const DeviceVector& indexes, const DeviceVector& from, DeviceVector& to) const;
 
   //c-vector[i] TODO
-  void constSubtractVector(const int c,DeviceVector& vector) const;
+  void constSubtractVector(const int c, DeviceVector& vector) const;
+
+  //TODO
+  void applyGeneticModel(const int snpToRisk[3], const DeviceVector& from, DeviceVector& to) const;
 
   /**
    * Syncs the associated stream
@@ -93,7 +97,7 @@ public:
     stream.syncStream();
   }
 
-  const Stream& stream; //FIXME should be private, fix in next refactor
+  const Stream& stream; //FIXME should probably be private
 
 private:
   const cublasHandle_t& cublasHandle;

@@ -15,7 +15,7 @@ CudaSNPVector::~CudaSNPVector() {
 }
 
 void CudaSNPVector::doRecode(int snpToRisk[3]) {
-  kernelwrapper.applyGeneticModel(snpToRisk, snpOrgExMissing, snpRecodedExMissing); //recode=snpToRisk[org]
+  kernelWrapper.applyGeneticModel(snpToRisk, snpOrgExMissing, snpRecodedExMissing); //recode=snpToRisk[org]
 }
 
 } /* namespace CUDA */

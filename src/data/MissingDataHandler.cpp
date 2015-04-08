@@ -2,16 +2,19 @@
 
 namespace CuEira {
 
-MissingDataHandler::MissingDataHandler(const int numberOfIndividualsTotal) :
+template<typename Vector>
+MissingDataHandler<Vector>::MissingDataHandler(const int numberOfIndividualsTotal) :
     numberOfIndividualsTotal(numberOfIndividualsTotal), numberOfIndividualsToInclude(0), initialised(false), indexesToCopy(
         nullptr) {
 }
 
-MissingDataHandler::~MissingDataHandler() {
+template<typename Vector>
+MissingDataHandler<Vector>::~MissingDataHandler() {
   delete indexesToCopy;
 }
 
-int MissingDataHandler::getNumberOfIndividualsToInclude() const {
+template<typename Vector>
+int MissingDataHandler<Vector>::getNumberOfIndividualsToInclude() const {
 #ifdef DEBUG
   if(!initialised){
     throw new InvalidState("MissingDataHandler not initialised.");
@@ -20,11 +23,13 @@ int MissingDataHandler::getNumberOfIndividualsToInclude() const {
   return numberOfIndividualsToInclude;
 }
 
-int MissingDataHandler::getNumberOfIndividualsTotal() const {
+template<typename Vector>
+int MissingDataHandler<Vector>::getNumberOfIndividualsTotal() const {
   return numberOfIndividualsTotal;
 }
 
-void MissingDataHandler::setMissing(const std::set<int>& snpPersonsToSkip) {
+template<typename Vector>
+void MissingDataHandler<Vector>::setMissing(const std::set<int>& snpPersonsToSkip) {
   initialised = true;
   numberOfIndividualsToInclude = numberOfIndividualsTotal - snpPersonsToSkip.size();
 

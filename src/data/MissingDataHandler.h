@@ -20,6 +20,7 @@ namespace CuEira {
  *
  *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector>
 class MissingDataHandler {
 public:
   explicit MissingDataHandler(const int numberOfIndividualsTotal);

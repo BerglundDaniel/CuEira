@@ -3,21 +3,21 @@
 namespace CuEira {
 namespace Container {
 
-template<typename Matrix>
-CovariatesMatrix<Matrix>::CovariatesMatrix(const CovariatesHandler<Matrix>& covariatesHandler) :
+template<typename Matrix, typename Vector>
+CovariatesMatrix<Matrix, Vector>::CovariatesMatrix(const CovariatesHandler<Matrix>& covariatesHandler) :
     orgData(covariatesHandler.getCovariatesMatrix()), numberOfIndividualsTotal(orgData.getNumberOfRows()), numberOfIndividualsToInclude(
         0), initialised(false), noMissing(false), covariatesExMissing(nullptr), numberOfCovariates(
         covariatesHandler.getNumberOfCovariates()) {
 
 }
 
-template<typename Matrix>
-CovariatesMatrix<Matrix>::~CovariatesMatrix() {
+template<typename Matrix, typename Vector>
+CovariatesMatrix<Matrix, Vector>::~CovariatesMatrix() {
   delete covariatesExMissing;
 }
 
-template<typename Matrix>
-const Matrix& CovariatesMatrix<Matrix>::getCovariatesData() const {
+template<typename Matrix, typename Vector>
+const Matrix& CovariatesMatrix<Matrix, Vector>::getCovariatesData() const {
 #ifdef DEBUG
   if(!initialised){
     throw new InvalidState("CovariatesMatrix not initialised.");
@@ -26,8 +26,8 @@ const Matrix& CovariatesMatrix<Matrix>::getCovariatesData() const {
   return *covariatesExMissing;
 }
 
-template<typename Matrix>
-void CovariatesMatrix<Matrix>::applyMissing(const MissingDataHandler& missingDataHandler) {
+template<typename Matrix, typename Vector>
+void CovariatesMatrix<Matrix, Vector>::applyMissing(const MissingDataHandler<Vector>& missingDataHandler) {
   initialised = true;
   noMissing = false;
   numberOfIndividualsToInclude = missingDataHandler.getNumberOfIndividualsToInclude();
@@ -36,14 +36,19 @@ void CovariatesMatrix<Matrix>::applyMissing(const MissingDataHandler& missingDat
   covariatesExMissing = new Matrix(numberOfIndividualsToInclude, numberOfCovariates);
 
   for(int i = 0; i < numberOfCovariates; ++i){
-    //TODO the vectors....
+    Vector* orgDataVector = orgData(i);
+    Vector* covariatesExMissingVector = covariatesExMissing(i);
+
     missingDataHandler.copyNonMissing(orgDataVector, covariatesExMissingVector);
+
+    delete orgDataVector;
+    delete covariatesExMissingVector;
   }
 
 }
 
-template<typename Matrix>
-virtual void CovariatesMatrix<Matrix>::applyMissing() {
+template<typename Matrix, typename Vector>
+virtual void CovariatesMatrix<Matrix, Vector>::applyMissing() {
   initialised = true;
   noMissing = true;
   numberOfIndividualsToInclude = numberOfIndividualsTotal;

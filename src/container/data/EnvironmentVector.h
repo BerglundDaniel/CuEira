@@ -40,7 +40,7 @@ public:
   virtual Vector& getEnvironmentData();
 
   virtual void recode(Recode recode);
-  virtual void recode(Recode recode, const MissingDataHandler& missingDataHandler);
+  virtual void recode(Recode recode, const MissingDataHandler<Vector>& missingDataHandler);
 
   EnvironmentVector(const EnvironmentVector&) = delete;
   EnvironmentVector(EnvironmentVector&&) = delete;

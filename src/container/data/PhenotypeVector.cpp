@@ -48,7 +48,7 @@ const Vector& PhenotypeVector<Vector>::getPhenotypeData() const {
 }
 
 template<typename Vector>
-void PhenotypeVector<Vector>::applyMissing(const MissingDataHandler& missingDataHandler) {
+void PhenotypeVector<Vector>::applyMissing(const MissingDataHandler<Vector>& missingDataHandler) {
   initialised = true;
   noMissing = false;
   numberOfIndividualsToInclude = missingDataHandler.getNumberOfIndividualsToInclude();

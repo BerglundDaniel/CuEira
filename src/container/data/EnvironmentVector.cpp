@@ -79,7 +79,7 @@ void EnvironmentVector<Vector>::recode(Recode recode) {
 }
 
 template<typename Vector>
-void EnvironmentVector<Vector>::recode(Recode recode, const MissingDataHandler& missingDataHandler) {
+void EnvironmentVector<Vector>::recode(Recode recode, const MissingDataHandler<Vector>& missingDataHandler) {
 #ifdef DEBUG
   initialised = true;
 #endif

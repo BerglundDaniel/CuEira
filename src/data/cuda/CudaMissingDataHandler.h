@@ -14,7 +14,7 @@ namespace CUDA {
  *
  *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CudaMissingDataHandler: public MissingDataHandler {
+class CudaMissingDataHandler: public MissingDataHandler<Container::DeviceVector> {
 public:
   explicit CudaMissingDataHandler(const int numberOfIndividualsTotal, const HostToDevice& hostToDevice,
       const KernelWrapper& kernelWrapper);

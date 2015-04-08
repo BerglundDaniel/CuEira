@@ -12,14 +12,14 @@ namespace Container {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-template<typename Matrix>
+template<typename Matrix, typename Vector>
 class CovariatesMatrix {
 public:
   explicit CovariatesMatrix(const CovariatesHandler<Matrix>& covariatesHandler);
   virtual ~CovariatesMatrix();
 
   virtual const Matrix& getCovariatesData() const;
-  virtual void applyMissing(const MissingDataHandler& missingDataHandler);
+  virtual void applyMissing(const MissingDataHandler<Vector>& missingDataHandler);
   virtual void applyMissing();
 
 private:

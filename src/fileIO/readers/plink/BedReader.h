@@ -25,12 +25,6 @@
 #include <AlleleStatistics.h>
 #include <HostVector.h>
 
-#ifdef CPU
-#include <RegularHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#endif
-
 namespace CuEira {
 namespace FileIO {
 class BedReaderTest;
@@ -40,6 +34,7 @@ class BedReaderTest;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector>
 class BedReader {
   friend BedReaderTest;
   FRIEND_TEST(BedReaderTest, ConstructorCheckMode);
@@ -51,8 +46,7 @@ public:
   virtual Container::SNPVector* readSNP(SNP& snp);
 
 protected:
-  explicit BedReader(const Configuration& configuration, const Container::SNPVectorFactory* snpVectorFactory,
-      const PersonHandler& personHandler); //Used by the mock
+  explicit BedReader(const Configuration& configuration, const PersonHandler& personHandler); //Used by the mock
 
 private:
   enum Mode {

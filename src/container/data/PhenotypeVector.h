@@ -22,9 +22,7 @@ public:
   virtual int getNumberOfIndividualsToInclude() const;
   virtual const Vector& getPhenotypeData() const;
 
-  virtual void applyMissing(const MissingDataHandler& missingDataHandler);
-  //TODO specialize this class so two function one for each, has to be correct type for cpu or cuda. Or do something with missinghandler
-
+  virtual void applyMissing(const MissingDataHandler<Vector>& missingDataHandler);
   virtual void applyMissing();
 
 protected:

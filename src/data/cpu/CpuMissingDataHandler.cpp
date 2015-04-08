@@ -4,7 +4,7 @@ namespace CuEira {
 namespace CPU {
 
 CpuMissingDataHandler::CpuMissingDataHandler(const int numberOfIndividualsTotal) :
-    MisssingDataHandler(numberOfIndividualsTotal) {
+    MisssingDataHandler<Container::RegularHostVector>(numberOfIndividualsTotal) {
 }
 
 CpuMissingDataHandler::~CpuMissingDataHandler() {

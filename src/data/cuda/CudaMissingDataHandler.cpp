@@ -5,7 +5,7 @@ namespace CUDA {
 
 CudaMissingDataHandler::CudaMissingDataHandler(const int numberOfIndividualsTotal, const HostToDevice& hostToDevice,
     const KernelWrapper& kernelWrapper) :
-    MissingDataHandler(numberOfIndividualsTotal), hostToDevice(hostToDevice), kernelWrapper(kernelWrapper), indexesToCopyDevice(
+    MissingDataHandler<Container::DeviceVector>(numberOfIndividualsTotal), hostToDevice(hostToDevice), kernelWrapper(kernelWrapper), indexesToCopyDevice(
         nullptr) {
 
 }

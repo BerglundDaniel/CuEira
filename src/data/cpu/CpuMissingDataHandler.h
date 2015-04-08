@@ -13,7 +13,7 @@ namespace CPU {
  *
  *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CpuMissingDataHandler: public MissingDataHandler {
+class CpuMissingDataHandler: public MissingDataHandler<Container::RegularHostVector> {
 public:
   explicit CpuMissingDataHandler(const int numberOfIndividualsTotal);
   virtual ~CpuMissingDataHandler();

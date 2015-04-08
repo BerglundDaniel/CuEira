@@ -43,6 +43,7 @@ Vector& InteractionVector<Vector>::getInteractionData() {
 
 template<typename Vector>
 void InteractionVector<Vector>::updateSize(int size) {
+  //TODO don't need to delete if using padded vectors for unrolling
 #ifdef DEBUG
   initialised = true;
 #endif

@@ -45,7 +45,7 @@ public:
    */
   void differenceElememtWise(const HostVector& vector1, HostVector& vector2) const;
 
-  void multiplicationElementWise(const HostVector& vector1) const; //TODO for the stat model
+  void multiplicationElementWise(const HostVector& vector1, const HostVector& vector2, const HostVector& result) const;
 
   void absoluteSum(const HostVector& vector, PRECISION& result) const;
 

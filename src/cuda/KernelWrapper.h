@@ -90,6 +90,9 @@ public:
   //TODO
   void applyGeneticModel(const int snpToRisk[3], const DeviceVector& from, DeviceVector& to) const;
 
+  //TODO
+  void applyAdditiveModel(DeviceVector& vector1, DeviceVector& vector2, DeviceVector& interaction) const;
+
   /**
    * Syncs the associated stream
    */

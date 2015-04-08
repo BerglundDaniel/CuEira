@@ -11,6 +11,10 @@ AlleleStatisticsFactory::~AlleleStatisticsFactory() {
 }
 
 AlleleStatistics* AlleleStatisticsFactory::constructAlleleStatistics(const std::vector<int>* numberOfAlleles) const {
+  //TODO have snp data and phenotype data
+  //calculate numberOfAlleles from it
+  //separate cpu and gpu version
+
   return new AlleleStatistics(numberOfAlleles, convertAlleleNumbersToFrequencies(*numberOfAlleles));
 }
 

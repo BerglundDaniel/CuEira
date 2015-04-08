@@ -1,0 +1,12 @@
+set(INCLUDE_DIRECTORIES
+  ${INCLUDE_DIRECTORIES}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PARENT_SCOPE
+)
+
+set(SOURCE
+  ${SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/CpuAdditiveInteractionModel.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CpuMultiplicativeInteractionModel.cpp
+  PARENT_SCOPE
+)

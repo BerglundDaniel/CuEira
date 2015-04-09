@@ -62,7 +62,6 @@ void EnvironmentVector<Vector>::recode(Recode recode) {
   initialised = true;
 #endif
 
-  currentRecode = recode;
   if(!noMissing){
     delete envExMissing;
     envExMissing = new Vector(numberOfIndividualsTotal);
@@ -70,11 +69,13 @@ void EnvironmentVector<Vector>::recode(Recode recode) {
   }
 
   if(recode == ENVIRONMENT_PROTECT || recode == INTERACTION_PROTECT){
+    recodeAllRisk(); //This is needed because the protective assumes that envExMissing is stored as all risk already. This will not be the case sometimes beacuse of the statistical model
     recodeProtective();
   }else{
     recodeAllRisk();
   }
 
+  currentRecode = recode;
   noMissing = true;
 }
 
@@ -84,17 +85,16 @@ void EnvironmentVector<Vector>::recode(Recode recode, const MissingDataHandler<V
   initialised = true;
 #endif
 
-  currentRecode = recode;
   numberOfIndividualsToInclude = missingDataHandler.getNumberOfIndividualsToInclude();
   delete envExMissing;
   envExMissing = new Vector(numberOfIndividualsToInclude);
-  missingDataHandler.copyNonMissing(originalData, *envExMissing);
+  missingDataHandler.copyNonMissing(originalData, *envExMissing); //This will mean envExMissing stores the all risk after this
 
   if(recode == ENVIRONMENT_PROTECT || recode == INTERACTION_PROTECT){
     recodeProtective();
   }
-  //No need to recode to all risk since it already is from the copying to remove the missing data
 
+  currentRecode = recode;
   noMissing = false;
 }
 

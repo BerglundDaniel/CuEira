@@ -10,6 +10,8 @@
 #include <ElementWiseMultiplication.cuh>
 #include <VectorCopyIndexes.cuh>
 #include <ApplyGeneticModel.cuh>
+#include <ApplyAdditiveModel.cuh>
+#include <ConstSubtractVector.cuh>
 
 namespace CuEira {
 namespace CUDA {
@@ -219,6 +221,60 @@ void KernelWrapper::columnByColumnMatrixVectorElementWiseMultiply(const DeviceMa
 #ifdef FERMI
   syncStream();
 #endif
+}
+
+void KernelWrapper::vectorCopyIndexes(const DeviceVector& indexes, const DeviceVector& from, DeviceVector& to) const {
+#ifdef DEBUG
+  if((indexes.getNumberOfRows() != from.getNumberOfRows()) || (indexes.getNumberOfRows() != to.getNumberOfRows())){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in vectorCopyIndexes function, they are " << indexes.getNumberOfRows()
+    << " , " << from.getNumberOfRows() << " and " << to.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
+  }
+#endif
+
+  const int numberOfRows = indexes.getNumberOfRows();
+  const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
+  Kernel::VectorCopyIndexes<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(indexes.getMemoryPointer(), from.getMemoryPointer(), to.getMemoryPointer(), numberOfRows);
+}
+
+void KernelWrapper::constSubtractVector(const int c, DeviceVector& vector) const {
+  const int numberOfRows = vector.getNumberOfRows();
+  const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
+  Kernel::ConstSubtractVector<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(c, vector.getMemoryPointer(), numberOfRows);
+}
+
+void KernelWrapper::applyGeneticModel(const int snpToRisk[3], const DeviceVector& from, DeviceVector& to) const {
+#ifdef DEBUG
+  if(from.getNumberOfRows() != to.getNumberOfRows()){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in applyGeneticModel function, they are " << from.getNumberOfRows()
+    << " and " << to.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
+  }
+#endif
+
+  const int numberOfRows = from.getNumberOfRows();
+  const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
+  Kernel::ApplyGeneticModel<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(snpToRisk, from.getMemoryPointer(), to.getMemoryPointer(),numberOfRows);
+}
+
+void KernelWrapper::applyAdditiveModel(DeviceVector& vector1, DeviceVector& vector2, DeviceVector& interaction) const {
+#ifdef DEBUG
+  if((vector1.getNumberOfRows() != vector2.getNumberOfRows()) || (vector1.getNumberOfRows() != interaction.getNumberOfRows())){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in applyAdditiveModel function, they are " << vector1.getNumberOfRows()
+    << " , " << vector2.getNumberOfRows() << " and " << interaction.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
+  }
+#endif
+
+  const int numberOfRows = vector1.getNumberOfRows();
+  const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
+  Kernel::ApplyAdditiveModel<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), interaction.getMemoryPointer(), numberOfRows);
 }
 
 } /* namespace CUDA */

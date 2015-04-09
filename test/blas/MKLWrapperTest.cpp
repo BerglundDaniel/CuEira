@@ -514,6 +514,8 @@ TEST_F(MKLWrapperTest, absoluteSumFloat) {
   EXPECT_EQ(sum, res);
 }
 
+//TODO test element multiplication
+
 }
 /* namespace CuEira_Test */
 } /* namespace CuEira */

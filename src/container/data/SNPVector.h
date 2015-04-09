@@ -34,6 +34,7 @@ public:
 
   virtual int getNumberOfIndividualsToInclude() const;
   virtual const SNP& getAssociatedSNP() const;
+  virtual const Vector& getOriginalSNPData() const;
   virtual const Vector& getSNPData() const;
   virtual Vector& getSNPData();
   virtual bool hasMissing() const;

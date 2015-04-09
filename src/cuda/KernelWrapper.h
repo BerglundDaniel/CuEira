@@ -75,22 +75,21 @@ public:
   void elementWiseDifference(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
 
   /**
-   * Asdf //TODO move this to the LR stuff
+   * TODO move this to the LR class
    */
   void columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
       DeviceMatrix& result) const;
 
-  //TODO
-  //TODO switch argument order
+  //to=from[indexes[i]]
   void vectorCopyIndexes(const DeviceVector& indexes, const DeviceVector& from, DeviceVector& to) const;
 
-  //c-vector[i] TODO
+  //c-vector[i]
   void constSubtractVector(const int c, DeviceVector& vector) const;
 
-  //TODO
+  //to[i] = snpToRisk[from[i]]
   void applyGeneticModel(const int snpToRisk[3], const DeviceVector& from, DeviceVector& to) const;
 
-  //TODO
+  //interaction=vector1*vector2 vector1=vector2=0 if interaction!=0
   void applyAdditiveModel(DeviceVector& vector1, DeviceVector& vector2, DeviceVector& interaction) const;
 
   /**

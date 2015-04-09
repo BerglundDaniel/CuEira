@@ -3,7 +3,7 @@
 namespace CuEira {
 
 MKLWrapper::MKLWrapper() {
-  vmlsetmode(VML_EP);
+  vmlsetmode (VML_EP);
 }
 
 MKLWrapper::~MKLWrapper() {
@@ -149,7 +149,7 @@ void MKLWrapper::matrixTransMatrixMultiply(const HostMatrix& matrix1, const Host
 void MKLWrapper::differenceElememtWise(const HostVector& vector1, HostVector& vector2) const {
 #ifdef DEBUG
   if(vector1.getNumberOfRows() != vector2.getNumberOfRows()){
-    throw DimensionMismatch("Length of vectors in copyVector doesn't match.");
+    throw DimensionMismatch("Length of vectors in differenceElememtWise doesn't match.");
   }
 #endif
 
@@ -158,6 +158,23 @@ void MKLWrapper::differenceElememtWise(const HostVector& vector1, HostVector& ve
   cblas_daxpy(size, -1.0, vector1.getMemoryPointer(), 1, vector2.getMemoryPointer(), 1);
 #else
   cblas_saxpy(size, -1.0, vector1.getMemoryPointer(), 1, vector2.getMemoryPointer(), 1);
+#endif
+}
+
+void MKLWrapper::multiplicationElementWise(const HostVector& vector1, const HostVector& vector2,
+    const HostVector& result) const {
+#ifdef DEBUG
+  if((vector1.getNumberOfRows() != vector2.getNumberOfRows())
+      || (vector1.getNumberOfRows() != result.getNumberOfRows())){
+    throw DimensionMismatch("Length of vectors in multiplicationElementWise doesn't match.");
+  }
+#endif
+
+  int size = vector1.getNumberOfRows();
+#ifdef DOUBLEPRECISION
+  vdMul(size, vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
+#else
+  vsMul(size, vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
 #endif
 }
 

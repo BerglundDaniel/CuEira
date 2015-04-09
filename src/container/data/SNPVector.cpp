@@ -31,6 +31,11 @@ const SNP & SNPVector<Vector>::getAssociatedSNP() const {
 }
 
 template<typename Vector>
+const Vector& SNPVector<Vector>::getOriginalSNPData() const {
+  return *snpOrgExMissing;
+}
+
+template<typename Vector>
 const Vector& SNPVector<Vector>::getSNPData() const {
 #ifdef DEBUG
   if(!initialised){
@@ -68,36 +73,36 @@ void SNPVector<Vector>::recode(Recode recode) {
   initialised = true;
 #endif
 
-  currentRecode = recode;
+  GeneticModel geneticModel;
   if(recode == ENVIRONMENT_PROTECT || recode == INTERACTION_PROTECT){
-    currentGeneticModel = RECESSIVE;
+    geneticModel = RECESSIVE;
     snp.setRiskAllele(snp.getProtectiveAllele());
   }else{
-    currentGeneticModel = originalGeneticModel;
+    geneticModel = originalGeneticModel;
     snp.setRiskAllele(originalRiskAllele);
   }
 
-  RiskAllele currentRiskAllele = snp.getRiskAllele();
+  RiskAllele riskAllele = snp.getRiskAllele();
   int snpToRisk[3] = {};
 
-  if(currentGeneticModel == DOMINANT){
-    if(currentRiskAllele == ALLELE_ONE){
+  if(geneticModel == DOMINANT){
+    if(riskAllele == ALLELE_ONE){
       snpToRisk[0] = 1;
       snpToRisk[1] = 1;
       snpToRisk[2] = 0;
-    }else if(currentRiskAllele == ALLELE_TWO){
+    }else if(riskAllele == ALLELE_TWO){
       snpToRisk[0] = 0;
       snpToRisk[1] = 1;
       snpToRisk[2] = 1;
     }else{
       throw InvalidState("Unknown RiskAllele in SNPVector");
     }
-  }else if(currentGeneticModel == RECESSIVE){
-    if(currentRiskAllele == ALLELE_ONE){
+  }else if(geneticModel == RECESSIVE){
+    if(riskAllele == ALLELE_ONE){
       snpToRisk[0] = 1;
       snpToRisk[1] = 0;
       snpToRisk[2] = 0;
-    }else if(currentRiskAllele == ALLELE_TWO){
+    }else if(riskAllele == ALLELE_TWO){
       snpToRisk[0] = 0;
       snpToRisk[1] = 0;
       snpToRisk[2] = 1;
@@ -109,6 +114,9 @@ void SNPVector<Vector>::recode(Recode recode) {
   }
 
   doRecode(snpToRisk);
+
+  currentRecode = recode;
+  currentGeneticModel = geneticModel;
 }
 
 } /* namespace Container */

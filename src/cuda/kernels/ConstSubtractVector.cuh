@@ -1,5 +1,5 @@
-#ifndef VECTORCOPYINDEXES_H_
-#define VECTORCOPYINDEXES_H_
+#ifndef CONSTSUBTRACTVECTOR_H_
+#define CONSTSUBTRACTVECTOR_H_
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
@@ -14,19 +14,17 @@ namespace Kernel {
  * This is ...
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
- *
  */
-__global__ void VectorCopyIndexes(const PRECISION* indexes , const PRECISION* vector1, PRECISION* vector2,
-    const int length){
+__global__ void ConstSubtractVector(const int c, PRECISION* vector, const int length) {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
   if(threadId < length){
-    vector2[threadId] = vector1[indexes[threadId]];
-  } /* if threadId < length */
+    vector[threadId] = c - vector[threadId];
+  } /* if threadId < numberOfPredictors */
 }
 
 } /* namespace Kernel */
 } /* namespace CUDA */
 } /* namespace CuEira */
 
-#endif /* VECTORCOPYINDEXES_H_ */
+#endif /* CONSTSUBTRACTVECTOR_H_ */

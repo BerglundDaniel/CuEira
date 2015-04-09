@@ -16,9 +16,9 @@ CudaEnvironmentVector::~CudaEnvironmentVector() {
 
 void CudaEnvironmentVector::recodeProtective() {
   if(environmentFactor.getVariableType() == BINARY){
-    kernelWrapper.constSubtractVector(1, *recodedData);
+    kernelWrapper.constSubtractVector(1, *envExMissing);
   }else{
-    kernelWrapper.constSubtractVector(environmentFactor.getMax() + environmentFactor.getMin(), *recodedData);
+    kernelWrapper.constSubtractVector(environmentFactor.getMax() + environmentFactor.getMin(), *envExMissing);
   }
 }
 

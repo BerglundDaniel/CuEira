@@ -1,6 +1,8 @@
 #ifndef HOSTVECTOR_H_
 #define HOSTVECTOR_H_
 
+#include <math.h>
+
 #include <DimensionMismatch.h>
 
 namespace CuEira {
@@ -13,13 +15,19 @@ namespace Container {
  */
 class HostVector {
 public:
-  HostVector(int numberOfRows, bool subview, PRECISION* hostVector);
+  HostVector(int numberOfRealRows, int numberOfRows, bool subview, PRECISION* hostVector);
   virtual ~HostVector();
 
   int getNumberOfRows() const;
   int getNumberOfColumns() const;
   virtual PRECISION& operator()(int index)=0;
   virtual const PRECISION& operator()(int index) const=0;
+
+  int getRealNumberOfRows() const;
+  int getRealNumberOfColumns() const;
+  void updateSize(int numberOfRows);
+
+  //TODO add iterators
 
   PRECISION* getMemoryPointer();
   const PRECISION* getMemoryPointer() const;
@@ -31,8 +39,8 @@ public:
 
 protected:
   PRECISION* hostVector;
-  const int numberOfRows;
-  const int numberOfColumns;
+  const int numberOfRealRows;
+  int numberOfRows;
   const bool subview;
 };
 

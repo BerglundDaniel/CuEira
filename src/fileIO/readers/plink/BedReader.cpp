@@ -3,8 +3,7 @@
 namespace CuEira {
 namespace FileIO {
 
-template<typename Vector>
-BedReader<Vector>::BedReader(const Configuration& configuration, const Container::SNPVectorFactory* snpVectorFactory,
+BedReader::BedReader(const Configuration& configuration, const Container::SNPVectorFactory* snpVectorFactory,
     const PersonHandler& personHandler, const int numberOfSNPs) :
     configuration(configuration), snpVectorFactory(snpVectorFactory), alleleStatisticsFactory(alleleStatisticsFactory), personHandler(
         personHandler), bedFileStr(configuration.getBedFilePath()), numberOfSNPs(numberOfSNPs), numberOfIndividualsTotal(
@@ -56,7 +55,7 @@ BedReader<Vector>::BedReader(const Configuration& configuration, const Container
   if(mode == SNPMAJOR){
     numberOfBitsPerRow = numberOfIndividualsTotal * 2;
     //Each individuals genotype is stored as 2 bits, there are no incomplete bytes so we have to round the number up
-    numberOfBytesPerRow = std::ceil(((double) numberOfBitsPerRow) / 8);
+    numberOfBytesPerRow = ceil(((double) numberOfBitsPerRow) / 8);
 
     //The number of bits at the start of the last byte(due to the reversing of the bytes) that we don't care about
     numberOfUninterestingBitsAtEnd = (8 * numberOfBytesPerRow) - numberOfBitsPerRow;
@@ -65,28 +64,29 @@ BedReader<Vector>::BedReader(const Configuration& configuration, const Container
   }
 }
 
-template<typename Vector>
-BedReader<Vector>::BedReader(const Configuration& configuration, const PersonHandler& personHandler) :
+BedReader::BedReader(const Configuration& configuration, const PersonHandler& personHandler) :
     numberOfSNPs(0), numberOfIndividualsTotal(0), configuration(configuration), snpVectorFactory(nullptr), numberOfBitsPerRow(
         0), numberOfBytesPerRow(0), numberOfUninterestingBitsAtEnd(0), personHandler(personHandler), mode(
         INDIVIDUALMAJOR) {
 
 }
 
-template<typename Vector>
-BedReader<Vector>::~BedReader() {
+BedReader::~BedReader() {
   delete snpVectorFactory;
 }
 
-template<typename Vector>
-Container::SNPVector* BedReader<Vector>::readSNP(SNP& snp) {
+Container::SNPVector* BedReader::readSNP(SNP& snp) {
   std::ifstream bedFile;
   const int snpPos = snp.getPosition();
   const int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
   std::set<int>* snpMissingData = new std::set<int>();
 
   //Initialise vector
-  Vector* snpDataOriginal = new Vector(numberOfIndividualsToInclude);
+#ifdef CPU
+  Container::RegularHostVector* snpDataOriginal = new Container::RegularHostVector(numberOfIndividualsToInclude);
+#else
+  Container::PinnedHostVector* snpDataOriginal = new Container::PinnedHostVector(numberOfIndividualsToInclude);
+#endif
 
   //Read depending on the mode
   if(mode == SNPMAJOR){
@@ -106,6 +106,7 @@ Container::SNPVector* BedReader<Vector>::readSNP(SNP& snp) {
     closeBedFile(bedFile);
 
     int individualNumberIncMissing = 0;
+    int individualNumberExMissing = 0;
     int individualNumberAll = 0;
 
     //Go through all the bytes in this read
@@ -131,23 +132,25 @@ Container::SNPVector* BedReader<Vector>::readSNP(SNP& snp) {
 
           //If we are missing the genotype for at least one individual(that should be included) we excluded the SNP
           if(firstBit && !secondBit){
+            //Store the number for the SNP, it's already skipped in the SNP data. However it's needed to know what to skip in the other data(environment, etc)
             snpMissingData->insert(snpMissingData->end(), individualNumberIncMissing);
-            (*snpDataOriginal)(individualNumberIncMissing) = -1; //TODO ex missing? and fix the snpvector factory
           }else{
             //Store the genotype as 0,1,2 until we can recode it. We have to know the risk allele before we can recode.
             if(!firstBit && !secondBit){
               //Homozygote primary
-              (*snpDataOriginal)(individualNumberIncMissing) = 0;
+              (*snpDataOriginal)(individualNumberExMissing) = 0;
             }else if(!firstBit && secondBit){
               //Hetrozygote
-              (*snpDataOriginal)(individualNumberIncMissing) = 1;
+              (*snpDataOriginal)(individualNumberExMissing) = 1;
             }else if(firstBit && secondBit){
               //Homozygote secondary
-              (*snpDataOriginal)(individualNumberIncMissing) = 2;
+              (*snpDataOriginal)(individualNumberExMissing) = 2;
             }
+
+            ++individualNumberExMissing;
           }/* if check missing data */
 
-          individualNumberIncMissing++;
+          ++individualNumberIncMissing;
         }
 
         individualNumberAll++;
@@ -169,13 +172,11 @@ Container::SNPVector* BedReader<Vector>::readSNP(SNP& snp) {
 }
 
 // position in range 0-7
-template<typename Vector>
-bool BedReader<Vector>::getBit(unsigned char byte, int position) const {
+bool BedReader::getBit(unsigned char byte, int position) const {
   return (byte >> position) & 0x1; //Shift the byte to the right so we have bit at the position as the last bit and then use bitwise and with 00000001
 }
 
-template<typename Vector>
-void BedReader<Vector>::openBedFile(std::ifstream& bedFile) {
+void BedReader::openBedFile(std::ifstream& bedFile) {
   bedFile.open(bedFileStr, std::ifstream::binary);
   if(!bedFile){
     std::ostringstream os;
@@ -185,8 +186,7 @@ void BedReader<Vector>::openBedFile(std::ifstream& bedFile) {
   }
 }
 
-template<typename Vector>
-void BedReader<Vector>::closeBedFile(std::ifstream& bedFile) {
+void BedReader::closeBedFile(std::ifstream& bedFile) {
   if(bedFile.is_open()){
     bedFile.close();
   }

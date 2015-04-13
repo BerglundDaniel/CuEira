@@ -1,6 +1,8 @@
 #ifndef HOSTMATRIX_H_
 #define HOSTMATRIX_H_
 
+#include <math.h>
+
 #include <DimensionMismatch.h>
 #include <HostVector.h>
 
@@ -15,7 +17,8 @@ namespace Container {
 class HostMatrix {
 
 public:
-  HostMatrix(int numberOfRows, int numberOfColumns, PRECISION* hostMatrix);
+  HostMatrix(int numberOfRealRows, int numberOfRealColumns, int numberOfRows, int numberOfColumns,
+      PRECISION* hostMatrix);
   virtual ~HostMatrix();
 
   int getNumberOfRows() const;
@@ -24,6 +27,14 @@ public:
   virtual const HostVector* operator()(int column) const=0;
   virtual PRECISION& operator()(int row, int column)=0;
   virtual const PRECISION& operator()(int row, int column) const=0;
+
+  int getRealNumberOfRows() const;
+  int getRealNumberOfColumns() const;
+  void updateSize(int numberOfRows, int numberOfColumns);
+  void updateNumberOfRows(int numberOfRows);
+  void updateNumberOfColumns(int numberOfColumns);
+
+  //TODO add iterators
 
   PRECISION* getMemoryPointer();
   const PRECISION* getMemoryPointer() const;
@@ -35,8 +46,10 @@ public:
 
 protected:
   PRECISION* hostMatrix;
-  const int numberOfRows;
-  const int numberOfColumns;
+  const int numberOfRealRows;
+  const int numberOfRealColumns;
+  int numberOfRows;
+  int numberOfColumns;
 };
 
 } /* namespace Container */

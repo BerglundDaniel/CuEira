@@ -1,6 +1,7 @@
 #ifndef PINNEDHOSTMATRIX_H_
 #define PINNEDHOSTMATRIX_H_
 
+#include <math.h>
 #include <sstream>
 
 #include <HostMatrix.h>

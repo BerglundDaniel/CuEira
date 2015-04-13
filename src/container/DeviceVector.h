@@ -1,6 +1,8 @@
 #ifndef DEVICEVECTOR_H_
 #define DEVICEVECTOR_H_
 
+#include <math.h>
+
 #include <DimensionMismatch.h>
 #include <CudaAdapter.cu>
 
@@ -15,7 +17,7 @@ namespace Container {
 class DeviceVector {
 public:
   DeviceVector(int numberOfRows);
-  DeviceVector(int numberOfRows, PRECISION* vectorDevice);
+  DeviceVector(int numberOfRealRows, int numberOfRows, PRECISION* vectorDevice);
   virtual ~DeviceVector();
 
   __device__ __host__ int getNumberOfRows() const;
@@ -23,6 +25,10 @@ public:
 
   __device__ __host__ PRECISION* operator()(int row);
   __device__ __host__ const PRECISION* operator()(int row)const;
+
+  __device__ __host__ int getRealNumberOfRows() const;
+  __device__ __host__ int getRealNumberOfColumns() const;
+  __host__ void updateSize(int numberOfRows);
 
   __device__ __host__ PRECISION* getMemoryPointer();
   __device__ __host__ const PRECISION* getMemoryPointer() const;
@@ -35,8 +41,8 @@ public:
 #endif
 
 private:
-  const int numberOfRows;
-  const int numberOfColumns;
+  const int numberOfRealRows;
+  int numberOfRows;
   bool subview;
   PRECISION* vectorDevice;
 };

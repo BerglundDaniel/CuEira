@@ -1,6 +1,7 @@
 #ifndef REGULARHOSTVECTOR_H_
 #define REGULARHOSTVECTOR_H_
 
+#include <math.h>
 #include <sstream>
 
 #include <HostVector.h>
@@ -30,7 +31,7 @@ public:
   RegularHostVector& operator=(RegularHostVector&&) = delete;
 
 protected:
-  RegularHostVector(int numberOfRows, PRECISION* hostVector, bool subview);
+  RegularHostVector(int numberOfRealRows, int numberOfRows, PRECISION* hostVector, bool subview);
 
 };
 

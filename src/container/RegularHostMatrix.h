@@ -1,6 +1,7 @@
 #ifndef REGULARHOSTMATRIX_H_
 #define REGULARHOSTMATRIX_H_
 
+#include <math.h>
 #include <sstream>
 
 #include <HostMatrix.h>

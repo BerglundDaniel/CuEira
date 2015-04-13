@@ -1,6 +1,8 @@
 #ifndef DEVICEMATRIX_H_
 #define DEVICEMATRIX_H_
 
+#include <math.h>
+
 #include <DimensionMismatch.h>
 #include <CudaAdapter.cu>
 #include <DeviceVector.h>
@@ -17,17 +19,22 @@ class DeviceMatrix {
 
 public:
   DeviceMatrix(int numberOfRows, int numberOfColumns);
-  DeviceMatrix(int numberOfRows, int numberOfColumns, PRECISION* matrixDevice);
   virtual ~DeviceMatrix();
 
   __device__ __host__ int getNumberOfRows() const;
   __device__ __host__ int getNumberOfColumns() const;
 
-  DeviceVector* operator()(int column);
-  const DeviceVector* operator()(int column) const;
+  __host__ DeviceVector* operator()(int column);
+  __host__ const DeviceVector* operator()(int column) const;
 
   __device__ __host__ PRECISION* operator()(int row, int column);
   __device__ __host__ const PRECISION* operator()(int row, int column) const;
+
+  __device__ __host__ int getRealNumberOfRows() const;
+  __device__ __host__ int getRealNumberOfColumns() const;
+  __host__ void updateSize(int numberOfRows, int numberOfColumns);
+  __host__ void updateNumberOfRows(int numberOfRows);
+  __host__ void updateNumberOfColumns(int int numberOfColumns);
 
   __device__ __host__ PRECISION* getMemoryPointer();
   __device__ __host__ const PRECISION* getMemoryPointer() const;
@@ -41,8 +48,10 @@ public:
 
 private:
   const bool subview;
-  const int numberOfRows;
-  const int numberOfColumns;
+  const int numberOfRealRows;
+  const int numberOfRealColumns;
+  int numberOfRows;
+  int numberOfColumns;
   PRECISION* matrixDevice;
 };
 

@@ -23,11 +23,13 @@ set(Boost_USE_MULTITHREADED off)
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" off)
 set(PRECISION single) #single or double
-set(TARGET_ARCHITECTURE kepler) #fermi or kepler #TODO fix this to sync and stuf instead
+set(TARGET_ARCHITECTURE kepler) #fermi or kepler #TODO fix this to sync and stuff instead
 option(CPU "Use CPU only" off)
 option(CLUSTER "Use cluster" off) #TODO not implemented
 option(ENABLE_MKL "Enable MKL flag" on)
 option(PROFILE "Profile" on)
+set(CPU_UNROLL 10) #How much to unroll the CPU loops
+set(GPU_UNROLL 10) #How much to unroll the GPU kernels
 
 #Set things based on options
 if(${VERBOSE})
@@ -46,6 +48,9 @@ endif()
 if(${CLUSTER})
   add_definitions(-DCLUSTER=1)
 endif(${CLUSTER})
+
+add_definitions(-DCPUUNROLL=${CPU_UNROLL})
+add_definitions(-DGPUUNROLL=${GPU_UNROLL})
 
 if(${TARGET_ARCHITECTURE} MATCHES fermi)
   add_definitions(-DFERMI=1)

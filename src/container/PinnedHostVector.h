@@ -1,6 +1,7 @@
 #ifndef PINNEDHOSTVECTOR_H_
 #define PINNEDHOSTVECTOR_H_
 
+#include <math.h>
 #include <sstream>
 
 #include <HostVector.h>
@@ -31,7 +32,7 @@ public:
   PinnedHostVector& operator=(PinnedHostVector&&) = delete;
 
 protected:
-  PinnedHostVector(int numberOfRows, PRECISION* hostVector, bool subview);
+  PinnedHostVector(int numberOfRealRows, int numberOfRows, PRECISION* hostVector, bool subview);
 };
 
 } /* namespace Container */

@@ -4,8 +4,9 @@ namespace CuEira {
 namespace Container {
 
 PinnedHostMatrix::PinnedHostMatrix(int numberOfRows, int numberOfColumns) :
-    HostMatrix(numberOfRows, numberOfColumns, nullptr) {
-  CuEira::CUDA::allocateHostPinnedMemory((void**) &hostMatrix, numberOfRows * numberOfColumns);
+    HostMatrix(ceil(((double) numberOfRows) / CPU_UNROLL) * CPU_UNROLL, numberOfColumns, numberOfRows, numberOfColumns,
+        nullptr) {
+  CuEira::CUDA::allocateHostPinnedMemory((void**) &hostMatrix, numberOfRealRows * numberOfRealColumns);
 }
 
 PinnedHostMatrix::~PinnedHostMatrix() {
@@ -13,30 +14,35 @@ PinnedHostMatrix::~PinnedHostMatrix() {
 }
 
 PinnedHostVector* PinnedHostMatrix::operator()(int column) {
+#ifdef DEBUG
   if(column >= numberOfColumns || column < 0){
     std::ostringstream os;
     os << "Index " << column << " is larger than the number of columns " << numberOfColumns << std::endl;
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }
+#endif
 
   PRECISION* hostVector = hostMatrix + numberOfRows * column;
   return new PinnedHostVector(numberOfRows, hostVector, true);
 }
 
 const PinnedHostVector* PinnedHostMatrix::operator()(int column) const {
+#ifdef DEBUG
   if(column >= numberOfColumns || column < 0){
     std::ostringstream os;
     os << "Index " << column << " is larger than the number of columns " << numberOfColumns << std::endl;
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }
+#endif
 
   PRECISION* hostVector = hostMatrix + numberOfRows * column;
   return new PinnedHostVector(numberOfRows, hostVector, true);
 }
 
 PRECISION& PinnedHostMatrix::operator()(int row, int column) {
+#ifdef DEBUG
   if(row >= numberOfRows || row < 0){
     std::ostringstream os;
     os << "Index " << row << " is larger than the number of rows " << numberOfRows << std::endl;
@@ -49,11 +55,13 @@ PRECISION& PinnedHostMatrix::operator()(int row, int column) {
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }
+#endif
 
   return *(hostMatrix + (numberOfRows * column) + row);
 }
 
 const PRECISION& PinnedHostMatrix::operator()(int row, int column) const {
+#ifdef DEBUG
   if(row >= numberOfRows || row < 0){
     std::ostringstream os;
     os << "Index " << row << " is larger than the number of rows " << numberOfRows << std::endl;
@@ -66,6 +74,7 @@ const PRECISION& PinnedHostMatrix::operator()(int row, int column) const {
     const std::string& tmp = os.str();
     throw DimensionMismatch(tmp.c_str());
   }
+#endif
 
   return *(hostMatrix + (numberOfRows * column) + row);
 }

@@ -25,6 +25,12 @@
 #include <AlleleStatistics.h>
 #include <HostVector.h>
 
+#ifdef CPU
+#include <RegularHostVector.h>
+#else
+#include <PinnedHostVector.h>
+#endif
+
 namespace CuEira {
 namespace FileIO {
 class BedReaderTest;
@@ -34,7 +40,6 @@ class BedReaderTest;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-template<typename Vector>
 class BedReader {
   friend BedReaderTest;
   FRIEND_TEST(BedReaderTest, ConstructorCheckMode);

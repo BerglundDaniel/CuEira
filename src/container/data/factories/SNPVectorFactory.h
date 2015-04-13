@@ -23,7 +23,7 @@ public:
   SNPVectorFactory(const Configuration& configuration);
   virtual ~SNPVectorFactory();
 
-  virtual SNPVector* constructSNPVector(SNP& snp, const HostVector* originalSNPData, const std::set<int>* snpMissingData) const;
+  virtual SNPVector<>* constructSNPVector(SNP& snp, const HostVector* originalSNPData, const std::set<int>* snpMissingData) const=0;
 
   SNPVectorFactory(const SNPVectorFactory&) = delete;
   SNPVectorFactory(SNPVectorFactory&&) = delete;

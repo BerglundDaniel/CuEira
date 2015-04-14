@@ -69,4 +69,6 @@ TEST_F(AlleleStatisticsTest, Getters) {
   EXPECT_EQ(resultOs.str(), osAlleleStatistics.str());
 }
 
+//TODO MAF
+
 } /* namespace CuEira */

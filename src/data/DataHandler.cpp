@@ -223,7 +223,11 @@ bool DataHandler::readSNP(SNP& nextSnp) {
 #endif
 
   //TODO alleleStatisticsFactory build alleleStatitics, need snp data and phenotype data, make sure it's after applying missing
-  //TODO set snp risk allele based on it
+  //TODO use RiskAlleleStrategy to set snp risk allele
+  //TODO use AlleleStatistics to get MAF and set snp include from it
+  if(minorAlleleFrequency < minorAlleleFrequencyThreshold){
+    snp.setInclude(LOW_MAF);
+  }
 
   alleleStatistics = pair->first;
   snpVector = pair->second;

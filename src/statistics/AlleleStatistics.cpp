@@ -2,9 +2,9 @@
 
 namespace CuEira {
 
-AlleleStatistics::AlleleStatistics(const std::vector<int>* numberOfAlleles,
+AlleleStatistics::AlleleStatistics(const double minorAlleleFrequency, const std::vector<int>* numberOfAlleles,
     const std::vector<double>* alleleFrequencies) :
-    numberOfAlleles(numberOfAlleles), alleleFrequencies(alleleFrequencies) {
+    minorAlleleFrequency(minorAlleleFrequency), numberOfAlleles(numberOfAlleles), alleleFrequencies(alleleFrequencies) {
 
 }
 
@@ -19,6 +19,10 @@ const std::vector<int>& AlleleStatistics::getAlleleNumbers() const {
 
 const std::vector<double>& AlleleStatistics::getAlleleFrequencies() const {
   return *alleleFrequencies;
+}
+
+double AlleleStatistics::getMinorAlleleFrequecy() const {
+  return minorAlleleFrequency;
 }
 
 void AlleleStatistics::toOstream(std::ostream& os) const {

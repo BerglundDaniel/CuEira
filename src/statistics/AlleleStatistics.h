@@ -21,11 +21,13 @@ namespace CuEira {
 class AlleleStatistics {
   friend std::ostream& operator<<(std::ostream& os, const AlleleStatistics& alleleStatistics);
 public:
-  AlleleStatistics(const std::vector<int>* numberOfAlleles, const std::vector<double>* alleleFrequencies);
+  AlleleStatistics(const double minorAlleleFrequency, const std::vector<int>* numberOfAlleles,
+      const std::vector<double>* alleleFrequencies);
   virtual ~AlleleStatistics();
 
   virtual const std::vector<int>& getAlleleNumbers() const;
   virtual const std::vector<double>& getAlleleFrequencies() const;
+  virtual double getMinorAlleleFrequecy() const;
 
   AlleleStatistics(const AlleleStatistics&) = delete;
   AlleleStatistics(AlleleStatistics&&) = delete;
@@ -38,6 +40,7 @@ protected:
 private:
   const std::vector<int>* numberOfAlleles;
   const std::vector<double>* alleleFrequencies;
+  const double minorAlleleFrequency;
 };
 
 } /* namespace CuEira */

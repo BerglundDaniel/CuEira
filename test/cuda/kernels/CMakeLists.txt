@@ -14,5 +14,6 @@ set(TEST_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/LogLikelihoodPartsTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticTransformTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/VectorMultiply1MinusVectorTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CalculateNumberOfAllelesPerGenotype.cpp
   PARENT_SCOPE
 )

@@ -12,6 +12,7 @@
 #include <ApplyGeneticModel.cuh>
 #include <ApplyAdditiveModel.cuh>
 #include <ConstSubtractVector.cuh>
+#include <CalculateNumberOfAllelesPerGenotype.cuh>
 
 namespace CuEira {
 namespace CUDA {
@@ -275,6 +276,27 @@ void KernelWrapper::applyAdditiveModel(DeviceVector& vector1, DeviceVector& vect
   const int numberOfRows = vector1.getNumberOfRows();
   const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
   Kernel::ApplyAdditiveModel<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), interaction.getMemoryPointer(), numberOfRows);
+}
+
+Container::DeviceMatrix* KernelWrapper::calculateNumberOfAllelesPerGenotype(const Container::DeviceVector& snpData,
+    const Container::DeviceVector& phenotypeData) const {
+#ifdef DEBUG
+  if(snpData.getNumberOfRows() != phenotypeData.getNumberOfRows()){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in calculateNumberOfAllelesPerGenotype function, they are "
+    << snpData.getNumberOfRows() << " and " << phenotypeData.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
+  }
+#endif
+
+  const int numberOfRows = snpData.getNumberOfRows();
+  const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
+  Container::DeviceMatrix* numberOfAllelesPerGenotype = new Container::DeviceMatrix(numberOfBlocks, 6);
+
+  Kernel::CalculateNumberOfAllelesPerGenotype<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(snpData.getMemoryPointer(), phenotypeData.getMemoryPointer(), numberOfAllelesPerGenotype.getMemoryPointer(), numberOfRows);
+
+  return numberOfAllelesPerGenotype;
 }
 
 } /* namespace CUDA */

@@ -92,6 +92,10 @@ public:
   //interaction=vector1*vector2 vector1=vector2=0 if interaction!=0
   void applyAdditiveModel(DeviceVector& vector1, DeviceVector& vector2, DeviceVector& interaction) const;
 
+  //numberOfAllelesPerGenotype=snpData(i)+3*phenotypeData(i)
+  Container::DeviceMatrix* calculateNumberOfAllelesPerGenotype(const Container::DeviceVector& snpData,
+      const Container::DeviceVector& phenotypeData) const;
+
   /**
    * Syncs the associated stream
    */

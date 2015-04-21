@@ -27,7 +27,7 @@ public:
   CudaCovariatesHandlerFactory(const Configuration& configuration);
   virtual ~CudaCovariatesHandlerFactory();
 
-  virtual CovariatesHandler<DeviceMatrix>* constructCovariatesHandler(const Container::PinnedHostMatrix& covariates,
+  virtual CovariatesHandler<DeviceMatrix>* constructCovariatesHandler(const Container::PinnedHostMatrix& matrix,
       const std::vector<std::string>& columnNames, const HostToDevice& hostToDevice) const;
 
 private:

@@ -23,7 +23,7 @@ public:
   CpuCovariatesHandlerFactory(const Configuration& configuration, const MKLWrapper& mklWrapper);
   virtual ~CpuCovariatesHandlerFactory();
 
-  virtual CovariatesHandler<HostMatrix>* constructCovariatesHandler(const Container::HostMatrix& covariates,
+  virtual CovariatesHandler<HostMatrix>* constructCovariatesHandler(const Container::HostMatrix& matrix,
       const std::vector<std::string>& columnNames) const;
 
 private:

@@ -1,19 +1,16 @@
 #ifndef ENVIRONMENTFACTORHANDLERFACTORY_H_
 #define ENVIRONMENTFACTORHANDLERFACTORY_H_
 
+#include <memory>
 #include <vector>
+#include <string>
 
 #include <EnvironmentFactorHandler.h>
 #include <EnvironmentFactor.h>
 #include <HostVector.h>
-
-#ifdef CPU
-#include <CpuEnvironmentFactorHandler.h>
-#else
-#include <CudaEnvironmentFactorHandler.h>
-#include <DeviceVector.h>
-#include <HostToDevice.h>
-#endif
+#include <HostMatrix.h>
+#include <Configuration.h>
+#include <Id.h>
 
 namespace CuEira {
 
@@ -24,11 +21,13 @@ namespace CuEira {
  */
 class EnvironmentFactorHandlerFactory {
 public:
-  explicit EnvironmentFactorHandlerFactory();
+  explicit EnvironmentFactorHandlerFactory(const Configuration& configuration,
+      const std::vector<std::string>& columnNames, const Container::HostMatrix& matrix);
   virtual ~EnvironmentFactorHandlerFactory();
 
-  EnvironmentFactorHandler* constructEnvironmentFactorHandler(const Container::HostVector* envData,
-      EnvironmentFactor* environmentFactor) const;
+protected:
+  const Container::HostVector* envData;
+  std::shared_ptr<const EnvironmentFactor> environmentFactor;
 };
 
 } /* namespace CuEira */

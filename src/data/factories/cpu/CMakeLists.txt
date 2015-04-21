@@ -7,5 +7,6 @@ set(INCLUDE_DIRECTORIES
 set(SOURCE
   ${SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/CpuCovariatesHandlerFactory.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CpuEnvironmentFactorHandlerFactory.cpp
   PARENT_SCOPE
 )

@@ -2,23 +2,26 @@
 
 namespace CuEira {
 
-EnvironmentFactorHandlerFactory::EnvironmentFactorHandlerFactory() {
+EnvironmentFactorHandlerFactory::EnvironmentFactorHandlerFactory(const Configuration& configuration,
+    const std::vector<std::string>& columnNames, const Container::HostMatrix& matrix) :
+    environmentFactor(nullptr), envData(nullptr) {
 
-}
+  const std::string environmentColumnName = configuration.getEnvironmentColumnName();
+  const int numberOfIndividuals = matrix.getNumberOfRows();
+  const int numberOfColumns = matrix.getNumberOfColumns();
+  EnvironmentFactor* environmentFactor = new EnvironmentFactor(Id(environmentColumnName));
 
-EnvironmentFactorHandlerFactory::~EnvironmentFactorHandlerFactory() {
+  for(int i = 0; i < numberOfColumns; ++i){
+    if(columnNames[i] == environmentColumnName){
+      envData = matrix(i);
+      break;
+    }
+  }
 
-}
-
-EnvironmentFactorHandler* EnvironmentFactorHandlerFactory::constructEnvironmentFactorHandler(
-    const Container::HostVector* envData, EnvironmentFactor* environmentFactor) const {
-
-  //TODO move binary max min part somewhere else
   bool binary = true;
   int max = (*envData)(0);
   int min = (*envData)(0);
 
-  const int numberOfIndividuals = envData->getNumberOfRows();
   for(int i = 0; i < numberOfIndividuals; ++i){
     if((*envData)(i) != 0 && (*envData)(i) != 1){
       binary = false;
@@ -42,15 +45,12 @@ EnvironmentFactorHandler* EnvironmentFactorHandlerFactory::constructEnvironmentF
     environmentFactor->setVariableType(OTHER);
   }
 
-#ifdef CPU
-  return new CpuEnvironmentFactorHandler(envData, environmentFactor);
-#else
-  //TODO transfer to GPU per device?
-  Container::DeviceVector* envDataDevice;
-
-  delete dataMatrix;
-  return new CudaEnvironmentFactorHandler(envDataDevice, environmentFactor);
-#endif
+  this->environmentFactor.reset(environmentFactor);
 }
 
-} /* namespace CuEira */
+EnvironmentFactorHandlerFactory::~EnvironmentFactorHandlerFactory() {
+  delete envData; //Not the actual data since it's owned by the input matrix
+}
+
+}
+/* namespace CuEira */

@@ -60,6 +60,22 @@ TEST_F(PinnedHostVectorTest, AccessOperator) {
   ASSERT_EQ(b, pinnedVector(3));
 }
 
+TEST_F(PinnedHostVectorTest, Size) {
+  const int size = 8;
+  PinnedHostVector pinnedVector(size);
+
+  ASSERT_EQ(1, pinnedVector.getNumberOfColumns());
+  ASSERT_EQ(size, pinnedVector.getNumberOfRows());
+
+  const int newSize = 5;
+  pinnedVector.updateSize(newSize);
+  ASSERT_EQ(newSize, pinnedVector.getNumberOfRows());
+
+  const int realSize = ceil(((double) size) / CPU_UNROLL) * CPU_UNROLL;
+  ASSERT_EQ(realSize, pinnedVector.getRealNumberOfRows());
+  ASSERT_EQ(1, pinnedVector.getRealNumberOfColumns());
+}
+
 }
 /* namespace Container */
 } /* namespace CuEira */

@@ -75,6 +75,23 @@ TEST_F(DeviceMatrixTest, AccessOperatorColumn) {
   EXPECT_EQ((*deviceVector1)(4), deviceMatrix(4, 1));
 }
 
+TEST_F(DeviceMatrixTest, Size) {
+  const int row = 8;
+  const int col = 5;
+  DeviceMatrix deviceMatrix(row, col);
+
+  ASSERT_EQ(col, deviceMatrix.getNumberOfColumns());
+  ASSERT_EQ(size, deviceMatrix.getNumberOfRows());
+
+  const int newSize = 5;
+  deviceMatrix.updateSize(newSize);
+  ASSERT_EQ(newSize, deviceMatrix.getNumberOfRows());
+
+  const int realSize = ceil(((double) size) / GPU_UNROLL) * GPU_UNROLL;
+  ASSERT_EQ(realSize, deviceMatrix.getRealNumberOfRows());
+  ASSERT_EQ(col, deviceMatrix.getRealNumberOfColumns());
+}
+
 }
 /* namespace Container */
 } /* namespace CuEira */

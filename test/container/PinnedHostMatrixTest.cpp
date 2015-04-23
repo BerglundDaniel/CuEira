@@ -96,6 +96,23 @@ TEST_F(PinnedHostMatrixTest, AccessOperatorColumnMemory) {
   EXPECT_EQ(c, (*hostMatrix)(2, 1));
 }
 
+TEST_F(PinnedHostMatrixTest, Size) {
+  const int row = 8;
+  const int col = 5;
+  PinnedHostMatrix hostMatrix(row, col);
+
+  ASSERT_EQ(col, hostMatrix.getNumberOfColumns());
+  ASSERT_EQ(size, hostMatrix.getNumberOfRows());
+
+  const int newSize = 5;
+  hostMatrix.updateSize(newSize);
+  ASSERT_EQ(newSize, hostMatrix.getNumberOfRows());
+
+  const int realSize = ceil(((double) size) / CPU_UNROLL) * CPU_UNROLL;
+  ASSERT_EQ(realSize, hostMatrix.getRealNumberOfRows());
+  ASSERT_EQ(col, hostMatrix.getRealNumberOfColumns());
+}
+
 }
 /* namespace Container */
 } /* namespace CuEira */

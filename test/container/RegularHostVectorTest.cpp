@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <sstream>
+#include <math.h>
 
 #include <RegularHostVector.h>
 #include <HostVector.h>
@@ -64,14 +65,30 @@ TEST_F(RegularHostVectorTest, AccessOperator) {
 }
 
 TEST_F(RegularHostVectorTest, Exceptions) {
-  ASSERT_THROW(RegularHostVector(-1),DimensionMismatch);
-  ASSERT_THROW(RegularHostVector(0),DimensionMismatch);
+  ASSERT_THROW(RegularHostVector(-1), DimensionMismatch);
+  ASSERT_THROW(RegularHostVector(0), DimensionMismatch);
 
   const int size = 5;
   RegularHostVector hostVector(size);
 
-  ASSERT_THROW(hostVector(-1),DimensionMismatch);
-  ASSERT_THROW(hostVector(5),DimensionMismatch);
+  ASSERT_THROW(hostVector(-1), DimensionMismatch);
+  ASSERT_THROW(hostVector(5), DimensionMismatch);
+}
+
+TEST_F(RegularHostVectorTest, Size) {
+  const int size = 8;
+  RegularHostVector hostVector(size);
+
+  ASSERT_EQ(1, hostVector.getNumberOfColumns());
+  ASSERT_EQ(size, hostVector.getNumberOfRows());
+
+  const int newSize = 5;
+  hostVector.updateSize(newSize);
+  ASSERT_EQ(newSize, hostVector.getNumberOfRows());
+
+  const int realSize = ceil(((double) size) / CPU_UNROLL) * CPU_UNROLL;
+  ASSERT_EQ(realSize, hostVector.getRealNumberOfRows());
+  ASSERT_EQ(1, hostVector.getRealNumberOfColumns());
 }
 
 }

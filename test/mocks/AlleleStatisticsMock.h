@@ -13,7 +13,7 @@ namespace CuEira {
 class AlleleStatisticsMock: public AlleleStatistics {
 public:
   AlleleStatisticsMock() :
-  AlleleStatistics(nullptr, nullptr){
+  AlleleStatistics(0, nullptr, nullptr){
 
   }
 
@@ -23,6 +23,7 @@ public:
 
   MOCK_CONST_METHOD0(getAlleleNumbers, const std::vector<int>&());
   MOCK_CONST_METHOD0(getAlleleFrequencies, const std::vector<double>&());
+  MOCK_CONST_METHOD0(getMinorAlleleFrequecy, double());
 
   MOCK_CONST_METHOD1(toOstream, void(std::ostream& os));
 };

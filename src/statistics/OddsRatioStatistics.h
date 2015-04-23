@@ -18,7 +18,7 @@ namespace CuEira {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class OddsRatioStatistics:public ModelStatistics { //TODO change name to something LR related
+class OddsRatioStatistics:public ModelStatistics {
   friend std::ostream& operator<<(std::ostream& os, const OddsRatioStatistics& oddsRatioStatistics);
 public:
   explicit OddsRatioStatistics(const Model::LogisticRegression::LogisticRegressionResult* logisticRegressionResult);

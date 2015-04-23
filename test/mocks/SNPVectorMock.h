@@ -7,31 +7,40 @@
 #include <Recode.h>
 #include <SNP.h>
 #include <Id.h>
-#include <StatisticModel.h>
 #include <GeneticModel.h>
-#include <HostVector.h>
 
 namespace CuEira {
 namespace Container {
 
-class SNPVectorMock: public SNPVector {
+template<typename Vector>
+class SNPVectorMock: public SNPVector<Vector> {
 public:
-  SNPVectorMock(SNP& snp) :
-      SNPVector(snp) {
+  SNPVectorMock(SNP* snp = new SNP(Id("snp1"), "a1", "a2", 0)) :
+      SNPVector(*snp, DOMINANT), snp(snp) {
 
   }
 
   virtual ~SNPVectorMock() {
-
+    delete snp;
   }
 
   MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());
-  MOCK_CONST_METHOD0(getOrginalData, const std::vector<int>&());
-  MOCK_CONST_METHOD0(getRecodedData, const Container::HostVector&());
   MOCK_CONST_METHOD0(getAssociatedSNP, const SNP&());
+  MOCK_CONST_METHOD0(getOriginalSNPData, const Vector&());
+  MOCK_CONST_METHOD0(getSNPData, const Vector&());
+  MOCK_CONST_METHOD0(hasMissing, bool());
+  MOCK_CONST_METHOD0(getMissing, const std::set<int>&());
+
+  MOCK_METHOD0(getSNPData, Vector&());
 
   MOCK_METHOD1(recode, void(Recode));
-  MOCK_METHOD2(applyStatisticModel, void(StatisticModel, const Container::HostVector&));
+
+protected:
+  void doRecode(int snpToRisk[3]){
+
+  }
+
+  SNP* snp;
 };
 
 } /* namespace Container */

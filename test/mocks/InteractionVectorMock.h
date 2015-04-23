@@ -5,7 +5,6 @@
 
 #include <EnvironmentVector.h>
 #include <Recode.h>
-#include <StatisticModel.h>
 #include <EnvironmentFactor.h>
 #include <EnvironmentFactorHandler.h>
 #include <HostVector.h>
@@ -13,7 +12,8 @@
 namespace CuEira {
 namespace Container {
 
-class InteractionVectorMock: public InteractionVector {
+template<typename Vector>
+class InteractionVectorMock: public InteractionVector<Vector> {
 public:
   InteractionVectorMock() :
       InteractionVector() {
@@ -24,10 +24,12 @@ public:
 
   }
 
-  MOCK_METHOD1(recode, void(const SNPVector&));
-
   MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());
-  MOCK_CONST_METHOD0(getRecodedData, const Container::HostVector&());
+  MOCK_CONST_METHOD0(getInteractionData, Vector&());
+
+  MOCK_METHOD0(getInteractionData, Vector&());
+  MOCK_METHOD1(updateSize, void(int));
+
 };
 
 } /* namespace Container */

@@ -12,6 +12,13 @@ EnvironmentVector<Vector>::EnvironmentVector(const EnvironmentFactorHandler<Vect
 }
 
 template<typename Vector>
+EnvironmentVector<Vector>::EnvironmentVector(const EnvironmentFactor& environmentFactor, const Vector& vector) :
+    numberOfIndividualsTotal(0), numberOfIndividualsToInclude(0), initialised(false), currentRecode(ALL_RISK), environmentFactor(
+        environmentFactor), envExMissing(nullptr), originalData(vector), noMissing(false) {
+
+}
+
+template<typename Vector>
 EnvironmentVector<Vector>::~EnvironmentVector() {
   delete envExMissing;
 }

@@ -56,6 +56,8 @@ TEST_F(EventTest, EventDifference) {
 
   Event after(*stream);
 
+  stream->syncStream();
+
   float diff = after - before;
 
   const float realDiff = 1;

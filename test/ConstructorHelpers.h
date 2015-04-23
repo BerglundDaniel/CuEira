@@ -60,7 +60,6 @@ public:
   EnvironmentFactorHandlerMock* constructEnvironmentFactorHandlerMock();
   FileIO::BedReaderMock* constructBedReaderMock();
   ContingencyTableFactoryMock* constructContingencyTableFactoryMock();
-  CUDA::StreamMock* constructStreamMock();
 
 private:
 

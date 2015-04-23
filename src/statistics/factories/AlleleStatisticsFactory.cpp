@@ -17,7 +17,7 @@ AlleleStatistics* AlleleStatisticsFactory<Vector>::constructAlleleStatistics(
     const Container::SNPVector<Vector>& snpVector, const Container::PhenotypeVector<Vector>& phenotypeVector) const {
 
   //First 3 is control, second 3 is case. 0, 1, 2 genotype per group
-  std::vector<int>* numberOfAllelesPerGenotype = getNumberOfAllelesPerGenotype();
+  std::vector<int>* numberOfAllelesPerGenotype = getNumberOfAllelesPerGenotype(snpVector, phenotypeVector);
   std::vector<int>* numberOfAlleles = new std::vector<int>(6);
 
   (*numberOfAlleles)[ALLELE_ONE_CASE_POSITION] = (*numberOfAllelesPerGenotype)[4]

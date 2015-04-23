@@ -6,7 +6,6 @@
 
 #include <HostVector.h>
 #include <Recode.h>
-#include <StatisticModel.h>
 #include <EnvironmentFactorHandler.h>
 #include <EnvironmentFactor.h>
 #include <VariableType.h>
@@ -48,6 +47,8 @@ public:
   EnvironmentVector& operator=(EnvironmentVector&&) = delete;
 
 protected:
+  EnvironmentVector(const EnvironmentFactor& environmentFactor, const Vector& vector);
+
   virtual void recodeProtective()=0;
   virtual void recodeAllRisk()=0;
 

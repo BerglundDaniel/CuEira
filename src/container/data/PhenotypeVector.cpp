@@ -5,8 +5,14 @@ namespace Container {
 
 template<typename Vector>
 PhenotypeVector<Vector>::PhenotypeVector(const PhenotypeHandler<Vector>& phenotypeHandler) :
-    phenotypeHandler(phenotypeHandler), numberOfIndividualsTotal(phenotypeHandler.getNumberOfIndividuals()), numberOfIndividualsToInclude(
-        0), initialised(false), noMissing(false), orgData(phenotypeHandler.getPhenotypeData()), phenotypeExMissing(
+    numberOfIndividualsTotal(phenotypeHandler.getNumberOfIndividuals()), numberOfIndividualsToInclude(0), initialised(
+        false), noMissing(false), orgData(phenotypeHandler.getPhenotypeData()), phenotypeExMissing(nullptr) {
+
+}
+
+template<typename Vector>
+PhenotypeVector<Vector>::PhenotypeVector(const Vector& vector) :
+    numberOfIndividualsTotal(0), numberOfIndividualsToInclude(0), initialised(false), noMissing(false), orgData(vector), phenotypeExMissing(
         nullptr) {
 
 }

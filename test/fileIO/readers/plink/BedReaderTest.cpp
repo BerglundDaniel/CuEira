@@ -327,130 +327,7 @@ TEST_F(BedReaderTest, ReadSnp9Missing) {
 
 /*
 
-
- TEST_F(SNPVectorFactoryTest, RiskAllele_Equal_Case_Control) {
- SNPVectorFactory snpVectorFactory(configMock);
-
- SNP snp(Id("snp1"), "a1", "a2", 1);
- std::vector<double> alleleFreqs(6);
- alleleFreqs[ALLELE_ONE_CASE_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_CASE_POSITION] = 1;
- alleleFreqs[ALLELE_ONE_CONTROL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_CONTROL_POSITION] = 1;
- alleleFreqs[ALLELE_ONE_ALL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_ALL_POSITION] = 1;
- snpVectorFactory.setSNPRiskAllele(snp, alleleFreqs);
-
- EXPECT_EQ(ALLELE_ONE, snp.getRiskAllele());
- }
-
- TEST_F(SNPVectorFactoryTest, RiskAllele_Equal_Case_Control1_larger_Control2) {
- SNPVectorFactory snpVectorFactory(configMock);
-
- SNP snp(Id("snp1"), "a1", "a2", 1);
- std::vector<double> alleleFreqs(6);
- alleleFreqs[ALLELE_ONE_CASE_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_CASE_POSITION] = 1;
- alleleFreqs[ALLELE_ONE_CONTROL_POSITION] = 2;
- alleleFreqs[ALLELE_TWO_CONTROL_POSITION] = 1;
- alleleFreqs[ALLELE_ONE_ALL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_ALL_POSITION] = 1;
- snpVectorFactory.setSNPRiskAllele(snp, alleleFreqs);
-
- EXPECT_EQ(ALLELE_TWO, snp.getRiskAllele());
- }
-
- TEST_F(SNPVectorFactoryTest, RiskAllele_Equal_Case_Control2_larger_Control1) {
- SNPVectorFactory snpVectorFactory(configMock);
-
- SNP snp(Id("snp1"), "a1", "a2", 1);
- std::vector<double> alleleFreqs(6);
- alleleFreqs[ALLELE_ONE_CASE_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_CASE_POSITION] = 1;
- alleleFreqs[ALLELE_ONE_CONTROL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_CONTROL_POSITION] = 2;
- alleleFreqs[ALLELE_ONE_ALL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_ALL_POSITION] = 1;
- snpVectorFactory.setSNPRiskAllele(snp, alleleFreqs);
-
- EXPECT_EQ(ALLELE_ONE, snp.getRiskAllele());
- }
-
- TEST_F(SNPVectorFactoryTest, RiskAllele_Case1_Larger_Case2_Case1_Larger_Control1) {
- SNPVectorFactory snpVectorFactory(configMock);
-
- SNP snp(Id("snp1"), "a1", "a2", 1);
- std::vector<double> alleleFreqs(6);
- alleleFreqs[ALLELE_ONE_CASE_POSITION] = 2;
- alleleFreqs[ALLELE_TWO_CASE_POSITION] = 1;
- alleleFreqs[ALLELE_ONE_CONTROL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_CONTROL_POSITION] = 1;
- alleleFreqs[ALLELE_ONE_ALL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_ALL_POSITION] = 1;
- snpVectorFactory.setSNPRiskAllele(snp, alleleFreqs);
-
- EXPECT_EQ(ALLELE_ONE, snp.getRiskAllele());
- }
-
- TEST_F(SNPVectorFactoryTest, RiskAllele_Case1_Larger_Case2_Case1_Smaller_Control1) {
- SNPVectorFactory snpVectorFactory(configMock);
-
- SNP snp(Id("snp1"), "a1", "a2", 1);
- std::vector<double> alleleFreqs(6);
- alleleFreqs[ALLELE_ONE_CASE_POSITION] = 2;
- alleleFreqs[ALLELE_TWO_CASE_POSITION] = 1;
- alleleFreqs[ALLELE_ONE_CONTROL_POSITION] = 3;
- alleleFreqs[ALLELE_TWO_CONTROL_POSITION] = 1;
- alleleFreqs[ALLELE_ONE_ALL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_ALL_POSITION] = 1;
- snpVectorFactory.setSNPRiskAllele(snp, alleleFreqs);
-
- EXPECT_EQ(ALLELE_TWO, snp.getRiskAllele());
- }
-
- TEST_F(SNPVectorFactoryTest, RiskAllele_Case2_Larger_Case1_Case2_Larger_Control2) {
- SNPVectorFactory snpVectorFactory(configMock);
-
- SNP snp(Id("snp1"), "a1", "a2", 1);
- std::vector<double> alleleFreqs(6);
- alleleFreqs[ALLELE_ONE_CASE_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_CASE_POSITION] = 2;
- alleleFreqs[ALLELE_ONE_CONTROL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_CONTROL_POSITION] = 1;
- alleleFreqs[ALLELE_ONE_ALL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_ALL_POSITION] = 1;
- snpVectorFactory.setSNPRiskAllele(snp, alleleFreqs);
-
- EXPECT_EQ(ALLELE_TWO, snp.getRiskAllele());
- }
-
- TEST_F(SNPVectorFactoryTest, RiskAllele_Case2_Larger_Case1_Case2_Smaller_Control2) {
- SNPVectorFactory snpVectorFactory(configMock);
-
- SNP snp(Id("snp1"), "a1", "a2", 1);
- std::vector<double> alleleFreqs(6);
- alleleFreqs[ALLELE_ONE_CASE_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_CASE_POSITION] = 2;
- alleleFreqs[ALLELE_ONE_CONTROL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_CONTROL_POSITION] = 3;
- alleleFreqs[ALLELE_ONE_ALL_POSITION] = 1;
- alleleFreqs[ALLELE_TWO_ALL_POSITION] = 1;
- snpVectorFactory.setSNPRiskAllele(snp, alleleFreqs);
-
- EXPECT_EQ(ALLELE_ONE, snp.getRiskAllele());
- }
-
- TEST_F(SNPVectorFactoryTest, SNPInclude_MissingData) {
- SNPVectorFactory snpVectorFactory(configMock);
-
- SNP snp(Id("snp1"), "a1", "a2", 1);
- std::vector<double> alleleFreqs(6);
- std::vector<int> alleleNumbers(6);
- bool missingData = true;
-
- snpVectorFactory.setSNPInclude(snp, alleleFreqs, alleleNumbers, missingData);
- EXPECT_FALSE(snp.getInclude());
- }
+//TODO move this to dataHandler?
 
  TEST_F(SNPVectorFactoryTest, SNPInclude_True) {
  SNPVectorFactory snpVectorFactory(configMock);
@@ -506,7 +383,31 @@ TEST_F(BedReaderTest, ReadSnp9Missing) {
 
  TEST_F(SNPVectorFactoryTest, SNPInclude_ToLowAbsFreq_2) {
  SNPVectorFactory snpVectorFactory(configMock);
+TEST_F(SNPVectorFactoryTest, SNPInclude_True) {
+ SNPVectorFactory snpVectorFactory(configMock);
 
+ SNP snp(Id("snp1"), "a1", "a2", 1);
+ std::vector<double> alleleFreqs(6);
+ std::vector<int> alleleNumbers(6);
+ bool missingData = false;
+
+ alleleFreqs[ALLELE_ONE_CASE_POSITION] = 0.5;
+ alleleFreqs[ALLELE_TWO_CASE_POSITION] = 0.5;
+ alleleFreqs[ALLELE_ONE_CONTROL_POSITION] = 0.5;
+ alleleFreqs[ALLELE_TWO_CONTROL_POSITION] = 0.5;
+ alleleFreqs[ALLELE_ONE_ALL_POSITION] = 0.5;
+ alleleFreqs[ALLELE_TWO_ALL_POSITION] = 0.5;
+
+ alleleNumbers[ALLELE_ONE_CASE_POSITION] = 100;
+ alleleNumbers[ALLELE_TWO_CASE_POSITION] = 100;
+ alleleNumbers[ALLELE_ONE_CONTROL_POSITION] = 100;
+ alleleNumbers[ALLELE_TWO_CONTROL_POSITION] = 100;
+ alleleNumbers[ALLELE_ONE_ALL_POSITION] = 200;
+ alleleNumbers[ALLELE_TWO_ALL_POSITION] = 200;
+
+ snpVectorFactory.setSNPInclude(snp, alleleFreqs, alleleNumbers, missingData);
+ EXPECT_TRUE(snp.getInclude());
+ }
  SNP snp(Id("snp1"), "a1", "a2", 1);
  std::vector<double> alleleFreqs(6);
  std::vector<int> alleleNumbers(6);

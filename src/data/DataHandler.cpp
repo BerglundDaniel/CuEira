@@ -301,6 +301,7 @@ const Container::EnvironmentVector& DataHandler::getEnvironmentVector() const {
 }
 
 void DataHandler::setSNPInclude(SNP& snp, const ContingencyTable& contingencyTable) const {
+  //TODO check MAF
   const std::vector<int>& table = contingencyTable.getTable();
   const int size = table.size();
   for(int i = 0; i < size; ++i){

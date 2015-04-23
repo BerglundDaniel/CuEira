@@ -26,7 +26,8 @@ public:
   virtual void applyMissing();
 
 protected:
-  const PhenotypeHandler<Vector>& phenotypeHandler;
+  explicit PhenotypeVector(const Vector& vector); //For the mock
+
   const int numberOfIndividualsTotal;
   int numberOfIndividualsToInclude;
   bool initialised;

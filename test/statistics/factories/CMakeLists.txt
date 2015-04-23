@@ -1,5 +1,4 @@
 add_subdirectory(cpu)
-add_subdirectory(factories)
 
 if(NOT ${CPU})
   add_subdirectory(cuda)
@@ -13,8 +12,7 @@ set(TEST_INCLUDE_DIRECTORIES
 
 set(TEST_SOURCE
   ${TEST_SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/PhenotypeVectorTest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/InteractionVectorTest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/CovariatesMatrixTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ContingencyTableFactoryTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ModelStatisticsFactoryTest.cpp
   PARENT_SCOPE
 )

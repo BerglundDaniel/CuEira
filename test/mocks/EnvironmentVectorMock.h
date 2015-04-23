@@ -5,32 +5,48 @@
 
 #include <EnvironmentVector.h>
 #include <Recode.h>
-#include <StatisticModel.h>
 #include <EnvironmentFactor.h>
 #include <EnvironmentFactorHandler.h>
-#include <HostVector.h>
+#include <MissingDataHandler.h>
 
 namespace CuEira {
 namespace Container {
 
-class EnvironmentVectorMock: public EnvironmentVector {
+template<typename Vector>
+class EnvironmentVectorMock: public EnvironmentVector<Vector> {
 public:
-  EnvironmentVectorMock() :
-      EnvironmentVector() {
+  EnvironmentVectorMock(EnvironmentFactor* environmentFactor = new EnvironmentFactor(Id("env1")), Vector* vector =
+      new Vector(1)) :
+      EnvironmentVector(*environmentFactor, *vector), environmentFactor(environmentFactor), vector(vector) {
 
   }
 
   virtual ~EnvironmentVectorMock() {
+    delete environmentFactor;
+    delete vector;
+  }
+
+  MOCK_CONST_METHOD0(getEnvironmentFactor, const EnvironmentFactor&());
+  MOCK_CONST_METHOD0(getNumberOfIndividualsTotal, int());
+  MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());
+  MOCK_CONST_METHOD0(getEnvironmentData, const Vector& ());
+
+  MOCK_METHOD0(getEnvironmentData, Vector&());
+
+  MOCK_METHOD1(recode, void(Recode));
+  MOCK_METHOD2(recode, void(Recode, const MissingDataHandler<Vector>&));
+
+protected:
+  virtual void recodeProtective(){
 
   }
 
-  MOCK_METHOD1(switchEnvironmentFactor, void(const EnvironmentFactor&));
-  MOCK_METHOD1(recode, void(Recode));
-  MOCK_METHOD2(applyStatisticModel, void(StatisticModel, const Container::HostVector&));
+  virtual void recodeAllRisk(){
 
-  MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());
-  MOCK_CONST_METHOD0(getRecodedData, const Container::HostVector& ());
-  MOCK_CONST_METHOD0(getCurrentEnvironmentFactor, const EnvironmentFactor&());
+  }
+
+  EnvironmentFactor* environmentFactor;
+  Vector* vector;
 
 };
 

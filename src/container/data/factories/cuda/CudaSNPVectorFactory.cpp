@@ -14,7 +14,7 @@ CudaSNPVectorFactory::~CudaSNPVectorFactory() {
 
 }
 
-SNPVector<DeviceVector>* CudaSNPVectorFactory::constructSNPVector(SNP& snp, const HostVector* originalSNPData,
+CudaSNPVector* CudaSNPVectorFactory::constructSNPVector(SNP& snp, const HostVector* originalSNPData,
     const std::set<int>* snpMissingData) const {
 
   const int newSize = originalSNPData->getNumberOfRows() - snpMissingData->size();

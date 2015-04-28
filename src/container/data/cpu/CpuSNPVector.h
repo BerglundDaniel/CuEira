@@ -22,7 +22,7 @@ using namespace CuEira::CPU;
  */
 class CpuSNPVector: public SNPVector<RegularHostVector> {
 public:
-  explicit CpuSNPVector(SNP& snp, GeneticModel geneticModel, const DeviceVector* snpOrgExMissing,
+  explicit CpuSNPVector(SNP& snp, GeneticModel geneticModel, const RegularHostVector* snpOrgExMissing,
       const std::set<int>* snpMissingData);
   virtual ~CpuSNPVector();
 

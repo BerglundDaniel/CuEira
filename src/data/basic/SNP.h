@@ -34,8 +34,9 @@ public:
   std::string getAlleleTwoName() const;
 
   void setRiskAllele(RiskAllele riskAllele);
+  void setRisk();
+  void setProtective();
   RiskAllele getRiskAllele() const;
-  RiskAllele getProtectiveAllele() const;
 
   bool operator<(const SNP& otherSNP) const;
   bool operator==(const SNP& otherSNP) const;
@@ -54,6 +55,7 @@ private:
 
   RiskAllele riskAllele;
   bool riskAlleleHasBeenSet;
+  bool snpIsRisk;
 };
 
 } /* namespace CuEira */

@@ -2,19 +2,19 @@
 #define ENVIRONMENTFACTORHANDLERMOCK_H_
 
 #include <gmock/gmock.h>
+#include <memory>
 
 #include <Id.h>
 #include <EnvironmentFactor.h>
-#include <HostMatrix.h>
-#include <HostVector.h>
 #include <EnvironmentFactorHandler.h>
 
 namespace CuEira {
 
-class EnvironmentFactorHandlerMock: public EnvironmentFactorHandler {
+template<typename Vector>
+class EnvironmentFactorHandlerMock: public EnvironmentFactorHandler<Vector> {
 public:
-  EnvironmentFactorHandlerMock(Container::HostMatrix* dataMatrix, std::vector<EnvironmentFactor*>* environmentFactors) :
-      EnvironmentFactorHandler(dataMatrix, environmentFactors) {
+  EnvironmentFactorHandlerMock() :
+      EnvironmentFactorHandler(make_shared(new EnvironmentFactor(Id("env1"))), new Vector(1)) {
 
   }
 
@@ -22,9 +22,10 @@ public:
 
   }
 
-  MOCK_CONST_METHOD0(getHeaders, const std::vector<const EnvironmentFactor*>&());
-  MOCK_CONST_METHOD0(getNumberOfIndividualsToInclude, int());
-  MOCK_CONST_METHOD1(getData, const Container::HostVector* (const EnvironmentFactor&));
+  MOCK_CONST_METHOD0(getNumberOfIndividualsTotal, int());
+  MOCK_CONST_METHOD0(getEnvironmentFactor, const EnvironmentFactor&());
+  MOCK_CONST_METHOD0(getEnvironmentData, const Vector& ());
+
 };
 
 } /* namespace CuEira */

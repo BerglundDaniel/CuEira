@@ -8,5 +8,6 @@ set(TEST_SOURCE
   ${TEST_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/CudaEnvironmentVectorTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CudaSNPVectorTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CudaCovariatesMatrixTest.cpp
   PARENT_SCOPE
 )

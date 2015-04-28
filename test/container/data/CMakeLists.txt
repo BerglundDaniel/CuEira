@@ -15,6 +15,5 @@ set(TEST_SOURCE
   ${TEST_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/PhenotypeVectorTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/InteractionVectorTest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/CovariatesMatrixTest.cpp
   PARENT_SCOPE
 )

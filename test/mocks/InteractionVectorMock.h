@@ -16,7 +16,7 @@ template<typename Vector>
 class InteractionVectorMock: public InteractionVector<Vector> {
 public:
   InteractionVectorMock() :
-      InteractionVector() {
+      InteractionVector(1) {
 
   }
 

@@ -15,7 +15,7 @@ namespace CuEira {
 namespace CuEira_Test {
 
 /**
- * Test for testing ....
+ * Test for testing the SNP class
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
@@ -129,9 +129,14 @@ TEST_F(SNPTest, RiskAllele) {
   snp1.setRiskAllele(riskAllele);
   ASSERT_EQ(riskAllele, snp1.getRiskAllele());
 
-  riskAllele = ALLELE_TWO;
-  snp1.setRiskAllele(riskAllele);
-  ASSERT_EQ(riskAllele, snp1.getRiskAllele());
+  snp1.setProtective();
+  ASSERT_EQ(ALLELE_TWO, snp1.getRiskAllele());
+
+  snp1.setRiskAllele(ALLELE_TWO);
+  ASSERT_EQ(ALLELE_ONE, snp1.getRiskAllele());
+
+  snp1.setRisk();
+  ASSERT_EQ(ALLELE_TWO, snp1.getRiskAllele());
 }
 
 TEST_F(SNPTest, Operators) {
@@ -175,8 +180,6 @@ TEST_F(SNPTest, Operators) {
     EXPECT_TRUE(snp3 < snp2);
   }
 }
-
-//TODO invert snp risk allele get
 
 }
 /* namespace CuEira_Test */

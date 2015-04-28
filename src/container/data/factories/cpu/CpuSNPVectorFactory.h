@@ -21,7 +21,7 @@ public:
   explicit CpuSNPVectorFactory(const Configuration& configuration);
   virtual ~CpuSNPVectorFactory();
 
-  virtual SNPVector<RegularHostVector>* constructSNPVector(SNP& snp, const HostVector* originalSNPData,
+  virtual CpuSNPVector* constructSNPVector(SNP& snp, const HostVector* originalSNPData,
       const std::set<int>* snpMissingData) const;
 
   CpuSNPVectorFactory(const CpuSNPVectorFactory&) = delete;

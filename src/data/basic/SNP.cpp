@@ -5,7 +5,8 @@ namespace CuEira {
 SNP::SNP(Id id, std::string alleleOneName, std::string alleleTwoName, unsigned int position,
     SNPIncludeExclude includeExclude) :
     id(id), alleleOneName(alleleOneName), alleleTwoName(alleleTwoName), includeExcludeVector(
-        new std::vector<SNPIncludeExclude>()), position(position), riskAllele(ALLELE_ONE), riskAlleleHasBeenSet(false) {
+        new std::vector<SNPIncludeExclude>()), position(position), riskAllele(ALLELE_ONE), riskAlleleHasBeenSet(false), snpIsRisk(
+        true) {
   includeExcludeVector->push_back(includeExclude);
 }
 
@@ -50,24 +51,19 @@ RiskAllele SNP::getRiskAllele() const {
     throw InvalidState(tmp.c_str());
   }
 
-  return riskAllele;
+  if(snpIsRisk){
+    return riskAllele;
+  }else{
+    return riskAllele == ALLELE_ONE ? ALLELE_TWO : ALLELE_ONE;
+  }
 }
 
-RiskAllele SNP::getProtectiveAllele() const {
-  if(!riskAlleleHasBeenSet){
-    std::ostringstream os;
-    os << "Can't get risk allele since it has not been set for SNP " << id.getString() << std::endl;
-    const std::string& tmp = os.str();
-    throw InvalidState(tmp.c_str());
-  }
+void SNP::setRisk() {
+  snpIsRisk = true;
+}
 
-  if(riskAllele == ALLELE_ONE){
-    return ALLELE_TWO;
-  }else if(riskAllele == ALLELE_TWO){
-    return ALLELE_ONE;
-  }else{
-    throw InvalidState("Unknown RiskAllele in SNP");
-  }
+void SNP::setProtective() {
+  snpIsRisk = false;
 }
 
 std::string SNP::getAlleleOneName() const {
@@ -97,7 +93,7 @@ std::ostream & operator<<(std::ostream& os, const SNP& snp) {
   //Print exclusion reason
   const int size = snp.includeExcludeVector->size();
   for(int i = 0; i < size; ++i){
-    os << (*snp.includeExcludeVector)[i]; //FIXME this should be a string or such not a number
+    os << (*snp.includeExcludeVector)[i]; //TODO this should be a string or such not a number
   }
 
   os << ",";

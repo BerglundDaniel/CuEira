@@ -13,7 +13,7 @@ CpuSNPVectorFactory::~CpuSNPVectorFactory() {
 
 }
 
-SNPVector<RegularHostVector>* CpuSNPVectorFactory::constructSNPVector(SNP& snp, const HostVector* originalSNPData,
+CpuSNPVector* CpuSNPVectorFactory::constructSNPVector(SNP& snp, const HostVector* originalSNPData,
     const std::set<int>* snpMissingData) const {
 
   const int newSize = originalSNPData->getNumberOfRows() - snpMissingData->size();

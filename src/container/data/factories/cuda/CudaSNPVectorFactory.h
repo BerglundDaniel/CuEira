@@ -24,7 +24,7 @@ public:
       const KernelWrapper& kernelWrapper);
   virtual ~CudaSNPVectorFactory();
 
-  virtual SNPVector<DeviceVector>* constructSNPVector(SNP& snp, const HostVector* originalSNPData,
+  virtual CudaSNPVector* constructSNPVector(SNP& snp, const HostVector* originalSNPData,
       const std::set<int>* snpMissingData) const;
 
   CudaSNPVectorFactory(const CudaSNPVectorFactory&) = delete;

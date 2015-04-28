@@ -7,9 +7,9 @@ template<typename Vector>
 SNPVector<Vector>::SNPVector(SNP& snp, GeneticModel geneticModel, const Vector* snpOrgExMissing,
     const std::set<int>* snpMissingData) :
     snp(snp), numberOfIndividualsToInclude(snpOrgExMissing->getNumberOfRows()), snpOrgExMissing(snpOrgExMissing), originalGeneticModel(
-        geneticModel), currentGeneticModel(geneticModel), currentRecode(ALL_RISK), originalRiskAllele(
-        snp.getRiskAllele()), initialised(false), noMissing(false), snpRecodedExMissing(
-        new Vector(numberOfIndividualsToInclude)), snpMissingData(snpMissingData) {
+        geneticModel), currentGeneticModel(geneticModel), currentRecode(ALL_RISK), initialised(false), noMissing(
+        snpMissingData->empty()), snpRecodedExMissing(new Vector(numberOfIndividualsToInclude)), snpMissingData(
+        snpMissingData) {
 
 }
 
@@ -74,12 +74,12 @@ void SNPVector<Vector>::recode(Recode recode) {
 #endif
 
   GeneticModel geneticModel;
-  if(recode == ENVIRONMENT_PROTECT || recode == INTERACTION_PROTECT){
+  if(recode == SNP_PROTECT || recode == INTERACTION_PROTECT){
     geneticModel = RECESSIVE;
-    snp.setRiskAllele(snp.getProtectiveAllele());
+    snp.setProtective();
   }else{
     geneticModel = originalGeneticModel;
-    snp.setRiskAllele(originalRiskAllele);
+    snp.setRisk();
   }
 
   RiskAllele riskAllele = snp.getRiskAllele();

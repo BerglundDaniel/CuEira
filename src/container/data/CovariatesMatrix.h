@@ -1,11 +1,16 @@
 #ifndef COVARIATESMATRIX_H_
 #define COVARIATESMATRIX_H_
 
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
 #include <CovariatesHandler.h>
 #include <MissingDataHandler.h>
 
 namespace CuEira {
 namespace Container {
+class CpuCovariatesMatrixTest;
+class CudaCovariatesMatrixTest;
 
 /**
  * This class ...
@@ -14,6 +19,10 @@ namespace Container {
  */
 template<typename Matrix, typename Vector>
 class CovariatesMatrix {
+  friend CpuCovariatesMatrixTest;
+  friend CudaCovariatesMatrixTest;
+  FRIEND_TEST(CpuCovariatesMatrixTest, ApplyMissing);
+  FRIEND_TEST(CudaCovariatesMatrixTest, ApplyMissing);
 public:
   explicit CovariatesMatrix(const CovariatesHandler<Matrix>& covariatesHandler);
   virtual ~CovariatesMatrix();
@@ -24,7 +33,7 @@ public:
 
 private:
   const Matrix& orgData;
-  const Matrix* covariatesExMissing;
+  Matrix* covariatesExMissing;
 
   const int numberOfIndividualsTotal;
   const int numberOfCovariates;

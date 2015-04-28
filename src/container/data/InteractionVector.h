@@ -1,16 +1,8 @@
 #ifndef INTERACTIONVECTOR_H_
 #define INTERACTIONVECTOR_H_
 
-#include <HostVector.h>
-#include <SNPVector.h>
-#include <Recode.h>
 #include <InvalidState.h>
-
-#ifdef CPU
-#include <RegularHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#endif
+#include <InvalidArgument.h>
 
 namespace CuEira {
 namespace Container {
@@ -23,7 +15,7 @@ namespace Container {
 template<typename Vector>
 class InteractionVector {
 public:
-  explicit InteractionVector();
+  explicit InteractionVector(int numberOfIndividualsTotal);
   virtual ~InteractionVector();
 
   virtual int getNumberOfIndividualsToInclude() const;
@@ -37,8 +29,9 @@ public:
   InteractionVector& operator=(InteractionVector&&) = delete;
 
 private:
-  Vector* interactionExMissing;
+  const int numberOfIndividualsTotal;
   int numberOfIndividualsToInclude;
+  Vector* interactionExMissing;
   bool initialised;
 };
 

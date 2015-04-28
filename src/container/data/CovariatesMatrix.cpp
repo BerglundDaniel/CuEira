@@ -23,7 +23,11 @@ const Matrix& CovariatesMatrix<Matrix, Vector>::getCovariatesData() const {
     throw new InvalidState("CovariatesMatrix not initialised.");
   }
 #endif
-  return *covariatesExMissing;
+  if(noMissing){
+    return *orgData;
+  }else{
+    return *covariatesExMissing;
+  }
 }
 
 template<typename Matrix, typename Vector>
@@ -36,10 +40,10 @@ void CovariatesMatrix<Matrix, Vector>::applyMissing(const MissingDataHandler<Vec
   covariatesExMissing = new Matrix(numberOfIndividualsToInclude, numberOfCovariates);
 
   for(int i = 0; i < numberOfCovariates; ++i){
-    Vector* orgDataVector = orgData(i);
+    const Vector* orgDataVector = orgData(i);
     Vector* covariatesExMissingVector = covariatesExMissing(i);
 
-    missingDataHandler.copyNonMissing(orgDataVector, covariatesExMissingVector);
+    missingDataHandler.copyNonMissing(*orgDataVector, *covariatesExMissingVector);
 
     delete orgDataVector;
     delete covariatesExMissingVector;

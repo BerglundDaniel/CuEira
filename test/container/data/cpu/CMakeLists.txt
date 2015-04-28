@@ -8,5 +8,6 @@ set(TEST_SOURCE
   ${TEST_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/CpuEnvironmentVectorTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CpuSNPVectorTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CpuCovariatesMatrixTest.cpp
   PARENT_SCOPE
 )

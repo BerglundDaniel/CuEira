@@ -4,7 +4,7 @@ namespace CuEira {
 namespace Container {
 namespace CPU {
 
-CpuSNPVector::CpuSNPVector(SNP& snp, GeneticModel geneticModel, const DeviceVector* snpOrgExMissing,
+CpuSNPVector::CpuSNPVector(SNP& snp, GeneticModel geneticModel, const RegularHostVector* snpOrgExMissing,
     const std::set<int>* snpMissingData) :
     SNPVector<RegularHostVector>(snp, geneticModel, snpOrgExMissing, snpMissingData) {
 

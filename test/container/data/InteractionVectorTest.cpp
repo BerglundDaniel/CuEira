@@ -5,19 +5,10 @@
 #include <stdexcept>
 #include <iostream>
 
-#include <Recode.h>
 #include <InteractionVector.h>
-#include <EnvironmentVector.h>
-#include <SNPVector.h>
-#include <HostVector.h>
-#include <SNPVectorMock.h>
-#include <EnvironmentVectorMock.h>
-#include <ConstructorHelpers.h>
 #include <RegularHostVector.h>
-
-using testing::Return;
-using testing::_;
-using testing::ReturnRef;
+#include <InvalidState.h>
+#include <InvalidArgument.h>
 
 namespace CuEira {
 namespace Container {
@@ -34,34 +25,14 @@ protected:
   virtual void SetUp();
   virtual void TearDown();
 
-  const int numberOfIndividuals;
-  CuEira_Test::ConstructorHelpers constructorHelpers;
-  EnvironmentVectorMock* environmentVectorMock;
-  SNPVectorMock* snpVectorMock;
-  HostVector* envData;
-  HostVector* snpData;
-  std::vector<PRECISION> interact;
 };
 
-InteractionVectorTest::InteractionVectorTest() :
-    numberOfIndividuals(6), environmentVectorMock(constructorHelpers.constructEnvironmentVectorMock()), snpVectorMock(
-        constructorHelpers.constructSNPVectorMock()), interact(numberOfIndividuals), envData(
-        new RegularHostVector(numberOfIndividuals)), snpData(new RegularHostVector(numberOfIndividuals))
+InteractionVectorTest::InteractionVectorTest() {
 
-{
-  for(int i = 0; i < numberOfIndividuals; ++i){
-    (*envData)(i) = 0.1;
-    (*snpData)(i) = i;
-
-    interact[i] = (*envData)(i) * (*snpData)(i);
-  }
 }
 
 InteractionVectorTest::~InteractionVectorTest() {
-  delete envData;
-  delete snpData;
-  delete environmentVectorMock;
-  delete snpVectorMock;
+
 }
 
 void InteractionVectorTest::SetUp() {
@@ -74,30 +45,32 @@ void InteractionVectorTest::TearDown() {
 
 #ifdef DEBUG
 TEST_F(InteractionVectorTest, Exception){
-  EXPECT_CALL(*environmentVectorMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
-      Return(numberOfIndividuals));
+  const int numberOfIndvidualsTotal = 10;
+  InteractionVector<RegularHostVector> interactionVector(numberOfIndvidualsTotal);
 
-  InteractionVector interactionVector(*environmentVectorMock);
-
-  ASSERT_THROW(interactionVector.getRecodedData(), InvalidState);
+  EXPECT_THROW(interactionVector.getInteractionData(), InvalidState);
+  EXPECT_THROW(interactionVector.getNumberOfIndividualsToInclude(), InvalidState);
 }
 #endif
 
-TEST_F(InteractionVectorTest, ConstructAndGet) {
-  EXPECT_CALL(*environmentVectorMock, getRecodedData()).Times(1).WillRepeatedly(ReturnRef(*envData));
-  EXPECT_CALL(*environmentVectorMock, getNumberOfIndividualsToInclude()).Times(1).WillRepeatedly(
-      Return(numberOfIndividuals));
-  EXPECT_CALL(*snpVectorMock, getRecodedData()).Times(1).WillRepeatedly(ReturnRef(*snpData));
+TEST_F(InteractionVectorTest, UpdateAndGet) {
+  const int numberOfIndvidualsTotal = 10;
+  InteractionVector<RegularHostVector> interactionVector(numberOfIndvidualsTotal);
 
-  InteractionVector interactionVector(*environmentVectorMock);
-  interactionVector.recode(*snpVectorMock);
+  const int size1 = 4;
+  const int size2 = 8;
 
-  ASSERT_EQ(numberOfIndividuals, interactionVector.getNumberOfIndividualsToInclude());
+  interactionVector.updateSize(size1);
+  EXPECT_EQ(size1, interactionVector.getNumberOfIndividualsToInclude());
+  const RegularHostVector& vector1 = interactionVector.getInteractionData();
+  EXPECT_EQ(size1, vector1.getNumberOfRows());
 
-  const Container::HostVector& recodeData = interactionVector.getRecodedData();
-  for(int i = 0; i < numberOfIndividuals; ++i){
-    EXPECT_EQ(interact[i], recodeData(i));
-  }
+  interactionVector.updateSize(size2);
+  EXPECT_EQ(size2, interactionVector.getNumberOfIndividualsToInclude());
+  const RegularHostVector& vector2 = interactionVector.getInteractionData();
+  EXPECT_EQ(size2, vector2.getNumberOfRows());
+
+  EXPECT_THROW(interactionVector.updateSize(numberOfIndvidualsTotal + 1), InvalidState);
 }
 
 } /* namespace Container */

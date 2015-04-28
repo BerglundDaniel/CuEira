@@ -10,7 +10,6 @@
 #include <HostVector.h>
 #include <GeneticModel.h>
 #include <RiskAllele.h>
-#include <StatisticModel.h>
 #include <InvalidState.h>
 
 namespace CuEira {
@@ -60,7 +59,6 @@ protected:
 
   const GeneticModel originalGeneticModel;
   GeneticModel currentGeneticModel;
-  const RiskAllele originalRiskAllele;
   Recode currentRecode;
 };
 

@@ -4,8 +4,8 @@ namespace CuEira {
 namespace Container {
 
 template<typename Vector>
-InteractionVector<Vector>::InteractionVector() :
-    interactionExMissing(nullptr), numberOfIndividualsToInclude(0), initialised(false) {
+InteractionVector<Vector>::InteractionVector(int numberOfIndividualsTotal) :
+    interactionExMissing(new Vector(numberOfIndividualsTotal)), numberOfIndividualsToInclude(0), initialised(false) {
 
 }
 
@@ -16,6 +16,11 @@ InteractionVector<Vector>::~InteractionVector() {
 
 template<typename Vector>
 int InteractionVector<Vector>::getNumberOfIndividualsToInclude() const {
+#ifdef DEBUG
+  if(!initialised){
+    throw InvalidState("InteractionVector is not initialised.");
+  }
+#endif
   return numberOfIndividualsToInclude;
 }
 
@@ -23,7 +28,7 @@ template<typename Vector>
 const Vector& InteractionVector<Vector>::getInteractionData() const {
 #ifdef DEBUG
   if(!initialised){
-    throw InvalidState("Before using the getRecodedData use recode() at least once.");
+    throw InvalidState("InteractionVector is not initialised.");
   }
 #endif
 
@@ -34,7 +39,7 @@ template<typename Vector>
 Vector& InteractionVector<Vector>::getInteractionData() {
 #ifdef DEBUG
   if(!initialised){
-    throw InvalidState("Before using the getRecodedData use recode() at least once.");
+    throw InvalidState("InteractionVector is not initialised.");
   }
 #endif
 
@@ -43,13 +48,17 @@ Vector& InteractionVector<Vector>::getInteractionData() {
 
 template<typename Vector>
 void InteractionVector<Vector>::updateSize(int size) {
-  //TODO don't need to delete if using padded vectors for unrolling
 #ifdef DEBUG
   initialised = true;
 #endif
+
+  if(size > numberOfIndividualsToInclude){
+    throw InvalidArgument(
+        "Can't set size of InteractionVector to a larger number than the total number of individuals.");
+  }
+
   numberOfIndividualsToInclude = size;
-  delete interactionExMissing;
-  interactionExMissing = new Vector(size);
+  interactionExMissing->updateSize(size);
 }
 
 } /* namespace Container */

@@ -74,6 +74,9 @@ public:
 protected:
   CudaLogisticRegression(); //For the mock
 
+  void columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
+      DeviceMatrix& result) const;
+
 private:
   void calcuateProbabilites(const DeviceMatrix& predictorsDevice, const DeviceVector& betaCoefficentsDevice,
       DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device);

@@ -15,7 +15,6 @@
 #include <FileReaderException.h>
 #include <HostMatrix.h>
 #include <HostVector.h>
-#include <ConstructorHelpers.h>
 #include <RegularHostMatrix.h>
 
 using testing::Return;

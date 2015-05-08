@@ -63,7 +63,7 @@ TEST_F(FamReaderTest, ReadFile) {
   EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ONE_TWO_CODING));
 
   PersonHandlerFactoryMock* personHandlerFactoryMock = new PersonHandlerFactoryMock();
-  PersonHandlerMock* personHandlerMock = new PersonHandlerMock(); //TODO parameters?
+  PersonHandlerMock* personHandlerMock = new PersonHandlerMock();
   std::vector<Person*>* persons;
 
   CuEira::FileIO::FamReader famReader(configMock, personHandlerFactoryMock);

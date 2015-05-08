@@ -18,6 +18,7 @@
 #include <HostVector.h>
 #include <SNPVector.h>
 #include <SNPVectorFactory.h>
+#include <CpuSNPVectorFactory.h>
 
 using testing::Return;
 using testing::_;
@@ -96,7 +97,7 @@ TEST_F(BedReaderThreadIntegrationTest, ThreadsReadSNP) {
     }
   }
 
-  Container::SNPVectorFactory* snpVectorFactory = new Container::SNPVectorFactory(configMock);
+  Container::SNPVectorFactory* snpVectorFactory = new Container::CPU::CpuSNPVectorFactory(configMock);
   PersonHandlerMock personHandlerMock;
 
   EXPECT_CALL(personHandlerMock, getNumberOfIndividualsTotal()).Times(1).WillOnce(Return(numberOfIndividualsTotal));
@@ -125,7 +126,7 @@ TEST_F(BedReaderThreadIntegrationTest, ThreadsReadSNP) {
     std::vector<Container::SNPVector*>* snpVectors = snpVectorResults[thread];
     for(int depth = 0; depth < numberOfReads; ++depth){
       Container::SNPVector* snpVector = (*snpVectors)[depth];
-      const std::vector<int>& orgSNPData = snpVector->getOrginalData();
+      const std::vector<int>& orgSNPData = snpVector->getOriginalSNPData();
 
       ASSERT_EQ(9, orgSNPData.size()); //Person 6 gets skipped because missing phenotype
 

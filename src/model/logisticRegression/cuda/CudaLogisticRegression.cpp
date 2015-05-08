@@ -261,6 +261,37 @@ void CudaLogisticRegression::calculateLogLikelihood(const DeviceVector& outcomes
   kernelWrapper->sumResultToHost(workVectorNx1Device, oneVector, logLikelihood);
 }
 
+void CudaLogisticRegression::columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix,
+    const DeviceVector& vector, DeviceMatrix& result) const {
+#ifdef DEBUG
+  if((matrix.getNumberOfRows() != vector.getNumberOfRows()) || (vector.getNumberOfRows() != result.getNumberOfRows())){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in columnByColumnMatrixVectorElementWiseMultiply function, they are " << matrix.getNumberOfRows()
+    << " , " << vector.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
+  }
+
+  if(matrix.getNumberOfColumns() != result.getNumberOfColumns()){
+    std::ostringstream os;
+    os << "Number of columns doesn't match in columnByColumnMatrixVectorElementWiseMultiply function, they are " << matrix.getNumberOfColumns() <<
+    " and " << result.getNumberOfColumns() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
+  }
+#endif
+
+  const int numberOfColumns = matrix.getNumberOfColumns();
+  for(int k = 0; k < numberOfColumns; ++k){
+    const DeviceVector* columnVector = matrix(k);
+    DeviceVector* columnResultVector = result(k);
+    kernelWrapper->elementWiseMultiplication(*columnVector, vector, *columnResultVector);
+
+    delete columnVector;
+    delete columnResultVector;
+  }
+}
+
 } /* namespace CUDA */
 } /* namespace LogisticRegression */
 } /* namespace Model */

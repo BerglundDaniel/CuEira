@@ -74,12 +74,6 @@ public:
    */
   void elementWiseDifference(const DeviceVector& vector1, const DeviceVector& vector2, DeviceVector& result) const;
 
-  /**
-   * TODO move this to the LR class
-   */
-  void columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
-      DeviceMatrix& result) const;
-
   //to=from[indexes[i]]
   void vectorCopyIndexes(const DeviceVector& indexes, const DeviceVector& from, DeviceVector& to) const;
 

@@ -16,7 +16,6 @@
 #include <Id.h>
 #include <Phenotype.h>
 #include <SNP.h>
-#include <ConstructorHelpers.h>
 #include <HostMatrix.h>
 #include <HostVector.h>
 #include <FileReaderException.h>
@@ -67,11 +66,12 @@ void FileIOIntegrationTest::SetUp() {
       Return(std::string(CuEira_BUILD_DIR) + std::string("/test.bim")));
   EXPECT_CALL(configMock, getFamFilePath()).Times(AtLeast(1)).WillRepeatedly(
       Return(std::string(CuEira_BUILD_DIR) + std::string("/test.fam")));
-  EXPECT_CALL(configMock, getEnvironmentFilePath()).Times(AtLeast(1)).WillRepeatedly(
+  EXPECT_CALL(configMock, getCSVFilePath()).Times(AtLeast(1)).WillRepeatedly(
       Return(std::string(CuEira_BUILD_DIR) + std::string("/test_env.txt")));
 
-  EXPECT_CALL(configMock, getEnvironmentIndividualIdColumnName()).Times(AtLeast(1)).WillRepeatedly(Return("indid"));
-  EXPECT_CALL(configMock, getEnvironmentDelimiter()).Times(AtLeast(1)).WillRepeatedly(Return("\t "));
+  EXPECT_CALL(configMock, getEnvironmentColumnName()).Times(AtLeast(1)).WillRepeatedly(Return("env1"));
+  EXPECT_CALL(configMock, getCSVIdColumnName()).Times(AtLeast(1)).WillRepeatedly(Return("indid"));
+  EXPECT_CALL(configMock, getCSVDelimiter()).Times(AtLeast(1)).WillRepeatedly(Return("\t "));
 }
 
 void FileIOIntegrationTest::TearDown() {
@@ -79,8 +79,6 @@ void FileIOIntegrationTest::TearDown() {
 }
 
 TEST_F(FileIOIntegrationTest, ReadPersonInformation) {
-  EXPECT_CALL(configMock, covariateFileSpecified()).Times(1).WillRepeatedly(Return(false));
-
   EXPECT_CALL(configMock, getPhenotypeCoding()).Times(AtLeast(1)).WillRepeatedly(Return(ONE_TWO_CODING));
 
   DataFilesReaderFactory dataFilesReaderFactory;
@@ -102,8 +100,6 @@ TEST_F(FileIOIntegrationTest, ReadPersonInformation) {
 }
 
 TEST_F(FileIOIntegrationTest, ReadSNPInfo) {
-  EXPECT_CALL(configMock, covariateFileSpecified()).Times(1).WillRepeatedly(Return(false));
-
   EXPECT_CALL(configMock, excludeSNPsWithNegativePosition()).Times(AtLeast(1)).WillRepeatedly(Return(true));
   EXPECT_CALL(configMock, getPhenotypeCoding()).Times(1).WillRepeatedly(Return(ZERO_ONE_CODING));
 
@@ -133,13 +129,6 @@ TEST_F(FileIOIntegrationTest, ReadSNPInfo) {
 }
 
 TEST_F(FileIOIntegrationTest, ReadCovariates) {
-  EXPECT_CALL(configMock, covariateFileSpecified()).Times(1).WillRepeatedly(Return(true));
-
-  EXPECT_CALL(configMock, getCovariateFilePath()).Times(AtLeast(1)).WillRepeatedly(
-      Return(std::string(CuEira_BUILD_DIR) + std::string("/test_cov.txt")));
-  EXPECT_CALL(configMock, getCovariateIndividualIdColumnName()).Times(AtLeast(1)).WillRepeatedly(Return("indid"));
-  EXPECT_CALL(configMock, getCovariateDelimiter()).Times(AtLeast(1)).WillRepeatedly(Return("\t "));
-
   EXPECT_CALL(configMock, getPhenotypeCoding()).Times(AtLeast(1)).WillRepeatedly(Return(ONE_TWO_CODING));
 
   DataFilesReaderFactory dataFilesReaderFactory;
@@ -175,8 +164,6 @@ TEST_F(FileIOIntegrationTest, ReadCovariates) {
 }
 
 TEST_F(FileIOIntegrationTest, ReadEnvironment) {
-  EXPECT_CALL(configMock, covariateFileSpecified()).Times(1).WillRepeatedly(Return(false));
-
   EXPECT_CALL(configMock, getPhenotypeCoding()).Times(AtLeast(1)).WillRepeatedly(Return(ONE_TWO_CODING));
 
   DataFilesReaderFactory dataFilesReaderFactory;
@@ -211,19 +198,6 @@ TEST_F(FileIOIntegrationTest, ReadEnvironment) {
   delete envData;
   delete dataFilesReader;
   delete environmentFactorHandler;
-}
-
-TEST_F(FileIOIntegrationTest, CovariteException) {
-  EXPECT_CALL(configMock, covariateFileSpecified()).Times(1).WillRepeatedly(Return(false));
-
-  EXPECT_CALL(configMock, getPhenotypeCoding()).Times(AtLeast(1)).WillRepeatedly(Return(ONE_TWO_CODING));
-
-  DataFilesReaderFactory dataFilesReaderFactory;
-  DataFilesReader* dataFilesReader = dataFilesReaderFactory.constructDataFilesReader(configMock);
-
-  EXPECT_THROW(dataFilesReader->readCovariates(), FileReaderException);
-
-  delete dataFilesReader;
 }
 
 //TODO bed stuff

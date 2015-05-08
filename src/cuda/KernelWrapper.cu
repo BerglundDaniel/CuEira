@@ -189,41 +189,6 @@ void KernelWrapper::elementWiseDifference(const DeviceVector& vector1, const Dev
 #endif
 }
 
-void KernelWrapper::columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix,
-    const DeviceVector& vector, DeviceMatrix& result) const {
-#ifdef DEBUG
-  if((matrix.getNumberOfRows() != vector.getNumberOfRows()) || (vector.getNumberOfRows() != result.getNumberOfRows())){
-    std::ostringstream os;
-    os << "Number of rows doesn't match in columnByColumnMatrixVectorElementWiseMultiply function, they are " << matrix.getNumberOfRows()
-    << " , " << vector.getNumberOfRows() << " and " << result.getNumberOfRows() << std::endl;
-    const std::string& tmp = os.str();
-    throw CudaException(tmp.c_str());
-  }
-
-  if(matrix.getNumberOfColumns() != result.getNumberOfColumns()){
-    std::ostringstream os;
-    os << "Number of columns doesn't match in columnByColumnMatrixVectorElementWiseMultiply function, they are " << matrix.getNumberOfColumns() <<
-    " and " << result.getNumberOfColumns() << std::endl;
-    const std::string& tmp = os.str();
-    throw CudaException(tmp.c_str());
-  }
-#endif
-
-  const int numberOfColumns = matrix.getNumberOfColumns();
-  for(int k = 0; k < numberOfColumns; ++k){
-    const DeviceVector* columnVector = matrix(k);
-    DeviceVector* columnResultVector = result(k);
-    elementWiseMultiplication(*columnVector, vector, *columnResultVector);
-
-    delete columnVector;
-    delete columnResultVector;
-  }
-
-#ifdef FERMI
-  syncStream();
-#endif
-}
-
 void KernelWrapper::vectorCopyIndexes(const DeviceVector& indexes, const DeviceVector& from, DeviceVector& to) const {
 #ifdef DEBUG
   if((indexes.getNumberOfRows() != from.getNumberOfRows()) || (indexes.getNumberOfRows() != to.getNumberOfRows())){
@@ -238,12 +203,20 @@ void KernelWrapper::vectorCopyIndexes(const DeviceVector& indexes, const DeviceV
   const int numberOfRows = indexes.getNumberOfRows();
   const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
   Kernel::VectorCopyIndexes<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(indexes.getMemoryPointer(), from.getMemoryPointer(), to.getMemoryPointer(), numberOfRows);
+
+#ifdef FERMI
+  syncStream();
+#endif
 }
 
 void KernelWrapper::constSubtractVector(const int c, DeviceVector& vector) const {
   const int numberOfRows = vector.getNumberOfRows();
   const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
   Kernel::ConstSubtractVector<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(c, vector.getMemoryPointer(), numberOfRows);
+
+#ifdef FERMI
+  syncStream();
+#endif
 }
 
 void KernelWrapper::applyGeneticModel(const int snpToRisk[3], const DeviceVector& from, DeviceVector& to) const {
@@ -260,6 +233,10 @@ void KernelWrapper::applyGeneticModel(const int snpToRisk[3], const DeviceVector
   const int numberOfRows = from.getNumberOfRows();
   const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
   Kernel::ApplyGeneticModel<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(snpToRisk, from.getMemoryPointer(), to.getMemoryPointer(),numberOfRows);
+
+#ifdef FERMI
+  syncStream();
+#endif
 }
 
 void KernelWrapper::applyAdditiveModel(DeviceVector& vector1, DeviceVector& vector2, DeviceVector& interaction) const {
@@ -276,6 +253,10 @@ void KernelWrapper::applyAdditiveModel(DeviceVector& vector1, DeviceVector& vect
   const int numberOfRows = vector1.getNumberOfRows();
   const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
   Kernel::ApplyAdditiveModel<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(vector1.getMemoryPointer(), vector2.getMemoryPointer(), interaction.getMemoryPointer(), numberOfRows);
+
+#ifdef FERMI
+  syncStream();
+#endif
 }
 
 Container::DeviceMatrix* KernelWrapper::calculateNumberOfAllelesPerGenotype(const Container::DeviceVector& snpData,
@@ -295,6 +276,10 @@ Container::DeviceMatrix* KernelWrapper::calculateNumberOfAllelesPerGenotype(cons
   Container::DeviceMatrix* numberOfAllelesPerGenotype = new Container::DeviceMatrix(numberOfBlocks, 6);
 
   Kernel::CalculateNumberOfAllelesPerGenotype<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(snpData.getMemoryPointer(), phenotypeData.getMemoryPointer(), numberOfAllelesPerGenotype.getMemoryPointer(), numberOfRows);
+
+#ifdef FERMI
+  syncStream();
+#endif
 
   return numberOfAllelesPerGenotype;
 }

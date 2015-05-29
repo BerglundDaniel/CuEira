@@ -23,7 +23,7 @@ set(Boost_USE_MULTITHREADED off)
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" off)
 set(PRECISION single) #single or double
-set(TARGET_ARCHITECTURE kepler) #fermi or kepler #TODO fix this to sync and stuff instead
+set(TARGET_ARCHITECTURE kepler) #fermi, kepler, maxwell #TODO fix this to sync and stuff instead
 option(CPU "Use CPU only" off)
 option(CLUSTER "Use cluster" off) #TODO not implemented
 option(ENABLE_MKL "Enable MKL flag" on)
@@ -122,7 +122,7 @@ if(${CLUSTER})
 endif(${CLUSTER})
 
 #Optimization options
-MESSAGE( STATUS "Seting optimizations:" )
+MESSAGE( STATUS "Seting compiler options:" )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-alias")
@@ -132,7 +132,7 @@ if(NOT ${CPU})
   if(${TARGET_ARCHITECTURE} MATCHES fermi)
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
   else()
-    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20) #TODO change to 30 later
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_30,code=sm_30)
   endif()
 
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-restrict --use_fast_math)

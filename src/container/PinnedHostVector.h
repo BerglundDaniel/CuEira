@@ -20,7 +20,7 @@ class PinnedHostMatrix;
 class PinnedHostVector: public HostVector {
   friend PinnedHostMatrix;
 public:
-  PinnedHostVector(int numberOfRows);
+  explicit PinnedHostVector(int numberOfRows);
   virtual ~PinnedHostVector();
 
   virtual PRECISION& operator()(int index);

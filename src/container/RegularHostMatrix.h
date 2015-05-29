@@ -19,7 +19,7 @@ namespace Container {
  */
 class RegularHostMatrix: public HostMatrix {
 public:
-  RegularHostMatrix(int numberOfRows, int numberOfColumns);
+  explicit RegularHostMatrix(int numberOfRows, int numberOfColumns);
   virtual ~RegularHostMatrix();
 
   virtual RegularHostVector* operator()(int column);

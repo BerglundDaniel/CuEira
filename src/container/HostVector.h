@@ -15,7 +15,7 @@ namespace Container {
  */
 class HostVector {
 public:
-  HostVector(int numberOfRealRows, int numberOfRows, bool subview, PRECISION* hostVector);
+  explicit HostVector(int numberOfRealRows, int numberOfRows, bool subview, PRECISION* hostVector);
   virtual ~HostVector();
 
   int getNumberOfRows() const;

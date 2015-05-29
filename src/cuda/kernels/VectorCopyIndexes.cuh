@@ -15,9 +15,7 @@ namespace Kernel {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  *
- */
-__global__ void VectorCopyIndexes(const PRECISION* indexes , const PRECISION* vector1, PRECISION* vector2,
-    const int length){
+ */__global__ void VectorCopyIndexes(const int* indexes, const PRECISION* vector1, PRECISION* vector2, const int length){
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
   if(threadId < length){

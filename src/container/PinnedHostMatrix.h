@@ -13,7 +13,6 @@
 namespace CuEira {
 namespace Container {
 
-
 /**
  * This is ...
  *
@@ -21,7 +20,7 @@ namespace Container {
  */
 class PinnedHostMatrix: public HostMatrix {
 public:
-  PinnedHostMatrix(int numberOfRows, int numberOfColumns);
+  explicit PinnedHostMatrix(int numberOfRows, int numberOfColumns);
   virtual ~PinnedHostMatrix();
 
   virtual PinnedHostVector* operator()(int column);

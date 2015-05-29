@@ -16,9 +16,8 @@ namespace Container {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class DeviceMatrix {
-
 public:
-  DeviceMatrix(int numberOfRows, int numberOfColumns);
+  __host__ explicit DeviceMatrix(int numberOfRows, int numberOfColumns);
   virtual ~DeviceMatrix();
 
   __device__ __host__ int getNumberOfRows() const;
@@ -34,7 +33,7 @@ public:
   __device__ __host__ int getRealNumberOfColumns() const;
   __host__ void updateSize(int numberOfRows, int numberOfColumns);
   __host__ void updateNumberOfRows(int numberOfRows);
-  __host__ void updateNumberOfColumns(int int numberOfColumns);
+  __host__ void updateNumberOfColumns(int numberOfColumns);
 
   __device__ __host__ PRECISION* getMemoryPointer();
   __device__ __host__ const PRECISION* getMemoryPointer() const;

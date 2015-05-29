@@ -17,7 +17,7 @@ namespace Container {
 class HostMatrix {
 
 public:
-  HostMatrix(int numberOfRealRows, int numberOfRealColumns, int numberOfRows, int numberOfColumns,
+  explicit HostMatrix(int numberOfRealRows, int numberOfRealColumns, int numberOfRows, int numberOfColumns,
       PRECISION* hostMatrix);
   virtual ~HostMatrix();
 

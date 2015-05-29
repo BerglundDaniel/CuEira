@@ -15,12 +15,12 @@ namespace Kernel {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  *
- */__global__ void ApplyGeneticModel(const int snpToRisk[3], const PRECISION* from, PRECISION* to,
+ */__global__ void ApplyGeneticModel(const int snpToRisk[3], const float* from, float* to,
     const int length){
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
   if(threadId < length){
-    to[threadId] = snpToRisk[from[threadId]];
+    to[threadId] = snpToRisk[(int)from[threadId]]; //Bad???
   } /* if threadId < length */
 }
 

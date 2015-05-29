@@ -48,7 +48,7 @@ bool MKLWrapper::svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, Ho
 #endif
 
   if(status < 0){
-    throw new MKLException("Illegal values in matrix.");
+    throw new BlasException("Illegal values in matrix.");
   }else if(status > 0){
     return false;
   }

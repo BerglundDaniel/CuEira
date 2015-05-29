@@ -5,7 +5,7 @@
 #include <mkl.h>
 #include <iostream>
 
-#include <MKLException.h>
+#include <BlasException.h>
 #include <HostMatrix.h>
 #include <HostVector.h>
 #include <DimensionMismatch.h>

@@ -14,10 +14,10 @@ set(TEST_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/LogLikelihoodPartsTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/LogisticTransformTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/VectorMultiply1MinusVectorTest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/CalculateNumberOfAllelesPerGenotype.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CalculateNumberOfAllelesPerGenotypeTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ApplyAdditiveModelTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ApplyGeneticModelTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ConstSubtractVectorTest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/VectorCopyIndexes.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/VectorCopyIndexesTest.cpp
   PARENT_SCOPE
 )

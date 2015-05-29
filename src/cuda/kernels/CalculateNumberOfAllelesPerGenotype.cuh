@@ -16,10 +16,9 @@ const int stepSize = 10;
  * This kernel calculates the number of alleles per genotype and phenotype group, which is 6 different combinations
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
- */
-__global__ void CalculateNumberOfAllelesPerGenotype(const PRECISION* snpData, const PRECISION* phenotypeData,
-    int* numberOfAllelesPerGenotype, const int length) {
-  __shared__ int cache[threadsPerBlock][6]; //Row major
+ */__global__ void CalculateNumberOfAllelesPerGenotype(const int* snpData, const int* phenotypeData,
+    int* numberOfAllelesPerGenotype, const int length){
+  __shared__ int cache[threadsPerBlock][6]; //Row major //TODO make a config file with numbers etc?
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
   int cacheIndex = threadIdx.x;
 

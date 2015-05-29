@@ -16,7 +16,7 @@ namespace Container {
  */
 class DeviceVector {
 public:
-  DeviceVector(int numberOfRows);
+  __host__ explicit DeviceVector(int numberOfRows);
   DeviceVector(int numberOfRealRows, int numberOfRows, PRECISION* vectorDevice);
   virtual ~DeviceVector();
 

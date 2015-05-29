@@ -19,7 +19,7 @@ class RegularHostMatrix;
 class RegularHostVector: public HostVector {
   friend RegularHostMatrix;
 public:
-  RegularHostVector(int numberOfRows);
+  explicit RegularHostVector(int numberOfRows);
   virtual ~RegularHostVector();
 
   virtual PRECISION& operator()(int index);

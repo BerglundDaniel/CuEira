@@ -97,12 +97,12 @@ public:
     stream.syncStream();
   }
 
-  const Stream& stream; //FIXME should probably be private
+  const Stream& stream;
 
 private:
   const cublasHandle_t& cublasHandle;
   const cudaStream_t& cudaStream;
-  static const int numberOfThreadsPerBlock = 256;
+  static const int numberOfThreadsPerBlock = 256; //TODO use define instead?
 
   const PRECISION* constOne;
   const PRECISION* constZero;

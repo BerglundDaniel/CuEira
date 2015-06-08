@@ -7,6 +7,8 @@
 #include <Configuration.h>
 #include <HostMatrix.h>
 #include <HostVector.h>
+#include <RegularHostMatrix.h>
+#include <RegularHostVector.h>
 #include <CovariatesHandler.h>
 #include <MKLWrapper.h>
 

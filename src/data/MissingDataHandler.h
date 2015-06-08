@@ -32,11 +32,16 @@ public:
   virtual void setMissing(const std::set<int>& snpPersonsToSkip);
   virtual void copyNonMissing(const Vector& fromVector, Vector& toVector) const=0;
 
-private:
+protected:
   const int numberOfIndividualsTotal;
   int numberOfIndividualsToInclude;
-  Container::HostVector* indexesToCopy;
   bool initialised;
+
+#ifdef CPU //FIXME template this?
+  Container::RegularHostVector* indexesToCopy;
+#else
+  Container::PinnedHostVector* indexesToCopy;
+#endif
 };
 
 } /* namespace CuEira */

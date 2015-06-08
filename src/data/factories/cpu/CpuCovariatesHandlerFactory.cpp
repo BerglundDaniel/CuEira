@@ -22,10 +22,10 @@ CovariatesHandler<HostMatrix>* CpuCovariatesHandlerFactory::constructCovariatesH
   int col = 0;
   for(int i = 0; i < numberOfColumns; ++i){
     if(environmentColumnName != columnNames[i]){
-      Container::HostVector* covVectorFrom = matrix(i);
-      Container::HostVector* covVectorTo = covariates(i);
+      const Container::HostVector* covVectorFrom = matrix(i);
+      Container::HostVector* covVectorTo = (*covariates)(i);
 
-      mklWrapper.copyVector(covVectorFrom, covVectorTo);
+      mklWrapper.copyVector(*covVectorFrom, *covVectorTo);
 
       delete covVectorFrom;
       delete covVectorFrom;

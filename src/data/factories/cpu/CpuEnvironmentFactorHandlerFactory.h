@@ -8,6 +8,7 @@
 #include <EnvironmentFactorHandlerFactory.h>
 #include <EnvironmentFactorHandler.h>
 #include <HostVector.h>
+#include <RegularHostVector.h>
 #include <MKLWrapper.h>
 
 namespace CuEira {
@@ -18,7 +19,7 @@ namespace CPU {
  *
  *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CpuEnvironmentFactorHandlerFactory: public EnvironmentFactorHandlerFactory {
+class CpuEnvironmentFactorHandlerFactory: public EnvironmentFactorHandlerFactory<HostMatrix, HostVector> {
 public:
   explicit CpuEnvironmentFactorHandlerFactory(const Configuration& configuration,
       const std::vector<std::string>& columnNames, const Container::HostMatrix& matrix);

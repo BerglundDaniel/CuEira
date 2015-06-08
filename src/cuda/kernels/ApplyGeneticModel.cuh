@@ -20,7 +20,7 @@ namespace Kernel {
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
 
   if(threadId < length){
-    to[threadId] = snpToRisk[(int)from[threadId]]; //Bad???
+    to[threadId] = snpToRisk[(int)from[threadId]]; //FIXME
   } /* if threadId < length */
 }
 

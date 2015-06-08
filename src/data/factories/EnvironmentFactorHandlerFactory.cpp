@@ -2,9 +2,10 @@
 
 namespace CuEira {
 
-EnvironmentFactorHandlerFactory::EnvironmentFactorHandlerFactory(const Configuration& configuration,
-    const std::vector<std::string>& columnNames, const Container::HostMatrix& matrix) :
-    environmentFactor(nullptr), envData(nullptr) {
+template<typename Matrix, typename Vector>
+EnvironmentFactorHandlerFactory<Matrix, Vector>::EnvironmentFactorHandlerFactory(const Configuration& configuration,
+    const std::vector<std::string>& columnNames, const Matrix& matrix) :
+    environmentFactor(nullptr), envData(nullptr){
 
   const std::string environmentColumnName = configuration.getEnvironmentColumnName();
   const int numberOfIndividuals = matrix.getNumberOfRows();
@@ -48,8 +49,9 @@ EnvironmentFactorHandlerFactory::EnvironmentFactorHandlerFactory(const Configura
   this->environmentFactor.reset(environmentFactor);
 }
 
-EnvironmentFactorHandlerFactory::~EnvironmentFactorHandlerFactory() {
-  delete envData; //Not the actual data since it's owned by the input matrix
+template<typename Matrix, typename Vector>
+EnvironmentFactorHandlerFactory<Matrix, Vector>::~EnvironmentFactorHandlerFactory(){
+  delete envData;
 }
 
 }

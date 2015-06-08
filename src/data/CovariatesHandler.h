@@ -1,8 +1,6 @@
 #ifndef COVARIATESHANDLER_H_
 #define COVARIATESHANDLER_H_
 
-#include <CovariatesMatrix.h>
-
 namespace CuEira {
 
 /*

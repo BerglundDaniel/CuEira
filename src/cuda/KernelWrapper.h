@@ -93,7 +93,7 @@ public:
   /**
    * Syncs the associated stream
    */
-  inline void syncStream() const {
+  inline void syncStream() const{
     stream.syncStream();
   }
 
@@ -102,7 +102,6 @@ public:
 private:
   const cublasHandle_t& cublasHandle;
   const cudaStream_t& cudaStream;
-  static const int numberOfThreadsPerBlock = 256; //TODO use define instead?
 
   const PRECISION* constOne;
   const PRECISION* constZero;

@@ -1,8 +1,13 @@
 #ifndef MKLWRAPPER_H_
 #define MKLWRAPPER_H_
 
+#ifdef MKL_BLAS
 #include <mkl_vml.h>
 #include <mkl.h>
+#else
+#include <cblas.h>
+#endif
+
 #include <iostream>
 
 #include <BlasException.h>

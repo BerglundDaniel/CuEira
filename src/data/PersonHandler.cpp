@@ -74,16 +74,16 @@ const Person& PersonHandler::getPersonFromRowAll(int rowAll) const {
 }
 
 int PersonHandler::getRowIncludeFromPerson(const Person& person) const {
-  if(personToRowInclude.count(person) <= 0){
+  if(!individualsLocked){
     std::ostringstream os;
-    os << "No person with id " << person.getId() << " that has row include" << std::endl;
+    os << "Individuals are not locked so can not get row include for person " << person.getId() << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
 
-  if(!individualsLocked){
+  if(personToRowInclude.count(person) <= 0){
     std::ostringstream os;
-    os << "Individuals are not locked so can not get row include for person " << person.getId() << std::endl;
+    os << "No person with id " << person.getId() << " that has row include" << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }

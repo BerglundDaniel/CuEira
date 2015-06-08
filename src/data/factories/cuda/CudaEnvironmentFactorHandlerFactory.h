@@ -9,6 +9,8 @@
 #include <EnvironmentFactorHandler.h>
 #include <DeviceVector.h>
 #include <HostToDevice.h>
+#include <PinnedHostMatrix.h>
+#include <PinnedHostVector.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -18,10 +20,10 @@ namespace CUDA {
  *
  *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CudaEnvironmentFactorHandlerFactory: public EnvironmentFactorHandlerFactory {
+class CudaEnvironmentFactorHandlerFactory: public EnvironmentFactorHandlerFactory<PinnedHostMatrix, PinnedHostVector> {
 public:
   explicit CudaEnvironmentFactorHandlerFactory(const Configuration& configuration,
-      const std::vector<std::string>& columnNames, const Container::HostMatrix& matrix);
+      const std::vector<std::string>& columnNames, const Container::PinnedHostMatrix& matrix);
   virtual ~CudaEnvironmentFactorHandlerFactory();
 
   virtual EnvironmentFactorHandler<Container::DeviceVector>* constructEnvironmentFactorHandler(

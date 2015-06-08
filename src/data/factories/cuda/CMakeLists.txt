@@ -11,6 +11,7 @@ set(SOURCE
 
 set(GPU_SOURCE
   ${GPU_SOURCE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/CudaPhenotypeHandlerFactory.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CudaCovariatesHandlerFactory.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CudaEnvironmentFactorHandlerFactory.cpp
   PARENT_SCOPE

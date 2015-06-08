@@ -5,15 +5,15 @@ namespace Container {
 
 PinnedHostMatrix::PinnedHostMatrix(int numberOfRows, int numberOfColumns) :
     HostMatrix(ceil(((double) numberOfRows) / CPU_UNROLL) * CPU_UNROLL, numberOfColumns, numberOfRows, numberOfColumns,
-        nullptr) {
+        nullptr){
   CuEira::CUDA::allocateHostPinnedMemory((void**) &hostMatrix, numberOfRealRows * numberOfRealColumns);
 }
 
-PinnedHostMatrix::~PinnedHostMatrix() {
+PinnedHostMatrix::~PinnedHostMatrix(){
   CuEira::CUDA::freePinnedMemory(hostMatrix);
 }
 
-PinnedHostVector* PinnedHostMatrix::operator()(int column) {
+PinnedHostVector* PinnedHostMatrix::operator()(int column){
 #ifdef DEBUG
   if(column >= numberOfColumns || column < 0){
     std::ostringstream os;
@@ -24,10 +24,10 @@ PinnedHostVector* PinnedHostMatrix::operator()(int column) {
 #endif
 
   PRECISION* hostVector = hostMatrix + numberOfRows * column;
-  return new PinnedHostVector(numberOfRows, hostVector, true);
+  return new PinnedHostVector(numberOfRealRows, numberOfRows, hostVector, true);
 }
 
-const PinnedHostVector* PinnedHostMatrix::operator()(int column) const {
+const PinnedHostVector* PinnedHostMatrix::operator()(int column) const{
 #ifdef DEBUG
   if(column >= numberOfColumns || column < 0){
     std::ostringstream os;
@@ -38,10 +38,10 @@ const PinnedHostVector* PinnedHostMatrix::operator()(int column) const {
 #endif
 
   PRECISION* hostVector = hostMatrix + numberOfRows * column;
-  return new PinnedHostVector(numberOfRows, hostVector, true);
+  return new PinnedHostVector(numberOfRealRows, numberOfRows, hostVector, true);
 }
 
-PRECISION& PinnedHostMatrix::operator()(int row, int column) {
+PRECISION& PinnedHostMatrix::operator()(int row, int column){
 #ifdef DEBUG
   if(row >= numberOfRows || row < 0){
     std::ostringstream os;
@@ -57,10 +57,10 @@ PRECISION& PinnedHostMatrix::operator()(int row, int column) {
   }
 #endif
 
-  return *(hostMatrix + (numberOfRows * column) + row);
+  return *(hostMatrix + (numberOfRealRows * column) + row);
 }
 
-const PRECISION& PinnedHostMatrix::operator()(int row, int column) const {
+const PRECISION& PinnedHostMatrix::operator()(int row, int column) const{
 #ifdef DEBUG
   if(row >= numberOfRows || row < 0){
     std::ostringstream os;
@@ -76,7 +76,7 @@ const PRECISION& PinnedHostMatrix::operator()(int row, int column) const {
   }
 #endif
 
-  return *(hostMatrix + (numberOfRows * column) + row);
+  return *(hostMatrix + (numberOfRealRows * column) + row);
 }
 
 } /* namespace Container */

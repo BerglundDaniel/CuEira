@@ -4,7 +4,7 @@ namespace CuEira {
 namespace CUDA {
 
 CudaEnvironmentFactorHandlerFactory::CudaEnvironmentFactorHandlerFactory(const Configuration& configuration,
-    const std::vector<std::string>& columnNames, const Container::HostMatrix& matrix) :
+    const std::vector<std::string>& columnNames, const Container::PinnedHostMatrix& matrix) :
     EnvironmentFactorHandlerFactory(configuration, columnNames, matrix) {
 
 }

@@ -49,8 +49,8 @@ if(${CLUSTER})
   add_definitions(-DCLUSTER=1)
 endif(${CLUSTER})
 
-add_definitions(-DCPUUNROLL=${CPU_UNROLL})
-add_definitions(-DGPUUNROLL=${GPU_UNROLL})
+add_definitions(-DCPU_UNROLL=${CPU_UNROLL})
+add_definitions(-DGPU_UNROLL=${GPU_UNROLL})
 
 if(${TARGET_ARCHITECTURE} MATCHES fermi)
   add_definitions(-DFERMI=1)
@@ -125,7 +125,7 @@ endif(${CLUSTER})
 MESSAGE( STATUS "Seting compiler options:" )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-alias")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-alias") //This is for intel, -fstrict-aliasing is for gcc, implicit in O2 and up TODO
 
 #GPU optimization options
 if(NOT ${CPU})

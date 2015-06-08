@@ -7,13 +7,14 @@ set(INCLUDE_DIRECTORIES
 if(NOT ${CPU})
   set(GPU_SOURCE
     ${GPU_SOURCE}
-    ${CMAKE_CURRENT_SOURCE_DIR}/GPUWorkerThread.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/GPUWorkerThread.cpp
     PARENT_SCOPE
   )
 endif()
 
 set(SOURCE
   ${SOURCE}
+  #${CMAKE_CURRENT_SOURCE_DIR}/CPUWorkerThread.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DataQueue.cpp
   PARENT_SCOPE
 )

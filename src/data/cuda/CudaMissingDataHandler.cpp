@@ -18,7 +18,7 @@ void CudaMissingDataHandler::setMissing(const std::set<int>& snpPersonsToSkip) {
   MissingDataHandler::setMissing(snpPersonsToSkip);
 
   delete indexesToCopyDevice;
-  indexesToCopyDevice = hostToDevice.transferVector(indexesToCopy);
+  indexesToCopyDevice = hostToDevice.transferVector(*indexesToCopy);
 }
 
 void CudaMissingDataHandler::copyNonMissing(const Container::DeviceVector& fromVector,
@@ -29,7 +29,7 @@ void CudaMissingDataHandler::copyNonMissing(const Container::DeviceVector& fromV
   }
 #endif
 
-  kernelWrapper.vectorCopyIndexes(indexesToCopyDevice, fromVector, toVector);
+  kernelWrapper.vectorCopyIndexes(*indexesToCopyDevice, fromVector, toVector);
 }
 
 } /* namespace CUDA */

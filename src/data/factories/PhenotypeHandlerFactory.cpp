@@ -2,23 +2,21 @@
 
 namespace CuEira {
 
-PhenotypeHandlerFactory::PhenotypeHandlerFactory() {
+template<typename Vector>
+PhenotypeHandlerFactory<Vector>::PhenotypeHandlerFactory(){
 
 }
 
-PhenotypeHandlerFactory::~PhenotypeHandlerFactory() {
+template<typename Vector>
+PhenotypeHandlerFactory<Vector>::~PhenotypeHandlerFactory(){
 
 }
 
-PhenotypeHandler* PhenotypeHandlerFactory::constructPhenotypeHandler(const PersonHandler& personHandler) const {
+template<typename Vector>
+Vector* PhenotypeHandlerFactory<Vector>::createVectorOfPhenotypes(const PersonHandler& personHandler) const{
+  Vector* phenotypeOriginal = new Vector(numberOfIndividualsToInclude);
   const std::vector<Person*>& persons = personHandler.getPersons();
   const int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
-
-#ifdef CPU
-  Container::HostVector* phenotypeOriginal = new Container::RegularHostVector(numberOfIndividualsToInclude);
-#else
-  Container::HostVector* phenotypeOriginal = new Container::PinnedHostVector(numberOfIndividualsToInclude);
-#endif
 
   int index = 0;
   for(auto person : persons){
@@ -32,12 +30,7 @@ PhenotypeHandler* PhenotypeHandlerFactory::constructPhenotypeHandler(const Perso
     }
   }
 
-#ifdef CPU
-  return new CPU::CpuPhenotypeHandler(phenotypeOriginal);
-#else
-  //TODO om GPU transfer to GPU
-  return new CUDA::CudaPhenotypeHandler(phenotypeOriginalDevice);
-#endif
+  return phenotypeOriginal;
 }
 
 } /* namespace CuEira */

@@ -13,7 +13,6 @@
 #include <HostMatrix.h>
 #include <Recode.h>
 #include <InvalidState.h>
-#include <StatisticModel.h>
 #include <GeneticModel.h>
 #include <RiskAllele.h>
 #include <SNP.h>
@@ -30,7 +29,6 @@
 #include <InteractionVector.h>
 #include <ModelInformation.h>
 #include <ModelInformationFactory.h>
-#include <StatisticModel.h>
 
 #ifdef PROFILE
 #include <boost/chrono/chrono_io.hpp>

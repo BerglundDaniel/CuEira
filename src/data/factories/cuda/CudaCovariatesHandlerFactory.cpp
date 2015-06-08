@@ -4,17 +4,17 @@ namespace CuEira {
 namespace CUDA {
 
 CudaCovariatesHandlerFactory::CudaCovariatesHandlerFactory(const Configuration& configuration) :
-    environmentColumnName(configuration.getEnvironmentColumnName()) {
+    environmentColumnName(configuration.getEnvironmentColumnName()){
 
 }
 
-CudaCovariatesHandlerFactory::~CudaCovariatesHandlerFactory() {
+CudaCovariatesHandlerFactory::~CudaCovariatesHandlerFactory(){
 
 }
 
 CovariatesHandler<DeviceMatrix>* CudaCovariatesHandlerFactory::constructCovariatesHandler(
     const Container::PinnedHostMatrix& matrix, const std::vector<std::string>& columnNames,
-    const HostToDevice& hostToDevice) const {
+    const HostToDevice& hostToDevice) const{
   const int numberOfColumns = matrix.getNumberOfColumns();
   Container::DeviceMatrix* covariatesDevice = new Container::DeviceMatrix(matrix.getNumberOfRows(),
       numberOfColumns - 1);
@@ -22,8 +22,8 @@ CovariatesHandler<DeviceMatrix>* CudaCovariatesHandlerFactory::constructCovariat
   int col = 0;
   for(int i = 0; i < numberOfColumns; ++i){
     if(environmentColumnName != columnNames[i]){
-      Container::PinnedHostVector covVector = matrix(i);
-      hostToDevice.transferVector(*covVector, covariatesDevice(0, col));
+      const Container::PinnedHostVector* covVector = matrix(i);
+      hostToDevice.transferVector(*covVector, (*covariatesDevice)(0, col));
 
       delete covVector;
       ++col;
@@ -33,6 +33,5 @@ CovariatesHandler<DeviceMatrix>* CudaCovariatesHandlerFactory::constructCovariat
   return new CovariatesHandler<DeviceMatrix>(covariatesDevice);
 }
 
-}
-/* namespace CUDA */
+} /* namespace CUDA */
 } /* namespace CuEira */

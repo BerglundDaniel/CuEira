@@ -51,11 +51,12 @@ Recode LogisticRegressionResult::calculateRecode() const {
   double envBeta = (*beta)(2);
   double interactionBeta = (*beta)(3);
 
+  //TODO switch to OR?
   if(snpBeta < 0 && snpBeta < envBeta && snpBeta < interactionBeta){
     recode = SNP_PROTECT;
   }else if(envBeta < 0 && envBeta < snpBeta && envBeta < interactionBeta){
     recode = ENVIRONMENT_PROTECT;
-  }else if(interactionBeta < 0 && interactionBeta < snpBeta && interactionBeta < envBeta){
+  }else if(interactionBeta <= 0 && interactionBeta <= snpBeta && interactionBeta <= envBeta){
     recode = INTERACTION_PROTECT;
   }
 

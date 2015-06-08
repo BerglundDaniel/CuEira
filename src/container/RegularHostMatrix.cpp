@@ -57,7 +57,7 @@ PRECISION& RegularHostMatrix::operator()(int row, int column) {
   }
 #endif
 
-  return *(hostMatrix + (numberOfRows * column) + row);
+  return *(hostMatrix + (numberOfRealRows * column) + row);
 }
 
 const PRECISION& RegularHostMatrix::operator()(int row, int column) const {
@@ -76,7 +76,7 @@ const PRECISION& RegularHostMatrix::operator()(int row, int column) const {
   }
 #endif
 
-  return *(hostMatrix + (numberOfRows * column) + row);
+  return *(hostMatrix + (numberOfRealRows * column) + row);
 }
 
 }

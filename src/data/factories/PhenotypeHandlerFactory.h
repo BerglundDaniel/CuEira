@@ -3,32 +3,31 @@
 
 #include <vector>
 
+#include <PersonHandler.h>
 #include <Person.h>
 #include <Phenotype.h>
-#include <PersonHandler.h>
-#include <PhenotypeHandler.h>
-
-#ifdef CPU
-#include <RegularHostVector.h>
-#include <CpuPhenotypeHandler.h>
-#else
-#include <CudaPhenotypeHandler.h>
-#include <PinnedHostVector.h>
-#endif
 
 namespace CuEira {
 
-/**
- * This is ...
+/*
+ * This class....
  *
- * @author Daniel Berglund daniel.k.berglund@gmail.com
+ *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector>
 class PhenotypeHandlerFactory {
 public:
-  explicit PhenotypeHandlerFactory();
   virtual ~PhenotypeHandlerFactory();
 
-  virtual PhenotypeHandler* constructPhenotypeHandler(const PersonHandler& personHandler) const;
+  PhenotypeHandlerFactory(const PhenotypeHandlerFactory&) = delete;
+  PhenotypeHandlerFactory(PhenotypeHandlerFactory&&) = delete;
+  PhenotypeHandlerFactory& operator=(const PhenotypeHandlerFactory&) = delete;
+  PhenotypeHandlerFactory& operator=(PhenotypeHandlerFactory&&) = delete;
+
+protected:
+  explicit PhenotypeHandlerFactory();
+
+  virtual Vector* createVectorOfPhenotypes(const PersonHandler& personHandler) const;
 };
 
 } /* namespace CuEira */

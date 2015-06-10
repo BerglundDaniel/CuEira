@@ -2,17 +2,11 @@
 
 namespace CuEira {
 namespace CUDA {
+namespace Kernel {
 
-CublasWrapper::CublasWrapper(const Stream& stream) :
-    stream(stream), cudaStream(stream.getCudaStream()), cublasHandle(stream.getCublasHandle()) {
+//constOne(new PRECISION(1)), constZero(new PRECISION(0))
 
-}
-
-CublasWrapper::~CublasWrapper() {
-
-}
-
-void CublasWrapper::copyVector(const DeviceVector& vectorFrom, DeviceVector& vectorTo) const {
+void copyVector(const Stream& stream, const DeviceVector& vectorFrom, DeviceVector& vectorTo){
 #ifdef DEBUG
   if(vectorFrom.getNumberOfRows() != vectorTo.getNumberOfRows()){
     std::ostringstream os;
@@ -23,6 +17,8 @@ void CublasWrapper::copyVector(const DeviceVector& vectorFrom, DeviceVector& vec
   }
 #endif
 
+  const cublasHandle_t& cublasHandle = stream.getCublasHandle();
+
 #ifdef DOUBLEPRECISION
   cublasDcopy(cublasHandle, vectorFrom.getNumberOfRows(), vectorFrom.getMemoryPointer(), 1, vectorTo.getMemoryPointer(),
       1);
@@ -32,12 +28,12 @@ void CublasWrapper::copyVector(const DeviceVector& vectorFrom, DeviceVector& vec
 #endif
 
 #ifdef FERMI
-  syncStream();
+  stream.syncStream();
 #endif
 }
 
-void CublasWrapper::matrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
-    DeviceVector& result) const {
+void matrixVectorMultiply(const Stream& stream, const DeviceMatrix& matrix, const DeviceVector& vector,
+    DeviceVector& result){
 #ifdef DEBUG
   if((matrix.getNumberOfRows() != result.getNumberOfRows()) || (vector.getNumberOfRows() != matrix.getNumberOfColumns())){
     std::ostringstream os;
@@ -46,6 +42,8 @@ void CublasWrapper::matrixVectorMultiply(const DeviceMatrix& matrix, const Devic
     throw CudaException(tmp.c_str());
   }
 #endif
+
+  const cublasHandle_t& cublasHandle = stream.getCublasHandle();
 
 #ifdef DOUBLEPRECISION
   cublasDgemv(cublasHandle, CUBLAS_OP_N, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), constOne,
@@ -58,12 +56,12 @@ void CublasWrapper::matrixVectorMultiply(const DeviceMatrix& matrix, const Devic
 #endif
 
 #ifdef FERMI
-  syncStream();
+  stream.syncStream();
 #endif
 }
 
-void CublasWrapper::matrixTransVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
-    DeviceVector& result) const {
+void matrixTransVectorMultiply(const Stream& stream, const DeviceMatrix& matrix, const DeviceVector& vector,
+    DeviceVector& result){
 #ifdef DEBUG
   if((matrix.getNumberOfColumns() != result.getNumberOfRows()) || (vector.getNumberOfRows() != matrix.getNumberOfRows())){
     std::ostringstream os;
@@ -72,6 +70,8 @@ void CublasWrapper::matrixTransVectorMultiply(const DeviceMatrix& matrix, const 
     throw CudaException(tmp.c_str());
   }
 #endif
+
+  const cublasHandle_t& cublasHandle = stream.getCublasHandle();
 
 #ifdef DOUBLEPRECISION
   cublasDgemv(cublasHandle, CUBLAS_OP_T, matrix.getNumberOfRows(), matrix.getNumberOfColumns(), constOne,
@@ -84,18 +84,20 @@ void CublasWrapper::matrixTransVectorMultiply(const DeviceMatrix& matrix, const 
 #endif
 
 #ifdef FERMI
-  syncStream();
+  stream.syncStream();
 #endif
 }
 
-void CublasWrapper::matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const DeviceMatrix& matrix2,
-    DeviceMatrix& result) const {
+void matrixTransMatrixMultiply(const Stream& stream, const DeviceMatrix& matrix1, const DeviceMatrix& matrix2,
+    DeviceMatrix& result){
 #ifdef DEBUG
   if((matrix1.getNumberOfRows() != matrix2.getNumberOfRows()) || (matrix1.getNumberOfColumns() != result.getNumberOfRows())
       || (matrix2.getNumberOfColumns() != result.getNumberOfColumns())){
     throw DimensionMismatch("Matrix sizes doesn't match in matrixTransMatrixMultiply");
   }
 #endif
+
+  const cublasHandle_t& cublasHandle = stream.getCublasHandle();
 
 #ifdef DOUBLEPRECISION
   cublasDgemm(cublasHandle, CUBLAS_OP_T, CUBLAS_OP_N, matrix1.getNumberOfColumns(), matrix2.getNumberOfColumns(),
@@ -110,12 +112,14 @@ void CublasWrapper::matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const
 #endif
 
 #ifdef FERMI
-  syncStream();
+  stream.syncStream();
 #endif
 }
 
-void CublasWrapper::sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector,
-    PRECISION& sumHost) const {
+void sumResultToHost(const Stream& stream, const DeviceVector& vector, const DeviceVector& oneVector,
+    PRECISION& sumHost){
+  const cublasHandle_t& cublasHandle = stream.getCublasHandle();
+
 #ifdef DOUBLEPRECISION
   cublasDdot(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, oneVector.getMemoryPointer(), 1,
       &sumHost);
@@ -125,9 +129,10 @@ void CublasWrapper::sumResultToHost(const DeviceVector& vector, const DeviceVect
 #endif
 
 #ifdef FERMI
-  syncStream();
+  stream.syncStream();
 #endif
 }
 
+} /* namespace Kernel */
 } /* namespace CUDA */
 } /* namespace CuEira */

@@ -25,10 +25,8 @@ public:
 
 protected:
   Model(ModelConfiguration* modelConfiguration);
-  Model(); //For the mock
 
   ModelConfiguration* modelConfiguration;
-  const MKLWrapper* blasWrapper;
 };
 
 } /* namespace Model */

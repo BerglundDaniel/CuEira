@@ -13,10 +13,9 @@ CpuEnvironmentFactorHandlerFactory::~CpuEnvironmentFactorHandlerFactory(){
 
 }
 
-EnvironmentFactorHandler<Container::HostVector>* CpuEnvironmentFactorHandlerFactory::constructEnvironmentFactorHandler(
-    const MKLWrapper& mklWrapper) const{
+EnvironmentFactorHandler<Container::HostVector>* CpuEnvironmentFactorHandlerFactory::constructEnvironmentFactorHandler() const{
   Container::RegularHostVector* envDataTo = new Container::RegularHostVector(envData->getNumberOfRows());
-  mklWrapper.copyVector(*envData, *envDataTo);
+  CuEira::Blas::copyVector(*envData, *envDataTo);
 
   return new EnvironmentFactorHandler<Container::HostVector>(environmentFactor, envDataTo);
 }

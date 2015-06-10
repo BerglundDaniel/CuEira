@@ -4,12 +4,16 @@
 #include <set>
 
 #include <SNPVector.h>
+#include <HostVector.h>
 #include <RegularHostVector.h>
 #include <SNP.h>
 #include <GeneticModel.h>
 #include <Recode.h>
 
 namespace CuEira {
+namespace CPU {
+
+}
 namespace Container {
 namespace CPU {
 

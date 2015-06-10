@@ -21,11 +21,11 @@ Configuration::Configuration(int argc, char* argv[]) {
       options::value<int>(), "Set number of GPUs to use. Default is number of available GPUs.")("maf,m",
       options::value<double>()->default_value(0.00),
       "Set the threshold for the minor allele frequency(MAF) in range 0 to 1. Any SNPs with MAF below the threshold will be excluded from the analysis. Default 0.00.")(
-      "cell_count", options::value<int>() > default_value(10),
+      "cell_count", options::value<int>() ->default_value(10),
       "Set the threshold for the number of individuals in a group. The individuals are divided into groups based on outcome, genetic risk and environment factor. If any group has fewer individuals than the threshold the marker is skipped.")(
-      "conv_threshold", options::value<double>() > default_value(1e-3),
+      "conv_threshold", options::value<double>() ->default_value(1e-3),
       "Set the convergence threshold for the logistic regression.")("max_iter",
-      options::value<int>() > default_value(500), "Set the maximum number of iterations for the logistic regression.")(
+      options::value<int>() ->default_value(500), "Set the maximum number of iterations for the logistic regression.")(
       "p", options::value<bool>()->zero_tokens(),
       "Use alternative coding for the phenotype, 0 for unaffected and 1 for affected instead of 1 for unaffected and 2 for affected.")(
       "exclude", options::value<bool>()->zero_tokens(), "Exclude SNPs with negative position from the analysis.")(

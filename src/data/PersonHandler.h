@@ -50,11 +50,17 @@ public:
   PersonHandler& operator=(PersonHandler&&) = delete;
 
 private:
+  template<class T> struct pointerLess {
+    bool operator()(T* left, T* right) const{
+      return *left < *right;
+    }
+  };
+
   const int numberOfIndividualsTotal;
   int numberOfIndividualsToInclude;
   std::vector<Person*>* persons;
   std::map<Id, Person*> idToPerson;
-  std::map<Person*, int> personToRowInclude;
+  std::map<const Person*, int, pointerLess<const Person> > personToRowInclude;
   bool individualsLocked;
 };
 

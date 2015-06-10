@@ -16,6 +16,7 @@
 #include <DimensionMismatch.h>
 
 namespace CuEira {
+namespace Blas {
 
 using namespace CuEira::Container;
 
@@ -24,38 +25,33 @@ using namespace CuEira::Container;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class MKLWrapper {
-public:
-  MKLWrapper();
-  virtual ~MKLWrapper();
 
-  void copyVector(const HostVector& vectorFrom, HostVector& vectorTo) const;
+void copyVector(const HostVector& vectorFrom, HostVector& vectorTo);
 
-  bool svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD) const;
+bool svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD);
 
-  void matrixVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
-      PRECISION alpha = 1, PRECISION beta = 0) const;
+void matrixVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
+    PRECISION alpha = 1, PRECISION beta = 0);
 
-  void matrixTransVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
-      PRECISION alpha = 1, PRECISION beta = 0) const;
+void matrixTransVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
+    PRECISION alpha = 1, PRECISION beta = 0);
 
-  void matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
-      PRECISION alpha = 1, PRECISION beta = 0) const;
+void matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
+    PRECISION alpha = 1, PRECISION beta = 0);
 
-  void matrixTransMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
-      PRECISION alpha = 1, PRECISION beta = 0) const;
+void matrixTransMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
+    PRECISION alpha = 1, PRECISION beta = 0);
 
-  /**
-   * vector2(i) = vector2(i)-vector1(i)
-   */
-  void differenceElememtWise(const HostVector& vector1, HostVector& vector2) const;
+/**
+ * vector2(i) = vector2(i)-vector1(i)
+ */
+void differenceElememtWise(const HostVector& vector1, HostVector& vector2);
 
-  void multiplicationElementWise(const HostVector& vector1, const HostVector& vector2, const HostVector& result) const;
+void multiplicationElementWise(const HostVector& vector1, const HostVector& vector2, const HostVector& result);
 
-  void absoluteSum(const HostVector& vector, PRECISION& result) const;
+void absoluteSum(const HostVector& vector, PRECISION& result);
 
-};
-
+} /* namespace Blas */
 } /* namespace CuEira */
 
 #endif /* MKLWRAPPER_H_ */

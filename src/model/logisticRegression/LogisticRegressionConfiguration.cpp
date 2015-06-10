@@ -5,36 +5,36 @@ namespace Model {
 namespace LogisticRegression {
 
 LogisticRegressionConfiguration::LogisticRegressionConfiguration(const Configuration& configuration,
-    const MKLWrapper& blasWrapper, bool usingCovariates, const int numberOfRows, const int numberOfPredictors) :
-    ModelConfiguration(configuration, blasWrapper), maxIterations(configuration.getNumberOfMaxLRIterations()), convergenceThreshold(
+    bool usingCovariates, const int numberOfRows, const int numberOfPredictors) :
+    ModelConfiguration(configuration), maxIterations(configuration.getNumberOfMaxLRIterations()), convergenceThreshold(
         configuration.getLRConvergenceThreshold()), numberOfPredictors(numberOfPredictors), numberOfRows(numberOfRows), usingCovariates(
-        usingCovariates) {
+        usingCovariates){
 
 }
 
-LogisticRegressionConfiguration::~LogisticRegressionConfiguration() {
+LogisticRegressionConfiguration::~LogisticRegressionConfiguration(){
 
 }
 
-void LogisticRegressionConfiguration::setDefaultBeta(HostVector& beta) {
+void LogisticRegressionConfiguration::setDefaultBeta(HostVector& beta){
   for(int i = 0; i < numberOfPredictors; ++i){
     beta(i) = 0;
   }
 }
 
-int LogisticRegressionConfiguration::getNumberOfRows() const {
+int LogisticRegressionConfiguration::getNumberOfRows() const{
   return numberOfRows;
 }
 
-int LogisticRegressionConfiguration::getNumberOfPredictors() const {
+int LogisticRegressionConfiguration::getNumberOfPredictors() const{
   return numberOfPredictors;
 }
 
-int LogisticRegressionConfiguration::getNumberOfMaxIterations() const {
+int LogisticRegressionConfiguration::getNumberOfMaxIterations() const{
   return maxIterations;
 }
 
-double LogisticRegressionConfiguration::getConvergenceThreshold() const {
+double LogisticRegressionConfiguration::getConvergenceThreshold() const{
   return convergenceThreshold;
 }
 

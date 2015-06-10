@@ -4,16 +4,11 @@ namespace CuEira {
 namespace Model {
 
 Model::Model(ModelConfiguration* modelConfiguration) :
-    modelConfiguration(modelConfiguration), blasWrapper(&modelConfiguration->getBlasWrapper()) {
+    modelConfiguration(modelConfiguration){
 
 }
 
-Model::Model() :
-    modelConfiguration(nullptr), blasWrapper(nullptr) {
-
-}
-
-Model::~Model() {
+Model::~Model(){
   delete modelConfiguration;
 }
 

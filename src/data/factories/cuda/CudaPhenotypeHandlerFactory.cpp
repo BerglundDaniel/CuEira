@@ -12,11 +12,11 @@ CudaPhenotypeHandlerFactory::~CudaPhenotypeHandlerFactory(){
 
 }
 
-PhenotypeHandler<Container::DeviceVector>* CudaPhenotypeHandlerFactory::constructPhenotypeHandler(
-    const PersonHandler& personHandler, const HostToDevice& hostToDevice) const{
+PhenotypeHandler<Container::DeviceVector>* CudaPhenotypeHandlerFactory::constructPhenotypeHandler(const Stream& stream,
+    const PersonHandler& personHandler) const{
 
   Container::PinnedHostVector* phenotypeOriginal = createVectorOfPhenotypes(personHandler);
-  Container::DeviceVector* phenotypeOriginalDevice = hostToDevice.transferVector(*phenotypeOriginal);
+  Container::DeviceVector* phenotypeOriginalDevice = transferVector(stream, *phenotypeOriginal);
   delete phenotypeOriginal;
 
   return new PhenotypeHandler<Container::DeviceVector>(phenotypeOriginalDevice);

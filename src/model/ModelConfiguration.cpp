@@ -3,17 +3,13 @@
 namespace CuEira {
 namespace Model {
 
-ModelConfiguration::ModelConfiguration(const Configuration& configuration, const MKLWrapper& blasWrapper) :
-    configuration(configuration), blasWrapper(blasWrapper) {
+ModelConfiguration::ModelConfiguration(const Configuration& configuration) :
+    configuration(configuration){
 
 }
 
-ModelConfiguration::~ModelConfiguration() {
+ModelConfiguration::~ModelConfiguration(){
 
-}
-
-const MKLWrapper& ModelConfiguration::getBlasWrapper() const {
-  return blasWrapper;
 }
 
 } /* namespace Model */

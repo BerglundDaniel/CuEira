@@ -7,6 +7,7 @@
 #include <SNPVector.h>
 #include <PhenotypeVector.h>
 #include <DeviceToHost.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -18,7 +19,7 @@ namespace CUDA {
  */
 class CudaAlleleStatisticsFactory: public CuEira::AlleleStatisticsFactory<Container::DeviceVector> {
 public:
-  explicit CudaAlleleStatisticsFactory(const KernelWrapper& kernelWrapper, const DeviceToHost& deviceToHost);
+  explicit CudaAlleleStatisticsFactory(const Stream& stream);
   virtual ~CudaAlleleStatisticsFactory();
 
 protected:
@@ -26,8 +27,7 @@ protected:
       const Container::SNPVector<Container::DeviceVector>& snpVector,
       const Container::PhenotypeVector<Container::DeviceVector>& phenotypeVector) const;
 
-  const KernelWrapper& kernelWrapper;
-  const DeviceToHost& deviceToHost;
+  const Stream& stream;
 };
 
 } /* namespace CUDA */

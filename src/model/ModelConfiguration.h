@@ -7,6 +7,8 @@
 namespace CuEira {
 namespace Model {
 
+using namespace CuEira::Container;
+
 /**
  * This is ...
  *
@@ -15,8 +17,6 @@ namespace Model {
 class ModelConfiguration {
 public:
   virtual ~ModelConfiguration();
-
-  virtual const MKLWrapper& getBlasWrapper() const;
 
   virtual void setEnvironmentFactor(const HostVector& environmentData)=0;
   virtual void setSNP(const HostVector& snpData)=0;
@@ -28,10 +28,9 @@ public:
   ModelConfiguration& operator=(ModelConfiguration&&) = delete;
 
 protected:
-  ModelConfiguration(const Configuration& configuration, const MKLWrapper& blasWrapper);
+  ModelConfiguration(const Configuration& configuration);
 
   const Configuration& configuration;
-  const MKLWrapper& blasWrapper;
 };
 
 } /* namespace Model */

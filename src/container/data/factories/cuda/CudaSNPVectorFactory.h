@@ -8,6 +8,7 @@
 #include <KernelWrapper.h>
 #include <HostToDevice.h>
 #include <Configuration.h>
+#include <PinnedHostVector.h>
 
 namespace CuEira {
 namespace Container {
@@ -18,13 +19,13 @@ namespace CUDA {
  *
  *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CudaSNPVectorFactory: public SNPVectorFactory {
+class CudaSNPVectorFactory: public SNPVectorFactory<PinnedHostVector, DeviceVector> {
 public:
   explicit CudaSNPVectorFactory(const Configuration& configuration, const HostToDevice& hostToDevice,
       const KernelWrapper& kernelWrapper);
   virtual ~CudaSNPVectorFactory();
 
-  virtual CudaSNPVector* constructSNPVector(SNP& snp, const HostVector* originalSNPData,
+  virtual CudaSNPVector* constructSNPVector(SNP& snp, PinnedHostVector* originalSNPData,
       const std::set<int>* snpMissingData) const;
 
   CudaSNPVectorFactory(const CudaSNPVectorFactory&) = delete;

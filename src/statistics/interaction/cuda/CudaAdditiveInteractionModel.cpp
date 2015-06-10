@@ -3,19 +3,19 @@
 namespace CuEira {
 namespace CUDA {
 
-CudaAdditiveInteractionModel::CudaAdditiveInteractionModel(const KernelWrapper& kernelWrapper) :
-    AdditiveInteractionModel<DeviceVector>(), kernelWrapper(kernelWrapper) {
+CudaAdditiveInteractionModel::CudaAdditiveInteractionModel(const Stream& stream) :
+    AdditiveInteractionModel<DeviceVector>(), stream(stream){
 
 }
 
-CudaAdditiveInteractionModel::~CudaAdditiveInteractionModel() {
+CudaAdditiveInteractionModel::~CudaAdditiveInteractionModel(){
 
 }
 
 void CudaAdditiveInteractionModel::applyModel(SNPVector<DeviceVector>& snpVector,
-    EnvironmentVector<DeviceVector>& environmentVector, InteractionVector<DeviceVector>& interactionVector) {
+    EnvironmentVector<DeviceVector>& environmentVector, InteractionVector<DeviceVector>& interactionVector){
   interactionVector.updateSize(environmentVector.getNumberOfIndividualsToInclude());
-  kernelWrapper.applyAdditiveModel(snpVector.getSNPData(), environmentVector.getEnvironmentData(),
+  Kernel::applyAdditiveModel(stream, snpVector.getSNPData(), environmentVector.getEnvironmentData(),
       interactionVector.getInteractionData());
 }
 

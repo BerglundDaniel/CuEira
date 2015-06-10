@@ -15,53 +15,49 @@ float CudaLogisticRegression::timeSpentTransferToDevice;
 #endif
 
 CudaLogisticRegression::CudaLogisticRegression(CudaLogisticRegressionConfiguration* lrConfiguration) :
-    LogisticRegression(lrConfiguration), hostToDevice(&lrConfiguration->getHostToDevice()), deviceToHost(
-        &lrConfiguration->getDeviceToHost()), kernelWrapper(&lrConfiguration->getKernelWrapper()), lrConfiguration(
-        lrConfiguration), informationMatrixDevice(&lrConfiguration->getInformationMatrix()), betaCoefficentsDevice(
-        &lrConfiguration->getBetaCoefficents()), predictorsDevice(&lrConfiguration->getPredictors()), outcomesDevice(
-        &lrConfiguration->getOutcomes()), probabilitesDevice(&lrConfiguration->getProbabilites()), scoresDevice(
-        &lrConfiguration->getScores()), workMatrixNxMDevice(&lrConfiguration->getWorkMatrixNxM()), workVectorNx1Device(
-        &lrConfiguration->getWorkVectorNx1()), oneVector((*predictorsDevice)(0)), defaultBetaCoefficents(
-        &lrConfiguration->getDefaultBetaCoefficents()) {
+    LogisticRegression(lrConfiguration), lrConfiguration(lrConfiguration), stream(lrConfiguration->getStream()), informationMatrixDevice(
+        &lrConfiguration->getInformationMatrix()), betaCoefficentsDevice(&lrConfiguration->getBetaCoefficents()), predictorsDevice(
+        &lrConfiguration->getPredictors()), outcomesDevice(&lrConfiguration->getOutcomes()), probabilitesDevice(
+        &lrConfiguration->getProbabilites()), scoresDevice(&lrConfiguration->getScores()), workMatrixNxMDevice(
+        &lrConfiguration->getWorkMatrixNxM()), workVectorNx1Device(&lrConfiguration->getWorkVectorNx1()), oneVector(
+        (*predictorsDevice)(0)), defaultBetaCoefficents(&lrConfiguration->getDefaultBetaCoefficents()){
 
 }
 
-CudaLogisticRegression::CudaLogisticRegression() :
-    LogisticRegression(), hostToDevice(nullptr), deviceToHost(nullptr), kernelWrapper(nullptr), informationMatrixDevice(
-        nullptr), betaCoefficentsDevice(nullptr), predictorsDevice(nullptr), outcomesDevice(nullptr), probabilitesDevice(
-        nullptr), scoresDevice(nullptr), workMatrixNxMDevice(nullptr), workVectorNx1Device(nullptr), lrConfiguration(
-        nullptr), oneVector(nullptr), defaultBetaCoefficents(nullptr) {
+CudaLogisticRegression::CudaLogisticRegression(const Stream& stream) :
+    LogisticRegression(), informationMatrixDevice(nullptr), betaCoefficentsDevice(nullptr), predictorsDevice(nullptr), outcomesDevice(
+        nullptr), probabilitesDevice(nullptr), scoresDevice(nullptr), workMatrixNxMDevice(nullptr), workVectorNx1Device(
+        nullptr), lrConfiguration(nullptr), oneVector(nullptr), defaultBetaCoefficents(nullptr), stream(stream){
 
 }
 
-CudaLogisticRegression::~CudaLogisticRegression() {
+CudaLogisticRegression::~CudaLogisticRegression(){
   delete oneVector;
 }
 
-LogisticRegressionResult* CudaLogisticRegression::calculate() {
+LogisticRegressionResult* CudaLogisticRegression::calculate(){
 #ifdef PROFILE
   boost::chrono::system_clock::time_point before = boost::chrono::system_clock::now();
   Event* beforeTransferElse = nullptr;
   Event* afterTransferElse = nullptr;
 #endif
 
-  const Stream& stream = kernelWrapper->stream;
   PRECISION diffSumHost = 0;
   logLikelihood = 0;
 
   Container::PinnedHostVector* betaCoefficentsHost = new Container::PinnedHostVector(numberOfPredictors);
-  blasWrapper->copyVector(*defaultBetaCoefficents, *betaCoefficentsHost);
+  Blas::copyVector(*defaultBetaCoefficents, *betaCoefficentsHost);
 
 #ifdef PROFILE
   Event beforeInitTransfer(stream);
 #endif
-  hostToDevice->transferVector(*defaultBetaCoefficents, betaCoefficentsDevice->getMemoryPointer());
+  transferVector(stream, *defaultBetaCoefficents, betaCoefficentsDevice->getMemoryPointer());
 #ifdef PROFILE
   Event afterInitTransfer(stream);
 #endif
 
 #ifdef FERMI
-  kernelWrapper->syncStream();
+  stream.syncStream();
 #endif
 
   Container::PinnedHostMatrix* informationMatrixHost = new Container::PinnedHostMatrix(numberOfPredictors,
@@ -87,18 +83,18 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
 #endif
 
     //Transfer needed data to host
-    deviceToHost->transferMatrix(*informationMatrixDevice, informationMatrixHost->getMemoryPointer());
+    transferMatrix(stream, *informationMatrixDevice, informationMatrixHost->getMemoryPointer());
 #ifdef FERMI
-    kernelWrapper->syncStream();
+    stream.syncStream();
 #endif
 
-    deviceToHost->transferVector(*scoresDevice, scoresHost->getMemoryPointer());
+    transferVector(stream, *scoresDevice, scoresHost->getMemoryPointer());
 
 #ifdef PROFILE
     Event afterTransfer(stream);
 #endif
 
-    kernelWrapper->syncStream();
+    stream.syncStream();
 
 #ifdef PROFILE
     timeSpentGPU+=afterKernel - beforeKernel;
@@ -108,7 +104,7 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
 #endif
 
     //Copy beta to old beta
-    blasWrapper->copyVector(*betaCoefficentsHost, *betaCoefficentsOldHost);
+    Blas::copyVector(*betaCoefficentsHost, *betaCoefficentsOldHost);
 
     invertInformationMatrix(*informationMatrixHost, *inverseInformationMatrixHost, *uSVD, *sigma, *vtSVD,
         *workMatrixMxMHost);
@@ -139,13 +135,13 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
 #endif
 
       //Transfer the information matrix again since it was destroyed during the SVD.
-      deviceToHost->transferMatrix(*informationMatrixDevice, informationMatrixHost->getMemoryPointer());
+      transferMatrix(stream, *informationMatrixDevice, informationMatrixHost->getMemoryPointer());
 
 #ifdef PROFILE
       Event afterTransferBreak(stream);
 #endif
 
-      kernelWrapper->syncStream();
+      stream.syncStream();
 
 #ifdef PROFILE
       timeSpentGPU+= afterKernelBreak - beforeKernelBreak;
@@ -160,13 +156,13 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
 
       beforeTransferElse = new Event(stream);
 #endif
-      hostToDevice->transferVector(*betaCoefficentsHost, betaCoefficentsDevice->getMemoryPointer());
+      transferVector(stream, *betaCoefficentsHost, betaCoefficentsDevice->getMemoryPointer());
 #ifdef PROFILE
       afterTransferElse = new Event(stream);
 #endif
 
 #ifdef FERMI
-      kernelWrapper->syncStream();
+      stream.syncStream();
 #endif
     }
   } /* for iterationNumber */
@@ -235,34 +231,34 @@ LogisticRegressionResult* CudaLogisticRegression::calculate() {
 }
 
 void CudaLogisticRegression::calcuateProbabilites(const DeviceMatrix& predictorsDevice,
-    const DeviceVector& betaCoefficentsDevice, DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device) {
-  kernelWrapper->matrixVectorMultiply(predictorsDevice, betaCoefficentsDevice, workVectorNx1Device);
-  kernelWrapper->logisticTransform(workVectorNx1Device, probabilitesDevice);
+    const DeviceVector& betaCoefficentsDevice, DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device){
+  Kernel::matrixVectorMultiply(stream, predictorsDevice, betaCoefficentsDevice, workVectorNx1Device);
+  Kernel::logisticTransform(stream, workVectorNx1Device, probabilitesDevice);
 }
 
 void CudaLogisticRegression::calculateScores(const DeviceMatrix& predictorsDevice, const DeviceVector& outcomesDevice,
-    const DeviceVector& probabilitesDevice, DeviceVector& scoresDevice, DeviceVector& workVectorNx1Device) {
-  kernelWrapper->elementWiseDifference(outcomesDevice, probabilitesDevice, workVectorNx1Device);
-  kernelWrapper->matrixTransVectorMultiply(predictorsDevice, workVectorNx1Device, scoresDevice);
+    const DeviceVector& probabilitesDevice, DeviceVector& scoresDevice, DeviceVector& workVectorNx1Device){
+  Kernel::elementWiseDifference(stream, outcomesDevice, probabilitesDevice, workVectorNx1Device);
+  Kernel::matrixTransVectorMultiply(stream, predictorsDevice, workVectorNx1Device, scoresDevice);
 }
 
 void CudaLogisticRegression::calculateInformationMatrix(const DeviceMatrix& predictorsDevice,
     const DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device, DeviceMatrix& informationMatrixDevice,
-    DeviceMatrix& workMatrixNxMDevice) {
-  kernelWrapper->probabilitesMultiplyProbabilites(probabilitesDevice, workVectorNx1Device);
-  kernelWrapper->columnByColumnMatrixVectorElementWiseMultiply(predictorsDevice, workVectorNx1Device,
+    DeviceMatrix& workMatrixNxMDevice){
+  Kernel::probabilitesMultiplyProbabilites(stream, probabilitesDevice, workVectorNx1Device);
+  columnByColumnMatrixVectorElementWiseMultiply(predictorsDevice, workVectorNx1Device,
       workMatrixNxMDevice);
-  kernelWrapper->matrixTransMatrixMultiply(predictorsDevice, workMatrixNxMDevice, informationMatrixDevice);
+  Kernel::matrixTransMatrixMultiply(stream, predictorsDevice, workMatrixNxMDevice, informationMatrixDevice);
 }
 
 void CudaLogisticRegression::calculateLogLikelihood(const DeviceVector& outcomesDevice, const DeviceVector& oneVector,
-    const DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device, PRECISION& logLikelihood) {
-  kernelWrapper->logLikelihoodParts(outcomesDevice, probabilitesDevice, workVectorNx1Device);
-  kernelWrapper->sumResultToHost(workVectorNx1Device, oneVector, logLikelihood);
+    const DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device, PRECISION& logLikelihood){
+  Kernel::logLikelihoodParts(stream, outcomesDevice, probabilitesDevice, workVectorNx1Device);
+  Kernel::sumResultToHost(stream, workVectorNx1Device, oneVector, logLikelihood);
 }
 
 void CudaLogisticRegression::columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix,
-    const DeviceVector& vector, DeviceMatrix& result) const {
+    const DeviceVector& vector, DeviceMatrix& result) const{
 #ifdef DEBUG
   if((matrix.getNumberOfRows() != vector.getNumberOfRows()) || (vector.getNumberOfRows() != result.getNumberOfRows())){
     std::ostringstream os;
@@ -285,7 +281,7 @@ void CudaLogisticRegression::columnByColumnMatrixVectorElementWiseMultiply(const
   for(int k = 0; k < numberOfColumns; ++k){
     const DeviceVector* columnVector = matrix(k);
     DeviceVector* columnResultVector = result(k);
-    kernelWrapper->elementWiseMultiplication(*columnVector, vector, *columnResultVector);
+    Kernel::elementWiseMultiplication(stream, *columnVector, vector, *columnResultVector);
 
     delete columnVector;
     delete columnResultVector;

@@ -1,16 +1,9 @@
 #include "MKLWrapper.h"
 
 namespace CuEira {
+namespace Blas {
 
-MKLWrapper::MKLWrapper() {
-  vmlsetmode (VML_EP);
-}
-
-MKLWrapper::~MKLWrapper() {
-
-}
-
-void MKLWrapper::copyVector(const HostVector& vectorFrom, HostVector& vectorTo) const {
+void copyVector(const HostVector& vectorFrom, HostVector& vectorTo){
 #ifdef DEBUG
   if(vectorFrom.getNumberOfRows() != vectorTo.getNumberOfRows()){
     throw DimensionMismatch("Length of vectors in copyVector doesn't match.");
@@ -25,7 +18,7 @@ void MKLWrapper::copyVector(const HostVector& vectorFrom, HostVector& vectorTo) 
 #endif
 }
 
-bool MKLWrapper::svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD) const {
+bool svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD){
 #ifdef DEBUG
   if((matrix.getNumberOfRows() != uSVD.getNumberOfRows()) || (matrix.getNumberOfRows() != sigma.getNumberOfRows())
       || (matrix.getNumberOfRows() != vtSVD.getNumberOfRows())){
@@ -55,8 +48,8 @@ bool MKLWrapper::svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, Ho
   return true;
 }
 
-void MKLWrapper::matrixVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
-    PRECISION alpha, PRECISION beta) const {
+void matrixVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector, PRECISION alpha,
+    PRECISION beta){
 #ifdef DEBUG
   if((matrix.getNumberOfColumns() != vector.getNumberOfRows())
       || (matrix.getNumberOfRows() != resultVector.getNumberOfRows())){
@@ -76,8 +69,8 @@ void MKLWrapper::matrixVectorMultiply(const HostMatrix& matrix, const HostVector
 #endif
 }
 
-void MKLWrapper::matrixTransVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
-    PRECISION alpha, PRECISION beta) const {
+void matrixTransVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
+    PRECISION alpha, PRECISION beta){
 #ifdef DEBUG
   if((matrix.getNumberOfRows() != vector.getNumberOfRows())
       || (matrix.getNumberOfColumns() != resultVector.getNumberOfRows())){
@@ -97,8 +90,8 @@ void MKLWrapper::matrixTransVectorMultiply(const HostMatrix& matrix, const HostV
 #endif
 }
 
-void MKLWrapper::matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
-    PRECISION alpha, PRECISION beta) const {
+void matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
+    PRECISION alpha, PRECISION beta){
 #ifdef DEBUG
   if((matrix1.getNumberOfColumns() != matrix2.getNumberOfRows()) || (matrix1.getNumberOfRows() != resultMatrix.getNumberOfRows())
       || (matrix2.getNumberOfColumns() != resultMatrix.getNumberOfColumns())){
@@ -121,8 +114,8 @@ void MKLWrapper::matrixMatrixMultiply(const HostMatrix& matrix1, const HostMatri
 #endif
 }
 
-void MKLWrapper::matrixTransMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2,
-    HostMatrix& resultMatrix, PRECISION alpha, PRECISION beta) const {
+void matrixTransMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matrix2, HostMatrix& resultMatrix,
+    PRECISION alpha, PRECISION beta){
 #ifdef DEBUG
   if((matrix1.getNumberOfRows() != matrix2.getNumberOfRows()) || (matrix1.getNumberOfColumns() != resultMatrix.getNumberOfRows())
       || (matrix2.getNumberOfColumns() != resultMatrix.getNumberOfColumns())){
@@ -146,7 +139,7 @@ void MKLWrapper::matrixTransMatrixMultiply(const HostMatrix& matrix1, const Host
 #endif
 }
 
-void MKLWrapper::differenceElememtWise(const HostVector& vector1, HostVector& vector2) const {
+void differenceElememtWise(const HostVector& vector1, HostVector& vector2){
 #ifdef DEBUG
   if(vector1.getNumberOfRows() != vector2.getNumberOfRows()){
     throw DimensionMismatch("Length of vectors in differenceElememtWise doesn't match.");
@@ -161,8 +154,7 @@ void MKLWrapper::differenceElememtWise(const HostVector& vector1, HostVector& ve
 #endif
 }
 
-void MKLWrapper::multiplicationElementWise(const HostVector& vector1, const HostVector& vector2,
-    const HostVector& result) const {
+void multiplicationElementWise(const HostVector& vector1, const HostVector& vector2, const HostVector& result){
 #ifdef DEBUG
   if((vector1.getNumberOfRows() != vector2.getNumberOfRows())
       || (vector1.getNumberOfRows() != result.getNumberOfRows())){
@@ -178,7 +170,7 @@ void MKLWrapper::multiplicationElementWise(const HostVector& vector1, const Host
 #endif
 }
 
-void MKLWrapper::absoluteSum(const HostVector& vector, PRECISION& result) const {
+void absoluteSum(const HostVector& vector, PRECISION& result){
 #ifdef DOUBLEPRECISION
   result = cblas_dasum(vector.getNumberOfRows(), vector.getMemoryPointer(), 1);
 #else
@@ -186,4 +178,5 @@ void MKLWrapper::absoluteSum(const HostVector& vector, PRECISION& result) const 
 #endif
 }
 
+} /* namespace Blas */
 } /* namespace CuEira */

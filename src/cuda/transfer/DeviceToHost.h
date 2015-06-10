@@ -19,46 +19,32 @@ namespace CUDA {
 using namespace CuEira::Container;
 
 /**
- * This is ...
+ * This wraps the CUDA functionallity of transfers from the device to the host
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class DeviceToHost {
-public:
-  /**
-   * Constructor for the class. Takes the stream the transfers should be executed on. A cublas handle as to be initiated before any calls to the functions.
-   */
-  DeviceToHost(const Stream& stream);
-  virtual ~DeviceToHost();
 
-  /**
-   * Creates a matrix on the host and copies the data from the device matrix without releasing it, the call is made on the stream that was provided in the constructor.
-   */
-  PinnedHostMatrix* transferMatrix(const DeviceMatrix& matrixDevice) const;
+/**
+ * Creates a matrix on the host and copies the data from the device matrix without releasing it, the call is made on the stream that was provided in the constructor.
+ */
+PinnedHostMatrix* transferMatrix(const Stream& stream, const DeviceMatrix& matrixDevice);
 
-  /**
-   * Creates a vector on the host and copies the data from the device vector without releasing it, the call is made on the stream that was provided in the constructor.
-   */
-  PinnedHostVector* transferVector(const DeviceVector& vectorDevice) const;
+/**
+ * Creates a vector on the host and copies the data from the device vector without releasing it, the call is made on the stream that was provided in the constructor.
+ */
+PinnedHostVector* transferVector(const Stream& stream, const DeviceVector& vectorDevice);
 
-  /**
-   * Copies the data from the device matrix to the specified point in host memory without releasing the device memory, the call is made on the stream that
-   * was provided in the constructor. The host memory has to be previously allocated as pinned host memory.
-   */
-  void transferMatrix(const DeviceMatrix& matrixDevice, PRECISION* hostMemoryPosition) const;
+/**
+ * Copies the data from the device matrix to the specified point in host memory without releasing the device memory, the call is made on the stream that
+ * was provided in the constructor. The host memory has to be previously allocated as pinned host memory.
+ */
+void transferMatrix(const Stream& stream, const DeviceMatrix& matrixDevice, PRECISION* hostMemoryPosition);
 
-  /**
-   * Copies the data from the device vector to the specified point in host memory without releasing the device memory, the call is made on the stream that
-   * was provided in the constructor. The host memory has to be previously allocated as pinned host memory.
-   */
-  void transferVector(const DeviceVector& vectorDevice, PRECISION* hostMemoryPosition) const;
-
-protected:
-  DeviceToHost(); //For the mock
-
-private:
-  const cudaStream_t* cudaStream;
-};
+/**
+ * Copies the data from the device vector to the specified point in host memory without releasing the device memory, the call is made on the stream that
+ * was provided in the constructor. The host memory has to be previously allocated as pinned host memory.
+ */
+void transferVector(const Stream& stream, const DeviceVector& vectorDevice, PRECISION* hostMemoryPosition);
 
 } /* namespace CUDA */
 } /* namespace CuEira */

@@ -5,6 +5,7 @@
 #include <DeviceVector.h>
 #include <HostToDevice.h>
 #include <KernelWrapper.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -16,16 +17,14 @@ namespace CUDA {
  */
 class CudaMissingDataHandler: public MissingDataHandler<Container::DeviceVector> {
 public:
-  explicit CudaMissingDataHandler(const int numberOfIndividualsTotal, const HostToDevice& hostToDevice,
-      const KernelWrapper& kernelWrapper);
+  explicit CudaMissingDataHandler(const int numberOfIndividualsTotal, const Stream& stream);
   virtual ~CudaMissingDataHandler();
 
   virtual void setMissing(const std::set<int>& snpPersonsToSkip);
   virtual void copyNonMissing(const Container::DeviceVector& fromVector, Container::DeviceVector& toVector) const;
 
 protected:
-  const HostToDevice& hostToDevice;
-  const KernelWrapper& kernelWrapper;
+  const Stream& stream;
   Container::DeviceVector* indexesToCopyDevice;
 };
 

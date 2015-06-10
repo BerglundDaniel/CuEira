@@ -11,6 +11,7 @@
 #include <HostToDevice.h>
 #include <PinnedHostMatrix.h>
 #include <PinnedHostVector.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -27,7 +28,7 @@ public:
   virtual ~CudaEnvironmentFactorHandlerFactory();
 
   virtual EnvironmentFactorHandler<Container::DeviceVector>* constructEnvironmentFactorHandler(
-      const HostToDevice& hostToDevice) const;
+      const Stream& stream) const;
 
   CudaEnvironmentFactorHandlerFactory(const CudaEnvironmentFactorHandlerFactory&) = delete;
   CudaEnvironmentFactorHandlerFactory(CudaEnvironmentFactorHandlerFactory&&) = delete;

@@ -5,15 +5,15 @@ namespace Container {
 
 RegularHostMatrix::RegularHostMatrix(int numberOfRows, int numberOfColumns) :
     HostMatrix(ceil(((double) numberOfRows) / CPU_UNROLL) * CPU_UNROLL, numberOfColumns, numberOfRows, numberOfColumns,
-        nullptr) {
+        nullptr){
   hostMatrix = (PRECISION*) malloc(sizeof(PRECISION) * numberOfRealRows * numberOfRealColumns);
 }
 
-RegularHostMatrix::~RegularHostMatrix() {
+RegularHostMatrix::~RegularHostMatrix(){
   free(hostMatrix);
 }
 
-RegularHostVector* RegularHostMatrix::operator()(int column) {
+RegularHostVector* RegularHostMatrix::operator()(int column){
 #ifdef DEBUG
   if(column >= numberOfColumns || column < 0){
     std::ostringstream os;
@@ -24,10 +24,10 @@ RegularHostVector* RegularHostMatrix::operator()(int column) {
 #endif
 
   PRECISION* hostVector = hostMatrix + numberOfRows * column;
-  return new RegularHostVector(numberOfRows, hostVector, true);
+  return new RegularHostVector(numberOfRealRows, numberOfRows, hostVector, true);
 }
 
-const RegularHostVector* RegularHostMatrix::operator()(int column) const {
+const RegularHostVector* RegularHostMatrix::operator()(int column) const{
 #ifdef DEBUG
   if(column >= numberOfColumns || column < 0){
     std::ostringstream os;
@@ -38,10 +38,10 @@ const RegularHostVector* RegularHostMatrix::operator()(int column) const {
 #endif
 
   PRECISION* hostVector = hostMatrix + numberOfRows * column;
-  return new RegularHostVector(numberOfRows, hostVector, true);
+  return new RegularHostVector(numberOfRealRows, numberOfRows, hostVector, true);
 }
 
-PRECISION& RegularHostMatrix::operator()(int row, int column) {
+PRECISION& RegularHostMatrix::operator()(int row, int column){
 #ifdef DEBUG
   if(row >= numberOfRows || row < 0){
     std::ostringstream os;
@@ -60,7 +60,7 @@ PRECISION& RegularHostMatrix::operator()(int row, int column) {
   return *(hostMatrix + (numberOfRealRows * column) + row);
 }
 
-const PRECISION& RegularHostMatrix::operator()(int row, int column) const {
+const PRECISION& RegularHostMatrix::operator()(int row, int column) const{
 #ifdef DEBUG
   if(row >= numberOfRows || row < 0){
     std::ostringstream os;

@@ -6,20 +6,18 @@ namespace CUDA {
 
 CudaSNPVectorFactory::CudaSNPVectorFactory(const Configuration& configuration, const HostToDevice& hostToDevice,
     const KernelWrapper& kernelWrapper) :
-    SNPVectorFactory(configuration), hostToDevice(hostToDevice), kernelWrapper(kernelWrapper) {
+    SNPVectorFactory(configuration), hostToDevice(hostToDevice), kernelWrapper(kernelWrapper){
 
 }
 
-CudaSNPVectorFactory::~CudaSNPVectorFactory() {
+CudaSNPVectorFactory::~CudaSNPVectorFactory(){
 
 }
 
-CudaSNPVector* CudaSNPVectorFactory::constructSNPVector(SNP& snp, const HostVector* originalSNPData,
-    const std::set<int>* snpMissingData) const {
+CudaSNPVector* CudaSNPVectorFactory::constructSNPVector(SNP& snp, PinnedHostVector* originalSNPData,
+    const std::set<int>* snpMissingData) const{
 
-  const int newSize = originalSNPData->getNumberOfRows() - snpMissingData->size();
-  originalSNPData->updateSize(newSize);
-
+  updateSize(originalSNPData, snpMissingData);
   DeviceVector* originalSNPDataDevice = hostToDevice.transferVector(*originalSNPData);
   delete originalSNPData;
 

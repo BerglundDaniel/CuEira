@@ -7,7 +7,7 @@ BedReader::BedReader(const Configuration& configuration, const Container::SNPVec
     const PersonHandler& personHandler, const int numberOfSNPs) :
     configuration(configuration), snpVectorFactory(snpVectorFactory), alleleStatisticsFactory(alleleStatisticsFactory), personHandler(
         personHandler), bedFileStr(configuration.getBedFilePath()), numberOfSNPs(numberOfSNPs), numberOfIndividualsTotal(
-        personHandler.getNumberOfIndividualsTotal()) {
+        personHandler.getNumberOfIndividualsTotal()){
 
   std::ifstream bedFile;
   openBedFile(bedFile);
@@ -67,15 +67,15 @@ BedReader::BedReader(const Configuration& configuration, const Container::SNPVec
 BedReader::BedReader(const Configuration& configuration, const PersonHandler& personHandler) :
     numberOfSNPs(0), numberOfIndividualsTotal(0), configuration(configuration), snpVectorFactory(nullptr), numberOfBitsPerRow(
         0), numberOfBytesPerRow(0), numberOfUninterestingBitsAtEnd(0), personHandler(personHandler), mode(
-        INDIVIDUALMAJOR) {
+        INDIVIDUALMAJOR){
 
 }
 
-BedReader::~BedReader() {
+BedReader::~BedReader(){
   delete snpVectorFactory;
 }
 
-Container::SNPVector* BedReader::readSNP(SNP& snp) {
+Container::SNPVector* BedReader::readSNP(SNP& snp){
   std::ifstream bedFile;
   const int snpPos = snp.getPosition();
   const int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
@@ -172,11 +172,11 @@ Container::SNPVector* BedReader::readSNP(SNP& snp) {
 }
 
 // position in range 0-7
-bool BedReader::getBit(unsigned char byte, int position) const {
+bool BedReader::getBit(unsigned char byte, int position) const{
   return (byte >> position) & 0x1; //Shift the byte to the right so we have bit at the position as the last bit and then use bitwise and with 00000001
 }
 
-void BedReader::openBedFile(std::ifstream& bedFile) {
+void BedReader::openBedFile(std::ifstream& bedFile){
   bedFile.open(bedFileStr, std::ifstream::binary);
   if(!bedFile){
     std::ostringstream os;
@@ -186,7 +186,7 @@ void BedReader::openBedFile(std::ifstream& bedFile) {
   }
 }
 
-void BedReader::closeBedFile(std::ifstream& bedFile) {
+void BedReader::closeBedFile(std::ifstream& bedFile){
   if(bedFile.is_open()){
     bedFile.close();
   }

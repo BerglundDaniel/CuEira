@@ -3,25 +3,24 @@
 namespace CuEira {
 namespace CUDA {
 
-CudaAlleleStatisticsFactory::CudaAlleleStatisticsFactory(const KernelWrapper& kernelWrapper,
-    const DeviceToHost& deviceToHost) :
-    kernelWrapper(kernelWrapper), deviceToHost(deviceToHost) {
+CudaAlleleStatisticsFactory::CudaAlleleStatisticsFactory(const Stream& stream) :
+    stream(stream){
 
 }
 
-CudaAlleleStatisticsFactory::~CudaAlleleStatisticsFactory() {
+CudaAlleleStatisticsFactory::~CudaAlleleStatisticsFactory(){
 
 }
 
 std::vector<int>* CudaAlleleStatisticsFactory::getNumberOfAllelesPerGenotype(
     const Container::SNPVector<Container::DeviceVector>& snpVector,
-    const Container::PhenotypeVector<Container::DeviceVector>& phenotypeVector) const {
+    const Container::PhenotypeVector<Container::DeviceVector>& phenotypeVector) const{
   const Container::DeviceVector& snpData = snpVector.getOriginalSNPData();
   const Container::DeviceVector& phenotypeData = phenotypeVector.getPhenotypeData();
 
-  const Container::DeviceMatrix* numberOfAllelesPerGenotypeBlockDevice =
-      kernelWrapper.calculateNumberOfAllelesPerGenotype(snpData, phenotypeData);
-  const Container::HostMatrix* numberOfAllelesPerGenotypeBlockHost = deviceToHost.transferMatrix(
+  const Container::DeviceMatrix* numberOfAllelesPerGenotypeBlockDevice = Kernel::calculateNumberOfAllelesPerGenotype(
+      stream, snpData, phenotypeData);
+  const Container::HostMatrix* numberOfAllelesPerGenotypeBlockHost = transferMatrix(stream,
       *numberOfAllelesPerGenotypeBlockDevice);
 
   std::vector<int>* numberOfAllelesPerGenotype = new std::vector<int>(6);

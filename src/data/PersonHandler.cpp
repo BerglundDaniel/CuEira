@@ -4,23 +4,23 @@ namespace CuEira {
 
 PersonHandler::PersonHandler(std::vector<Person*>* persons) :
     numberOfIndividualsTotal(persons->size()), persons(persons), individualsLocked(false), numberOfIndividualsToInclude(
-        0) {
+        0){
 
   for(auto person : *persons){
     idToPerson.insert(std::pair<Id, Person*>(person->getId(), person));
   }
 }
 
-PersonHandler::~PersonHandler() {
+PersonHandler::~PersonHandler(){
   persons->clear();
   delete persons;
 }
 
-int PersonHandler::getNumberOfIndividualsTotal() const {
+int PersonHandler::getNumberOfIndividualsTotal() const{
   return numberOfIndividualsTotal;
 }
 
-int PersonHandler::getNumberOfIndividualsToInclude() const {
+int PersonHandler::getNumberOfIndividualsToInclude() const{
   if(!individualsLocked){
     std::ostringstream os;
     os << "Individuals are not locked so can not access numberOfIndividualsToInclude" << std::endl;
@@ -31,31 +31,18 @@ int PersonHandler::getNumberOfIndividualsToInclude() const {
   return numberOfIndividualsToInclude;
 }
 
-const std::vector<Person*>& PersonHandler::getPersons() const {
+const std::vector<Person*>& PersonHandler::getPersons() const{
   return *persons;
 }
 
-const Person& PersonHandler::getPersonFromId(Id id) const {
-  if(idToPerson.count(id) <= 0){
-    std::ostringstream os;
-    os << "No person with id " << id.getString() << std::endl;
-    const std::string& tmp = os.str();
-    throw PersonHandlerException(tmp.c_str());
-  }
+const Person& PersonHandler::getPersonFromId(Id id) const{
   return *idToPerson.at(id);
 }
 
-Person& PersonHandler::getPersonFromId(Id id) {
-  if(idToPerson.count(id) <= 0){
-    std::ostringstream os;
-    os << "No person with id " << id.getString() << std::endl;
-    const std::string& tmp = os.str();
-    throw PersonHandlerException(tmp.c_str());
-  }
-
+Person& PersonHandler::getPersonFromId(Id id){
   if(individualsLocked){
     std::ostringstream os;
-    os << "Individuals locked in PersonHandler, can not modify them" << std::endl;
+    os << "Individuals are locked in PersonHandler, can't modify them" << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
@@ -63,7 +50,7 @@ Person& PersonHandler::getPersonFromId(Id id) {
   return *idToPerson.at(id);
 }
 
-const Person& PersonHandler::getPersonFromRowAll(int rowAll) const {
+const Person& PersonHandler::getPersonFromRowAll(int rowAll) const{
   if(rowAll > numberOfIndividualsTotal){
     std::ostringstream os;
     os << "Row all larger than number of individuals " << std::endl;
@@ -73,7 +60,7 @@ const Person& PersonHandler::getPersonFromRowAll(int rowAll) const {
   return *(*persons)[rowAll - 1];
 }
 
-int PersonHandler::getRowIncludeFromPerson(const Person& person) const {
+int PersonHandler::getRowIncludeFromPerson(const Person& person) const{
   if(!individualsLocked){
     std::ostringstream os;
     os << "Individuals are not locked so can not get row include for person " << person.getId() << std::endl;
@@ -81,17 +68,28 @@ int PersonHandler::getRowIncludeFromPerson(const Person& person) const {
     throw PersonHandlerException(tmp.c_str());
   }
 
-  if(personToRowInclude.count(person) <= 0){
+  std::map<const Person*, int, pointerLess<Person> >::const_iterator iterator = personToRowInclude.find(&person);
+
+  if(iterator == personToRowInclude.end()){
     std::ostringstream os;
-    os << "No person with id " << person.getId() << " that has row include" << std::endl;
+    os << "Cannot find person in map." << std::endl;
+    const std::string& tmp = os.str();
+    throw PersonHandlerException(tmp.c_str());
+  }else{
+    return iterator->second;
+  }
+}
+
+void PersonHandler::lockIndividuals(){
+#ifdef DEBUG
+  if(!individualsLocked){
+    std::ostringstream os;
+    os << "Individuals are already locked." << std::endl;
     const std::string& tmp = os.str();
     throw PersonHandlerException(tmp.c_str());
   }
+#endif
 
-  return personToRowInclude.at(person);
-}
-
-void PersonHandler::lockIndividuals() {
   individualsLocked = true;
   int individualNumber = 0;
 

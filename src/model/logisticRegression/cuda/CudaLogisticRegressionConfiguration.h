@@ -20,6 +20,7 @@
 #include <KernelWrapper.h>
 #include <MKLWrapper.h>
 #include <LogisticRegressionConfiguration.h>
+#include <Stream.h>
 
 #ifdef PROFILE
 #include <Event.h>
@@ -44,16 +45,14 @@ public:
   /**
    * This
    */
-  CudaLogisticRegressionConfiguration(const Configuration& configuration, const HostToDevice& hostToDevice,
-      const DeviceToHost& deviceToHost, const DeviceVector& deviceOutcomes, const KernelWrapper& kernelWrapper,
-      const MKLWrapper& blasWrapper);
+  CudaLogisticRegressionConfiguration(const Configuration& configuration, const Stream& stream,
+      const DeviceVector& deviceOutcomes);
 
   /**
    * This
    */
-  CudaLogisticRegressionConfiguration(const Configuration& configuration, const HostToDevice& hostToDevice,
-      const DeviceToHost& deviceToHost, const DeviceVector& deviceOutcomes, const KernelWrapper& kernelWrapper,
-      const MKLWrapper& blasWrapper, const PinnedHostMatrix& covariates);
+  CudaLogisticRegressionConfiguration(const Configuration& configuration, const Stream& stream,
+      const DeviceVector& deviceOutcomes, const PinnedHostMatrix& covariates);
 
   /**
    * Frees all related memory
@@ -64,9 +63,7 @@ public:
   virtual void setSNP(const HostVector& snpData);
   virtual void setInteraction(const HostVector& interactionVector);
 
-  virtual const KernelWrapper& getKernelWrapper() const;
-  virtual const HostToDevice& getHostToDevice() const;
-  virtual const DeviceToHost& getDeviceToHost() const;
+  virtual const Stream& getStream() const;
 
   virtual const DeviceMatrix& getPredictors() const;
   virtual const DeviceVector& getOutcomes() const;
@@ -104,13 +101,11 @@ public:
 #endif
 
 protected:
-  CudaLogisticRegressionConfiguration(const Configuration& configuration, const MKLWrapper& blasWrapper); //For the mock
+  CudaLogisticRegressionConfiguration(const Configuration& configuration, const Stream& stream); //For the mock
 
   void transferIntercept();
 
-  const KernelWrapper* kernelWrapper;
-  const HostToDevice* hostToDevice;
-  const DeviceToHost* deviceToHost;
+  const Stream& stream;
 
   DeviceMatrix* devicePredictors;
   const DeviceVector* deviceOutcomes;

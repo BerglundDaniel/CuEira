@@ -7,6 +7,7 @@
 #include <LogisticRegression.h>
 #include <CudaAdapter.cu>
 #include <KernelWrapper.h>
+#include <CublasWrapper.h>
 #include <DeviceVector.h>
 #include <DeviceMatrix.h>
 #include <CudaException.h>
@@ -72,7 +73,7 @@ public:
 #endif
 
 protected:
-  CudaLogisticRegression(); //For the mock
+  CudaLogisticRegression(const Stream& stream); //For the mock
 
   void columnByColumnMatrixVectorElementWiseMultiply(const DeviceMatrix& matrix, const DeviceVector& vector,
       DeviceMatrix& result) const;
@@ -88,9 +89,7 @@ private:
       const DeviceVector& probabilitesDevice, DeviceVector& workVectorNx1Device, PRECISION& logLikelihood);
 
   CudaLogisticRegressionConfiguration* lrConfiguration;
-  const HostToDevice* hostToDevice;
-  const DeviceToHost* deviceToHost;
-  const KernelWrapper* kernelWrapper;
+  const Stream& stream;
 
   const Container::DeviceMatrix* predictorsDevice;
   const Container::DeviceVector* outcomesDevice;

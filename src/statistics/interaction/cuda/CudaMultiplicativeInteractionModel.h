@@ -7,6 +7,7 @@
 #include <SNPVector.h>
 #include <DeviceVector.h>
 #include <KernelWrapper.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -20,14 +21,14 @@ using namespace CuEira::Container;
  */
 class CudaMultiplicativeInteractionModel: public MultiplicativeInteractionModel<DeviceVector> {
 public:
-  explicit CudaMultiplicativeInteractionModel(const KernelWrapper& kernelWrapper);
+  explicit CudaMultiplicativeInteractionModel(const Stream& stream);
   virtual ~CudaMultiplicativeInteractionModel();
 
   virtual void applyModel(SNPVector<DeviceVector>& snpVector, EnvironmentVector<DeviceVector>& environmentVector,
       InteractionVector<DeviceVector>& interactionVector);
 
 protected:
-  const KernelWrapper& kernelWrapper;
+  const Stream& stream;
 };
 
 } /* namespace CUDA */

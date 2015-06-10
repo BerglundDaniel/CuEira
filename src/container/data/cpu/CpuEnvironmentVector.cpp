@@ -24,7 +24,7 @@ void CpuEnvironmentVector::recodeProtective() {
 
   //UNROLL
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    (*recodedData)(i) = c - (*recodedData)(i);
+    (*envExMissing)(i) = c - (*envExMissing)(i);
   }
 }
 

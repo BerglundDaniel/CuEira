@@ -16,12 +16,12 @@ namespace CPU {
  *
  *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CpuSNPVectorFactory: public SNPVectorFactory {
+class CpuSNPVectorFactory: public SNPVectorFactory<RegularHostVector, RegularHostVector> {
 public:
   explicit CpuSNPVectorFactory(const Configuration& configuration);
   virtual ~CpuSNPVectorFactory();
 
-  virtual CpuSNPVector* constructSNPVector(SNP& snp, const HostVector* originalSNPData,
+  virtual CpuSNPVector* constructSNPVector(SNP& snp, RegularHostVector* originalSNPData,
       const std::set<int>* snpMissingData) const;
 
   CpuSNPVectorFactory(const CpuSNPVectorFactory&) = delete;

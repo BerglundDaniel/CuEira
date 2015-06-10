@@ -3,20 +3,20 @@
 namespace CuEira {
 namespace CUDA {
 
-CudaMultiplicativeInteractionModel::CudaMultiplicativeInteractionModel(const KernelWrapper& kernelWrapper) :
-    MultiplicativeInteractionModel<DeviceVector>(), kernelWrapper(kernelWrapper) {
+CudaMultiplicativeInteractionModel::CudaMultiplicativeInteractionModel(const Stream& stream) :
+    MultiplicativeInteractionModel<DeviceVector>(), stream(stream){
 
 }
 
-CudaMultiplicativeInteractionModel::~CudaMultiplicativeInteractionModel() {
+CudaMultiplicativeInteractionModel::~CudaMultiplicativeInteractionModel(){
 
 }
 
 void CudaMultiplicativeInteractionModel::applyModel(SNPVector<DeviceVector>& snpVector,
-    EnvironmentVector<DeviceVector>& environmentVector, InteractionVector<DeviceVector>& interactionVector) {
+    EnvironmentVector<DeviceVector>& environmentVector, InteractionVector<DeviceVector>& interactionVector){
 
   interactionVector.updateSize(environmentVector.getNumberOfIndividualsToInclude());
-  kernelWrapper.elementWiseMultiplication(snpVector.getSNPData(), environmentVector.getEnvironmentData(),
+  Kernel::elementWiseMultiplication(stream, snpVector.getSNPData(), environmentVector.getEnvironmentData(),
       interactionVector.getInteractionData());
 }
 

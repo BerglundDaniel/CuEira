@@ -5,20 +5,17 @@ namespace Container {
 namespace CPU {
 
 CpuSNPVectorFactory::CpuSNPVectorFactory(const Configuration& configuration) :
-    SNPVectorFactory(configuration) {
+    SNPVectorFactory(configuration){
 
 }
 
-CpuSNPVectorFactory::~CpuSNPVectorFactory() {
+CpuSNPVectorFactory::~CpuSNPVectorFactory(){
 
 }
 
-CpuSNPVector* CpuSNPVectorFactory::constructSNPVector(SNP& snp, const HostVector* originalSNPData,
-    const std::set<int>* snpMissingData) const {
-
-  const int newSize = originalSNPData->getNumberOfRows() - snpMissingData->size();
-  originalSNPData->updateSize(newSize);
-
+CpuSNPVector* CpuSNPVectorFactory::constructSNPVector(SNP& snp, RegularHostVector* originalSNPData,
+    const std::set<int>* snpMissingData) const{
+  updateSize(originalSNPData, snpMissingData);
   return new CpuSNPVector(snp, geneticModel, originalSNPData, snpMissingData);
 }
 

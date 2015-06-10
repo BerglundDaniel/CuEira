@@ -17,7 +17,7 @@ CpuSNPVector::~CpuSNPVector() {
 void CpuSNPVector::doRecode(int snpToRisk[3]) {
   //UNROLL
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){
-    (*snpRecodedExMissing)(i) = snpToRisk[(*snpOrgExMissing)(i)];
+    (*snpRecodedExMissing)(i) = snpToRisk[(int)(*snpOrgExMissing)(i)]; //TODO possible int vector
   } /* for i */
 
 }

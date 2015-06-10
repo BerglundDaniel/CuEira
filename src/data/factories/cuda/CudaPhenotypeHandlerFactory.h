@@ -9,6 +9,7 @@
 #include <PinnedHostVector.h>
 #include <DeviceVector.h>
 #include <HostToDevice.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -23,8 +24,8 @@ public:
   explicit CudaPhenotypeHandlerFactory();
   virtual ~CudaPhenotypeHandlerFactory();
 
-  virtual PhenotypeHandler<Container::DeviceVector>* constructPhenotypeHandler(const PersonHandler& personHandler,
-      const HostToDevice& hostToDevice) const;
+  virtual PhenotypeHandler<Container::DeviceVector>* constructPhenotypeHandler(const Stream& stream,
+      const PersonHandler& personHandler) const;
 };
 
 } /* namespace CUDA */

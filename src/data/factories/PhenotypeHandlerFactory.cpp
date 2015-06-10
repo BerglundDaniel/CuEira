@@ -14,9 +14,9 @@ PhenotypeHandlerFactory<Vector>::~PhenotypeHandlerFactory(){
 
 template<typename Vector>
 Vector* PhenotypeHandlerFactory<Vector>::createVectorOfPhenotypes(const PersonHandler& personHandler) const{
-  Vector* phenotypeOriginal = new Vector(numberOfIndividualsToInclude);
   const std::vector<Person*>& persons = personHandler.getPersons();
   const int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
+  Vector* phenotypeOriginal = new Vector(numberOfIndividualsToInclude);
 
   int index = 0;
   for(auto person : persons){

@@ -19,14 +19,14 @@ namespace CPU {
  *
  *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CpuEnvironmentFactorHandlerFactory: public EnvironmentFactorHandlerFactory<HostMatrix, HostVector> {
+class CpuEnvironmentFactorHandlerFactory: public EnvironmentFactorHandlerFactory<Container::HostMatrix,
+    Container::HostVector> {
 public:
   explicit CpuEnvironmentFactorHandlerFactory(const Configuration& configuration,
       const std::vector<std::string>& columnNames, const Container::HostMatrix& matrix);
   virtual ~CpuEnvironmentFactorHandlerFactory();
 
-  virtual EnvironmentFactorHandler<Container::HostVector>* constructEnvironmentFactorHandler(
-      const MKLWrapper& mklWrapper) const;
+  virtual EnvironmentFactorHandler<Container::HostVector>* constructEnvironmentFactorHandler() const;
 
   CpuEnvironmentFactorHandlerFactory(const CpuEnvironmentFactorHandlerFactory&) = delete;
   CpuEnvironmentFactorHandlerFactory(CpuEnvironmentFactorHandlerFactory&&) = delete;

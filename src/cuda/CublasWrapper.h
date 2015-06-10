@@ -16,58 +16,44 @@
 
 namespace CuEira {
 namespace CUDA {
+namespace Kernel {
 
 /**
  * This wraps the CUBLAS library
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CublasWrapper {
-public:
-  /**
-   * Constructor for the class.
-   */
-  explicit CublasWrapper(const Stream& stream);
-  virtual ~CublasWrapper();
 
-  /**
-   * Copies from vectorFrom to vectorTo element wise
-   */
-  void copyVector(const DeviceVector& vectorFrom, DeviceVector& vectorTo) const;
+/**
+ * Copies from vectorFrom to vectorTo element wise
+ */
+void copyVector(const Stream& stream, const DeviceVector& vectorFrom, DeviceVector& vectorTo);
 
-  /**
-   * Asdf
-   */
-  void matrixVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector, DeviceVector& result) const;
+/**
+ * Asdf
+ */
+void matrixVectorMultiply(const Stream& stream, const DeviceMatrix& matrix, const DeviceVector& vector,
+    DeviceVector& result);
 
-  /**
-   * Asdf
-   */
-  void matrixTransVectorMultiply(const DeviceMatrix& matrix, const DeviceVector& vector, DeviceVector& result) const;
+/**
+ * Asdf
+ */
+void matrixTransVectorMultiply(const Stream& stream, const DeviceMatrix& matrix, const DeviceVector& vector,
+    DeviceVector& result);
 
-  /**
-   * Asdf
-   */
-  void matrixTransMatrixMultiply(const DeviceMatrix& matrix1, const DeviceMatrix& matrix2, DeviceMatrix& result) const;
+/**
+ * Asdf
+ */
+void matrixTransMatrixMultiply(const Stream& stream, const DeviceMatrix& matrix1, const DeviceMatrix& matrix2,
+    DeviceMatrix& result);
 
-  /**
-   * Sums the vectors elements and puts the result in the given pointer
-   */
-  void sumResultToHost(const DeviceVector& vector, const DeviceVector& oneVector, PRECISION& sumHost) const;
+/**
+ * Sums the vectors elements and puts the result in the given pointer
+ */
+void sumResultToHost(const Stream& stream, const DeviceVector& vector, const DeviceVector& oneVector,
+    PRECISION& sumHost);
 
-  /**
-   * Syncs the associated stream
-   */
-  inline void syncStream() const {
-    stream.syncStream();
-  }
-
-private:
-  const Stream& stream;
-  const cublasHandle_t& cublasHandle;
-  const cudaStream_t& cudaStream;
-};
-
+} /* namespace Kernel */
 } /* namespace CUDA */
 } /* namespace CuEira */
 

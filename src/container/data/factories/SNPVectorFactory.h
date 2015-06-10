@@ -14,23 +14,28 @@ namespace CuEira {
 namespace Container {
 
 /**
- * This class constructs SNPVectors and makes checks on the data to see if the SNP should be included or not.
+ * This class....
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector, typename VectorSNP>
 class SNPVectorFactory {
 public:
-  SNPVectorFactory(const Configuration& configuration);
   virtual ~SNPVectorFactory();
 
-  virtual SNPVector<>* constructSNPVector(SNP& snp, const HostVector* originalSNPData, const std::set<int>* snpMissingData) const=0;
+  virtual SNPVector<VectorSNP>* constructSNPVector(SNP& snp, Vector* originalSNPData,
+      const std::set<int>* snpMissingData) const=0;
 
   SNPVectorFactory(const SNPVectorFactory&) = delete;
   SNPVectorFactory(SNPVectorFactory&&) = delete;
   SNPVectorFactory& operator=(const SNPVectorFactory&) = delete;
   SNPVectorFactory& operator=(SNPVectorFactory&&) = delete;
 
-private:
+protected:
+  explicit SNPVectorFactory(const Configuration& configuration);
+
+  void updateSize(Vector* originalSNPData, const std::set<int>* snpMissingData) const;
+
   const Configuration& configuration;
   const GeneticModel geneticModel;
 };

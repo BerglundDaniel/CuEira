@@ -22,15 +22,14 @@ namespace CPU {
  */
 class CpuCovariatesHandlerFactory {
 public:
-  CpuCovariatesHandlerFactory(const Configuration& configuration, const MKLWrapper& mklWrapper);
+  CpuCovariatesHandlerFactory(const Configuration& configuration);
   virtual ~CpuCovariatesHandlerFactory();
 
-  virtual CovariatesHandler<HostMatrix>* constructCovariatesHandler(const Container::HostMatrix& matrix,
+  virtual CovariatesHandler<Container::HostMatrix>* constructCovariatesHandler(const Container::HostMatrix& matrix,
       const std::vector<std::string>& columnNames) const;
 
 private:
   const std::string environmentColumnName;
-  const MKLWrapper& mklWrapper;
 };
 
 } /* namespace CPU */

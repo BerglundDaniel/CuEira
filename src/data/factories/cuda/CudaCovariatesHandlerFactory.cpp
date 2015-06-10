@@ -12,9 +12,8 @@ CudaCovariatesHandlerFactory::~CudaCovariatesHandlerFactory(){
 
 }
 
-CovariatesHandler<DeviceMatrix>* CudaCovariatesHandlerFactory::constructCovariatesHandler(
-    const Container::PinnedHostMatrix& matrix, const std::vector<std::string>& columnNames,
-    const HostToDevice& hostToDevice) const{
+CovariatesHandler<DeviceMatrix>* CudaCovariatesHandlerFactory::constructCovariatesHandler(const Stream& stream,
+    const Container::PinnedHostMatrix& matrix, const std::vector<std::string>& columnNames) const{
   const int numberOfColumns = matrix.getNumberOfColumns();
   Container::DeviceMatrix* covariatesDevice = new Container::DeviceMatrix(matrix.getNumberOfRows(),
       numberOfColumns - 1);
@@ -23,7 +22,7 @@ CovariatesHandler<DeviceMatrix>* CudaCovariatesHandlerFactory::constructCovariat
   for(int i = 0; i < numberOfColumns; ++i){
     if(environmentColumnName != columnNames[i]){
       const Container::PinnedHostVector* covVector = matrix(i);
-      hostToDevice.transferVector(*covVector, (*covariatesDevice)(0, col));
+      transferVector(stream, *covVector, (*covariatesDevice)(0, col));
 
       delete covVector;
       ++col;

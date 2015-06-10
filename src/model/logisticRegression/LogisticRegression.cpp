@@ -14,18 +14,18 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration* logistic
         new RegularHostMatrix(numberOfPredictors, numberOfPredictors)), workMatrixMxMHost(
         new RegularHostMatrix(numberOfPredictors, numberOfPredictors)), betaCoefficentsOldHost(
         new Container::RegularHostVector(numberOfPredictors)), scoresHost(
-        &logisticRegressionConfiguration->getScoresHost()) {
+        &logisticRegressionConfiguration->getScoresHost()){
 
 }
 
 LogisticRegression::LogisticRegression() :
     Model(), logisticRegressionConfiguration(nullptr), numberOfRows(0), numberOfPredictors(0), maxIterations(0), convergenceThreshold(
         0), logLikelihood(0), sigma(nullptr), uSVD(nullptr), vtSVD(nullptr), workMatrixMxMHost(nullptr), betaCoefficentsOldHost(
-        nullptr), scoresHost(nullptr) {
+        nullptr), scoresHost(nullptr){
 
 }
 
-LogisticRegression::~LogisticRegression() {
+LogisticRegression::~LogisticRegression(){
   delete betaCoefficentsOldHost;
   delete sigma;
   delete uSVD;
@@ -35,10 +35,10 @@ LogisticRegression::~LogisticRegression() {
 
 void LogisticRegression::invertInformationMatrix(HostMatrix& informationMatrixHost,
     HostMatrix& inverseInformationMatrixHost, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD,
-    HostMatrix& workMatrixMxMHost) {
+    HostMatrix& workMatrixMxMHost){
   int size = informationMatrixHost.getNumberOfRows();
 
-  blasWrapper->svd(informationMatrixHost, uSVD, sigma, vtSVD);
+  Blas::svd(informationMatrixHost, uSVD, sigma, vtSVD);
 
   //diag(sigma)*uSVD'
   for(int i = 0; i < size; ++i){
@@ -54,19 +54,19 @@ void LogisticRegression::invertInformationMatrix(HostMatrix& informationMatrixHo
     }
   }
 
-  blasWrapper->matrixTransMatrixMultiply(vtSVD, workMatrixMxMHost, inverseInformationMatrixHost, 1, 0);
+  Blas::matrixTransMatrixMultiply(vtSVD, workMatrixMxMHost, inverseInformationMatrixHost, 1, 0);
 }
 
 void LogisticRegression::calculateNewBeta(HostMatrix& inverseInformationMatrixHost, HostVector& scoresHost,
-    HostVector& betaCoefficentsHost) {
+    HostVector& betaCoefficentsHost){
   //beta=inv*scores+beta
-  blasWrapper->matrixVectorMultiply(inverseInformationMatrixHost, scoresHost, betaCoefficentsHost, 1, 1);
+  Blas::matrixVectorMultiply(inverseInformationMatrixHost, scoresHost, betaCoefficentsHost, 1, 1);
 }
 
 void LogisticRegression::calculateDifference(const HostVector& betaCoefficentsHost, HostVector& betaCoefficentsOldHost,
-    PRECISION& diffSumHost) {
-  blasWrapper->differenceElememtWise(betaCoefficentsHost, betaCoefficentsOldHost);
-  blasWrapper->absoluteSum(betaCoefficentsOldHost, diffSumHost);
+    PRECISION& diffSumHost){
+  Blas::differenceElememtWise(betaCoefficentsHost, betaCoefficentsOldHost);
+  Blas::absoluteSum(betaCoefficentsOldHost, diffSumHost);
 }
 
 } /* namespace LogisticRegression */

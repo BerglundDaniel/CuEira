@@ -11,6 +11,8 @@ namespace CuEira {
 namespace Model {
 namespace LogisticRegression {
 
+using namespace CuEira::Container;
+
 /**
  * This is ...
  *
@@ -18,8 +20,8 @@ namespace LogisticRegression {
  */
 class LogisticRegressionConfiguration: public ModelConfiguration {
 public:
-  LogisticRegressionConfiguration(const Configuration& configuration, const MKLWrapper& blasWrapper,
-      bool usingCovariates, const int numberOfRows, const int numberOfPredictors);
+  LogisticRegressionConfiguration(const Configuration& configuration, bool usingCovariates, const int numberOfRows,
+      const int numberOfPredictors);
   virtual ~LogisticRegressionConfiguration();
 
   virtual int getNumberOfRows() const;

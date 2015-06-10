@@ -3,20 +3,8 @@
 namespace CuEira {
 namespace CUDA {
 
-DeviceToHost::DeviceToHost(const Stream& stream) :
-    cudaStream(&stream.getCudaStream()) {
-
-}
-
-DeviceToHost::DeviceToHost() :
-    cudaStream(nullptr) {
-}
-
-DeviceToHost::~DeviceToHost() {
-
-}
-
-PinnedHostMatrix* DeviceToHost::transferMatrix(const DeviceMatrix& matrixDevice) const {
+PinnedHostMatrix* transferMatrix(const Stream& stream, const DeviceMatrix& matrixDevice){
+  const cudaStream_t& cudaStream = stream.getCudaStream();
   const int numberOfRows = matrixDevice.getNumberOfRows();
   const int numberOfColumns = matrixDevice.getNumberOfColumns();
 
@@ -26,12 +14,13 @@ PinnedHostMatrix* DeviceToHost::transferMatrix(const DeviceMatrix& matrixDevice)
 
   handleCublasStatus(
       cublasGetMatrixAsync(numberOfRows, numberOfColumns, sizeof(PRECISION), matrixPointerDevice, numberOfRows,
-          matrixPointerHost, numberOfRows, *cudaStream), "Error when transferring matrix from device to host: ");
+          matrixPointerHost, numberOfRows, cudaStream), "Error when transferring matrix from device to host: ");
 
   return hostMatrix;
 }
 
-PinnedHostVector* DeviceToHost::transferVector(const DeviceVector& vectorDevice) const {
+PinnedHostVector* transferVector(const Stream& stream, const DeviceVector& vectorDevice){
+  const cudaStream_t& cudaStream = stream.getCudaStream();
   const int numberOfRows = vectorDevice.getNumberOfRows();
 
   PinnedHostVector* hostVector = new PinnedHostVector(numberOfRows);
@@ -39,13 +28,14 @@ PinnedHostVector* DeviceToHost::transferVector(const DeviceVector& vectorDevice)
   const PRECISION* vectorPointerDevice = vectorDevice.getMemoryPointer();
 
   handleCublasStatus(
-      cublasGetVectorAsync(numberOfRows, sizeof(PRECISION), vectorPointerDevice, 1, vectorPointerHost, 1, *cudaStream),
+      cublasGetVectorAsync(numberOfRows, sizeof(PRECISION), vectorPointerDevice, 1, vectorPointerHost, 1, cudaStream),
       "Error when transferring vector from device to host point: ");
 
   return hostVector;
 }
 
-void DeviceToHost::transferMatrix(const DeviceMatrix& matrixDevice, PRECISION* hostMemoryPosition) const {
+void transferMatrix(const Stream& stream, const DeviceMatrix& matrixDevice, PRECISION* hostMemoryPosition){
+  const cudaStream_t& cudaStream = stream.getCudaStream();
   const int numberOfRows = matrixDevice.getNumberOfRows();
   const int numberOfColumns = matrixDevice.getNumberOfColumns();
 
@@ -53,17 +43,18 @@ void DeviceToHost::transferMatrix(const DeviceMatrix& matrixDevice, PRECISION* h
 
   handleCublasStatus(
       cublasGetMatrixAsync(numberOfRows, numberOfColumns, sizeof(PRECISION), matrixPointerDevice, numberOfRows,
-          hostMemoryPosition, numberOfRows, *cudaStream), "Error when transferring matrix from device to host: ");
+          hostMemoryPosition, numberOfRows, cudaStream), "Error when transferring matrix from device to host: ");
 
 }
 
-void DeviceToHost::transferVector(const DeviceVector& vectorDevice, PRECISION* hostMemoryPosition) const {
+void transferVector(const Stream& stream, const DeviceVector& vectorDevice, PRECISION* hostMemoryPosition){
+  const cudaStream_t& cudaStream = stream.getCudaStream();
   const int numberOfRows = vectorDevice.getNumberOfRows();
 
   const PRECISION* vectorPointerDevice = vectorDevice.getMemoryPointer();
 
   handleCublasStatus(
-      cublasGetVectorAsync(numberOfRows, sizeof(PRECISION), vectorPointerDevice, 1, hostMemoryPosition, 1, *cudaStream),
+      cublasGetVectorAsync(numberOfRows, sizeof(PRECISION), vectorPointerDevice, 1, hostMemoryPosition, 1, cudaStream),
       "Error when transferring vector from device to host point: ");
 }
 

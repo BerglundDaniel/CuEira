@@ -4,15 +4,15 @@ namespace CuEira {
 namespace CUDA {
 
 Device::Device(int deviceNumber) :
-    deviceNumber(deviceNumber) {
+    deviceNumber(deviceNumber){
 
 }
 
-Device::~Device() {
-  delete outcomes;
+Device::~Device(){
+
 }
 
-bool Device::isActive() const {
+bool Device::isActive() const{
   int activeDeviceNumber;
   cudaGetDevice(&activeDeviceNumber);
 
@@ -24,7 +24,7 @@ bool Device::isActive() const {
 
 }
 
-bool Device::setActiveDevice() const {
+bool Device::setActiveDevice() const{
   cudaError_t status = cudaSetDevice(deviceNumber);
 
   if(status == cudaSuccess){

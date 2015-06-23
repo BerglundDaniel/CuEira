@@ -27,8 +27,12 @@
 #include <AlleleStatistics.h>
 #include <EnvironmentVector.h>
 #include <InteractionVector.h>
+#include <CovariatesMatrix.h>
 #include <ModelInformation.h>
 #include <ModelInformationFactory.h>
+#include <InteractionModel.h>
+#include <AlleleStatisticsFactory.h>
+#include <RiskAlleleStrategy.h>
 
 #ifdef PROFILE
 #include <boost/chrono/chrono_io.hpp>
@@ -42,22 +46,21 @@ class DataHandlerTest;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Matrix, typename Vector>
 class DataHandler {
-  friend DataHandlerTest;
-  FRIEND_TEST(DataHandlerTest, Recode);
-  FRIEND_TEST(DataHandlerTest, RecodeEnvNotBinary);
-  FRIEND_TEST(DataHandlerTest, RecodeEnvBinary);
-  FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevFalse);
-  FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevTrue);
+  friend DataHandlerTest;FRIEND_TEST(DataHandlerTest, Recode);FRIEND_TEST(DataHandlerTest, RecodeEnvNotBinary);FRIEND_TEST(DataHandlerTest, RecodeEnvBinary);FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevFalse);FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevTrue);
 public:
-  DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
-      const ContingencyTableFactory& contingencyTableFactory, const Model::ModelInformationFactory& modelInformationFactory,
-      const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
-      Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector);
+  DataHandler(const Configuration& configuration, FileIO::BedReader<>& bedReader,
+      const ContingencyTableFactory& contingencyTableFactory,
+      const Model::ModelInformationFactory* modelInformationFactory, Task::DataQueue& dataQueue,
+      Container::EnvironmentVector<Vector>* environmentVector, Container::InteractionVector<Vector>* interactionVector,
+      Container::PhenotypeVector<Vector>* phenotypeVector,
+      Container::CovariatesMatrix<Matrix, Vector>* covariatesMatrix, MissingDataHandler<Vector>* missingDataHandler,
+      const AlleleStatisticsFactory<Vector>* alleleStatisticsFactory);
   virtual ~DataHandler();
 
   virtual DataHandlerState next();
-  virtual void applyStatisticModel(StatisticModel statisticModel);
+  virtual void applyStatisticModel(const InteractionModel<Vector>& interactionModel);
 
   virtual Recode getRecode() const;
   virtual void recode(Recode recode);
@@ -67,14 +70,15 @@ public:
   virtual const SNP& getCurrentSNP() const;
   virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
-  virtual const Container::SNPVector& getSNPVector() const;
-  virtual const Container::InteractionVector& getInteractionVector() const;
-  virtual const Container::EnvironmentVector& getEnvironmentVector() const;
+  virtual const Container::SNPVector<Vector>& getSNPVector() const;
+  virtual const Container::InteractionVector<Vector>& getInteractionVector() const;
+  virtual const Container::EnvironmentVector<Vector>& getEnvironmentVector() const;
+  virtual const Container::CovariatesMatrix<Matrix, Vector>& getCovariatesMatrix() const;
 
-  DataHandler(const DataHandler&) = delete;
-  DataHandler(DataHandler&&) = delete;
-  DataHandler& operator=(const DataHandler&) = delete;
-  DataHandler& operator=(DataHandler&&) = delete;
+  DataHandler(const DataHandler<Matrix, Vector>&) = delete;
+  DataHandler(DataHandler<Matrix, Vector> &&) = delete;
+  DataHandler<Matrix, Vector>& operator=(const DataHandler<Matrix, Vector>&) = delete;
+  DataHandler<Matrix, Vector>& operator=(DataHandler<Matrix, Vector> &&) = delete;
 
 #ifdef PROFILE
   static boost::chrono::duration<long long, boost::nano> timeSpentRecode;
@@ -91,28 +95,30 @@ private:
     NOT_INITIALISED, INITIALISED
   };
 
-  bool readSNP(SNP& nextSnp);
-  void setSNPInclude(SNP& snp, const ContingencyTable& contingencyTable) const;
-
   const Configuration& configuration;
   State state;
-  const ContingencyTableFactory* contingencyTableFactory;
+  const ContingencyTableFactory<Vector>* contingencyTableFactory;
   const Model::ModelInformationFactory* modelInformationFactory;
+  const AlleleStatisticsFactory<Vector>* alleleStatisticsFactory;
+  const RiskAlleleStrategy* riskAlleleStrategy;
   Task::DataQueue* dataQueue;
-  FileIO::BedReader* bedReader;
-  const std::vector<const EnvironmentFactor*>* environmentInformation;
-  Container::EnvironmentVector* environmentVector;
-  Container::SNPVector* snpVector;
-  Container::InteractionVector* interactionVector;
+  FileIO::BedReader<>* bedReader;
+  MissingDataHandler<Vector>* missingDataHandler;
+
+  Container::CovariatesMatrix<Matrix, Vector> covariatesMatrix;
+  Container::EnvironmentVector<Vector>* environmentVector;
+  Container::SNPVector<Vector>* snpVector;
+  Container::InteractionVector<Vector>* interactionVector;
+  Container::PhenotypeVector<Vector>* phenotypeVector;
   const Model::ModelInformation* modelInformation;
   const ContingencyTable* contingencyTable;
   const AlleleStatistics* alleleStatistics;
+
   Recode currentRecode;
-  StatisticModel currentStatisticModel;
-  int currentEnvironmentFactorPos;
   SNP* currentSNP;
-  const EnvironmentFactor* currentEnvironmentFactor;
+  const EnvironmentFactor* environmentFactor;
   const int cellCountThreshold;
+  const double minorAlleleFrequencyThreshold;
   bool appliedStatisticModel;
 };
 

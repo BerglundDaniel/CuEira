@@ -4,15 +4,15 @@ namespace CuEira {
 namespace CPU {
 
 CpuMissingDataHandler::CpuMissingDataHandler(const int numberOfIndividualsTotal) :
-    MissingDataHandler(numberOfIndividualsTotal) {
+    MissingDataHandler(numberOfIndividualsTotal){
 }
 
-CpuMissingDataHandler::~CpuMissingDataHandler() {
+CpuMissingDataHandler::~CpuMissingDataHandler(){
 
 }
 
-void CpuMissingDataHandler::copyNonMissing(const Container::HostVector& fromVector,
-    Container::HostVector& toVector) const {
+void CpuMissingDataHandler::copyNonMissing(const Container::RegularHostVector& fromVector,
+    Container::RegularHostVector& toVector) const{
 #ifdef DEBUG
   if(!initialised){
     throw new InvalidState("CpuMissingDataHandler not initialised.");

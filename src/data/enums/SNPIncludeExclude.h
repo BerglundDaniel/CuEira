@@ -9,7 +9,7 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 enum SNPIncludeExclude {
-  INCLUDE, MISSING_DATA, LOW_MAF, LOW_CELL_NUMBER, NEGATIVE_POSITION
+  INCLUDE, LOW_MAF, LOW_CELL_NUMBER, NEGATIVE_POSITION
 };
 
 } /* namespace CuEira */

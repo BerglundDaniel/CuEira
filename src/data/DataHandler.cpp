@@ -3,49 +3,68 @@
 namespace CuEira {
 
 #ifdef PROFILE
-boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentRecode;
-boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentNext;
-boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentSNPRead;
-boost::chrono::duration<long long, boost::nano> DataHandler::timeSpentStatModel;
+//FIXME becomes seperate if using both cpu and gpu because of template, not good
+boost::chrono::duration<long long, boost::nano> DataHandler<Matrix, Vector>::timeSpentRecode;
+boost::chrono::duration<long long, boost::nano> DataHandler<Matrix, Vector>::timeSpentNext;
+boost::chrono::duration<long long, boost::nano> DataHandler<Matrix, Vector>::timeSpentSNPRead;
+boost::chrono::duration<long long, boost::nano> DataHandler<Matrix, Vector>::timeSpentStatModel;
 #endif
 
-DataHandler::DataHandler(const Configuration& configuration, FileIO::BedReader& bedReader,
+template<typename Matrix, typename Vector>
+DataHandler<Matrix, Vector>::DataHandler(const Configuration& configuration, FileIO::BedReader<>& bedReader,
     const ContingencyTableFactory& contingencyTableFactory,
-    const Model::ModelInformationFactory& modelInformationFactory,
+    const Model::ModelInformationFactory* modelInformationFactory,
     const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
-    Container::EnvironmentVector* environmentVector, Container::InteractionVector* interactionVector) :
-    configuration(configuration), currentRecode(ALL_RISK), dataQueue(&dataQueue), bedReader(&bedReader), interactionVector(
-        interactionVector), snpVector(nullptr), environmentVector(environmentVector), environmentInformation(
-        &environmentInformation), currentEnvironmentFactorPos(environmentInformation.size() - 1), state(
-        NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(&contingencyTableFactory), modelInformationFactory(
-        &modelInformationFactory), currentSNP(nullptr), cellCountThreshold(configuration.getCellCountThreshold()), alleleStatistics(
-        nullptr), modelInformation(nullptr), currentEnvironmentFactor(nullptr), currentStatisticModel(ADDITIVE), appliedStatisticModel(
-        false) {
+    Container::EnvironmentVector<Vector>* environmentVector, Container::InteractionVector<Vector>* interactionVector,
+    Container::PhenotypeVector<Vector>* phenotypeVector, Container::CovariatesMatrix<Matrix, Vector>* covariatesMatrix,
+    MissingDataHandler<Vector>* missingDataHandler, const AlleleStatisticsFactory<Vector>* alleleStatisticsFactory) :
+
+    configuration(configuration), currentRecode(ALL_RISK), dataQueue(&dataQueue), bedReader(bedReader), interactionVector(
+        interactionVector), snpVector(nullptr), environmentVector(environmentVector), state(NOT_INITIALISED), contingencyTable(
+        nullptr), contingencyTableFactory(&contingencyTableFactory), modelInformationFactory(modelInformationFactory), currentSNP(
+        nullptr), cellCountThreshold(configuration.getCellCountThreshold()), alleleStatistics(nullptr), modelInformation(
+        nullptr), environmentFactor(&environmentVector->getEnvironmentFactor()), appliedStatisticModel(false), minorAlleleFrequencyThreshold(
+        configuration.getMinorAlleleFrequencyThreshold()), missingDataHandler(missingDataHandler), phenotypeVector(
+        phenotypeVector), covariatesMatrix(covariatesMatrix), alleleStatisticsFactory(alleleStatisticsFactory){
 
 }
 
-DataHandler::DataHandler(const Configuration& configuration) :
+template<typename Matrix, typename Vector>
+DataHandler<Matrix, Vector>::DataHandler(const Configuration& configuration) :
     configuration(configuration), currentRecode(ALL_RISK), dataQueue(nullptr), bedReader(nullptr), interactionVector(
-        nullptr), snpVector(nullptr), environmentVector(nullptr), environmentInformation(nullptr), currentEnvironmentFactorPos(
-        0), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(nullptr), currentSNP(nullptr), alleleStatistics(
-        nullptr), cellCountThreshold(0), modelInformationFactory(nullptr), modelInformation(nullptr), currentEnvironmentFactor(
-        nullptr), currentStatisticModel(ADDITIVE), appliedStatisticModel(false) {
+        nullptr), snpVector(nullptr), environmentVector(nullptr), state(NOT_INITIALISED), contingencyTable(nullptr), contingencyTableFactory(
+        nullptr), currentSNP(nullptr), alleleStatistics(nullptr), cellCountThreshold(0), modelInformationFactory(
+        nullptr), modelInformation(nullptr), environmentFactor(nullptr), appliedStatisticModel(false), minorAlleleFrequencyThreshold(
+        0), missingDataHandler(nullptr), phenotypeVector(nullptr), covariatesMatrix(nullptr), alleleStatisticsFactory(
+        nullptr){
 
 }
 
-DataHandler::~DataHandler() {
+template<typename Matrix, typename Vector>
+DataHandler<Matrix, Vector>::~DataHandler(){
+  delete covariatesMatrix;
   delete interactionVector;
   delete snpVector;
   delete environmentVector;
+  delete phenotypeVector;
   delete contingencyTable;
   delete alleleStatistics;
   delete modelInformation;
   delete currentSNP;
+  delete missingDataHandler;
+  delete alleleStatisticsFactory;
+  delete modelInformationFactory;
 }
 
-DataHandlerState DataHandler::next() {
+template<typename Matrix, typename Vector>
+DataHandlerState DataHandler<Matrix, Vector>::next(){
 #ifdef PROFILE
   boost::chrono::system_clock::time_point before = boost::chrono::system_clock::now();
+#endif
+#ifdef DEBUG
+  if(state == NOT_INITIALISED){
+    state = INITIALISED;
+  }
 #endif
 
   currentRecode = ALL_RISK;
@@ -53,76 +72,72 @@ DataHandlerState DataHandler::next() {
 
   delete contingencyTable;
   delete modelInformation;
+  delete currentSNP;
+  delete snpVector;
+  delete alleleStatistics;
 
   contingencyTable = nullptr;
   modelInformation = nullptr;
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    state = INITIALISED;
+  currentSNP = nullptr;
+  snpVector = nullptr;
+  alleleStatistics = nullptr;
+
+  currentSNP = dataQueue->next();
+  if(currentSNP == nullptr){
+#ifdef PROFILE
+    boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
+    timeSpentNext+=after - before;
+#endif
+
+    return DONE;
   }
-#endif
 
-  if(currentEnvironmentFactorPos == environmentInformation->size() - 1){ //Check if we were at the last EnvironmentFactor so should start with next snp
-    delete currentSNP;
-    delete snpVector;
-    delete alleleStatistics;
-    currentSNP = nullptr;
-    snpVector = nullptr;
-    alleleStatistics = nullptr;
-
-    currentSNP = dataQueue->next();
-    if(currentSNP == nullptr){
 #ifdef PROFILE
-      boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
-      timeSpentNext+=after - before;
+  boost::chrono::system_clock::time_point beforeRead = boost::chrono::system_clock::now();
 #endif
-
-      return DONE;
-    }
-
-    bool include = readSNP(*currentSNP);
-    if(!include){
-      modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *(*environmentInformation)[0],
-          *alleleStatistics);
+  snpVector = bedReader->readSNP(*currentSNP);
 #ifdef PROFILE
-      boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
-      timeSpentNext+=after - before;
+  boost::chrono::system_clock::time_point afterRead = boost::chrono::system_clock::now();
+  timeSpentSNPRead+=afterRead - beforeRead;
 #endif
 
-      return SKIP;
-    }
-    currentEnvironmentFactorPos = 0;
+  if(snpVector->hasMissing()){
+    missingDataHandler->setMissing(snpVector->getMissing());
+
+    environmentVector->recode(currentRecode, *missingDataHandler);
+    phenotypeVector->applyMissing(*missingDataHandler);
+    covariatesMatrix->applyMissing(*missingDataHandler);
   }else{
-    currentEnvironmentFactorPos++;
-    snpVector->recode(ALL_RISK);
+    environmentVector->recode(currentRecode);
+    phenotypeVector->applyMissing();
+    covariatesMatrix->applyMissing();
   }
 
-  currentEnvironmentFactor = (*environmentInformation)[currentEnvironmentFactorPos];
-  environmentVector->switchEnvironmentFactor(*currentEnvironmentFactor);
-  interactionVector->recode(*snpVector);
+  alleleStatistics = alleleStatisticsFactory->constructAlleleStatistics(*snpVector, *phenotypeVector);
+  RiskAllele riskAllele = riskAlleleStrategy->calculateRiskAllele(*alleleStatistics);
+  currentSNP->setRiskAllele(riskAllele);
+  snpVector->recode(currentRecode);
 
-  if(currentEnvironmentFactor->getVariableType() == BINARY){
+  if(alleleStatistics->getMinorAlleleFrequecy() < minorAlleleFrequencyThreshold){
+    currentSNP->setInclude(LOW_MAF);
+  }
+
+  if(environmentFactor->getVariableType() == BINARY){
     contingencyTable = contingencyTableFactory->constructContingencyTable(*snpVector, *environmentVector);
-
-    setSNPInclude(*currentSNP, *contingencyTable);
-    if(!currentSNP->shouldInclude()){
-      modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
-          *alleleStatistics, *contingencyTable);
-
-#ifdef PROFILE
-      boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
-      timeSpentNext+=after - before;
-#endif
-
-      return SKIP;
-    }
-  }
-
-  if(currentEnvironmentFactor->getVariableType() == BINARY){
-    modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
+    modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *environmentFactor,
         *alleleStatistics, *contingencyTable);
-  }else{
-    modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
+
+    const std::vector<int>& table = contingencyTable->getTable();
+    const int size = table.size();
+    for(int i = 0; i < size; ++i){
+      if(table[i] < cellCountThreshold){
+        currentSNP->setInclude(LOW_CELL_NUMBER);
+        break;
+      }
+    }
+
+  }else{ //if environmentFactor binary
+    modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *environmentFactor,
         *alleleStatistics);
   }
 
@@ -131,10 +146,15 @@ DataHandlerState DataHandler::next() {
   timeSpentNext+=after - before;
 #endif
 
-  return CALCULATE;
+  if(!currentSNP->shouldInclude()){
+    return SKIP;
+  }else{
+    return CALCULATE;
+  }
 }
 
-void DataHandler::applyStatisticModel(StatisticModel statisticModel) {
+template<typename Matrix, typename Vector>
+void DataHandler<Matrix, Vector>::applyStatisticModel(const InteractionModel<Vector>& interactionModel){
 #ifdef PROFILE
   boost::chrono::system_clock::time_point before = boost::chrono::system_clock::now();
 #endif
@@ -145,18 +165,14 @@ void DataHandler::applyStatisticModel(StatisticModel statisticModel) {
   }
 #endif
 
-  //TODO use the InteractionStrategy instead of the vectors
-
   if(appliedStatisticModel){ // If a model has been previously applied after a next or a recode then things can have changed
     snpVector->recode(currentRecode);
     environmentVector->recode(currentRecode);
   }
 
-  snpVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
-  environmentVector->applyStatisticModel(statisticModel, interactionVector->getRecodedData());
+  interactionModel.applyModel(*snpVector, *environmentVector, *interactionVector);
 
   appliedStatisticModel = true;
-  currentStatisticModel = statisticModel;
 
 #ifdef PROFILE
   boost::chrono::system_clock::time_point after = boost::chrono::system_clock::now();
@@ -164,7 +180,8 @@ void DataHandler::applyStatisticModel(StatisticModel statisticModel) {
 #endif
 }
 
-void DataHandler::recode(Recode recode) {
+template<typename Matrix, typename Vector>
+void DataHandler<Matrix, Vector>::recode(Recode recode){
 #ifdef PROFILE
   boost::chrono::system_clock::time_point before = boost::chrono::system_clock::now();
 #endif
@@ -193,14 +210,13 @@ void DataHandler::recode(Recode recode) {
 
   snpVector->recode(recode);
   environmentVector->recode(recode);
-  interactionVector->recode(*snpVector);
 
-  if(currentEnvironmentFactor->getVariableType() == BINARY){
+  if(environmentFactor->getVariableType() == BINARY){
     delete contingencyTable;
     delete modelInformation;
     contingencyTable = contingencyTableFactory->constructContingencyTable(*snpVector, *environmentVector);
 
-    modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *currentEnvironmentFactor,
+    modelInformation = modelInformationFactory->constructModelInformation(*currentSNP, *environmentFactor,
         *alleleStatistics, *contingencyTable);
   }
 
@@ -210,33 +226,8 @@ void DataHandler::recode(Recode recode) {
 #endif
 }
 
-bool DataHandler::readSNP(SNP& nextSnp) {
-#ifdef PROFILE
-  boost::chrono::system_clock::time_point beforeRead = boost::chrono::system_clock::now();
-#endif
-
-  std::pair<const AlleleStatistics*, Container::SNPVector*>* pair = bedReader->readSNP(nextSnp);
-
-#ifdef PROFILE
-  boost::chrono::system_clock::time_point afterRead = boost::chrono::system_clock::now();
-  timeSpentSNPRead+=afterRead - beforeRead;
-#endif
-
-  //TODO alleleStatisticsFactory build alleleStatitics, need snp data and phenotype data, make sure it's after applying missing
-  //TODO use RiskAlleleStrategy to set snp risk allele
-  //TODO use AlleleStatistics to get MAF and set snp include from it
-  if(minorAlleleFrequency < minorAlleleFrequencyThreshold){
-    snp.setInclude(LOW_MAF);
-  }
-
-  alleleStatistics = pair->first;
-  snpVector = pair->second;
-
-  delete pair;
-  return nextSnp.shouldInclude();
-}
-
-Recode DataHandler::getRecode() const {
+template<typename Matrix, typename Vector>
+Recode DataHandler<Matrix, Vector>::getRecode() const{
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
     throw InvalidState("Before using the getter run next() at least once.");
@@ -246,7 +237,8 @@ Recode DataHandler::getRecode() const {
   return currentRecode;
 }
 
-const Model::ModelInformation& DataHandler::getCurrentModelInformation() const {
+template<typename Matrix, typename Vector>
+const Model::ModelInformation& DataHandler<Matrix, Vector>::getCurrentModelInformation() const{
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
     throw InvalidState("Before using getModelInformation run next() at least once.");
@@ -255,7 +247,8 @@ const Model::ModelInformation& DataHandler::getCurrentModelInformation() const {
   return *modelInformation;
 }
 
-const SNP& DataHandler::getCurrentSNP() const {
+template<typename Matrix, typename Vector>
+const SNP& DataHandler<Matrix, Vector>::getCurrentSNP() const{
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
     throw InvalidState("Before using the getCurrentSNP use next() at least once.");
@@ -264,16 +257,18 @@ const SNP& DataHandler::getCurrentSNP() const {
   return *currentSNP;
 }
 
-const EnvironmentFactor& DataHandler::getCurrentEnvironmentFactor() const {
+template<typename Matrix, typename Vector>
+const EnvironmentFactor& DataHandler<Matrix, Vector>::getCurrentEnvironmentFactor() const{
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
     throw InvalidState("Before using the getCurrentEnvironmentFactor use next() at least once.");
   }
 #endif
-  return *(*environmentInformation)[currentEnvironmentFactorPos];
+  return *environmentFactor;
 }
 
-const Container::SNPVector& DataHandler::getSNPVector() const {
+template<typename Matrix, typename Vector>
+const Container::SNPVector<Vector>& DataHandler<Matrix, Vector>::getSNPVector() const{
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
     throw InvalidState("Before using getSNPVector run next() at least once.");
@@ -282,7 +277,8 @@ const Container::SNPVector& DataHandler::getSNPVector() const {
   return *snpVector;
 }
 
-const Container::InteractionVector& DataHandler::getInteractionVector() const {
+template<typename Matrix, typename Vector>
+const Container::InteractionVector<Vector>& DataHandler<Matrix, Vector>::getInteractionVector() const{
 #ifdef DEBUG
   if(state == NOT_INITIALISED){
     throw InvalidState("Before using getInteractionVector run next() at least once.");
@@ -291,25 +287,14 @@ const Container::InteractionVector& DataHandler::getInteractionVector() const {
   return *interactionVector;
 }
 
-const Container::EnvironmentVector& DataHandler::getEnvironmentVector() const {
-#ifdef DEBUG
-  if(state == NOT_INITIALISED){
-    throw InvalidState("Before using getEnvironmentVector run next() at least once.");
-  }
-#endif
+template<typename Matrix, typename Vector>
+const Container::EnvironmentVector<Vector>& DataHandler<Matrix, Vector>::getEnvironmentVector() const{
   return *environmentVector;
 }
 
-void DataHandler::setSNPInclude(SNP& snp, const ContingencyTable& contingencyTable) const {
-  //TODO check MAF
-  const std::vector<int>& table = contingencyTable.getTable();
-  const int size = table.size();
-  for(int i = 0; i < size; ++i){
-    if(table[i] < cellCountThreshold){
-      snp.setInclude(LOW_CELL_NUMBER);
-      break;
-    }
-  }
+template<typename Matrix, typename Vector>
+const Container::CovariatesMatrix<Matrix, Vector>& DataHandler<Matrix, Vector>::getCovariatesMatrix() const{
+  return *covariatesMatrix;
 }
 
 } /* namespace CuEira */

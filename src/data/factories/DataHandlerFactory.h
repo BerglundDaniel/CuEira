@@ -20,27 +20,23 @@ namespace CuEira {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Matrix, typename Vector>
 class DataHandlerFactory {
 public:
-  DataHandlerFactory(const Configuration& configuration, FileIO::BedReader& bedReader,
-      const ContingencyTableFactory& contingencyTableFactory,
-      const Model::ModelInformationFactory& modelInformationFactory,
-      const EnvironmentFactorHandler& environmentFactorHandler, Task::DataQueue& dataQueue);
+  explicit DataHandlerFactory(const Configuration& configuration, const RiskAlleleStrategy& riskAlleleStrategy,
+      Task::DataQueue& dataQueue);
   virtual ~DataHandlerFactory();
 
-  virtual DataHandler* constructDataHandler() const;
+  virtual DataHandler<Matrix, Vector>* constructDataHandler() const=0;
 
   DataHandlerFactory(const DataHandlerFactory&) = delete;
   DataHandlerFactory(DataHandlerFactory&&) = delete;
   DataHandlerFactory& operator=(const DataHandlerFactory&) = delete;
   DataHandlerFactory& operator=(DataHandlerFactory&&) = delete;
 
-private:
+protected:
   const Configuration& configuration;
-  FileIO::BedReader& bedReader;
-  const ContingencyTableFactory& contingencyTableFactory;
-  const Model::ModelInformationFactory& modelInformationFactory;
-  const EnvironmentFactorHandler& environmentFactorHandler;
+  const RiskAlleleStrategy& riskAlleleStrategy;
   Task::DataQueue& dataQueue;
 };
 

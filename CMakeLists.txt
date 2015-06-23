@@ -23,7 +23,7 @@ set(Boost_USE_MULTITHREADED off)
 #Options
 option(VERBOSE "Set CMake and compilation to verbose" off)
 set(PRECISION single) #single or double
-set(TARGET_ARCHITECTURE kepler) #fermi, kepler, maxwell #TODO fix this to sync and stuff instead
+set(TARGET_ARCHITECTURE fermi) #fermi, kepler, maxwell #TODO fix this to sync and stuff instead
 option(CPU "Use CPU only" off)
 option(CLUSTER "Use cluster" off) #TODO not implemented
 option(ENABLE_MKL "Enable MKL flag" on)
@@ -110,7 +110,8 @@ if(NOT ${CPU})
     endif(${CUDA_VERSION_MINOR} LESS 5)
   endif(${CUDA_VERSION_MAJOR} EQUAL 5)
 
-  set(CUDA_PROPAGATE_HOST_FLAGS off) #Some c++ flags that gets passed to NVCC -Xcompiler will cause errors, for instance c++11 flag
+  set(CUDA_PROPAGATE_HOST_FLAGS off) #Some c++ flags that gets passed to NVCC -Xcompiler can cause problems
+  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-std=c++11)
 
   if(CMAKE_BUILD_TYPE MATCHES DEBUG)
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-g)

@@ -24,15 +24,12 @@ using namespace CuEira::CPU;
  */
 class CpuEnvironmentVector: public EnvironmentVector<RegularHostVector> {
 public:
-  CpuEnvironmentVector(const EnvironmentFactorHandler<RegularHostVector>& environmentFactorHandler,
-      const MKLWrapper& mklWrapper);
+  CpuEnvironmentVector(const EnvironmentFactorHandler<RegularHostVector>& environmentFactorHandler);
   virtual ~CpuEnvironmentVector();
 
 protected:
   virtual void recodeProtective();
   virtual void recodeAllRisk();
-
-  const MKLWrapper& mklWrapper;
 };
 
 } /* namespace CPU */

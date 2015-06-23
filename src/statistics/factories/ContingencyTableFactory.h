@@ -3,7 +3,7 @@
 
 #include <ContingencyTable.h>
 #include <SNPVector.h>
-#include <InteractionVector.h>
+#include <PhenotypeVector.h>
 #include <EnvironmentVector.h>
 
 namespace CuEira {
@@ -13,17 +13,18 @@ namespace CuEira {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector>
 class ContingencyTableFactory {
 public:
-  ContingencyTableFactory(const Container::HostVector& outcomes);
+  ContingencyTableFactory();
   virtual ~ContingencyTableFactory();
 
-  virtual ContingencyTable* constructContingencyTable(const Container::SNPVector& snpVector,
-      const Container::EnvironmentVector& environmentVector) const;
+  virtual const ContingencyTable* constructContingencyTable(const Container::SNPVector<Vector>& snpVector,
+      const Container::EnvironmentVector<Vector>& environmentVector,
+      const Container::PhenotypeVector<Vector>& phenotypeVector) const=0;
 
-private:
-  const Container::HostVector& outcomes;
-  const int numberOfIndividualsToInclude;
+protected:
+  const static int tableSize = 8;
 };
 
 } /* namespace CuEira */

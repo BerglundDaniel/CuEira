@@ -7,5 +7,6 @@ set(INCLUDE_DIRECTORIES
 set(SOURCE
   ${SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/CpuAlleleStatisticsFactory.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CpuContingencyTableFactory.cpp
   PARENT_SCOPE
 )

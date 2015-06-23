@@ -4,17 +4,16 @@ namespace CuEira {
 namespace Container {
 namespace CPU {
 
-CpuEnvironmentVector::CpuEnvironmentVector(const EnvironmentFactorHandler<RegularHostVector>& environmentFactorHandler,
-    const MKLWrapper& mklWrapper) :
-    EnvironmentVector(environmentFactorHandler), mklWrapper(mklWrapper) {
+CpuEnvironmentVector::CpuEnvironmentVector(const EnvironmentFactorHandler<RegularHostVector>& environmentFactorHandler) :
+    EnvironmentVector(environmentFactorHandler){
 
 }
 
-CpuEnvironmentVector::~CpuEnvironmentVector() {
+CpuEnvironmentVector::~CpuEnvironmentVector(){
 
 }
 
-void CpuEnvironmentVector::recodeProtective() {
+void CpuEnvironmentVector::recodeProtective(){
   int c;
   if(environmentFactor.getVariableType() == BINARY){
     c = 1;
@@ -28,8 +27,8 @@ void CpuEnvironmentVector::recodeProtective() {
   }
 }
 
-void CpuEnvironmentVector::recodeAllRisk() {
-  mklWrapper.copyVector(originalData, *envExMissing);
+void CpuEnvironmentVector::recodeAllRisk(){
+  Blas::copyVector(originalData, *envExMissing);
 }
 
 } /* namespace CPU */

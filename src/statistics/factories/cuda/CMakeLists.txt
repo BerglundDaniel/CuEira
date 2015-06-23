@@ -12,5 +12,6 @@ set(SOURCE
 set(GPU_SOURCE
   ${GPU_SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/CudaAlleleStatisticsFactory.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CudaContingencyTableFactory.cpp
   PARENT_SCOPE
 )

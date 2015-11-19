@@ -12,6 +12,7 @@
 #include <FileReaderException.h>
 #include <Person.h>
 #include <PersonHandler.h>
+#include <PersonHandlerLocked.h>
 #include <Id.h>
 #include <HostVector.h>
 #include <HostMatrix.h>
@@ -38,7 +39,7 @@ public:
   virtual ~CSVReader();
 
   virtual int getNumberOfIndividualsTotal() const;
-  virtual Container::HostMatrix* readData() const;
+  virtual Container::HostMatrix* readData(const PersonHandlerLocked& personHandlerLocked) const;
   virtual const std::vector<std::string>& getDataColumnNames() const;
 
 protected:
@@ -47,7 +48,6 @@ protected:
   virtual bool rowHasMissingData(const std::vector<std::string>& lineSplit) const;
   bool stringIsEmpty(const std::string& string) const;
 
-  PersonHandler& personHandler;
   const std::string idColumnName;
   int idColumnNumber;
   const std::string delim;
@@ -57,7 +57,7 @@ protected:
   std::vector<std::string>* dataColumnNames;
 
 private:
-  void readBasicFileInformation();
+  void readBasicFileInformation(PersonHandler& personHandler);
 };
 
 } /* namespace FileIO */

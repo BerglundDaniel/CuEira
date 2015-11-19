@@ -51,8 +51,8 @@ public:
 
 private:
   void readBasicFileInformation();
-  Phenotype stringToPhenotype(std::string phenotypeString) const;
-  Sex stringToSex(std::string sexString) const;
+  Phenotype stringToPhenotype(std::string& phenotypeString) const;
+  Sex stringToSex(std::string& sexString) const;
 
   const Configuration& configuration;
   const PersonHandlerFactory* personHandlerFactory;

@@ -9,6 +9,7 @@
 #include <GeneticModel.h>
 #include <Recode.h>
 #include <KernelWrapper.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace Container {
@@ -24,13 +25,13 @@ using namespace CuEira::CUDA;
 class CudaSNPVector: public SNPVector<DeviceVector> {
 public:
   explicit CudaSNPVector(SNP& snp, GeneticModel geneticModel, const DeviceVector* snpOrgExMissing,
-      const std::set<int>* snpMissingData, const KernelWrapper& kernelWrapper);
+      const std::set<int>* snpMissingData, const Stream& stream);
   virtual ~CudaSNPVector();
 
 protected:
   virtual void doRecode(int snpToRisk[3]);
 
-  const KernelWrapper& kernelWrapper;
+  const Stream& stream;
 };
 
 } /* namespace CUDA */

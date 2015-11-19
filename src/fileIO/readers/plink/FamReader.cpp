@@ -6,15 +6,15 @@ namespace FileIO {
 FamReader::FamReader(const Configuration& configuration, const PersonHandlerFactory* personHandlerFactory) :
     configuration(configuration), personHandlerFactory(personHandlerFactory), famFileStr(
         configuration.getFamFilePath()), phenotypeCoding(configuration.getPhenotypeCoding()), numberOfIndividualsTotal(
-        0) {
+        0){
   readBasicFileInformation();
 }
 
-FamReader::~FamReader() {
+FamReader::~FamReader(){
   delete personHandlerFactory;
 }
 
-void FamReader::readBasicFileInformation() {
+void FamReader::readBasicFileInformation(){
   std::string line;
   std::ifstream famFile;
   int individualNumber = 0;
@@ -41,11 +41,11 @@ void FamReader::readBasicFileInformation() {
   numberOfIndividualsTotal = individualNumber;
 }
 
-int FamReader::getNumberOfIndividualsTotal() const {
+int FamReader::getNumberOfIndividualsTotal() const{
   return numberOfIndividualsTotal;
 }
 
-PersonHandler* FamReader::readPersonInformation() const {
+PersonHandler* FamReader::readPersonInformation() const{
   /*
    * Columns in the file
    * Family ID
@@ -95,7 +95,7 @@ PersonHandler* FamReader::readPersonInformation() const {
   return personHandlerFactory->constructPersonHandler(persons);
 }
 
-Phenotype FamReader::stringToPhenotype(std::string phenotypeString) const {
+Phenotype FamReader::stringToPhenotype(std::string& phenotypeString) const{
   char * temp; //Used for error checking of string to long int conversion (strtol)
   long int phenotypeInt = strtol(phenotypeString.c_str(), &temp, 0);
   if(*temp != '\0'){ //Check if there was an error with strtol
@@ -139,7 +139,7 @@ Phenotype FamReader::stringToPhenotype(std::string phenotypeString) const {
   }
 }
 
-Sex FamReader::stringToSex(std::string sexString) const {
+Sex FamReader::stringToSex(std::string& sexString) const{
   char * temp; //Used for error checking of string to long int conversion (strtol)
   long int sexInt = strtol(sexString.c_str(), &temp, 0);
   if(*temp != '\0'){ //Check if there was an error with strtol

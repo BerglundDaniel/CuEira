@@ -7,7 +7,7 @@ namespace CPU {
 
 CpuLogisticRegressionConfiguration::CpuLogisticRegressionConfiguration(const Configuration& configuration,
     const HostVector& outcomes, const MKLWrapper& blasWrapper) :
-    LogisticRegressionConfiguration(configuration, blasWrapper, false, outcomes.getNumberOfRows(), n), outcomes(
+    LogisticRegressionConfiguration(configuration, blasWrapper, false, outcomes.getNumberOfRows(), 4), outcomes(
         &outcomes), predictors(new RegularHostMatrix(numberOfRows, numberOfPredictors)), probabilites(
         new RegularHostVector(numberOfRows)), workMatrixNxM(new RegularHostMatrix(numberOfRows, numberOfPredictors)), workVectorNx1(
         new RegularHostVector(numberOfRows)), defaultBetaCoefficents(new RegularHostVector(numberOfPredictors)), scoresHost(

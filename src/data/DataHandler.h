@@ -50,14 +50,17 @@ template<typename Matrix, typename Vector>
 class DataHandler {
   friend DataHandlerTest;FRIEND_TEST(DataHandlerTest, Recode);FRIEND_TEST(DataHandlerTest, RecodeEnvNotBinary);FRIEND_TEST(DataHandlerTest, RecodeEnvBinary);FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevFalse);FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevTrue);
 public:
-  DataHandler(const Configuration& configuration, FileIO::BedReader<>& bedReader,
-      const ContingencyTableFactory& contingencyTableFactory,
-      const Model::ModelInformationFactory* modelInformationFactory, Task::DataQueue& dataQueue,
+  DataHandler(const Configuration& configuration, Task::DataQueue& dataQueue,
+      const RiskAlleleStrategy& riskAlleleStrategy,
+      const FileIO::BedReader<Vector>* bedReader, const ContingencyTableFactory<Vector>* contingencyTableFactory,
+      const Model::ModelInformationFactory* modelInformationFactory,
       Container::EnvironmentVector<Vector>* environmentVector, Container::InteractionVector<Vector>* interactionVector,
       Container::PhenotypeVector<Vector>* phenotypeVector,
       Container::CovariatesMatrix<Matrix, Vector>* covariatesMatrix, MissingDataHandler<Vector>* missingDataHandler,
       const AlleleStatisticsFactory<Vector>* alleleStatisticsFactory);
   virtual ~DataHandler();
+
+  //TODO without covariates
 
   virtual DataHandlerState next();
   virtual void applyStatisticModel(const InteractionModel<Vector>& interactionModel);
@@ -97,12 +100,12 @@ private:
 
   const Configuration& configuration;
   State state;
+  const FileIO::BedReader<Vector>* bedReader;
+  Task::DataQueue* dataQueue;
   const ContingencyTableFactory<Vector>* contingencyTableFactory;
   const Model::ModelInformationFactory* modelInformationFactory;
   const AlleleStatisticsFactory<Vector>* alleleStatisticsFactory;
   const RiskAlleleStrategy* riskAlleleStrategy;
-  Task::DataQueue* dataQueue;
-  FileIO::BedReader<>* bedReader;
   MissingDataHandler<Vector>* missingDataHandler;
 
   Container::CovariatesMatrix<Matrix, Vector> covariatesMatrix;

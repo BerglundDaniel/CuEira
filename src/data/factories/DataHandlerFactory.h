@@ -27,7 +27,9 @@ public:
       Task::DataQueue& dataQueue);
   virtual ~DataHandlerFactory();
 
-  virtual DataHandler<Matrix, Vector>* constructDataHandler() const=0;
+  virtual DataHandler<Matrix, Vector>* constructDataHandler(const FileIO::BedReader<Vector>* bedReader,
+      const EnvironmentFactorHandler<Vector>& environmentFactorHandler,
+      const PhenotypeHandler<Vector>& phenotypeHandler, const CovariatesHandler<Matrix>& covariatesHandler) const=0;
 
   DataHandlerFactory(const DataHandlerFactory&) = delete;
   DataHandlerFactory(DataHandlerFactory&&) = delete;

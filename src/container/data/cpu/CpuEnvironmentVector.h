@@ -15,8 +15,6 @@ namespace CuEira {
 namespace Container {
 namespace CPU {
 
-using namespace CuEira::CPU;
-
 /**
  * This is ...
  *

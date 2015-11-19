@@ -19,10 +19,9 @@ namespace CUDA {
  *
  *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CudaSNPVectorFactory: public SNPVectorFactory<PinnedHostVector, DeviceVector> {
+class CudaSNPVectorFactory: public SNPVectorFactory<DeviceVector> {
 public:
-  explicit CudaSNPVectorFactory(const Configuration& configuration, const HostToDevice& hostToDevice,
-      const KernelWrapper& kernelWrapper);
+  explicit CudaSNPVectorFactory(const Configuration& configuration, const Stream& stream);
   virtual ~CudaSNPVectorFactory();
 
   virtual CudaSNPVector* constructSNPVector(SNP& snp, PinnedHostVector* originalSNPData,
@@ -34,8 +33,7 @@ public:
   CudaSNPVectorFactory& operator=(CudaSNPVectorFactory&&) = delete;
 
 private:
-  const HostToDevice& hostToDevice;
-  const KernelWrapper& kernelWrapper;
+  const Stream& stream;
 };
 
 } /* namespace CUDA */

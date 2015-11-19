@@ -3,15 +3,15 @@
 namespace CuEira {
 namespace FileIO {
 
-DataFilesReaderFactory::DataFilesReaderFactory() {
+DataFilesReaderFactory::DataFilesReaderFactory(){
 
 }
 
-DataFilesReaderFactory::~DataFilesReaderFactory() {
+DataFilesReaderFactory::~DataFilesReaderFactory(){
 
 }
 
-DataFilesReader* DataFilesReaderFactory::constructDataFilesReader(Configuration& configuration) {
+DataFilesReader* DataFilesReaderFactory::constructDataFilesReader(Configuration& configuration){
   Container::SNPVectorFactory* snpVectorFactory = new SNPVectorFactory(configuration);
 
   FamReader famReader(configuration);
@@ -23,7 +23,10 @@ DataFilesReader* DataFilesReaderFactory::constructDataFilesReader(Configuration&
   CSVReader* csvReader = new CSVReader(*personHandler, configuration.getCSVFilePath(),
       configuration.getCSVIdColumnName(), configuration.getCSVDelimiter());
 
-  return new DataFilesReader(personHandler, bedReader, bimReader, csvReader);
+  const PersonHandlerLocked* personHandlerLocked = new PersonHandlerLocked(personHandler);
+  delete personHandler;
+
+  return new DataFilesReader(personHandlerLocked, bedReader, bimReader, csvReader);
 
 }
 

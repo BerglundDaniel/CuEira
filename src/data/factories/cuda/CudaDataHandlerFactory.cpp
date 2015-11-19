@@ -13,7 +13,10 @@ CudaDataHandlerFactory::~CudaDataHandlerFactory(){
 
 }
 
-DataHandler<DeviceMatrix, DeviceVector>* CudaDataHandlerFactory::constructDataHandler() const{
+DataHandler<DeviceMatrix, DeviceVector>* CudaDataHandlerFactory::constructDataHandler(
+    const FileIO::BedReader<DeviceVector>* bedReader, const EnvironmentFactorHandler<DeviceVector>& environmentFactorHandler,
+    const PhenotypeHandler<DeviceVector>& phenotypeHandler,
+    const CovariatesHandler<DeviceMatrix>& covariatesHandler) const{
   //TODO
 
   return new DataHandler<DeviceMatrix, DeviceVector>();

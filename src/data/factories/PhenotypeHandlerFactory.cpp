@@ -13,17 +13,18 @@ PhenotypeHandlerFactory<Vector>::~PhenotypeHandlerFactory(){
 }
 
 template<typename Vector>
-Vector* PhenotypeHandlerFactory<Vector>::createVectorOfPhenotypes(const PersonHandler& personHandler) const{
-  const std::vector<Person*>& persons = personHandler.getPersons();
-  const int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
+Vector* PhenotypeHandlerFactory<Vector>::createVectorOfPhenotypes(const PersonHandlerLocked& personHandlerLocked) const{
+  //const std::vector<Person*>& persons = personHandlerLocked.getPersons();
+  const int numberOfIndividualsToInclude = personHandlerLocked.getNumberOfIndividualsToInclude();
   Vector* phenotypeOriginal = new Vector(numberOfIndividualsToInclude);
 
   int index = 0;
-  for(auto person : persons){
-    if(person->getInclude()){
-      if(person->getPhenotype() == AFFECTED){
+  for(PersonHandlerLocked::iterator personIter = personHandlerLocked.begin(); personIter != personHandlerLocked.end();
+      ++personIter){
+    if((*personIter)->getInclude()){
+      if((*personIter)->getPhenotype() == AFFECTED){
         (*phenotypeOriginal)(index) = 1;
-      }else if(person->getPhenotype() == UNAFFECTED){
+      }else if((*personIter)->getPhenotype() == UNAFFECTED){
         (*phenotypeOriginal)(index) = 0;
       }
       index++;

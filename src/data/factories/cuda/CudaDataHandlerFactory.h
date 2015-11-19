@@ -35,7 +35,10 @@ public:
       Task::DataQueue& dataQueue);
   virtual ~CudaDataHandlerFactory();
 
-  virtual DataHandler<DeviceMatrix, DeviceVector>* constructDataHandler() const;
+  virtual DataHandler<DeviceMatrix, DeviceVector>* constructDataHandler(const FileIO::BedReader<DeviceVector>* bedReader,
+      const EnvironmentFactorHandler<DeviceVector>& environmentFactorHandler,
+      const PhenotypeHandler<DeviceVector>& phenotypeHandler,
+      const CovariatesHandler<DeviceMatrix>& covariatesHandler) const;
 
   CudaDataHandlerFactory(const CudaDataHandlerFactory&) = delete;
   CudaDataHandlerFactory(CudaDataHandlerFactory&&) = delete;

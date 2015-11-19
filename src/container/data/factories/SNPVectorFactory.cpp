@@ -3,20 +3,33 @@
 namespace CuEira {
 namespace Container {
 
-template<typename Vector, typename VectorSNP>
-SNPVectorFactory<Vector, VectorSNP>::SNPVectorFactory(const Configuration& configuration) :
+template<typename Vector>
+SNPVectorFactory<Vector>::SNPVectorFactory(const Configuration& configuration) :
     configuration(configuration), geneticModel(configuration.getGeneticModel()){
 
 }
 
-template<typename Vector, typename VectorSNP>
-SNPVectorFactory<Vector, VectorSNP>::~SNPVectorFactory(){
+template<typename Vector>
+SNPVectorFactory<Vector>::~SNPVectorFactory(){
 
 }
 
-template<typename Vector, typename VectorSNP>
-void SNPVectorFactory<Vector, VectorSNP>::updateSize(Vector* originalSNPData,
+template<typename Vector, typename U = Vector, typename std::enable_if<!(typeid(U) == typeid(DeviceVector))>::type* =
+    nullptr>
+SNPVector<U>* SNPVectorFactory<Vector>::constructSNPVector(SNP& snp, U* originalSNPData,
     const std::set<int>* snpMissingData) const{
+
+}
+
+template<typename Vector, typename U = Vector, typename std::enable_if<(typeid(U) == typeid(DeviceVector))>::type* =
+    nullptr>
+SNPVector<U>* SNPVectorFactory<Vector>::constructSNPVector(SNP& snp, PinnedHostVector* originalSNPData,
+    const std::set<int>* snpMissingData) const{
+
+}
+
+template<typename Vector>
+void SNPVectorFactory<Vector>::updateSize(Vector* originalSNPData, const std::set<int>* snpMissingData) const{
   const int newSize = originalSNPData->getNumberOfRows() - snpMissingData->size();
   originalSNPData->updateSize(newSize);
 }

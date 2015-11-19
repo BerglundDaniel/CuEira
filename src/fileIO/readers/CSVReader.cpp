@@ -5,15 +5,15 @@ namespace FileIO {
 
 CSVReader::CSVReader(PersonHandler& personHandler, std::string filePath, std::string idColumnName, std::string delim) :
     filePath(filePath), idColumnName(idColumnName), delim(delim), numberOfIndividualsTotal(0), idColumnNumber(-1), dataColumnNames(
-        nullptr) {
-  readBasicFileInformation();
+        nullptr){
+  readBasicFileInformation(personHandler);
 }
 
-CSVReader::~CSVReader() {
+CSVReader::~CSVReader(){
   delete dataColumnNames;
 }
 
-void CSVReader::readBasicFileInformation() {
+void CSVReader::readBasicFileInformation(PersonHandler& personHandler){
   std::string line;
   std::ifstream csvFile;
   bool header = true;
@@ -99,7 +99,7 @@ void CSVReader::readBasicFileInformation() {
   }
 }
 
-bool CSVReader::rowHasMissingData(const std::vector<std::string>& lineSplit) const {
+bool CSVReader::rowHasMissingData(const std::vector<std::string>& lineSplit) const{
   for(auto& lineSplitPart : lineSplit){
     if(stringIsEmpty(lineSplitPart)){
       return true;
@@ -108,7 +108,7 @@ bool CSVReader::rowHasMissingData(const std::vector<std::string>& lineSplit) con
   return false;
 }
 
-bool CSVReader::stringIsEmpty(const std::string& string) const {
+bool CSVReader::stringIsEmpty(const std::string& string) const{
   //FIXME could also be other things?
   if(string.empty()){
     return true;
@@ -121,16 +121,16 @@ bool CSVReader::stringIsEmpty(const std::string& string) const {
   return false;
 }
 
-int CSVReader::getNumberOfIndividualsTotal() const {
+int CSVReader::getNumberOfIndividualsTotal() const{
   return numberOfIndividualsTotal;
 }
 
-const std::vector<std::string>& getDataColumnNames() const {
+const std::vector<std::string>& getDataColumnNames() const{
   return *dataColumnNames;
 }
 
-Container::HostMatrix* CSVReader::readData() const {
-  const int numberOfIndividualsToInclude = personHandler.getNumberOfIndividualsToInclude();
+Container::HostMatrix* CSVReader::readData(const PersonHandlerLocked& personHandlerLocked) const{
+  const int numberOfIndividualsToInclude = personHandlerLocked.getNumberOfIndividualsToInclude();
   std::string line;
   std::ifstream csvFile;
   bool header = true;
@@ -161,10 +161,10 @@ Container::HostMatrix* CSVReader::readData() const {
       header = false;
     }else{ /* if header */
       Id id(lineSplit[idColumnNumber]);
-      const Person& person = personHandler.getPersonFromId(id);
+      const Person& person = personHandlerLocked.getPersonFromId(id);
 
       if(person.getInclude()){
-        storeData(lineSplit, idColumnNumber, dataMatrix, personHandler.getRowIncludeFromPerson(person));
+        storeData(lineSplit, idColumnNumber, dataMatrix, personHandlerLocked.getRowIncludeFromPerson(person));
       }
     } /* if header */
   } /* while getline */
@@ -175,7 +175,7 @@ Container::HostMatrix* CSVReader::readData() const {
 }
 
 void CSVReader::storeData(std::vector<std::string> line, int idColumnNumber, Container::HostMatrix* dataMatrix,
-    const int dataRowNumber) const {
+    const int dataRowNumber) const{
   const int numberOfColumns = dataMatrix->getNumberOfColumns();
 
   int index = 0;

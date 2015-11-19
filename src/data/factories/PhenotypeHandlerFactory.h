@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <PersonHandler.h>
+#include <PersonHandlerLocked.h>
 #include <Person.h>
 #include <Phenotype.h>
 
@@ -27,7 +27,7 @@ public:
 protected:
   explicit PhenotypeHandlerFactory();
 
-  virtual Vector* createVectorOfPhenotypes(const PersonHandler& personHandler) const;
+  virtual Vector* createVectorOfPhenotypes(const PersonHandlerLocked& personHandlerLocked) const;
 };
 
 } /* namespace CuEira */

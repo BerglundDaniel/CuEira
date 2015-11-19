@@ -4,7 +4,7 @@
 #include <PhenotypeHandlerFactory.h>
 #include <Person.h>
 #include <Phenotype.h>
-#include <PersonHandler.h>
+#include <PersonHandlerLocked.h>
 #include <PhenotypeHandler.h>
 #include <PinnedHostVector.h>
 #include <DeviceVector.h>
@@ -25,7 +25,7 @@ public:
   virtual ~CudaPhenotypeHandlerFactory();
 
   virtual PhenotypeHandler<Container::DeviceVector>* constructPhenotypeHandler(const Stream& stream,
-      const PersonHandler& personHandler) const;
+      const PersonHandlerLocked& personHandlerLocked) const;
 };
 
 } /* namespace CUDA */

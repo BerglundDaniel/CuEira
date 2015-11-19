@@ -10,6 +10,7 @@
 #include <Recode.h>
 #include <VariableType.h>
 #include <InvalidState.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace Container {
@@ -24,16 +25,14 @@ using namespace CuEira::CUDA;
  */
 class CudaEnvironmentVector: public EnvironmentVector<DeviceVector> {
 public:
-  CudaEnvironmentVector(const EnvironmentFactorHandler<DeviceVector>& environmentFactorHandler,
-      const KernelWrapper& kernelWrapper, const CublasWrapper& cublasWrapper);
+  CudaEnvironmentVector(const EnvironmentFactorHandler<DeviceVector>& environmentFactorHandler, const Stream& stream);
   virtual ~CudaEnvironmentVector();
 
 protected:
   virtual void recodeProtective();
   virtual void recodeAllRisk();
 
-  const KernelWrapper& kernelWrapper;
-  const CublasWrapper& cublasWrapper;
+  const Stream& stream;
 };
 
 } /* namespace CUDA */

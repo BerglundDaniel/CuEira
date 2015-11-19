@@ -5,17 +5,17 @@ namespace Container {
 namespace CUDA {
 
 CudaSNPVector::CudaSNPVector(SNP& snp, GeneticModel geneticModel, const DeviceVector* snpOrgExMissing,
-    const std::set<int>* snpMissingData, const KernelWrapper& kernelWrapper) :
-    SNPVector<DeviceVector>(snp, geneticModel, snpOrgExMissing, snpMissingData), kernelWrapper(kernelWrapper) {
+    const std::set<int>* snpMissingData, const Stream& stream) :
+    SNPVector<DeviceVector>(snp, geneticModel, snpOrgExMissing, snpMissingData), stream(stream){
 
 }
 
-CudaSNPVector::~CudaSNPVector() {
+CudaSNPVector::~CudaSNPVector(){
 
 }
 
-void CudaSNPVector::doRecode(int snpToRisk[3]) {
-  kernelWrapper.applyGeneticModel(snpToRisk, snpOrgExMissing, snpRecodedExMissing); //recode=snpToRisk[org]
+void CudaSNPVector::doRecode(int snpToRisk[3]){
+  Kernel::applyGeneticModel(stream, snpToRisk, snpOrgExMissing, snpRecodedExMissing); //recode=snpToRisk[org]
 }
 
 } /* namespace CUDA */

@@ -4,7 +4,7 @@
 #include <PhenotypeHandlerFactory.h>
 #include <Person.h>
 #include <Phenotype.h>
-#include <PersonHandler.h>
+#include <PersonHandlerLocked.h>
 #include <PhenotypeHandler.h>
 #include <RegularHostVector.h>
 
@@ -21,7 +21,7 @@ public:
   explicit CpuPhenotypeHandlerFactory();
   virtual ~CpuPhenotypeHandlerFactory();
 
-  virtual PhenotypeHandler<Container::HostVector>* constructPhenotypeHandler(const PersonHandler& personHandler) const;
+  virtual PhenotypeHandler<Container::HostVector>* constructPhenotypeHandler(const PersonHandlerLocked& personHandlerLocked) const;
 };
 
 } /* namespace CPU */

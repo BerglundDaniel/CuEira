@@ -19,7 +19,7 @@
 #include <HostMatrix.h>
 #include <SNP.h>
 #include <EnvironmentFactor.h>
-#include <PersonHandler.h>
+#include <PersonHandlerLocked.h>
 #include <FileReaderException.h>
 
 namespace CuEira {
@@ -32,7 +32,7 @@ namespace FileIO {
  */
 class DataFilesReader {
 public:
-  explicit DataFilesReader(PersonHandler* personHandler, BedReader* bedReader, BimReader* bimReader,
+  explicit DataFilesReader(const PersonHandlerLocked* personHandler, BedReader* bedReader, BimReader* bimReader,
       CSVReader* csvReader);
   virtual ~DataFilesReader();
 

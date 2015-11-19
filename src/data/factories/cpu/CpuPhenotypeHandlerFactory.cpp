@@ -13,8 +13,8 @@ CpuPhenotypeHandlerFactory::~CpuPhenotypeHandlerFactory(){
 }
 
 PhenotypeHandler<Container::HostVector>* CpuPhenotypeHandlerFactory::constructPhenotypeHandler(
-    const PersonHandler& personHandler) const{
-  return new PhenotypeHandler<Container::HostVector>(createVectorOfPhenotypes(personHandler));
+    const PersonHandlerLocked& personHandlerLocked) const{
+  return new PhenotypeHandler<Container::HostVector>(createVectorOfPhenotypes(personHandlerLocked));
 }
 
 } /* namespace CPU */

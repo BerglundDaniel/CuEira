@@ -12,8 +12,8 @@
 #include <DimensionMismatch.h>
 #include <CSVReader.h>
 #include <PersonHandler.h>
+#include <PersonHandlerLocked.h>
 #include <SNPVectorFactory.h>
-#include <CovariatesHandlerFactory.h>
 
 namespace CuEira {
 namespace FileIO {

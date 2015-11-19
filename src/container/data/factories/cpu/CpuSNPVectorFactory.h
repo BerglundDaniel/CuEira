@@ -16,7 +16,7 @@ namespace CPU {
  *
  *  @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class CpuSNPVectorFactory: public SNPVectorFactory<RegularHostVector, RegularHostVector> {
+class CpuSNPVectorFactory: public SNPVectorFactory<RegularHostVector> {
 public:
   explicit CpuSNPVectorFactory(const Configuration& configuration);
   virtual ~CpuSNPVectorFactory();

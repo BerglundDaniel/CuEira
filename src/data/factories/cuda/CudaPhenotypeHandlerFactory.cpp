@@ -13,9 +13,9 @@ CudaPhenotypeHandlerFactory::~CudaPhenotypeHandlerFactory(){
 }
 
 PhenotypeHandler<Container::DeviceVector>* CudaPhenotypeHandlerFactory::constructPhenotypeHandler(const Stream& stream,
-    const PersonHandler& personHandler) const{
+    const PersonHandlerLocked& personHandlerLocked) const{
 
-  Container::PinnedHostVector* phenotypeOriginal = createVectorOfPhenotypes(personHandler);
+  Container::PinnedHostVector* phenotypeOriginal = createVectorOfPhenotypes(personHandlerLocked);
   Container::DeviceVector* phenotypeOriginalDevice = transferVector(stream, *phenotypeOriginal);
   delete phenotypeOriginal;
 

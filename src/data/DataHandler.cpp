@@ -3,29 +3,34 @@
 namespace CuEira {
 
 #ifdef PROFILE
-//FIXME becomes seperate if using both cpu and gpu because of template, not good
+//TODO Becomes separate if using both CPU and GPU because of template, probably good?
+template<typename Matrix, typename Vector>
 boost::chrono::duration<long long, boost::nano> DataHandler<Matrix, Vector>::timeSpentRecode;
+template<typename Matrix, typename Vector>
 boost::chrono::duration<long long, boost::nano> DataHandler<Matrix, Vector>::timeSpentNext;
+template<typename Matrix, typename Vector>
 boost::chrono::duration<long long, boost::nano> DataHandler<Matrix, Vector>::timeSpentSNPRead;
+template<typename Matrix, typename Vector>
 boost::chrono::duration<long long, boost::nano> DataHandler<Matrix, Vector>::timeSpentStatModel;
 #endif
 
 template<typename Matrix, typename Vector>
-DataHandler<Matrix, Vector>::DataHandler(const Configuration& configuration, FileIO::BedReader<>& bedReader,
-    const ContingencyTableFactory& contingencyTableFactory,
+DataHandler<Matrix, Vector>::DataHandler(const Configuration& configuration, Task::DataQueue& dataQueue,
+    const RiskAlleleStrategy& riskAlleleStrategy, const FileIO::BedReader<Vector>* bedReader,
+    const ContingencyTableFactory<Vector>* contingencyTableFactory,
     const Model::ModelInformationFactory* modelInformationFactory,
-    const std::vector<const EnvironmentFactor*>& environmentInformation, Task::DataQueue& dataQueue,
     Container::EnvironmentVector<Vector>* environmentVector, Container::InteractionVector<Vector>* interactionVector,
     Container::PhenotypeVector<Vector>* phenotypeVector, Container::CovariatesMatrix<Matrix, Vector>* covariatesMatrix,
     MissingDataHandler<Vector>* missingDataHandler, const AlleleStatisticsFactory<Vector>* alleleStatisticsFactory) :
 
     configuration(configuration), currentRecode(ALL_RISK), dataQueue(&dataQueue), bedReader(bedReader), interactionVector(
         interactionVector), snpVector(nullptr), environmentVector(environmentVector), state(NOT_INITIALISED), contingencyTable(
-        nullptr), contingencyTableFactory(&contingencyTableFactory), modelInformationFactory(modelInformationFactory), currentSNP(
+        nullptr), contingencyTableFactory(contingencyTableFactory), modelInformationFactory(modelInformationFactory), currentSNP(
         nullptr), cellCountThreshold(configuration.getCellCountThreshold()), alleleStatistics(nullptr), modelInformation(
         nullptr), environmentFactor(&environmentVector->getEnvironmentFactor()), appliedStatisticModel(false), minorAlleleFrequencyThreshold(
         configuration.getMinorAlleleFrequencyThreshold()), missingDataHandler(missingDataHandler), phenotypeVector(
-        phenotypeVector), covariatesMatrix(covariatesMatrix), alleleStatisticsFactory(alleleStatisticsFactory){
+        phenotypeVector), covariatesMatrix(covariatesMatrix), alleleStatisticsFactory(alleleStatisticsFactory), riskAlleleStrategy(
+        &riskAlleleStrategy){
 
 }
 
@@ -36,12 +41,13 @@ DataHandler<Matrix, Vector>::DataHandler(const Configuration& configuration) :
         nullptr), currentSNP(nullptr), alleleStatistics(nullptr), cellCountThreshold(0), modelInformationFactory(
         nullptr), modelInformation(nullptr), environmentFactor(nullptr), appliedStatisticModel(false), minorAlleleFrequencyThreshold(
         0), missingDataHandler(nullptr), phenotypeVector(nullptr), covariatesMatrix(nullptr), alleleStatisticsFactory(
-        nullptr){
+        nullptr), riskAlleleStrategy(nullptr){
 
 }
 
 template<typename Matrix, typename Vector>
 DataHandler<Matrix, Vector>::~DataHandler(){
+  delete bedReader;
   delete covariatesMatrix;
   delete interactionVector;
   delete snpVector;
@@ -54,6 +60,7 @@ DataHandler<Matrix, Vector>::~DataHandler(){
   delete missingDataHandler;
   delete alleleStatisticsFactory;
   delete modelInformationFactory;
+  delete contingencyTableFactory;
 }
 
 template<typename Matrix, typename Vector>

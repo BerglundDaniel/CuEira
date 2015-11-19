@@ -36,7 +36,8 @@ public:
       Task::DataQueue& dataQueue);
   virtual ~CpuDataHandlerFactory();
 
-  virtual DataHandler<RegularHostMatrix, RegularHostVector>* constructDataHandler(FileIO::BedReader<>* bedReader,
+  virtual DataHandler<RegularHostMatrix, RegularHostVector>* constructDataHandler(
+      const FileIO::BedReader<RegularHostVector>* bedReader,
       const EnvironmentFactorHandler<RegularHostVector>& environmentFactorHandler,
       const PhenotypeHandler<RegularHostVector>& phenotypeHandler,
       const CovariatesHandler<RegularHostMatrix>& covariatesHandler) const;

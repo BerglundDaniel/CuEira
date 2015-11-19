@@ -3,12 +3,19 @@
 
 #include <vector>
 #include <set>
+#include <type_traits>
+#include <typeinfo>
 
 #include <SNPVector.h>
 #include <SNP.h>
 #include <Configuration.h>
 #include <GeneticModel.h>
 #include <HostVector.h>
+
+#ifndef CPU
+#include <DeviceVector.h>
+#include <PinnedHostVector.h>
+#endif
 
 namespace CuEira {
 namespace Container {
@@ -18,13 +25,22 @@ namespace Container {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-template<typename Vector, typename VectorSNP>
+template<typename Vector>
 class SNPVectorFactory {
 public:
   virtual ~SNPVectorFactory();
 
-  virtual SNPVector<VectorSNP>* constructSNPVector(SNP& snp, Vector* originalSNPData,
-      const std::set<int>* snpMissingData) const=0;
+  template<typename U = Vector,
+  typename std::enable_if<!(typeid(U)==typeid(DeviceVector))>::type* = nullptr>
+  SNPVector<U>* constructSNPVector(SNP& snp, U* originalSNPData, const std::set<int>* snpMissingData) const;
+  //{
+  //}
+
+  template<typename U = Vector,
+  typename std::enable_if<(typeid(U)==typeid(DeviceVector))>::type* = nullptr>
+  SNPVector<U>* constructSNPVector(SNP& snp, PinnedHostVector* originalSNPData, const std::set<int>* snpMissingData) const;
+  //{
+  //}
 
   SNPVectorFactory(const SNPVectorFactory&) = delete;
   SNPVectorFactory(SNPVectorFactory&&) = delete;

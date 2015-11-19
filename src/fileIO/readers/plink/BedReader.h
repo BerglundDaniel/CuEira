@@ -25,6 +25,10 @@
 #include <AlleleStatistics.h>
 #include <HostVector.h>
 
+#ifndef CPU
+#include <PinnedHostVector.h>
+#endif
+
 namespace CuEira {
 namespace FileIO {
 class BedReaderTest;
@@ -34,16 +38,15 @@ class BedReaderTest;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-template<typename Vector, typename VectorSNP>
+template<typename Vector>
 class BedReader {
   friend BedReaderTest;FRIEND_TEST(BedReaderTest, ConstructorCheckMode);
 public:
-  explicit BedReader(const Configuration& configuration,
-      const Container::SNPVectorFactory<Vector, VectorSNP>* snpVectorFactory, const PersonHandler& personHandler,
-      const int numberOfSNPs);
+  explicit BedReader(const Configuration& configuration, const Container::SNPVectorFactory<Vector>* snpVectorFactory,
+      const PersonHandler& personHandler, const int numberOfSNPs);
   virtual ~BedReader();
 
-  virtual Container::SNPVector<VectorSNP>* readSNP(SNP& snp);
+  virtual Container::SNPVector<Vector>* readSNP(SNP& snp) const;
 
 protected:
   explicit BedReader(const Configuration& configuration, const PersonHandler& personHandler); //Used by the mock
@@ -53,15 +56,17 @@ private:
     SNPMAJOR, INDIVIDUALMAJOR
   };
 
+  void readSNPImplementation(SNP& snp, std::set<int>& snpMissingData, Container::HostVector& snpDataOriginal) const;
+
   /**
    * Get the bit at position in the byte, position in range 0-7
    */
   bool getBit(unsigned char byte, int position) const;
-  void closeBedFile(std::ifstream& bedFile);
-  void openBedFile(std::ifstream& bedFile);
+  void closeBedFile(std::ifstream& bedFile) const;
+  void openBedFile(std::ifstream& bedFile) const;
 
   const Configuration& configuration;
-  const Container::SNPVectorFactory<Vector, VectorSNP>* snpVectorFactory;
+  const Container::SNPVectorFactory<Vector>* snpVectorFactory;
   const PersonHandler& personHandler;
   Mode mode;
   const int numberOfSNPs;

@@ -21,6 +21,7 @@ set(GPU_SOURCE
 set(SOURCE
   ${SOURCE}
   ${CMAKE_CURRENT_SOURCE_DIR}/PersonHandler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PersonHandlerLocked.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentFactorHandler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DataHandler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/PhenotypeHandler.cpp

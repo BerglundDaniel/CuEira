@@ -9,6 +9,7 @@
 #include <Id.h>
 #include <Phenotype.h>
 #include <PersonHandler.h>
+#include <PersonHandlerLocked.h>
 #include <PersonHandlerException.h>
 
 namespace CuEira {
@@ -19,31 +20,31 @@ namespace CuEira_Test {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class PersonHandlerTest: public ::testing::Test {
+class PersonHandlerLockedTest: public ::testing::Test {
 protected:
-  PersonHandlerTest();
-  virtual ~PersonHandlerTest();
+  PersonHandlerLockedTest();
+  virtual ~PersonHandlerLockedTest();
   virtual void SetUp();
   virtual void TearDown();
 };
 
-PersonHandlerTest::PersonHandlerTest(){
+PersonHandlerLockedTest::PersonHandlerLockedTest(){
 
 }
 
-PersonHandlerTest::~PersonHandlerTest(){
+PersonHandlerLockedTest::~PersonHandlerLockedTest(){
 
 }
 
-void PersonHandlerTest::SetUp(){
+void PersonHandlerLockedTest::SetUp(){
 
 }
 
-void PersonHandlerTest::TearDown(){
+void PersonHandlerLockedTest::TearDown(){
 
 }
 
-TEST_F(PersonHandlerTest, Getters){
+TEST_F(PersonHandlerLockedTest, Getters){
   int numberOfIndividualsTotal = 10;
   int numberOfIndividualsToInclude = 0;
   std::vector<Person*>* personVector = new std::vector<Person*>(numberOfIndividualsTotal);
@@ -76,24 +77,36 @@ TEST_F(PersonHandlerTest, Getters){
   }
 
   PersonHandler personHandler(personVector);
+  PersonHandlerLocked personHandlerLocked(personHandler);
 
-  ASSERT_EQ(numberOfIndividualsTotal, personHandler.getNumberOfIndividualsTotal());
+  ASSERT_EQ(numberOfIndividualsTotal, personHandlerLocked.getNumberOfIndividualsTotal());
   for(int i = 0; i < numberOfIndividuals; ++i){
     const Person& person = *(*personVector)[i];
 
-    ASSERT_EQ(person, personHandler.getPersonFromId(person.getId()));
+    ASSERT_EQ(person, personHandlerLocked.getPersonFromId(person.getId()));
 
-    ASSERT_EQ(person, personHandler.getPersonFromRowAll(i));
+    ASSERT_EQ(person, personHandlerLocked.getPersonFromRowAll(i));
   }
 
+  int includeNumber = 0;
+  for(int i = 0; i < numberOfIndividuals; ++i){
+    Person* person = (*personVector)[i];
+
+    if(person->getInclude()){
+      includeNumber++;
+      ASSERT_EQ(includeNumber, personHandlerLocked.getRowIncludeFromPerson(*person));
+    }
+  }
+  ASSERT_EQ(includeNumber, personHandlerLocked.getNumberOfIndividualsToInclude());
+
   int i=0;
-  for(PersonHandler::iterator iter = personHandler.begin(); iter=personHandler.end(); iter++){
+  for(PersonHandlerLocked::iterator iter = personHandlerLocked.begin(); iter=personHandlerLocked.end(); iter++){
     ASSERT_EQ(*(*iter), *(*personVector)[i]);
     ++i;
   }
 }
 
-TEST_F(PersonHandlerTest, GettersException){
+TEST_F(PersonHandlerLockedTest, GettersException){
   int numberOfIndividualsTotal = 10;
   int numberOfIndividualsToInclude = 0;
   std::vector<Person*>* personVector = new std::vector<Person*>(numberOfIndividualsTotal);
@@ -126,14 +139,15 @@ TEST_F(PersonHandlerTest, GettersException){
   }
 
   PersonHandler personHandler(personVector);
+  PersonHandlerLocked personHandlerLocked(personHandler);
 
-  ASSERT_EQ(numberOfIndividualsTotal, personHandler.getNumberOfIndividualsTotal());
+  ASSERT_EQ(numberOfIndividualsTotal, personHandlerLocked.getNumberOfIndividualsTotal());
 
   Person personNotInHandler(Id("other"), FEMALE, UNAFFECTED, true);
 
-  ASSERT_THROW(personHandler.getPersonFromId(personNotInHandler.getId()), PersonHandlerException);
-  ASSERT_THROW(personHandler.getRowIncludeFromPerson(personNotInHandler), PersonHandlerException);
-  ASSERT_THROW(personHandler.getPersonFromRowAll(11), PersonHandlerException);
+  ASSERT_THROW(personHandlerLocked.getPersonFromId(personNotInHandler.getId()), PersonHandlerException);
+  ASSERT_THROW(personHandlerLocked.getRowIncludeFromPerson(personNotInHandler), PersonHandlerException);
+  ASSERT_THROW(personHandlerLocked.getPersonFromRowAll(11), PersonHandlerException);
 }
 
 }

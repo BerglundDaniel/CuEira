@@ -10,18 +10,10 @@
 #include <Sex.h>
 #include <Person.h>
 #include <Phenotype.h>
-#include <Configuration.h>
 #include <PersonHandlerException.h>
-#include <HostVector.h>
-#include <InvalidState.h>
-
-#ifdef CPU
-#include <RegularHostVector.h>
-#else
-#include <PinnedHostVector.h>
-#endif
 
 namespace CuEira {
+class PersonHandlerLocked;
 
 /**
  * This is ...
@@ -29,20 +21,22 @@ namespace CuEira {
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
 class PersonHandler {
+  friend PersonHandlerLocked;
 public:
+  typedef std::vector<Person*>::const_iterator iterator;
+
   explicit PersonHandler(std::vector<Person*>* persons);
   virtual ~PersonHandler();
 
   virtual int getNumberOfIndividualsTotal() const;
-  virtual int getNumberOfIndividualsToInclude() const;
-  virtual const std::vector<Person*>& getPersons() const;
+
+  virtual iterator begin() noexcept;
+  virtual iterator end() noexcept;
 
   virtual const Person& getPersonFromId(Id id) const;
   virtual Person& getPersonFromId(Id id);
   virtual const Person& getPersonFromRowAll(int rowAll) const;
-  virtual int getRowIncludeFromPerson(const Person& person) const;
-
-  virtual void lockIndividuals();
+  virtual Person& getPersonFromRowAll(int rowAll);
 
   PersonHandler(const PersonHandler&) = delete;
   PersonHandler(PersonHandler&&) = delete;
@@ -50,18 +44,9 @@ public:
   PersonHandler& operator=(PersonHandler&&) = delete;
 
 private:
-  template<class T> struct pointerLess {
-    bool operator()(T* left, T* right) const{
-      return *left < *right;
-    }
-  };
-
   const int numberOfIndividualsTotal;
-  int numberOfIndividualsToInclude;
   std::vector<Person*>* persons;
   std::map<Id, Person*> idToPerson;
-  std::map<const Person*, int, pointerLess<const Person> > personToRowInclude;
-  bool individualsLocked;
 };
 
 } /* namespace CuEira */

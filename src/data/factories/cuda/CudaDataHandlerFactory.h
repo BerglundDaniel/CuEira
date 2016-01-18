@@ -17,7 +17,9 @@
 #include <RiskAlleleStrategy.h>
 #include <AlleleStatisticsFactory.h>
 #include <CudaAlleleStatisticsFactory.h>
+#include <CudaContingencyTableFactory.h>
 #include <BedReader.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace CUDA {
@@ -35,7 +37,8 @@ public:
       Task::DataQueue& dataQueue);
   virtual ~CudaDataHandlerFactory();
 
-  virtual DataHandler<DeviceMatrix, DeviceVector>* constructDataHandler(const FileIO::BedReader<DeviceVector>* bedReader,
+  virtual DataHandler<DeviceMatrix, DeviceVector>* constructDataHandler(const Stream& stream,
+      const FileIO::BedReader<DeviceVector>* bedReader,
       const EnvironmentFactorHandler<DeviceVector>& environmentFactorHandler,
       const PhenotypeHandler<DeviceVector>& phenotypeHandler,
       const CovariatesHandler<DeviceMatrix>& covariatesHandler) const;

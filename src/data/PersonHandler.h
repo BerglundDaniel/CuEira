@@ -46,7 +46,7 @@ public:
 private:
   const int numberOfIndividualsTotal;
   std::vector<Person*>* persons;
-  std::map<Id, Person*> idToPerson;
+  std::map<Id, Person*>* idToPerson;
 };
 
 } /* namespace CuEira */

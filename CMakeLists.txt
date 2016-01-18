@@ -21,12 +21,12 @@ set(Boost_USE_STATIC_LIBS off)
 set(Boost_USE_MULTITHREADED off)
 
 #Options
-option(VERBOSE "Set CMake and compilation to verbose" off)
+option(VERBOSE "Set CMake and compilation to verbose" on)
 set(PRECISION single) #single or double
 set(TARGET_ARCHITECTURE fermi) #fermi, kepler, maxwell #TODO fix this to sync and stuff instead
 option(CPU "Use CPU only" off)
 option(CLUSTER "Use cluster" off) #TODO not implemented
-option(ENABLE_MKL "Enable MKL flag" on)
+option(ENABLE_MKL "Enable MKL flag" off)
 option(PROFILE "Profile" on)
 set(CPU_UNROLL 10) #How much to unroll the CPU loops
 set(GPU_UNROLL 10) #How much to unroll the GPU kernels
@@ -81,21 +81,28 @@ endif(${PRECISION} MATCHES double)
 #Find required libraries
 MESSAGE( STATUS "Checking packages:" )
 
-find_package( Boost 1.54 COMPONENTS program_options filesystem chrono REQUIRED )
+find_package(Boost 1.54 COMPONENTS program_options filesystem chrono REQUIRED )
 include_directories( ${Boost_INCLUDE_DIR} )
 
-#if boost 1.55 and intel, print warning TODO
+#if boost 1.55 and intel compilier, print warning TODO
 
-#TODO link MKL for other libraries and fix other BLAS versions
-if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
-  if(ENABLE_MKL)
+#Find BLAS and include its directories
+if(ENABLE_MKL)
+  if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=sequential")
   else()
-    message( FATAL_ERROR "Have to use MKL+intel" )
+    find_package(BLAS)
+    find_package(LAPACK)
   endif()
+else()
+  find_package(BLAS)
+  find_package(LAPACK)
 endif()
 
+include_directories("/usr/local/atlas/include/") #FIXME
+
+#CUDA related
 if(NOT ${CPU})
   find_package( CUDA REQUIRED )
   include_directories( ${CUDA_INCLUDE_DIRS} )
@@ -128,6 +135,9 @@ MESSAGE( STATUS "Seting compiler options:" )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-alias") //This is for intel, -fstrict-aliasing is for gcc, implicit in O2 and up TODO
 
+#TODO if intel cpu specific options
+#TODO other compiler specific
+
 #GPU optimization options
 if(NOT ${CPU})
   if(${TARGET_ARCHITECTURE} MATCHES fermi)
@@ -139,9 +149,6 @@ if(NOT ${CPU})
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-restrict --use_fast_math)
 endif()
 
-#TODO if intel cpu specific options
-#TODO other compiler specific
-
 #Print some info
 MESSAGE( STATUS "change a configuration variable with: cmake -D<Variable>=<Value>" )
 MESSAGE( STATUS "PRECISION = ${PRECISION}" )
@@ -150,27 +157,21 @@ MESSAGE( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
 MESSAGE( STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}" )
 MESSAGE( STATUS "Boost_INCLUDE_DIR = ${Boost_INCLUDE_DIR}" )
 MESSAGE( STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}" )
-if(${CPU})
-  MESSAGE( STATUS "LAPACKPP_INCLUDE_DIR = ${LAPACKPP_INCLUDE_DIR}" )
-  MESSAGE( STATUS "BLAS_LIBRARIES = ${BLAS_LIBRARIES}" )
-else()
+if(NOT ${CPU})
   MESSAGE( STATUS "CUDA_CUBLAS_LIBRARIES = ${CUDA_CUBLAS_LIBRARIES}" )
   MESSAGE( STATUS "CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS}" )
-endif(${CPU})
-
-#TODO message abou blas
+endif(NOT ${CPU})
+MESSAGE( STATUS "BLAS_LIBRARIES = ${BLAS_LIBRARIES}" )
+MESSAGE( STATUS "LAPACK_LIBRARIES = ${LAPACK_LIBRARIES}" )
 
 if(${CLUSTER})
 #TODO message mpi
 endif(${CLUSTER})
 
-#Add all sub dirs, the src sub dir will create librart ${CUEIRA_LIB} and set ${INCLUDE_DIRECTORIES}
+#Add all the relevant sub directories
 add_subdirectory(gmock-1.7.0)
-set(INCLUDE_DIRECTORIES
-  ${INCLUDE_DIRECTORIES}
-  ${gtest_SOURCE_DIR}/include
-  ${gmock_SOURCE_DIR}/include
-)
+include_directories(${gtest_SOURCE_DIR}/include)
+include_directories(${gmock_SOURCE_DIR}/include)
 
 add_subdirectory(src)
 include_directories(${INCLUDE_DIRECTORIES})
@@ -181,9 +182,9 @@ include_directories(${TEST_INCLUDE_DIRECTORIES})
 #Add executable and link
 add_executable(CuEira ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp)
 if(${CPU})
-  TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES} ${MKL_LIBRARIES})
+  TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
 else()
-  TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} ${CUEIRA_GPU_NVCC_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES} ${MKL_LIBRARIES})
+  TARGET_LINK_LIBRARIES(CuEira ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} ${CUEIRA_GPU_NVCC_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
   cuda_add_cublas_to_target(CuEira)
 endif(${CPU})
 
@@ -191,9 +192,9 @@ endif(${CPU})
 add_executable(CuEira_Test ${TEST_SOURCE})
 
 if(${CPU})
-  target_link_libraries(CuEira_Test ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES} ${MKL_LIBRARIES})
+  target_link_libraries(CuEira_Test ${CUEIRA_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
 else()
-  target_link_libraries(CuEira_Test ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} ${CUEIRA_GPU_NVCC_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES} ${MKL_LIBRARIES})
+  target_link_libraries(CuEira_Test ${CUEIRA_LIB} ${CUEIRA_GPU_LIB} ${CUEIRA_GPU_NVCC_LIB} gmock gtest gtest_main gmock_main ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${BLAS_LIBRARIES})
   cuda_add_cublas_to_target(CuEira_Test)
 endif(${CPU})
 

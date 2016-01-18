@@ -3,36 +3,41 @@
 namespace CuEira {
 namespace FileIO {
 
-DataFilesReader::DataFilesReader(const PersonHandlerLocked* personHandler, BedReader* bedReader, BimReader* bimReader,
-    CSVReader* csvReader) :
+template<typename Vector>
+DataFilesReader<Vector>::DataFilesReader(std::shared_ptr<const PersonHandlerLocked> personHandler,
+    std::shared_ptr<const BimReader> bimReader, std::shared_ptr<const CSVReader> csvReader,
+    BedReader<Vector>* bedReader) :
     personHandler(personHandler), bedReader(bedReader), bimReader(bimReader), csvReader(csvReader){
 
 }
 
-DataFilesReader::~DataFilesReader(){
+template<typename Vector>
+DataFilesReader<Vector>::~DataFilesReader(){
   delete bedReader;
-  delete bimReader;
-  delete csvReader;
-  delete personHandler;
 }
 
-Container::HostMatrix* DataFilesReader::readCSV() const{
-  return csvReader->readData();
+template<typename Vector>
+Container::HostMatrix* DataFilesReader<Vector>::readCSV() const{
+  return csvReader->readData(personHandler);
 }
 
-const std::vector<std::string>& DataFilesReader::getCSVDataColumnNames() const{
+template<typename Vector>
+const std::vector<std::string>& DataFilesReader<Vector>::getCSVDataColumnNames() const{
   return csvReader->getDataColumnNames();
 }
 
-std::vector<SNP*>* DataFilesReader::readSNPInformation() const{
+template<typename Vector>
+std::vector<SNP*>* DataFilesReader<Vector>::readSNPInformation() const{
   return bimReader->readSNPInformation();
 }
 
-Container::SNPVector* DataFilesReader::readSNP(SNP& snp){
+template<typename Vector>
+Container::SNPVector<Vector>* DataFilesReader<Vector>::readSNP(SNP& snp){
   return bedReader->readSNP(snp);
 }
 
-const PersonHandler& DataFilesReader::getPersonHandler() const{
+template<typename Vector>
+const PersonHandlerLocked& DataFilesReader<Vector>::getPersonHandler() const{
   return *personHandler;
 }
 

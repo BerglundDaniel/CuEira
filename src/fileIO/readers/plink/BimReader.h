@@ -27,7 +27,7 @@ public:
   virtual ~BimReader();
 
   int getNumberOfSNPs() const;
-  std::vector<SNP*>* readSNPInformation();
+  std::vector<SNP*>* readSNPInformation() const;
 
 private:
   const Configuration& configuration;

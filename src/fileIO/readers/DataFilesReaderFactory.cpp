@@ -3,31 +3,32 @@
 namespace CuEira {
 namespace FileIO {
 
-DataFilesReaderFactory::DataFilesReaderFactory(){
+DataFilesReaderFactory::DataFilesReaderFactory(const Configuration& configuration) :
+    configuration(configuration){
+  FamReader famReader(configuration);
+  PersonHandler* personHandler = famReader.readPersonInformation();
 
+  csvReader(
+      new CSVReader(*personHandler, configuration.getCSVFilePath(), configuration.getCSVIdColumnName(),
+          configuration.getCSVDelimiter()));
+  personHandlerLocked(new PersonHandlerLocked(personHandler));
+  bimReader(new BimReader(configuration));
+
+  delete personHandler;
 }
 
 DataFilesReaderFactory::~DataFilesReaderFactory(){
 
 }
 
-DataFilesReader* DataFilesReaderFactory::constructDataFilesReader(Configuration& configuration){
-  Container::SNPVectorFactory* snpVectorFactory = new SNPVectorFactory(configuration);
+template<typename Vector>
+DataFilesReader<Vector>* DataFilesReaderFactory::constructDataFilesReader(){
 
-  FamReader famReader(configuration);
-  PersonHandler* personHandler = famReader.readPersonInformation();
+  Container::SNPVectorFactory<Vector>* snpVectorFactory = new SNPVectorFactory<Vector>(configuration); //TODO template, CPU/GPU
+  BedReader<Vector>* bedReader = new BedReader<Vector>(configuration, snpVectorFactory, *personHandlerLocked,
+      bimReader->getNumberOfSNPs());
 
-  BimReader* bimReader = new BimReader(configuration);
-  BedReader* bedReader = new BedReader(configuration, snpVectorFactory, *personHandler, bimReader->getNumberOfSNPs());
-
-  CSVReader* csvReader = new CSVReader(*personHandler, configuration.getCSVFilePath(),
-      configuration.getCSVIdColumnName(), configuration.getCSVDelimiter());
-
-  const PersonHandlerLocked* personHandlerLocked = new PersonHandlerLocked(personHandler);
-  delete personHandler;
-
-  return new DataFilesReader(personHandlerLocked, bedReader, bimReader, csvReader);
-
+  return new DataFilesReader<Vector>(personHandlerLocked, bimReader, csvReader, bedReader);
 }
 
 } /* namespace FileIO */

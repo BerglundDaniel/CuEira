@@ -14,7 +14,7 @@
 
 #include <SNPVector.h>
 #include <Person.h>
-#include <PersonHandler.h>
+#include <PersonHandlerLocked.h>
 #include <SNP.h>
 #include <Configuration.h>
 #include <FileReaderException.h>
@@ -40,23 +40,25 @@ class BedReaderTest;
  */
 template<typename Vector>
 class BedReader {
-  friend BedReaderTest;FRIEND_TEST(BedReaderTest, ConstructorCheckMode);
+  friend BedReaderTest;
+  FRIEND_TEST(BedReaderTest, ConstructorCheckMode);
 public:
   explicit BedReader(const Configuration& configuration, const Container::SNPVectorFactory<Vector>* snpVectorFactory,
-      const PersonHandler& personHandler, const int numberOfSNPs);
+      const PersonHandlerLocked& personHandler, const int numberOfSNPs);
   virtual ~BedReader();
 
   virtual Container::SNPVector<Vector>* readSNP(SNP& snp) const;
 
 protected:
-  explicit BedReader(const Configuration& configuration, const PersonHandler& personHandler); //Used by the mock
+  explicit BedReader(const Configuration& configuration, const PersonHandlerLocked& personHandler); //Used by the mock
 
 private:
   enum Mode {
     SNPMAJOR, INDIVIDUALMAJOR
   };
 
-  void readSNPImplementation(SNP& snp, std::set<int>& snpMissingData, Container::HostVector& snpDataOriginal) const;
+  void readSNPModeSNPMajor(SNP& snp, std::set<int>& snpMissingData, Container::HostVector& snpDataOriginal) const;
+  void readSNPModeIndividualMajor(SNP& snp, std::set<int>& snpMissingData, Container::HostVector& snpDataOriginal) const;
 
   /**
    * Get the bit at position in the byte, position in range 0-7
@@ -67,7 +69,7 @@ private:
 
   const Configuration& configuration;
   const Container::SNPVectorFactory<Vector>* snpVectorFactory;
-  const PersonHandler& personHandler;
+  const PersonHandlerLocked& personHandler;
   Mode mode;
   const int numberOfSNPs;
   const int numberOfIndividualsTotal;

@@ -19,7 +19,7 @@ Vector* PhenotypeHandlerFactory<Vector>::createVectorOfPhenotypes(const PersonHa
   Vector* phenotypeOriginal = new Vector(numberOfIndividualsToInclude);
 
   int index = 0;
-  for(PersonHandlerLocked::iterator personIter = personHandlerLocked.begin(); personIter != personHandlerLocked.end();
+  for(PersonHandlerLocked::const_iterator personIter = personHandlerLocked.begin(); personIter != personHandlerLocked.end();
       ++personIter){
     if((*personIter)->getInclude()){
       if((*personIter)->getPhenotype() == AFFECTED){

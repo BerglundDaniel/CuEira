@@ -22,7 +22,7 @@ namespace CuEira {
  */
 class PersonHandlerLocked {
 public:
-  typedef std::vector<const Person*>::iterator iterator;
+  typedef std::vector<Person*>::const_iterator const_iterator;
 
   explicit PersonHandlerLocked(PersonHandler& personHandler);
   virtual ~PersonHandlerLocked();
@@ -30,8 +30,8 @@ public:
   virtual int getNumberOfIndividualsTotal() const;
   virtual int getNumberOfIndividualsToInclude() const;
 
-  virtual iterator begin() const noexcept;
-  virtual iterator end() const noexcept;
+  virtual const_iterator begin() const noexcept;
+  virtual const_iterator end() const noexcept;
 
   virtual const Person& getPersonFromId(Id id) const;
   virtual const Person& getPersonFromRowAll(int rowAll) const;
@@ -50,9 +50,9 @@ private:
   };
 
   const int numberOfIndividualsTotal;
-  const int numberOfIndividualsToInclude;
-  const std::vector<const Person*>* persons;
-  std::map<Id, Person*> idToPerson;
+  int numberOfIndividualsToInclude;
+  const std::vector<Person*>* persons;
+  std::map<Id, Person*>* idToPerson;
   std::map<const Person*, int, pointerLess<const Person> > personToRowInclude;
 };
 

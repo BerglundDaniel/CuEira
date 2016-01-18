@@ -2,13 +2,8 @@
 #define DATAFILESREADER_H_
 
 #include <string>
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
-#include <utility>
 #include <set>
-#include <algorithm>
-#include <iterator>
+#include <memory>
 
 #include <CSVReader.h>
 #include <BedReader.h>
@@ -30,24 +25,27 @@ namespace FileIO {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Vector>
 class DataFilesReader {
 public:
-  explicit DataFilesReader(const PersonHandlerLocked* personHandler, BedReader* bedReader, BimReader* bimReader,
-      CSVReader* csvReader);
+  explicit DataFilesReader(std::shared_ptr<const PersonHandlerLocked> personHandler,
+      std::shared_ptr<const BimReader> bimReader, std::shared_ptr<const CSVReader> csvReader,
+      BedReader<Vector>* bedReader);
   virtual ~DataFilesReader();
 
   virtual Container::HostMatrix* readCSV() const;
   virtual const std::vector<std::string>& getCSVDataColumnNames() const;
   virtual std::vector<SNP*>* readSNPInformation() const;
-  virtual Container::SNPVector* readSNP(SNP& snp);
+  virtual Container::SNPVector<Vector>* readSNP(SNP& snp);
 
-  virtual const PersonHandler& getPersonHandler() const;
+  virtual const PersonHandlerLocked& getPersonHandler() const;
 
 private:
-  PersonHandler *personHandler;
-  BedReader* bedReader;
-  BimReader* bimReader;
-  CSVReader* csvReader;
+  std::shared_ptr<const PersonHandlerLocked> personHandler;
+  std::shared_ptr<const BimReader> bimReader;
+  std::shared_ptr<const CSVReader> csvReader;
+
+  BedReader<Vector>* bedReader;
 };
 
 } /* namespace FileIO */

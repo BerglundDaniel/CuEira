@@ -4,28 +4,27 @@ namespace CuEira {
 
 PersonHandlerLocked::PersonHandlerLocked(PersonHandler& personHandler) :
     numberOfIndividualsTotal(personHandler.numberOfIndividualsTotal), idToPerson(personHandler.idToPerson), persons(
-        new std::vector<const Person*>(numberOfIndividualsTotal)){
+        personHandler.persons){
   personHandler.idToPerson = nullptr;
+  personHandler.persons = nullptr;
   int individualNumber = 0;
 
-  auto personsIter = persons->begin();
-  for(auto person : *(personHandler.persons)){
-    *personsIter = person;
-    ++personsIter;
-
+  for(auto person : *persons){
     if(person->getInclude()){
       individualNumber++;
       personToRowInclude.insert(std::pair<Person*, int>(person, individualNumber));
     }
   }
 
-  delete personHandler.persons;
-  personHandler.persons = nullptr;
   numberOfIndividualsToInclude = individualNumber;
 }
 
 PersonHandlerLocked::~PersonHandlerLocked(){
-
+  for(auto person : *persons){
+    delete person;
+  }
+  delete persons;
+  delete idToPerson;
 }
 
 int PersonHandlerLocked::getNumberOfIndividualsTotal() const{
@@ -36,16 +35,16 @@ int PersonHandlerLocked::getNumberOfIndividualsToInclude() const{
   return numberOfIndividualsToInclude;
 }
 
-PersonHandlerLocked::iterator PersonHandlerLocked::begin() const noexcept{
-  return persons->begin();
+PersonHandlerLocked::const_iterator PersonHandlerLocked::begin() const noexcept{
+  return persons->cbegin();
 }
 
-PersonHandlerLocked::iterator PersonHandlerLocked::end() const noexcept{
-  return persons->end();
+PersonHandlerLocked::const_iterator PersonHandlerLocked::end() const noexcept{
+  return persons->cend();
 }
 
 const Person& PersonHandlerLocked::getPersonFromId(Id id) const{
-  return *idToPerson.at(id);
+  return *(idToPerson->at(id));
 }
 
 const Person& PersonHandler::getPersonFromRowAll(int rowAll) const{

@@ -42,7 +42,7 @@ int BimReader::getNumberOfSNPs() const {
   return numberOfSNPs;
 }
 
-std::vector<SNP*>* BimReader::readSNPInformation() {
+std::vector<SNP*>* BimReader::readSNPInformation() const {
   std::ifstream bimFile;
   std::string line;
   std::vector<SNP*>* SNPInformation = new std::vector<SNP*>(numberOfSNPs);

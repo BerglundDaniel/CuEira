@@ -3,10 +3,10 @@
 namespace CuEira {
 
 PersonHandler::PersonHandler(std::vector<Person*>* persons) :
-    numberOfIndividualsTotal(persons->size()), persons(persons){
+    numberOfIndividualsTotal(persons->size()), persons(persons), idToPerson(new std::map<Id, Person*>()){
 
   for(auto person : *persons){
-    idToPerson.insert(std::pair<Id, Person*>(person->getId(), person));
+    idToPerson->insert(std::pair<Id, Person*>(person->getId(), person));
   }
 }
 
@@ -30,11 +30,11 @@ PersonHandler::iterator PersonHandler::end() noexcept{
 }
 
 const Person& PersonHandler::getPersonFromId(Id id) const{
-  return *idToPerson.at(id);
+  return *idToPerson->at(id);
 }
 
 Person& PersonHandler::getPersonFromId(Id id){
-  return *idToPerson.at(id);
+  return *idToPerson->at(id);
 }
 
 const Person& PersonHandler::getPersonFromRowAll(int rowAll) const{

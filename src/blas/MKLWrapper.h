@@ -5,7 +5,10 @@
 #include <mkl_vml.h>
 #include <mkl.h>
 #else
-#include <cblas.h>
+extern "C" {
+  #include <cblas.h>
+  #include <clapack.h>
+}
 #endif
 
 #include <iostream>

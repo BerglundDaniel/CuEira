@@ -9,6 +9,7 @@
 #include <HostToDevice.h>
 #include <Configuration.h>
 #include <PinnedHostVector.h>
+#include <Stream.h>
 
 namespace CuEira {
 namespace Container {

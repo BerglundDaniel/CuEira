@@ -48,7 +48,12 @@ class DataHandlerTest;
  */
 template<typename Matrix, typename Vector>
 class DataHandler {
-  friend DataHandlerTest;FRIEND_TEST(DataHandlerTest, Recode);FRIEND_TEST(DataHandlerTest, RecodeEnvNotBinary);FRIEND_TEST(DataHandlerTest, RecodeEnvBinary);FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevFalse);FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevTrue);
+  friend DataHandlerTest;
+  FRIEND_TEST(DataHandlerTest, Recode);
+  FRIEND_TEST(DataHandlerTest, RecodeEnvNotBinary);
+  FRIEND_TEST(DataHandlerTest, RecodeEnvBinary);
+  FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevFalse);
+  FRIEND_TEST(DataHandlerTest, ApplyStatisticModel_PrevTrue);
 public:
   DataHandler(const Configuration& configuration, Task::DataQueue& dataQueue,
       const RiskAlleleStrategy& riskAlleleStrategy,
@@ -58,9 +63,10 @@ public:
       Container::PhenotypeVector<Vector>* phenotypeVector,
       Container::CovariatesMatrix<Matrix, Vector>* covariatesMatrix, MissingDataHandler<Vector>* missingDataHandler,
       const AlleleStatisticsFactory<Vector>* alleleStatisticsFactory);
-  virtual ~DataHandler();
 
   //TODO without covariates
+
+  virtual ~DataHandler();
 
   virtual DataHandlerState next();
   virtual void applyStatisticModel(const InteractionModel<Vector>& interactionModel);

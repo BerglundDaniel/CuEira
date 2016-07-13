@@ -12,26 +12,26 @@ CpuLogisticRegression::CpuLogisticRegression(CpuLogisticRegressionConfiguration*
         &cpuLogisticRegressionConfiguration->getProbabilites()), workMatrixNxM(
         &cpuLogisticRegressionConfiguration->getWorkMatrixNxM()), workVectorNx1(
         &cpuLogisticRegressionConfiguration->getWorkVectorNx1()), defaultBetaCoefficents(
-        &cpuLogisticRegressionConfiguration->getDefaultBetaCoefficents()) {
+        &cpuLogisticRegressionConfiguration->getDefaultBetaCoefficents()){
 
 }
 
 CpuLogisticRegression::CpuLogisticRegression() :
     LogisticRegression(), cpuLogisticRegressionConfiguration(nullptr), outcomes(nullptr), predictors(nullptr), probabilites(
-        nullptr), workMatrixNxM(nullptr), workVectorNx1(nullptr), defaultBetaCoefficents(nullptr) {
+        nullptr), workMatrixNxM(nullptr), workVectorNx1(nullptr), defaultBetaCoefficents(nullptr){
 
 }
 
-CpuLogisticRegression::~CpuLogisticRegression() {
+CpuLogisticRegression::~CpuLogisticRegression(){
 
 }
 
-LogisticRegressionResult* CpuLogisticRegression::calculate() {
+LogisticRegressionResult* CpuLogisticRegression::calculate(){
   PRECISION diffSum = 0;
   logLikelihood = 0;
 
   Container::HostVector* betaCoefficents = new Container::RegularHostVector(numberOfPredictors);
-  blasWrapper->copyVector(*defaultBetaCoefficents, *betaCoefficents);
+  Blas::copyVector(*defaultBetaCoefficents, *betaCoefficents);
 
   Container::HostMatrix* informationMatrix = new Container::RegularHostMatrix(numberOfPredictors, numberOfPredictors);
   Container::HostMatrix* inverseInformationMatrix = new Container::RegularHostMatrix(numberOfPredictors,
@@ -40,7 +40,7 @@ LogisticRegressionResult* CpuLogisticRegression::calculate() {
   int iterationNumber = 1;
   for(iterationNumber = 1; iterationNumber < maxIterations; ++iterationNumber){
     //Copy beta to old beta
-    blasWrapper->copyVector(*betaCoefficents, *betaCoefficentsOldHost);
+    Blas::copyVector(*betaCoefficents, *betaCoefficentsOldHost);
 
     calcuateProbabilites(*predictors, *betaCoefficents, *probabilites, *workVectorNx1);
 
@@ -65,8 +65,8 @@ LogisticRegressionResult* CpuLogisticRegression::calculate() {
 }
 
 void CpuLogisticRegression::calcuateProbabilites(const HostMatrix& predictors, const HostVector& betaCoefficents,
-    HostVector& probabilites, HostVector& workVectorNx1) {
-  blasWrapper->matrixVectorMultiply(predictors, betaCoefficents, workVectorNx1, 1, 0);
+    HostVector& probabilites, HostVector& workVectorNx1){
+  Blas::matrixVectorMultiply(predictors, betaCoefficents, workVectorNx1, 1, 0);
 
   for(int i = 0; i < numberOfRows; ++i){
     probabilites(i) = exp(workVectorNx1(i)) / (1 + exp(workVectorNx1(i)));
@@ -74,16 +74,16 @@ void CpuLogisticRegression::calcuateProbabilites(const HostMatrix& predictors, c
 }
 
 void CpuLogisticRegression::calculateScores(const HostMatrix& predictors, const HostVector& outcomes,
-    const HostVector& probabilites, HostVector& scores, HostVector& workVectorNx1) {
+    const HostVector& probabilites, HostVector& scores, HostVector& workVectorNx1){
   for(int i = 0; i < numberOfRows; ++i){
     workVectorNx1(i) = outcomes(i) - probabilites(i);
   }
 
-  blasWrapper->matrixTransVectorMultiply(predictors, workVectorNx1, scores, 1, 0);
+  Blas::matrixTransVectorMultiply(predictors, workVectorNx1, scores, 1, 0);
 }
 
 void CpuLogisticRegression::calculateInformationMatrix(const HostMatrix& predictors, const HostVector& probabilites,
-    HostVector& workVectorNx1, HostMatrix& informationMatrix, HostMatrix& workMatrixNxM) {
+    HostVector& workVectorNx1, HostMatrix& informationMatrix, HostMatrix& workMatrixNxM){
   for(int i = 0; i < numberOfRows; ++i){
     workVectorNx1(i) = probabilites(i) * (1 - probabilites(i));
   }
@@ -100,11 +100,11 @@ void CpuLogisticRegression::calculateInformationMatrix(const HostMatrix& predict
     delete columnResultVector;
   }
 
-  blasWrapper->matrixTransMatrixMultiply(predictors, workMatrixNxM, informationMatrix, 1, 0);
+  Blas::matrixTransMatrixMultiply(predictors, workMatrixNxM, informationMatrix, 1, 0);
 }
 
 void CpuLogisticRegression::calculateLogLikelihood(const HostVector& outcomes, const HostVector& probabilites,
-    PRECISION& logLikelihood) {
+    PRECISION& logLikelihood){
   logLikelihood = 0;
   for(int i = 0; i < numberOfRows; ++i){
     logLikelihood += outcomes(i) * log(probabilites(i)) + (1 - outcomes(i)) * log(1 - probabilites(i));

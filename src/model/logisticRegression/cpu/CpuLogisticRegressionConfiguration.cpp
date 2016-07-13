@@ -6,8 +6,8 @@ namespace LogisticRegression {
 namespace CPU {
 
 CpuLogisticRegressionConfiguration::CpuLogisticRegressionConfiguration(const Configuration& configuration,
-    const HostVector& outcomes, const MKLWrapper& blasWrapper) :
-    LogisticRegressionConfiguration(configuration, blasWrapper, false, outcomes.getNumberOfRows(), 4), outcomes(
+    const HostVector& outcomes) :
+    LogisticRegressionConfiguration(configuration, false, outcomes.getNumberOfRows(), 4), outcomes(
         &outcomes), predictors(new RegularHostMatrix(numberOfRows, numberOfPredictors)), probabilites(
         new RegularHostVector(numberOfRows)), workMatrixNxM(new RegularHostMatrix(numberOfRows, numberOfPredictors)), workVectorNx1(
         new RegularHostVector(numberOfRows)), defaultBetaCoefficents(new RegularHostVector(numberOfPredictors)), scoresHost(
@@ -18,8 +18,8 @@ CpuLogisticRegressionConfiguration::CpuLogisticRegressionConfiguration(const Con
 }
 
 CpuLogisticRegressionConfiguration::CpuLogisticRegressionConfiguration(const Configuration& configuration,
-    const HostVector& outcomes, const MKLWrapper& blasWrapper, const HostMatrix& covariates) :
-    LogisticRegressionConfiguration(configuration, blasWrapper, true, outcomes.getNumberOfRows(),
+    const HostVector& outcomes, const HostMatrix& covariates) :
+    LogisticRegressionConfiguration(configuration, true, outcomes.getNumberOfRows(),
         4 + covariates.getNumberOfColumns()), outcomes(&outcomes), predictors(
         new RegularHostMatrix(numberOfRows, numberOfPredictors)), probabilites(new RegularHostVector(numberOfRows)), workMatrixNxM(
         new RegularHostMatrix(numberOfRows, numberOfPredictors)), workVectorNx1(new RegularHostVector(numberOfRows)), defaultBetaCoefficents(
@@ -31,9 +31,8 @@ CpuLogisticRegressionConfiguration::CpuLogisticRegressionConfiguration(const Con
   setCovariates(covariates);
 }
 
-CpuLogisticRegressionConfiguration::CpuLogisticRegressionConfiguration(const Configuration& configuration,
-    const MKLWrapper& blasWrapper) :
-    LogisticRegressionConfiguration(configuration, blasWrapper, false, 0, 0), outcomes(nullptr), predictors(nullptr), probabilites(
+CpuLogisticRegressionConfiguration::CpuLogisticRegressionConfiguration(const Configuration& configuration) :
+    LogisticRegressionConfiguration(configuration, false, 0, 0), outcomes(nullptr), predictors(nullptr), probabilites(
         nullptr), workMatrixNxM(nullptr), workVectorNx1(nullptr), defaultBetaCoefficents(nullptr), scoresHost(nullptr), predictorsMemoryPointer(
         nullptr) {
 
@@ -59,7 +58,7 @@ void CpuLogisticRegressionConfiguration::setCovariates(const HostMatrix& covaria
     const HostVector* covColumn = covariates(i);
     HostVector* covPredictorColumn = (*predictors)(4 + i);
 
-    blasWrapper.copyVector(*covColumn, *covPredictorColumn);
+    Blas::copyVector(*covColumn, *covPredictorColumn);
 
     delete covPredictorColumn;
     delete covColumn;
@@ -70,21 +69,21 @@ void CpuLogisticRegressionConfiguration::setCovariates(const HostMatrix& covaria
 void CpuLogisticRegressionConfiguration::setEnvironmentFactor(const HostVector& environmentData) {
   //Putting the environment as the third column
   HostVector* envPredictorColumn = (*predictors)(2);
-  blasWrapper.copyVector(environmentData, *envPredictorColumn);
+  Blas::copyVector(environmentData, *envPredictorColumn);
   delete envPredictorColumn;
 }
 
 void CpuLogisticRegressionConfiguration::setSNP(const HostVector& snpData) {
   //Putting the snp column as the second column
   HostVector* snpPredictorColumn = (*predictors)(1);
-  blasWrapper.copyVector(snpData, *snpPredictorColumn);
+  Blas::copyVector(snpData, *snpPredictorColumn);
   delete snpPredictorColumn;
 }
 
 void CpuLogisticRegressionConfiguration::setInteraction(const HostVector& interactionVector) {
   //Putting the interaction column as the fourth column
   HostVector* interactionPredictorColumn = (*predictors)(3);
-  blasWrapper.copyVector(interactionVector, *interactionPredictorColumn);
+  Blas::copyVector(interactionVector, *interactionPredictorColumn);
   delete interactionPredictorColumn;
 }
 

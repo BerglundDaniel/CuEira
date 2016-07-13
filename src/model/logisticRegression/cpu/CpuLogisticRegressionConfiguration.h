@@ -23,10 +23,9 @@ using namespace CuEira::Container;
  */
 class CpuLogisticRegressionConfiguration: public LogisticRegressionConfiguration {
 public:
+  CpuLogisticRegressionConfiguration(const Configuration& configuration, const HostVector& outcomes);
   CpuLogisticRegressionConfiguration(const Configuration& configuration, const HostVector& outcomes,
-      const MKLWrapper& blasWrapper);
-  CpuLogisticRegressionConfiguration(const Configuration& configuration, const HostVector& outcomes,
-      const MKLWrapper& blasWrapper, const HostMatrix& covariates);
+      const HostMatrix& covariates);
   virtual ~CpuLogisticRegressionConfiguration();
 
   virtual void setEnvironmentFactor(const HostVector& environmentData);
@@ -50,7 +49,7 @@ public:
   CpuLogisticRegressionConfiguration& operator=(CpuLogisticRegressionConfiguration&&) = delete;
 
 protected:
-  CpuLogisticRegressionConfiguration(const Configuration& configuration, const MKLWrapper& blasWrapper); //For the mock
+  CpuLogisticRegressionConfiguration(const Configuration& configuration); //For the mock
 
 private:
   void setIntercept();

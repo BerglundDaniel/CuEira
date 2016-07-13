@@ -113,11 +113,11 @@ DataHandlerState DataHandler<Matrix, Vector>::next(){
 
     environmentVector->recode(currentRecode, *missingDataHandler);
     phenotypeVector->applyMissing(*missingDataHandler);
-    covariatesMatrix->applyMissing(*missingDataHandler);
+    covariatesMatrix->applyMissing(*missingDataHandler); //TODO without cov
   }else{
     environmentVector->recode(currentRecode);
     phenotypeVector->applyMissing();
-    covariatesMatrix->applyMissing();
+    covariatesMatrix->applyMissing(); //TODO without cov
   }
 
   alleleStatistics = alleleStatisticsFactory->constructAlleleStatistics(*snpVector, *phenotypeVector);
@@ -301,7 +301,7 @@ const Container::EnvironmentVector<Vector>& DataHandler<Matrix, Vector>::getEnvi
 
 template<typename Matrix, typename Vector>
 const Container::CovariatesMatrix<Matrix, Vector>& DataHandler<Matrix, Vector>::getCovariatesMatrix() const{
-  return *covariatesMatrix;
+  return *covariatesMatrix; //TODO without cov, debug exception
 }
 
 } /* namespace CuEira */

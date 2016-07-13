@@ -19,7 +19,7 @@ LogisticRegression::LogisticRegression(LogisticRegressionConfiguration* logistic
 }
 
 LogisticRegression::LogisticRegression() :
-    Model(), logisticRegressionConfiguration(nullptr), numberOfRows(0), numberOfPredictors(0), maxIterations(0), convergenceThreshold(
+    Model(nullptr), logisticRegressionConfiguration(nullptr), numberOfRows(0), numberOfPredictors(0), maxIterations(0), convergenceThreshold(
         0), logLikelihood(0), sigma(nullptr), uSVD(nullptr), vtSVD(nullptr), workMatrixMxMHost(nullptr), betaCoefficentsOldHost(
         nullptr), scoresHost(nullptr){
 

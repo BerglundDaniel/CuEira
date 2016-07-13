@@ -26,12 +26,13 @@ class GpuModelHandlerTest;
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
+template<typename Matrix, typename Vector>
 class ModelHandler {
   friend GpuModelHandlerTest;
   FRIEND_TEST(GpuModelHandlerTest, Next);
   FRIEND_TEST(GpuModelHandlerTest, NextAndCalculate);
 public:
-  ModelHandler(const CombinedResultsFactory& combinedResultsFactory, DataHandler* dataHandler);
+  ModelHandler(const CombinedResultsFactory& combinedResultsFactory, DataHandler<Matrix, Vector>* dataHandler);
   virtual ~ModelHandler();
 
   virtual DataHandlerState next();
@@ -41,20 +42,20 @@ public:
   virtual const SNP& getCurrentSNP() const;
   virtual const EnvironmentFactor& getCurrentEnvironmentFactor() const;
 
-  virtual const Container::SNPVector& getSNPVector() const;
-  virtual const Container::InteractionVector& getInteractionVector() const;
-  virtual const Container::EnvironmentVector& getEnvironmentVector() const;
+  virtual const Container::SNPVector<Vector>& getSNPVector() const;
+  virtual const Container::InteractionVector<Vector>& getInteractionVector() const;
+  virtual const Container::EnvironmentVector<Vector>& getEnvironmentVector() const;
 
 protected:
-  enum State{
+  enum State {
     NOT_INITIALISED, INITIALISED_READY, INITIALISED_FULL
   };
 
   const CombinedResultsFactory& combinedResultsFactory;
-  DataHandler* dataHandler;
-  const Container::HostVector * environmentData;
-  const Container::HostVector * snpData;
-  const Container::HostVector * interactionData;
+  DataHandler<Matrix, Vector>* dataHandler;
+  const Vector* environmentData;
+  const Vector* snpData;
+  const Vector* interactionData;
   const SNP* currentSNP;
   const EnvironmentFactor* currentEnvironmentFactor;
   const SNP* oldSNP;

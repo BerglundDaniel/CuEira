@@ -14,11 +14,15 @@
 #include <CSVReader.h>
 #include <PersonHandler.h>
 #include <PersonHandlerLocked.h>
+#include <PersonHandlerFactory.h>
 #include <SNPVectorFactory.h>
 #include <CpuSNPVectorFactory.h>
+#include <RegularHostVector.h>
 
 #ifndef CPU
 #include <CudaSNPVectorFactory.h>
+#include <Stream.h>
+#include <DeviceVector.h>
 #endif
 
 namespace CuEira {
@@ -34,8 +38,11 @@ public:
   explicit DataFilesReaderFactory(const Configuration& configuration);
   virtual ~DataFilesReaderFactory();
 
-  template<typename Vector>
-  DataFilesReader<Vector>* constructDataFilesReader();
+  DataFilesReader<Container::RegularHostVector>* constructCpuDataFilesReader();
+
+#ifndef CPU
+  DataFilesReader<Container::DeviceVector>* constructCudaDataFilesReader(const CUDA::Stream& stream);
+#endif
 
 private:
   const Configuration& configuration;

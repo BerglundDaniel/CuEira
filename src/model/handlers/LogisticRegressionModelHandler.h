@@ -18,9 +18,7 @@
 #include <ModelResult.h>
 #include <ModelInformation.h>
 #include <Model.h>
-#include <StatisticModel.h>
-
-#include <PinnedHostVector.h> //TMP thing TODO based on problems with set function
+#include <InteractionModel.h>
 
 namespace CuEira {
 namespace Model {
@@ -31,9 +29,11 @@ namespace LogisticRegression {
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */
-class LogisticRegressionModelHandler: public ModelHandler {
+template<typename Matrix, typename Vector>
+class LogisticRegressionModelHandler: public ModelHandler<Matrix, Vector> {
 public:
-  LogisticRegressionModelHandler(const CombinedResultsFactory& combinedResultsFactory, DataHandler* dataHandler,
+  LogisticRegressionModelHandler(const CombinedResultsFactory& combinedResultsFactory,
+      DataHandler<Matrix, Vector>* dataHandler,
       CuEira::Model::LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration,
       LogisticRegression* logisticRegression);
   virtual ~LogisticRegressionModelHandler();
@@ -47,7 +47,7 @@ protected:
   const int numberOfPredictors;
 };
 
-} /* namespace CudaLogisticRegression */
+} /* namespace LogisticRegression */
 } /* namespace Model */
 } /* namespace CuEira */
 

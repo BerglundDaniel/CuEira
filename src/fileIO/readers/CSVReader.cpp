@@ -91,8 +91,8 @@ void CSVReader::readBasicFileInformation(PersonHandler& personHandler){
 
   if(numberOfIndividualsTotal != personHandler.getNumberOfIndividualsTotal()){
     std::ostringstream os;
-    os << "Different number of individuals in fam(" << personHandler.getNumberOfIndividualsTotal() << " ) and csv "
-        << filePath << " (" << covNumberOfIndividuals << ") files." << std::endl;
+    os << "Different number of individuals in fam(" << personHandler.getNumberOfIndividualsTotal() << " ) and csv ("
+        << numberOfIndividualsTotal << ") files." << std::endl;
     const std::string& tmp = os.str();
 
     throw FileReaderException(tmp.c_str());
@@ -125,7 +125,7 @@ int CSVReader::getNumberOfIndividualsTotal() const{
   return numberOfIndividualsTotal;
 }
 
-const std::vector<std::string>& getDataColumnNames() const{
+const std::vector<std::string>& CSVReader::getDataColumnNames() const{
   return *dataColumnNames;
 }
 

@@ -18,7 +18,7 @@ DataFilesReader<Vector>::~DataFilesReader(){
 
 template<typename Vector>
 Container::HostMatrix* DataFilesReader<Vector>::readCSV() const{
-  return csvReader->readData(personHandler);
+  return csvReader->readData(*personHandler);
 }
 
 template<typename Vector>

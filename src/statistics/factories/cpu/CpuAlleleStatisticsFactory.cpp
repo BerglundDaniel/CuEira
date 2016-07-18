@@ -32,7 +32,7 @@ std::vector<int>* CpuAlleleStatisticsFactory::getNumberOfAllelesPerGenotype(
 
   //UNROLL
   for(int i = 0; i < numberOfIndividuals; ++i){
-    ++numberOfAllelesPerGenotype[snpData(i) + 3 * phenotypeData(i)];
+    ++((*numberOfAllelesPerGenotype)[(int)(snpData(i) + 3 * phenotypeData(i))]);
   }
 
   return numberOfAllelesPerGenotype;

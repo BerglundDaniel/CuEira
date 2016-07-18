@@ -3,8 +3,6 @@
 
 namespace CuEira {
 
-using namespace CuEira::Container;
-
 /**
  * This is
  *

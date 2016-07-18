@@ -20,14 +20,14 @@ using namespace CuEira::Container;
  */
 class CpuMultiplicativeInteractionModel: public MultiplicativeInteractionModel<RegularHostVector> {
 public:
-  explicit CpuMultiplicativeInteractionModel(const MKLWrapper& mklWrapper);
+  explicit CpuMultiplicativeInteractionModel();
   virtual ~CpuMultiplicativeInteractionModel();
 
   virtual void applyModel(SNPVector<RegularHostVector>& snpVector,
       EnvironmentVector<RegularHostVector>& environmentVector, InteractionVector<RegularHostVector>& interactionVector);
 
 protected:
-  const MKLWrapper& mklWrapper;
+
 };
 
 } /* namespace CPU */

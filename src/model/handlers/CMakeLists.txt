@@ -16,7 +16,7 @@ set(GPU_NVCC_SOURCE
 
 set(SOURCE
   ${SOURCE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionModelHandler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelHandler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/LogisticRegressionModelHandler.cpp
   PARENT_SCOPE
 )

@@ -34,8 +34,7 @@ template<typename Matrix, typename Vector>
 class LogisticRegressionModelHandler: public ModelHandler<Matrix, Vector> {
 public:
   LogisticRegressionModelHandler(const CombinedResultsFactory& combinedResultsFactory,
-      DataHandler<Matrix, Vector>* dataHandler,
-      CuEira::Model::LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration,
+      DataHandler<Matrix, Vector>* dataHandler, LogisticRegressionConfiguration& logisticRegressionConfiguration,
       LogisticRegression* logisticRegression, AdditiveInteractionModel<Vector>* additiveInteractionModel,
       MultiplicativeInteractionModel<Vector>* multiplicativeInteractionModel);
   virtual ~LogisticRegressionModelHandler();
@@ -43,7 +42,7 @@ public:
   virtual CombinedResults* calculateModel();
 
 protected:
-  CuEira::Model::LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration;
+  LogisticRegressionConfiguration& logisticRegressionConfiguration;
   LogisticRegression* logisticRegression;
   AdditiveInteractionModel<Vector>* additiveInteractionModel;
   MultiplicativeInteractionModel<Vector>* multiplicativeInteractionModel;

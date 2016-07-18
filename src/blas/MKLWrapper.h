@@ -31,7 +31,7 @@ using namespace CuEira::Container;
 
 void copyVector(const HostVector& vectorFrom, HostVector& vectorTo);
 
-bool svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD);
+void svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD);
 
 void matrixVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector,
     PRECISION alpha = 1, PRECISION beta = 0);

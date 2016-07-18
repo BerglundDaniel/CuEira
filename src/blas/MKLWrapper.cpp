@@ -18,7 +18,7 @@ void copyVector(const HostVector& vectorFrom, HostVector& vectorTo){
 #endif
 }
 
-bool svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD){
+void svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vtSVD){
 #ifdef DEBUG
   if((matrix.getNumberOfRows() != uSVD.getNumberOfRows()) || (matrix.getNumberOfRows() != sigma.getNumberOfRows())
       || (matrix.getNumberOfRows() != vtSVD.getNumberOfRows())){
@@ -32,6 +32,9 @@ bool svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vt
 #endif
 
   int size = matrix.getNumberOfRows();
+
+#ifdef MKL_BLAS
+
 #ifdef DOUBLEPRECISION
   MKL_INT status = LAPACKE_dgesdd(LAPACK_COL_MAJOR, 'A', size, size, matrix.getMemoryPointer(), size,
       sigma.getMemoryPointer(), uSVD.getMemoryPointer(), size, vtSVD.getMemoryPointer(), size);
@@ -40,12 +43,21 @@ bool svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vt
       sigma.getMemoryPointer(), uSVD.getMemoryPointer(), size, vtSVD.getMemoryPointer(), size);
 #endif
 
+#else//MKL_BLAS
+#ifdef DOUBLEPRECISION
+  lapack_int status = LAPACKE_dgesdd(LAPACK_COL_MAJOR, 'A', size, size, matrix.getMemoryPointer(), size,
+      sigma.getMemoryPointer(), uSVD.getMemoryPointer(), size, vtSVD.getMemoryPointer(), size);
+#else
+  lapack_int status = LAPACKE_sgesdd(LAPACK_COL_MAJOR, 'A', size, size, matrix.getMemoryPointer(), size,
+      sigma.getMemoryPointer(), uSVD.getMemoryPointer(), size, vtSVD.getMemoryPointer(), size);
+#endif
+
+#endif//MKL_BLAS
   if(status < 0){
     throw new BlasException("Illegal values in matrix.");
   }else if(status > 0){
-    return false;
+    throw new BlasException("SVD computing failed.");
   }
-  return true;
 }
 
 void matrixVectorMultiply(const HostMatrix& matrix, const HostVector& vector, HostVector& resultVector, PRECISION alpha,
@@ -161,13 +173,25 @@ void multiplicationElementWise(const HostVector& vector1, const HostVector& vect
     throw DimensionMismatch("Length of vectors in multiplicationElementWise doesn't match.");
   }
 #endif
-
   int size = vector1.getNumberOfRows();
+  PRECISION* vector1MemoryPointer = vector1.getMemoryPointer();
+  PRECISION* vector2MemoryPointer = vector2.getMemoryPointer();
+  PRECISION* resultMemoryPointer = result.getMemoryPointer();
+
+#ifdef MKL_BLAS
+
 #ifdef DOUBLEPRECISION
-  vdMul(size, vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
+  vdMul(size, vector1MemoryPointer, vector2MemoryPointer, resultMemoryPointer);
 #else
-  vsMul(size, vector1.getMemoryPointer(), vector2.getMemoryPointer(), result.getMemoryPointer());
+  vsMul(size, vector1MemoryPointer, vector2MemoryPointer, resultMemoryPointer);
 #endif
+
+#else//def MKL_BLAS
+  //UNROLL
+  for(int i = 0; i < size; ++i){
+    *(resultMemoryPointer + i) = *(vector1MemoryPointer + i) * (*(vector2MemoryPointer + i));
+  }
+#endif//def MKL_BLAS
 }
 
 void absoluteSum(const HostVector& vector, PRECISION& result){

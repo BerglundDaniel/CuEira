@@ -3,17 +3,17 @@
 namespace CuEira {
 namespace CPU {
 
-CpuAdditiveInteractionModel::CpuAdditiveInteractionModel(const MKLWrapper& mklWrapper) :
-    AdditiveInteractionModel<RegularHostVector>(), mklWrapper(mklWrapper) {
+CpuAdditiveInteractionModel::CpuAdditiveInteractionModel() :
+    AdditiveInteractionModel<RegularHostVector>(){
 
 }
 
-CpuAdditiveInteractionModel::~CpuAdditiveInteractionModel() {
+CpuAdditiveInteractionModel::~CpuAdditiveInteractionModel(){
 
 }
 
 void CpuAdditiveInteractionModel::applyModel(SNPVector<RegularHostVector>& snpVector,
-    EnvironmentVector<RegularHostVector>& environmentVector, InteractionVector<RegularHostVector>& interactionVector) {
+    EnvironmentVector<RegularHostVector>& environmentVector, InteractionVector<RegularHostVector>& interactionVector){
   const int numberOfIndividualsToInclude = environmentVector.getNumberOfIndividualsToInclude();
   interactionVector.updateSize(numberOfIndividualsToInclude);
 
@@ -21,7 +21,7 @@ void CpuAdditiveInteractionModel::applyModel(SNPVector<RegularHostVector>& snpVe
   RegularHostVector& envData = environmentVector.getEnvironmentData();
   RegularHostVector& interactionData = interactionVector.getInteractionData();
 
-  mklWrapper.multiplicationElementWise(snpData, envData, interactionData);
+  Blas::multiplicationElementWise(snpData, envData, interactionData);
 
   //UNROLL
   for(int i = 0; i < numberOfIndividualsToInclude; ++i){

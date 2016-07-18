@@ -27,9 +27,12 @@ std::vector<int>* CudaAlleleStatisticsFactory::getNumberOfAllelesPerGenotype(
 
   const int numberOfBlocks = numberOfAllelesPerGenotypeBlockHost->getNumberOfRows();
   for(int b = 0; b < numberOfBlocks; ++b){
-    for(int i = 0; i < 6; ++i){
-      (*numberOfAllelesPerGenotype)[i] = (*numberOfAllelesPerGenotypeBlockHost)(b, i);
-    }
+    (*numberOfAllelesPerGenotype)[0] = (*numberOfAllelesPerGenotypeBlockHost)(b, 0);
+    (*numberOfAllelesPerGenotype)[1] = (*numberOfAllelesPerGenotypeBlockHost)(b, 1);
+    (*numberOfAllelesPerGenotype)[2] = (*numberOfAllelesPerGenotypeBlockHost)(b, 2);
+    (*numberOfAllelesPerGenotype)[3] = (*numberOfAllelesPerGenotypeBlockHost)(b, 3);
+    (*numberOfAllelesPerGenotype)[4] = (*numberOfAllelesPerGenotypeBlockHost)(b, 4);
+    (*numberOfAllelesPerGenotype)[5] = (*numberOfAllelesPerGenotypeBlockHost)(b, 5);
   }
 
   delete numberOfAllelesPerGenotypeBlockDevice;

@@ -8,9 +8,11 @@ template<typename Matrix, typename Vector>
 LogisticRegressionModelHandler<Matrix, Vector>::LogisticRegressionModelHandler(
     const CombinedResultsFactory& combinedResultsFactory, DataHandler<Matrix, Vector>* dataHandler,
     CuEira::Model::LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration,
-    LogisticRegression* logisticRegression) :
+    LogisticRegression* logisticRegression, AdditiveInteractionModel<Vector>* additiveInteractionModel,
+    MultiplicativeInteractionModel<Vector>* multiplicativeInteractionModel) :
     ModelHandler(combinedResultsFactory, dataHandler), logisticRegressionConfiguration(logisticRegressionConfiguration), logisticRegression(
-        logisticRegression), numberOfRows(logisticRegressionConfiguration.getNumberOfRows()), numberOfPredictors(
+        logisticRegression), additiveInteractionModel(additiveInteractionModel), multiplicativeInteractionModel(
+        multiplicativeInteractionModel), numberOfRows(logisticRegressionConfiguration.getNumberOfRows()), numberOfPredictors(
         logisticRegressionConfiguration.getNumberOfPredictors()){
 
 }
@@ -18,6 +20,8 @@ LogisticRegressionModelHandler<Matrix, Vector>::LogisticRegressionModelHandler(
 template<typename Matrix, typename Vector>
 LogisticRegressionModelHandler<Matrix, Vector>::~LogisticRegressionModelHandler(){
   delete logisticRegression;
+  delete additiveInteractionModel;
+  delete multiplicativeInteractionModel;
 }
 
 template<typename Matrix, typename Vector>
@@ -27,7 +31,7 @@ CombinedResults* LogisticRegressionModelHandler<Matrix, Vector>::calculateModel(
     throw InvalidState("Must run next() on ModelHandler before calculateModel().");
   }
 #endif
-  dataHandler->applyStatisticModel(ADDITIVE); //FIXME
+  dataHandler->applyStatisticModel(additiveInteractionModel);
 
   logisticRegressionConfiguration.setSNP(*snpData);
   logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
@@ -41,7 +45,7 @@ CombinedResults* LogisticRegressionModelHandler<Matrix, Vector>::calculateModel(
 
   if(recode != ALL_RISK){
     dataHandler->recode(recode);
-    dataHandler->applyStatisticModel(ADDITIVE); //FIXME
+    dataHandler->applyStatisticModel(additiveInteractionModel);
 
     logisticRegressionConfiguration.setSNP(*snpData);
     logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);
@@ -51,11 +55,11 @@ CombinedResults* LogisticRegressionModelHandler<Matrix, Vector>::calculateModel(
     delete additiveLogisticRegressionResult;
     additiveLogisticRegressionResult = logisticRegression->calculate();
 #ifndef CPU
-  CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
+    CUDA::handleCudaStatus(cudaGetLastError(), "Error with GpuModelHandler: ");
 #endif
   }
 
-  dataHandler->applyStatisticModel(MULTIPLICATIVE); //FIXME
+  dataHandler->applyStatisticModel(multiplicativeInteractionModel);
 
   logisticRegressionConfiguration.setSNP(*snpData);
   logisticRegressionConfiguration.setEnvironmentFactor(*environmentData);

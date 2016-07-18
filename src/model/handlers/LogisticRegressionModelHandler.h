@@ -18,7 +18,8 @@
 #include <ModelResult.h>
 #include <ModelInformation.h>
 #include <Model.h>
-#include <InteractionModel.h>
+#include <AdditiveInteractionModel.h>
+#include <MultiplicativeInteractionModel.h>
 
 namespace CuEira {
 namespace Model {
@@ -35,7 +36,8 @@ public:
   LogisticRegressionModelHandler(const CombinedResultsFactory& combinedResultsFactory,
       DataHandler<Matrix, Vector>* dataHandler,
       CuEira::Model::LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration,
-      LogisticRegression* logisticRegression);
+      LogisticRegression* logisticRegression, AdditiveInteractionModel<Vector>* additiveInteractionModel,
+      MultiplicativeInteractionModel<Vector>* multiplicativeInteractionModel);
   virtual ~LogisticRegressionModelHandler();
 
   virtual CombinedResults* calculateModel();
@@ -43,6 +45,8 @@ public:
 protected:
   CuEira::Model::LogisticRegression::LogisticRegressionConfiguration& logisticRegressionConfiguration;
   LogisticRegression* logisticRegression;
+  AdditiveInteractionModel<Vector>* additiveInteractionModel;
+  MultiplicativeInteractionModel<Vector>* multiplicativeInteractionModel;
   const int numberOfRows;
   const int numberOfPredictors;
 };

@@ -46,8 +46,6 @@ void GPUWorkerThread(const Configuration* configuration, const Device* device,
 
   DataHandlerState dataHandlerState = modelHandler->next();
   while(dataHandlerState != DONE){
-    //const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation(); //FIXME can't be here due to the delete ModelInformation at recode in DataHandler
-
     if(dataHandlerState == SKIP){
       const Model::ModelInformation& modelInformation = modelHandler->getCurrentModelInformation();
       resultWriter->writePartialResult(modelInformation);

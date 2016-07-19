@@ -29,29 +29,19 @@ namespace Kernel {
  */
 void copyVector(const Stream& stream, const DeviceVector& vectorFrom, DeviceVector& vectorTo);
 
-/**
- * Asdf
- */
 void matrixVectorMultiply(const Stream& stream, const DeviceMatrix& matrix, const DeviceVector& vector,
     DeviceVector& result);
 
-/**
- * Asdf
- */
 void matrixTransVectorMultiply(const Stream& stream, const DeviceMatrix& matrix, const DeviceVector& vector,
     DeviceVector& result);
 
-/**
- * Asdf
- */
 void matrixTransMatrixMultiply(const Stream& stream, const DeviceMatrix& matrix1, const DeviceMatrix& matrix2,
     DeviceMatrix& result);
 
-/**
- * Sums the vectors elements and puts the result in the given pointer
- */
 void sumResultToHost(const Stream& stream, const DeviceVector& vector, const DeviceVector& oneVector,
     PRECISION& sumHost);
+
+void absoluteSumToHost(const Stream& stream, const DeviceVector& vector, PRECISION& sumHost);
 
 } /* namespace Kernel */
 } /* namespace CUDA */

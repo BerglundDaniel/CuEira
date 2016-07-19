@@ -4,8 +4,6 @@ namespace CuEira {
 namespace CUDA {
 namespace Kernel {
 
-//constOne(new PRECISION(1)), constZero(new PRECISION(0))
-
 void copyVector(const Stream& stream, const DeviceVector& vectorFrom, DeviceVector& vectorTo){
 #ifdef DEBUG
   if(vectorFrom.getNumberOfRows() != vectorTo.getNumberOfRows()){
@@ -126,6 +124,20 @@ void sumResultToHost(const Stream& stream, const DeviceVector& vector, const Dev
 #else
   cublasSdot(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, oneVector.getMemoryPointer(), 1,
       &sumHost);
+#endif
+
+#ifdef FERMI
+  stream.syncStream();
+#endif
+}
+
+void absoluteSumToHost(const Stream& stream, const DeviceVector& vector, PRECISION& sumHost){
+  const cublasHandle_t& cublasHandle = stream.getCublasHandle();
+
+#ifdef DOUBLEPRECISION
+  cublasDasum(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, &sumHost);
+#else
+  cublasSasum(cublasHandle, vector.getNumberOfRows(), vector.getMemoryPointer(), 1, &sumHost);
 #endif
 
 #ifdef FERMI

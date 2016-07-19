@@ -13,6 +13,7 @@
 #include <ApplyAdditiveModel.cuh>
 #include <ConstSubtractVector.cuh>
 #include <CalculateNumberOfAllelesPerGenotype.cuh>
+#include <CalculateContingencyTable.cuh>
 
 namespace CuEira {
 namespace CUDA {
@@ -290,13 +291,41 @@ Container::DeviceMatrix* calculateNumberOfAllelesPerGenotype(const Stream& strea
 
   CalculateNumberOfAllelesPerGenotype<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(
       snpData.getMemoryPointer(), phenotypeData.getMemoryPointer(), numberOfAllelesPerGenotype->getMemoryPointer(),
-      numberOfRows, numberOfAllelesPerGenotype->getRealNumberOfRows());
+      numberOfRows, numberOfBlocks);
 
 #ifdef FERMI
   stream.syncStream();
 #endif
 
   return numberOfAllelesPerGenotype;
+}
+
+Container::DeviceMatrix* calculateContingencyTable(const Stream& stream, const Container::DeviceVector& snpData,
+    const Container::DeviceVector& envData, const Container::DeviceVector& phenotypeData){
+#ifdef DEBUG
+  if(snpData.getNumberOfRows() != phenotypeData.getNumberOfRows() || snpData.getNumberOfRows() != envData.getNumberOfRows()){
+    std::ostringstream os;
+    os << "Number of rows doesn't match in calculateContingencyTable function, they are "
+    << snpData.getNumberOfRows() << " , " << envData.getNumberOfRows() << " and " << phenotypeData.getNumberOfRows() << std::endl;
+    const std::string& tmp = os.str();
+    throw CudaException(tmp.c_str());
+  }
+#endif
+
+  const cudaStream_t& cudaStream = stream.getCudaStream();
+  const int numberOfRows = snpData.getNumberOfRows();
+  const int numberOfBlocks = std::ceil(((double) numberOfRows) / numberOfThreadsPerBlock);
+  Container::DeviceMatrix* table = new Container::DeviceMatrix(numberOfBlocks, 8);
+
+  CalculateContingencyTable<<<numberOfBlocks, numberOfThreadsPerBlock, 0, cudaStream>>>(snpData.getMemoryPointer(),
+      envData.getMemoryPointer(), phenotypeData.getMemoryPointer(), table->getMemoryPointer(), numberOfRows,
+      numberOfBlocks);
+
+#ifdef FERMI
+  stream.syncStream();
+#endif
+
+  return table;
 }
 
 } /* namespace Kernel */

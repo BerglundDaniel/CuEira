@@ -45,6 +45,10 @@ if(${PROFILE})
   add_definitions(-DPROFILE=1)
 endif()
 
+if(${ENABLE_MKL})
+  add_definitions(-DMKL_BLAS=1)
+endif()
+
 if(${CLUSTER})
   add_definitions(-DCLUSTER=1)
 endif(${CLUSTER})
@@ -87,7 +91,7 @@ include_directories( ${Boost_INCLUDE_DIR} )
 #if boost 1.55 and intel compilier, print warning TODO
 
 #Find BLAS and include its directories
-if(ENABLE_MKL)
+if(${ENABLE_MKL})
   if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=sequential")
@@ -161,6 +165,8 @@ if(NOT ${CPU})
   MESSAGE( STATUS "CUDA_CUBLAS_LIBRARIES = ${CUDA_CUBLAS_LIBRARIES}" )
   MESSAGE( STATUS "CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS}" )
 endif(NOT ${CPU})
+
+#TODO add printing about various kinds of blas, which one is used
 MESSAGE( STATUS "BLAS_LIBRARIES = ${BLAS_LIBRARIES}" )
 MESSAGE( STATUS "LAPACK_LIBRARIES = ${LAPACK_LIBRARIES}" )
 

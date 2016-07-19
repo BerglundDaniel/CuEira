@@ -50,7 +50,7 @@ void matrixTransMatrixMultiply(const HostMatrix& matrix1, const HostMatrix& matr
  */
 void differenceElememtWise(const HostVector& vector1, HostVector& vector2);
 
-void multiplicationElementWise(const HostVector& vector1, const HostVector& vector2, const HostVector& result);
+void multiplicationElementWise(const HostVector& vector1, const HostVector& vector2, HostVector& result);
 
 void absoluteSum(const HostVector& vector, PRECISION& result);
 

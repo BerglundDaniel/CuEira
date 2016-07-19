@@ -1,5 +1,5 @@
-#ifndef CALCULATENUMBEROFALLELESPERGENOTYPE_H_
-#define CALCULATENUMBEROFALLELESPERGENOTYPE_H_
+#ifndef CALCULATECONTINGENCYTABLE_H_
+#define CALCULATECONTINGENCYTABLE_H_
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
@@ -13,11 +13,11 @@ namespace Kernel {
 const int stepSize = 10;
 
 /**
- * This kernel calculates the number of alleles per genotype and phenotype group, which is 6 different combinations
+ * This kernel calculates the table cells for the contingency table
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
- */__global__ void CalculateNumberOfAllelesPerGenotype(const float* snpData, const float* phenotypeData,
-    float* numberOfAllelesPerGenotype, const int length, const int lengthAllelesPerGenotype){
+ */__global__ void CalculateContingencyTable(const float* snpData, const float* envData, const float* phenotypeData,
+    float* contigencyTable, const int length, const int numberOfBlocks){
   __shared__ float cache[256][6]; //Row major //TODO numberOfThreadsPerBlock make a config file with numbers etc?
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
   int cacheIndex = threadIdx.x;
@@ -28,10 +28,12 @@ const int stepSize = 10;
   cache[cacheIndex][3] = 0;
   cache[cacheIndex][4] = 0;
   cache[cacheIndex][5] = 0;
+  cache[cacheIndex][6] = 0;
+  cache[cacheIndex][7] = 0;
 
 #pragma unroll 10
   for(int i = threadId * stepSize; i < threadId * stepSize + stepSize && i < length; ++i){
-    ++cache[cacheIndex][(int) (snpData[i] + 3 * phenotypeData[i])];
+    ++cache[cacheIndex][(int) (phenotypeData[i] * 4 + snpData[i] + 2 * envData[i])];
     //NOTE be careful with unrolling since it can not go outside the length of actual data even if vectors are padded
   }
 
@@ -43,19 +45,21 @@ const int stepSize = 10;
       cache[cacheIndex][0] += cache[cacheIndex + i][0];
       cache[cacheIndex][1] += cache[cacheIndex + i][1];
       cache[cacheIndex][2] += cache[cacheIndex + i][2];
+      cache[cacheIndex][3] += cache[cacheIndex + i][3];
 
     }else if(cacheIndex >= i && cacheIndex < i * 2){
-      cache[cacheIndex - i][3] += cache[cacheIndex][3];
       cache[cacheIndex - i][4] += cache[cacheIndex][4];
       cache[cacheIndex - i][5] += cache[cacheIndex][5];
+      cache[cacheIndex - i][6] += cache[cacheIndex][6];
+      cache[cacheIndex - i][7] += cache[cacheIndex][7];
     }
 
     __syncthreads();
     i /= 2;
   }
 
-  if(cacheIndex < 6){
-    numberOfAllelesPerGenotype[blockIdx.x + lengthAllelesPerGenotype * cacheIndex] = cache[0][cacheIndex];
+  if(cacheIndex < 8){
+    contigencyTable[blockIdx.x + lengthAllelesPerGenotype * cacheIndex] = cache[0][cacheIndex];
   }
 }
 
@@ -63,4 +67,4 @@ const int stepSize = 10;
 } /* namespace CUDA */
 } /* namespace CuEira */
 
-#endif /* CALCULATENUMBEROFALLELESPERGENOTYPE_H_ */
+#endif /* CALCULATECONTINGENCYTABLE_H_ */

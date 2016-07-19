@@ -45,10 +45,10 @@ void svd(HostMatrix& matrix, HostMatrix& uSVD, HostVector& sigma, HostMatrix& vt
 
 #else//MKL_BLAS
 #ifdef DOUBLEPRECISION
-  lapack_int status = LAPACKE_dgesdd(LAPACK_COL_MAJOR, 'A', size, size, matrix.getMemoryPointer(), size,
+  lapack_int status = LAPACKE_dgesdd(CblasColMajor, 'A', size, size, matrix.getMemoryPointer(), size,
       sigma.getMemoryPointer(), uSVD.getMemoryPointer(), size, vtSVD.getMemoryPointer(), size);
 #else
-  lapack_int status = LAPACKE_sgesdd(LAPACK_COL_MAJOR, 'A', size, size, matrix.getMemoryPointer(), size,
+  lapack_int status = LAPACKE_sgesdd(CblasColMajor, 'A', size, size, matrix.getMemoryPointer(), size,
       sigma.getMemoryPointer(), uSVD.getMemoryPointer(), size, vtSVD.getMemoryPointer(), size);
 #endif
 
@@ -166,7 +166,7 @@ void differenceElememtWise(const HostVector& vector1, HostVector& vector2){
 #endif
 }
 
-void multiplicationElementWise(const HostVector& vector1, const HostVector& vector2, const HostVector& result){
+void multiplicationElementWise(const HostVector& vector1, const HostVector& vector2, HostVector& result){
 #ifdef DEBUG
   if((vector1.getNumberOfRows() != vector2.getNumberOfRows())
       || (vector1.getNumberOfRows() != result.getNumberOfRows())){
@@ -174,8 +174,8 @@ void multiplicationElementWise(const HostVector& vector1, const HostVector& vect
   }
 #endif
   int size = vector1.getNumberOfRows();
-  PRECISION* vector1MemoryPointer = vector1.getMemoryPointer();
-  PRECISION* vector2MemoryPointer = vector2.getMemoryPointer();
+  const PRECISION* vector1MemoryPointer = vector1.getMemoryPointer();
+  const PRECISION* vector2MemoryPointer = vector2.getMemoryPointer();
   PRECISION* resultMemoryPointer = result.getMemoryPointer();
 
 #ifdef MKL_BLAS

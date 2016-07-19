@@ -27,8 +27,6 @@ public:
   int getRealNumberOfColumns() const;
   void updateSize(int numberOfRows);
 
-  //TODO add iterators
-
   PRECISION* getMemoryPointer();
   const PRECISION* getMemoryPointer() const;
 

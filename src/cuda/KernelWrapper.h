@@ -86,9 +86,13 @@ void applyGeneticModel(const Stream& stream, const int snpToRisk[3], const Devic
 //interaction=vector1*vector2 vector1=vector2=0 if interaction!=0
 void applyAdditiveModel(const Stream& stream, DeviceVector& vector1, DeviceVector& vector2, DeviceVector& interaction);
 
-//numberOfAllelesPerGenotype=snpData(i)+3*phenotypeData(i)
+//numberOfAllelesPerGenotype[snpData(i)+3*phenotypeData(i)]++
 Container::DeviceMatrix* calculateNumberOfAllelesPerGenotype(const Stream& stream,
     const Container::DeviceVector& snpData, const Container::DeviceVector& phenotypeData);
+
+//table[phenotypeData(i) * (tableSize / 2) + snpData(i) + 2 * envData(i)]++
+Container::DeviceMatrix* calculateContingencyTable(const Stream& stream,
+    const Container::DeviceVector& snpData, const Container::DeviceVector& envData, const Container::DeviceVector& phenotypeData);
 
 } /* namespace Kernel */
 } /* namespace CUDA */

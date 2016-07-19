@@ -23,7 +23,7 @@ namespace CUDA {
  */
 class CudaContingencyTableFactory: public ContingencyTableFactory<Container::DeviceVector> {
 public:
-  explicit CudaContingencyTableFactory();
+  explicit CudaContingencyTableFactory(const Stream& stream);
   virtual ~CudaContingencyTableFactory();
 
   virtual const ContingencyTable* constructContingencyTable(
@@ -37,7 +37,7 @@ public:
   CudaContingencyTableFactory& operator=(CudaContingencyTableFactory&&) = delete;
 
 private:
-
+  const Stream& stream;
 };
 
 } /* namespace CUDA */

@@ -1,5 +1,7 @@
 #include "KernelWrapper.h"
 
+const int stepSize = 10;
+
 #include <LogisticTransform.cuh>
 #include <ElementWiseAbsoluteDifference.cuh>
 #include <LogLikelihoodParts.cuh>

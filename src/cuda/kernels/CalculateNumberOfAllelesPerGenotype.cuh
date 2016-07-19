@@ -10,8 +10,6 @@ namespace CuEira {
 namespace CUDA {
 namespace Kernel {
 
-const int stepSize = 10;
-
 /**
  * This kernel calculates the number of alleles per genotype and phenotype group, which is 6 different combinations
  *

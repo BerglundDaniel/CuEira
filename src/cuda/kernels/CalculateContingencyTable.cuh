@@ -10,15 +10,13 @@ namespace CuEira {
 namespace CUDA {
 namespace Kernel {
 
-const int stepSize = 10;
-
 /**
  * This kernel calculates the table cells for the contingency table
  *
  * @author Daniel Berglund daniel.k.berglund@gmail.com
  */__global__ void CalculateContingencyTable(const float* snpData, const float* envData, const float* phenotypeData,
     float* contigencyTable, const int length, const int numberOfBlocks){
-  __shared__ float cache[256][6]; //Row major //TODO numberOfThreadsPerBlock make a config file with numbers etc?
+  __shared__ float cache[256][8]; //Row major //TODO numberOfThreadsPerBlock make a config file with numbers etc?
   int threadId = blockDim.x * blockIdx.x + threadIdx.x;
   int cacheIndex = threadIdx.x;
 
@@ -59,7 +57,7 @@ const int stepSize = 10;
   }
 
   if(cacheIndex < 8){
-    contigencyTable[blockIdx.x + lengthAllelesPerGenotype * cacheIndex] = cache[0][cacheIndex];
+    contigencyTable[blockIdx.x + numberOfBlocks * cacheIndex] = cache[0][cacheIndex];
   }
 }
 

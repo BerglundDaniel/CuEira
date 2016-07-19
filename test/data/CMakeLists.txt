@@ -15,5 +15,6 @@ set(TEST_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/EnvironmentFactorHandlerTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DataHandlerTest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/RiskAlleleStrategyTest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/DataLocationTest.cpp
   PARENT_SCOPE
 )
